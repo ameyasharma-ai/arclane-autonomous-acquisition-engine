@@ -4,3 +4,5 @@ service_account.json
 reports/
 .DS_Store
 *.log
+raw_prompts/
+chrome_profile/

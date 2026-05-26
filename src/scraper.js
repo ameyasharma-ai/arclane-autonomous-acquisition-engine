@@ -1,40 +1,49 @@
 import { chromium } from 'playwright';
 import PQueue from 'p-queue';
 import pRetry from 'p-retry';
+import path from 'path';
 import { compressHtmlToText } from './parser.js';
 
 export class Scraper {
     constructor() {
-        this.browser = null;
+        this.context = null;
     }
 
     async init() {
-        if (!this.browser) {
-            // Using channel: 'chrome' uses your locally installed Google Chrome 
-            // instead of Playwright's bundled Chromium, which often fixes DNS/Firewall blocks.
-            this.browser = await chromium.launch({ headless: false, channel: 'chrome' });
+        if (!this.context) {
+            // Use launchPersistentContext to save logins (cookies, sessions) between runs.
+            // This creates a dedicated 'chrome_profile' folder in the project.
+            const userDataDir = path.join(process.cwd(), 'chrome_profile');
+            this.context = await chromium.launchPersistentContext(userDataDir, { 
+                headless: false, 
+                channel: 'chrome',
+                viewport: { width: 1366, height: 768 },
+                userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                // Arguments to mask automation
+                args: [
+                    '--disable-blink-features=AutomationControlled',
+                    '--no-sandbox',
+                    '--disable-infobars'
+                ]
+            });
         }
     }
 
     async close() {
-        if (this.browser) {
-            await this.browser.close();
-            this.browser = null;
+        if (this.context) {
+            await this.context.close();
+            this.context = null;
         }
     }
 
     async scrapeLead(leadData) {
-        const context = await this.browser.newContext({
-            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-        });
-        
         const results = {
             website: {},
             maps: '',
             social: {}
         };
 
-        const queue = new PQueue({ concurrency: 3 }); // Max 3 concurrent tabs
+        const queue = new PQueue({ concurrency: 2 }); // Reduced to 2 to look more human
         const visitedUrls = new Set();
 
         const safeScrape = async (url, type, name) => {
@@ -42,14 +51,42 @@ export class Scraper {
             visitedUrls.add(url);
             
             await queue.add(async () => {
-                const page = await context.newPage();
+                const page = await this.context.newPage();
+                
+                // Mask Webdriver flag to evade bot detection
+                await page.addInitScript(() => {
+                    Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+                });
+
                 try {
+                    // 1. Human-like hesitation before opening the page
+                    await page.waitForTimeout(Math.floor(Math.random() * 2000) + 1000);
+                    
                     await pRetry(async () => {
                         await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 45000 });
                     }, { retries: 2 });
                     
-                    // Simple wait to allow some JS rendering
-                    await page.waitForTimeout(2000);
+                    // 2. Human-like scrolling to trigger lazy loading and evade static bot checks
+                    await page.evaluate(async () => {
+                        await new Promise((resolve) => {
+                            let totalHeight = 0;
+                            const distance = 150;
+                            const timer = setInterval(() => {
+                                const scrollHeight = document.body.scrollHeight;
+                                window.scrollBy(0, distance);
+                                totalHeight += distance;
+                                // Stop if we reach bottom or scroll too far (prevent infinite scroll traps)
+                                if (totalHeight >= scrollHeight || totalHeight > 4000) {
+                                    clearInterval(timer);
+                                    resolve();
+                                }
+                            }, 150); // Scrolldown every 150ms
+                        });
+                    });
+                    
+                    // 3. Final human-like pause to let dynamic content render after scrolling
+                    await page.waitForTimeout(Math.floor(Math.random() * 3000) + 1500);
+
                     const html = await page.content();
                     const textContent = compressHtmlToText(html);
                     
@@ -63,7 +100,7 @@ export class Scraper {
                     if (type === 'website') {
                         results.website[name || 'homepage'] = textContent;
                     } else if (type === 'maps') {
-                        results.maps = textContent; // For maps we just grab the text for now
+                        results.maps = textContent;
                     } else if (type === 'social') {
                         results.social[name] = textContent;
                     }
@@ -99,16 +136,21 @@ export class Scraper {
             safeScrape(url, 'website', 'homepage');
         }
 
-        const socials = ['Instagram', 'Facebook', 'X (Twitter)', 'LinkedIn'];
+        const socials = ['Instagram', 'Facebook', 'X (Twitter)', 'LinkedIn', 'YouTube', 'TikTok'];
         for (const social of socials) {
             const sUrl = leadData[social];
             if (sUrl && sUrl.trim() !== '') {
-                safeScrape(sUrl, 'social', social);
+                // Handle multiple URLs in the same cell separated by commas
+                const urls = sUrl.split(',').map(u => u.trim()).filter(u => u !== '');
+                for (let i = 0; i < urls.length; i++) {
+                    // Unique name if there are multiple, e.g., 'Instagram_1'
+                    const name = urls.length > 1 ? `${social}_${i + 1}` : social;
+                    safeScrape(urls[i], 'social', name);
+                }
             }
         }
 
         await queue.onIdle();
-        await context.close();
 
         return results;
     }

@@ -1,8 +1,14 @@
 import { LLMClient } from './llm.js';
+import fs from 'fs';
+import path from 'path';
 
 export class Summarizer {
     constructor() {
         this.llmClient = new LLMClient();
+        this.rawPromptsDir = path.join(process.cwd(), 'raw_prompts');
+        if (!fs.existsSync(this.rawPromptsDir)) {
+            fs.mkdirSync(this.rawPromptsDir, { recursive: true });
+        }
     }
 
     async analyze(leadData, scrapedData) {
@@ -48,6 +54,11 @@ ${socialDataString}
 Based on the above, provide a comprehensive analysis.
 Follow the exact structural instructions provided in your system prompt.
 `;
+        
+        // Save the raw prompt for debugging
+        const clientId = leadData['Client ID'] || 'unknown';
+        const promptFilePath = path.join(this.rawPromptsDir, `ai_prompt_client_${clientId}.txt`);
+        fs.writeFileSync(promptFilePath, prompt, 'utf-8');
         
         // Rough token estimation: 1 token ≈ 4 characters
         const estimatedTokens = Math.ceil(prompt.length / 4);
