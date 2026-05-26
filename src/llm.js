@@ -1,5 +1,7 @@
 import OpenAI from 'openai';
 import pRetry from 'p-retry';
+import fs from 'fs';
+import path from 'path';
 
 export class LLMClient {
     constructor() {
@@ -8,6 +10,7 @@ export class LLMClient {
             apiKey: process.env.OPENROUTER_API_KEY,
         });
         this.model = 'openai/gpt-oss-120b';
+        this.systemPrompt = fs.readFileSync(path.join(process.cwd(), 'src', 'system_prompt.txt'), 'utf-8');
     }
 
     async generateSummary(prompt) {
@@ -17,31 +20,16 @@ export class LLMClient {
                 messages: [
                     {
                         role: "system",
-                        content: `You are an expert business analyst and CRM enrichment agent. 
-You extract structured insights from raw website and social media scraped text.
-Always reply with valid JSON. Do not include markdown formatting like \`\`\`json. 
-Just raw JSON matching the requested schema exactly.`
+                        content: this.systemPrompt
                     },
                     {
                         role: "user",
                         content: prompt
                     }
-                ],
-                // OpenRouter supports response_format for some models, but to be safe with OSS models, 
-                // we rely on the system prompt and then parse out any markdown in our code.
+                ]
             });
 
-            const content = response.choices[0].message.content;
-            
-            // Clean up any potential markdown formatting around the JSON
-            const cleanContent = content.replace(/^```json\n?/, '').replace(/```$/, '').trim();
-            
-            try {
-                return JSON.parse(cleanContent);
-            } catch (e) {
-                console.error("Failed to parse JSON from LLM response:", cleanContent);
-                throw new Error("Invalid JSON format from LLM");
-            }
+            return response.choices[0].message.content.trim();
         }, {
             retries: 3,
             onFailedAttempt: error => {

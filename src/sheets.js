@@ -83,6 +83,12 @@ export async function getLeads(sheet, startId, endId, excludedIds) {
 }
 
 export async function updateLeadNotes(row, notesContent) {
-    row.assign({ Notes: notesContent });
+    const phone = row.get('Phone/WhatsApp');
+    if (typeof phone === 'string' && phone.startsWith('+')) {
+        // Force Google Sheets to treat this as a string, preventing the + from disappearing
+        // and causing formula errors.
+        row.set('Phone/WhatsApp', `'${phone}`);
+    }
+    row.set('Notes', notesContent);
     await row.save();
 }

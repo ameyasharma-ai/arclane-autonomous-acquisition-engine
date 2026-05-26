@@ -14,5 +14,5 @@ export function compressHtmlToText(html) {
     }
     
     // Clean up whitespace
-    return content.replace(/\s+/g, ' ').trim().substring(0, 15000); // Limit size per page
+    return content.replace(/\s+/g, ' ').trim().substring(0, 100000); // Increased limit per page for huge LLM context
 }

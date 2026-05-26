@@ -6,6 +6,7 @@ import { Orchestrator } from './orchestrator.js';
 dotenv.config();
 
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
+let currentOrchestrator = null;
 
 bot.start((ctx) => ctx.reply('Welcome to the CRM Enrichment Bot. Use /analyse to start.'));
 
@@ -43,8 +44,8 @@ bot.command('analyse', async (ctx) => {
         ctx.reply(`Found ${leads.length} leads to process. Initializing Orchestrator...`);
         
         // Run in background so we don't block Telegram handling
-        const orchestrator = new Orchestrator(bot, ctx.chat.id);
-        orchestrator.processLeads(leads).catch(e => {
+        currentOrchestrator = new Orchestrator(bot, ctx.chat.id);
+        currentOrchestrator.processLeads(leads).catch(e => {
             console.error("Background processing error:", e);
             ctx.reply(`Fatal error during processing: ${e.message}`);
         });
@@ -52,6 +53,33 @@ bot.command('analyse', async (ctx) => {
     } catch (e) {
         console.error(e);
         ctx.reply(`Error initializing: ${e.message}`);
+    }
+});
+
+bot.command('pause', (ctx) => {
+    if (currentOrchestrator && currentOrchestrator.state === 'RUNNING') {
+        currentOrchestrator.state = 'PAUSED';
+        ctx.reply('⏸ Analysis paused. (Will pause after the current lead finishes).');
+    } else {
+        ctx.reply('There is no running analysis to pause.');
+    }
+});
+
+bot.command('resume', (ctx) => {
+    if (currentOrchestrator && currentOrchestrator.state === 'PAUSED') {
+        currentOrchestrator.state = 'RUNNING';
+        ctx.reply('▶️ Analysis resumed!');
+    } else {
+        ctx.reply('There is no paused analysis to resume.');
+    }
+});
+
+bot.command('stop', (ctx) => {
+    if (currentOrchestrator && (currentOrchestrator.state === 'RUNNING' || currentOrchestrator.state === 'PAUSED')) {
+        currentOrchestrator.state = 'STOPPED';
+        ctx.reply('🛑 Analysis stopped. (Will stop entirely after the current lead safely finishes).');
+    } else {
+        ctx.reply('There is no running analysis to stop.');
     }
 });
 

@@ -11,6 +11,7 @@ export class Orchestrator {
         this.scraper = new Scraper();
         this.summarizer = new Summarizer();
         this.reportsDir = path.join(process.cwd(), 'reports');
+        this.state = 'RUNNING'; // Can be 'RUNNING', 'PAUSED', or 'STOPPED'
         
         if (!fs.existsSync(this.reportsDir)) {
             fs.mkdirSync(this.reportsDir, { recursive: true });
@@ -34,6 +35,15 @@ export class Orchestrator {
 
         let count = 0;
         for (const lead of leads) {
+            // Check state before starting the next lead
+            while (this.state === 'PAUSED') {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+            if (this.state === 'STOPPED') {
+                await this.sendStatus(`🛑 Analysis stopped by user.`);
+                break;
+            }
+
             count++;
             const clientId = lead.clientId;
             const businessName = lead.data['Business Name'] || `Client ${clientId}`;
@@ -45,12 +55,12 @@ export class Orchestrator {
                 const scrapedData = await this.scraper.scrapeLead(lead.data);
                 
                 // 2. Summarize
-                const jsonReport = await this.summarizer.analyze(lead.data, scrapedData);
+                const textReport = await this.summarizer.analyze(lead.data, scrapedData);
                 
                 // 3. Save to local dir
                 const reportFileName = `${clientId}.txt`;
                 const reportPath = path.join(this.reportsDir, reportFileName);
-                fs.writeFileSync(reportPath, JSON.stringify(jsonReport, null, 2), 'utf-8');
+                fs.writeFileSync(reportPath, textReport, 'utf-8');
                 
                 // 4. Update Google Sheet Notes column
                 await updateLeadNotes(lead.row, reportFileName);

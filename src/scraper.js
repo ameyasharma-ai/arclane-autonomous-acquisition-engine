@@ -10,7 +10,9 @@ export class Scraper {
 
     async init() {
         if (!this.browser) {
-            this.browser = await chromium.launch({ headless: false });
+            // Using channel: 'chrome' uses your locally installed Google Chrome 
+            // instead of Playwright's bundled Chromium, which often fixes DNS/Firewall blocks.
+            this.browser = await chromium.launch({ headless: false, channel: 'chrome' });
         }
     }
 
@@ -43,13 +45,20 @@ export class Scraper {
                 const page = await context.newPage();
                 try {
                     await pRetry(async () => {
-                        await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 15000 });
+                        await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 45000 });
                     }, { retries: 2 });
                     
                     // Simple wait to allow some JS rendering
                     await page.waitForTimeout(2000);
                     const html = await page.content();
                     const textContent = compressHtmlToText(html);
+                    
+                    if (textContent && textContent.trim().length > 0) {
+                        const preview = textContent.substring(0, 60).replace(/\n/g, ' ');
+                        console.log(`[Scraper] ✅ Successfully scraped ${type}: ${name || url} | Preview: "${preview}..."`);
+                    } else {
+                        console.log(`[Scraper] ⚠️ Loaded ${type} (${name || url}) but found no usable text content.`);
+                    }
                     
                     if (type === 'website') {
                         results.website[name || 'homepage'] = textContent;
@@ -88,11 +97,6 @@ export class Scraper {
         const url = leadData['Website URL'];
         if (url && url.trim() !== '') {
             safeScrape(url, 'website', 'homepage');
-        }
-
-        const mapsUrl = leadData['Maps URL'];
-        if (mapsUrl && mapsUrl.trim() !== '') {
-            safeScrape(mapsUrl, 'maps', 'maps');
         }
 
         const socials = ['Instagram', 'Facebook', 'X (Twitter)', 'LinkedIn'];
