@@ -71,10 +71,11 @@ export async function getLeads(sheet, startId, endId, excludedIds) {
         // Skip if Notes cell is not empty
         if (rowData['Notes'] && rowData['Notes'].trim() !== '') continue;
 
-        // Attach the actual row object so we can update it later
+        // Attach the actual row object and sheet so we can update it later
         filteredLeads.push({
             data: rowData,
             row: row,
+            sheet: sheet,
             clientId: clientId
         });
     }
@@ -82,13 +83,26 @@ export async function getLeads(sheet, startId, endId, excludedIds) {
     return filteredLeads;
 }
 
-export async function updateLeadNotes(row, notesContent) {
-    const phone = row.get('Phone/WhatsApp');
-    if (typeof phone === 'string' && phone.startsWith('+')) {
-        // Force Google Sheets to treat this as a string, preventing the + from disappearing
-        // and causing formula errors.
-        row.set('Phone/WhatsApp', `'${phone}`);
+export async function updateLeadNotes(lead, notesContent) {
+    const sheet = lead.sheet;
+    const row = lead.row;
+    const rowIndex = row.rowNumber - 1; // 0-indexed API
+
+    // Load only the specific row
+    await sheet.loadCells({
+        startRowIndex: rowIndex,
+        endRowIndex: rowIndex + 1,
+        startColumnIndex: 0,
+        endColumnIndex: sheet.columnCount
+    });
+
+    // Find the Notes column
+    const headerValues = sheet.headerValues;
+    const notesColIndex = headerValues.indexOf('Notes');
+    
+    if (notesColIndex !== -1) {
+        const cell = sheet.getCell(rowIndex, notesColIndex);
+        cell.value = notesContent;
+        await sheet.saveUpdatedCells();
     }
-    row.set('Notes', notesContent);
-    await row.save();
 }

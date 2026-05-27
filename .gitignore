@@ -6,3 +6,5 @@ reports/
 *.log
 raw_prompts/
 chrome_profile/
+__pycache__/
+*.pyc

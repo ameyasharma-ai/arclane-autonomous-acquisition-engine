@@ -63,7 +63,7 @@ export class Orchestrator {
                 fs.writeFileSync(reportPath, textReport, 'utf-8');
                 
                 // 4. Update Google Sheet Notes column
-                await updateLeadNotes(lead.row, reportFileName);
+                await updateLeadNotes(lead, reportFileName);
                 
                 await this.sendStatus(`✅ Successfully processed ${businessName}`);
             } catch (error) {

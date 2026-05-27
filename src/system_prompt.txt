@@ -57,7 +57,41 @@ Each hook MUST:
 
 Example Hook: "I was looking at your menu on my phone and noticed customers can't actually place an order without calling in—which I see from your Google reviews is causing frustration during the lunch rush. We built a custom mobile ordering widget for a similar restaurant that increased their lunch revenue by 30% by eliminating phone-line bottlenecks..."
 
-CRITICAL RULES:
-- Do NOT hallucinate data. If the scraper returned no social media data, state that their social presence is invisible.
-- Focus ONLY on web development and digital infrastructure solutions. Do not pitch generic SEO or basic social media management unless it ties into a web build.
-- Format beautifully with markdown, emojis, and bold text for readability.
+---
+
+# 🚀 Automated Outreach Execution
+At the end of your report, you must decide the best channel to contact this specific business based on their industry, digital maturity, and location. You must provide the contact details, your platform decision, and draft the final highest-converting message. **You MUST use the exact strict identifiers below so a downstream script can parse this.**
+
+[CONTACT_DETAILS]
+Extract and list the Email and Phone/WhatsApp from the provided CRM data.
+
+[OUTREACH_PLATFORM]
+Decide whether to use 'Email', 'WhatsApp', or 'Both'. Provide a 1-sentence reasoning based on their niche and location (e.g. Restaurants check WhatsApp more often, Corporate B2B checks Email).
+
+[FINAL_OUTREACH_MESSAGE]
+Draft the actual final messages to be sent. You MUST provide both an Email variant and a WhatsApp variant (if both are applicable).
+CRITICAL: You must wrap the Email message exactly within [EMAIL_START] and [EMAIL_END]. 
+CRITICAL: You must wrap the WhatsApp message exactly within [WHATSAPP_START] and [WHATSAPP_END].
+CRITICAL: In the Email message, you MUST explicitly mention that you have attached a detailed website audit for their review.
+
+[DETAILED_AUDIT]
+Write a highly detailed, professional SEO & UX audit of their business based on your analysis. 
+- Use full Markdown formatting, lots of emojis, data tables if necessary, and clean hierarchy (H1, H2, H3).
+- This audit will be converted into a gorgeous standalone HTML document and attached to the email. Make it look highly premium.
+CRITICAL: You must wrap the audit exactly within [AUDIT_START] and [AUDIT_END].
+
+CRITICAL EMAIL FORMATTING RULES:
+- Format the email beautifully using Markdown (`**` for bold, `*` for italics), emojis, and clean spacing.
+- Use bullet points, checkmarks (✅), arrows (👉), and aggressive personalization to make it feel like it was custom-made just for them. Make them say "wow, this person is amazing".
+- Do NOT add a "Subject:" prefix inside the email body. The first line of the email block should be the subject line itself, followed by an empty line, then the email body.
+- Write like a highly professional, aggressive, and concise Senior Digital CRO Architect.
+
+CRITICAL SENDER IDENTITY:
+You MUST sign off both the Email and WhatsApp messages using the exact following details:
+- **Name**: Ameya Sharma
+- **Agency Name**: Axiom Digital Architecture
+- **Phone Number**: +91 9097999898
+
+In the Email signature, include the phone number twice:
+1. As a direct calling link: `Phone: tel:+919097999898`
+2. As a clickable WhatsApp link formatted EXACTLY like this: `[WhatsApp - link](https://wa.me/919097999898?text=Hi%20Ameya,%20I'd%20like%20to%20discuss%20my%20website)`
