@@ -4,6 +4,8 @@ import glob
 import smtplib
 import gspread
 import markdown
+import io
+from xhtml2pdf import pisa
 from email.message import EmailMessage
 from google.oauth2.service_account import Credentials
 from dotenv import load_dotenv
@@ -136,7 +138,7 @@ def parse_reports(exclude_ids=None):
     return parsed_leads
 
 def send_email(target_email, subject, body, audit_text=None):
-    """Sends an email using Gmail SMTP with both plain-text and gorgeous HTML versions, and attaches an HTML audit file."""
+    """Sends an email using Gmail SMTP with both plain-text and gorgeous HTML versions, and attaches a PDF audit file."""
     msg = EmailMessage()
     msg['Subject'] = subject
     msg['From'] = GMAIL_ADDRESS
@@ -146,10 +148,7 @@ def send_email(target_email, subject, body, audit_text=None):
     msg.set_content(body)
     
     # HTML Version using Markdown
-    # This automatically converts markdown (**bold**, bullet points) into <b> and <ul>
     html_body = markdown.markdown(body, extensions=['extra', 'nl2br'])
-    
-    # Convert raw tel: links to clickable phone numbers
     html_body = re.sub(r'tel:(\+?\d+)', r'<a href="tel:\1" style="color: #1a73e8; text-decoration: none;">\1</a>', html_body)
     
     html_content = f"""
@@ -162,7 +161,7 @@ def send_email(target_email, subject, body, audit_text=None):
     
     msg.add_alternative(html_content, subtype='html')
 
-    # Attach the audit text as a beautifully formatted HTML file
+    # Attach the audit text as a beautifully formatted PDF file
     if audit_text:
         audit_html = markdown.markdown(audit_text, extensions=['extra', 'tables'])
         
@@ -174,7 +173,7 @@ def send_email(target_email, subject, body, audit_text=None):
             <title>Website UX & SEO Audit</title>
             <style>
                 body {{ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.8; color: #111827; max-width: 800px; margin: 0 auto; padding: 40px; background-color: #f3f4f6; }}
-                .container {{ background: white; padding: 50px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); border-top: 6px solid #2563eb; }}
+                .container {{ background: white; padding: 50px; border-radius: 12px; border-top: 6px solid #2563eb; }}
                 h1, h2, h3 {{ color: #1e3a8a; margin-top: 30px; }}
                 h1 {{ font-size: 2.2em; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px; }}
                 ul, ol {{ padding-left: 20px; }}
@@ -195,12 +194,24 @@ def send_email(target_email, subject, body, audit_text=None):
         </html>
         """
         
-        msg.add_attachment(
-            premium_html_attachment.encode('utf-8'),
-            maintype='text',
-            subtype='html',
-            filename='Website_UX_SEO_Audit.html'
-        )
+        pdf_buffer = io.BytesIO()
+        pisa_status = pisa.CreatePDF(premium_html_attachment, dest=pdf_buffer)
+        
+        if not pisa_status.err:
+            msg.add_attachment(
+                pdf_buffer.getvalue(),
+                maintype='application',
+                subtype='pdf',
+                filename='Website_UX_SEO_Audit.pdf'
+            )
+        else:
+            # Fallback to HTML if PDF fails
+            msg.add_attachment(
+                premium_html_attachment.encode('utf-8'),
+                maintype='text',
+                subtype='html',
+                filename='Website_UX_SEO_Audit.html'
+            )
 
     try:
         server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
@@ -234,7 +245,7 @@ def update_crm(client_id):
         return False, str(e)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("🤖 Sales Outreach Bot v6 (Premium HTML Sender) is online.\nUse /scan to view clickable leads.")
+    await update.message.reply_text("🤖 Sales Outreach Bot v7 (Premium PDF Sender) is online.\nUse /scan to view clickable leads.")
 
 async def scan(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("🔄 Syncing with CRM to filter out already-sent leads...")
@@ -285,7 +296,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             return
             
         email_str = ", ".join(selected['email'])
-        audit_status = "✅ Generated (Premium HTML)" if selected.get('audit_text') else "❌ None"
+        audit_status = "✅ Generated (Premium PDF)" if selected.get('audit_text') else "❌ None"
         
         preview_text = (
             f"📋 **Lead ID:** {selected['client_id']}\n"
@@ -349,7 +360,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if all_success:
             response_text = f"✅ Sent to {', '.join(emails_to_send)}!\n"
             if selected.get('audit_text'):
-                response_text += "📎 Premium HTML Audit Attached!\n"
+                response_text += "📎 Premium PDF Audit Attached!\n"
             # Update CRM
             crm_success, crm_msg = update_crm(client_id)
             if crm_success:
@@ -371,7 +382,7 @@ if __name__ == '__main__':
         print("Error: TELEGRAM_SALES_BOT_TOKEN not set in .env")
         exit(1)
         
-    print("Starting Sales Telegram Bot v6 (Premium HTML Sender)...")
+    print("Starting Sales Telegram Bot v7 (Premium PDF Sender)...")
     app = Application.builder().token(TELEGRAM_TOKEN).build()
 
     app.add_handler(CommandHandler("start", start))

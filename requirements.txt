@@ -2,3 +2,5 @@ python-telegram-bot==22.7
 python-dotenv==1.0.1
 gspread==6.1.2
 google-auth>=2.48.1
+markdown==3.7
+xhtml2pdf==0.2.17
