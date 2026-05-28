@@ -5,6 +5,8 @@ import smtplib
 import gspread
 import markdown
 import io
+import asyncio
+import random
 from xhtml2pdf import pisa
 from email.message import EmailMessage
 from google.oauth2.service_account import Credentials
@@ -205,7 +207,6 @@ def send_email(target_email, subject, body, audit_text=None):
                 filename='Website_UX_SEO_Audit.pdf'
             )
         else:
-            # Fallback to HTML if PDF fails
             msg.add_attachment(
                 premium_html_attachment.encode('utf-8'),
                 maintype='text',
@@ -245,50 +246,146 @@ def update_crm(client_id):
         return False, str(e)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("🤖 Sales Outreach Bot v7 (Premium PDF Sender) is online.\nUse /scan to view clickable leads.")
+    await update.message.reply_text("🤖 Sales Outreach Bot v8 (Bulk Sender) is online.\nUse /scan or /scan range [x:y] -{a,b,c} to view leads.")
 
 async def scan(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    msg_text = update.message.text.strip()
+    
+    start_id = None
+    end_id = None
+    exclude_args = []
+    is_batch_mode = False
+    
+    # Parse range if provided, e.g. /scan range [1:50] -{5,10}
+    if "range" in msg_text.lower():
+        range_match = re.search(r'\[(\d+):(\d+)\]', msg_text)
+        if range_match:
+            start_id = int(range_match.group(1))
+            end_id = int(range_match.group(2))
+            is_batch_mode = True
+            
+        excl_match = re.search(r'-\{([0-9, ]+)\}', msg_text)
+        if excl_match:
+            exclude_args = [int(x.strip()) for x in excl_match.group(1).split(',')]
+            
     await update.message.reply_text("🔄 Syncing with CRM to filter out already-sent leads...")
     
     sent_ids = get_sent_ids()
     leads = parse_reports(exclude_ids=sent_ids)
     
+    if is_batch_mode:
+        filtered_leads = []
+        for lead in leads:
+            try:
+                cid = int(lead['client_id'])
+                if start_id <= cid <= end_id and cid not in exclude_args:
+                    filtered_leads.append(lead)
+            except ValueError:
+                pass
+        leads = filtered_leads
+        
     if not leads:
-        await update.message.reply_text("🔍 Scanned reports but found 0 valid unsent Email leads.")
+        await update.message.reply_text("🔍 Scanned reports but found 0 valid unsent Email leads matching that criteria.")
         return
         
     keyboard = []
-    text = f"🔍 Found {len(leads)} unsent leads ready for Email outreach:\n\n"
     
-    for lead in leads:
-        email_str = lead['email'][0]
-        if len(lead['email']) > 1:
-            email_str += f" (+{len(lead['email'])-1} more)"
+    if is_batch_mode:
+        text = f"🔍 **BATCH MODE**\nFound {len(leads)} unsent leads in range [{start_id}:{end_id}]"
+        if exclude_args:
+            text += f"\nExcluded: {', '.join(map(str, exclude_args))}"
+        text += "\n\n"
         
-        audit_tag = " [📎 Audit Attached]" if lead.get('audit_text') else ""
-        text += f"ID: {lead['client_id']} - {email_str}{audit_tag}\n"
-        # Create a button for each lead
-        keyboard.append([InlineKeyboardButton(f"Preview Lead {lead['client_id']}", callback_data=f"select_{lead['client_id']}")])
+        # We store the IDs in context so we bypass the 64-byte callback limit
+        context.user_data['current_batch_leads'] = [l['client_id'] for l in leads]
+        keyboard.append([InlineKeyboardButton(f"🚀 Approve & Send Batch ({len(leads)} Leads)", callback_data="approve_batch_current")])
+        keyboard.append([InlineKeyboardButton("❌ Cancel", callback_data="cancel_batch")])
+        
+    else:
+        # Standard individual mode
+        text = f"🔍 Found {len(leads)} unsent leads ready for Email outreach:\n\n"
+        for lead in leads:
+            email_str = lead['email'][0]
+            if len(lead['email']) > 1:
+                email_str += f" (+{len(lead['email'])-1} more)"
+            
+            audit_tag = " [📎 Audit Attached]" if lead.get('audit_text') else ""
+            text += f"ID: {lead['client_id']} - {email_str}{audit_tag}\n"
+            keyboard.append([InlineKeyboardButton(f"Preview Lead {lead['client_id']}", callback_data=f"select_{lead['client_id']}")])
 
     reply_markup = InlineKeyboardMarkup(keyboard)
     await update.message.reply_text(text, reply_markup=reply_markup)
 
+async def background_batch_sender(update: Update, context: ContextTypes.DEFAULT_TYPE, batch_ids: list):
+    chat_id = update.effective_chat.id
+    sent_count = 0
+    
+    await context.bot.send_message(chat_id, "⏳ Background dispatch started. I will send a status update every time an email goes out. (Delay: 10-30s between emails).")
+    
+    for i, client_id in enumerate(batch_ids):
+        leads = parse_reports()
+        selected = next((l for l in leads if str(l['client_id']) == str(client_id)), None)
+        
+        if not selected:
+            await context.bot.send_message(chat_id, f"⚠️ Lead {client_id} data lost. Skipping.")
+            continue
+            
+        sent_ids = get_sent_ids()
+        if str(client_id) in sent_ids:
+            await context.bot.send_message(chat_id, f"⏭️ Lead {client_id} already emailed. Skipping.")
+            continue
+            
+        # Send to all emails
+        emails_to_send = selected['email']
+        all_success = True
+        errs = []
+        for email_addr in emails_to_send:
+            success, error_msg = send_email(email_addr, selected['subject'], selected['message'], selected.get('audit_text'))
+            if not success:
+                all_success = False
+                errs.append(f"{email_addr}: {error_msg}")
+                
+        if all_success:
+            update_crm(client_id)
+            sent_count += 1
+            await context.bot.send_message(chat_id, f"✅ [{i+1}/{len(batch_ids)}] Successfully sent to Lead {client_id} ({', '.join(emails_to_send)})")
+        else:
+            await context.bot.send_message(chat_id, f"❌ [{i+1}/{len(batch_ids)}] Failed for Lead {client_id}: {', '.join(errs)}")
+            
+        # Random delay before next one (if not the last one)
+        if i < len(batch_ids) - 1:
+            delay = random.randint(10, 30)
+            await asyncio.sleep(delay)
+            
+    await context.bot.send_message(chat_id, f"🎉 Batch Complete! Successfully processed {sent_count}/{len(batch_ids)} leads.")
+
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
-    await query.answer() # Acknowledge the button click
+    await query.answer() 
     
     data = query.data
     
-    if data.startswith("select_"):
+    if data == "approve_batch_current":
+        batch_ids = context.user_data.get('current_batch_leads', [])
+        if not batch_ids:
+            await query.edit_message_text("❌ Batch expired or not found.")
+            return
+            
+        await query.edit_message_text(f"🚀 Launching background dispatcher for {len(batch_ids)} leads...")
+        asyncio.create_task(background_batch_sender(update, context, batch_ids))
+        
+    elif data == "cancel_batch":
+        await query.edit_message_text("❌ Batch canceled.")
+        
+    elif data.startswith("select_"):
         client_id = data.split("_")[1]
         
-        # Double check it wasn't sent in the meantime
         sent_ids = get_sent_ids()
         if client_id in sent_ids:
             await query.edit_message_text(f"❌ Lead {client_id} was already emailed! (Checked CRM)")
             return
             
-        leads = parse_reports() # Don't pass exclude_ids here so we can still pull the file data
+        leads = parse_reports()
         selected = next((l for l in leads if str(l['client_id']) == client_id), None)
         
         if not selected:
@@ -307,7 +404,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"📝 **Message Draft:**\n\n{selected['message']}"
         )
         
-        # Build dynamic Appprove buttons for multiple emails
         keyboard = []
         if len(selected['email']) > 1:
             for i, email in enumerate(selected['email']):
@@ -326,7 +422,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         client_id = parts[1]
         target_idx = parts[2]
         
-        # Triple check to prevent duplicates if user double-clicks!
         sent_ids = get_sent_ids()
         if client_id in sent_ids:
             await query.edit_message_text(f"⚠️ Email was already sent to Lead {client_id}!")
@@ -339,7 +434,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await query.edit_message_text("❌ Lead data lost.")
             return
             
-        # Determine which emails to send to
         emails_to_send = []
         if target_idx == "all":
             emails_to_send = selected['email']
@@ -348,7 +442,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             
         await query.edit_message_text(f"🚀 Sending email to {len(emails_to_send)} recipient(s) for Lead {client_id}...")
         
-        # Send emails individually so they don't see each other in CC/To
         all_success = True
         err_msgs = []
         for email_addr in emails_to_send:
@@ -361,7 +454,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             response_text = f"✅ Sent to {', '.join(emails_to_send)}!\n"
             if selected.get('audit_text'):
                 response_text += "📎 Premium PDF Audit Attached!\n"
-            # Update CRM
             crm_success, crm_msg = update_crm(client_id)
             if crm_success:
                 response_text += "✅ CRM Updated with 'email-sent'"
@@ -382,7 +474,7 @@ if __name__ == '__main__':
         print("Error: TELEGRAM_SALES_BOT_TOKEN not set in .env")
         exit(1)
         
-    print("Starting Sales Telegram Bot v7 (Premium PDF Sender)...")
+    print("Starting Sales Telegram Bot v8 (Bulk Sender)...")
     app = Application.builder().token(TELEGRAM_TOKEN).build()
 
     app.add_handler(CommandHandler("start", start))
