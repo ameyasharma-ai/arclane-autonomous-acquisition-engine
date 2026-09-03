@@ -2,13 +2,39 @@ import { Telegraf } from 'telegraf';
 import dotenv from 'dotenv';
 import { loadGoogleSheet, getLeads } from './sheets.js';
 import { Orchestrator } from './orchestrator.js';
+import { WebsiteBuilder } from './builder.js';
 
 dotenv.config();
 
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
 let currentOrchestrator = null;
 
-bot.start((ctx) => ctx.reply('Welcome to the CRM Enrichment Bot. Use /analyse to start.'));
+bot.start((ctx) => ctx.reply('Welcome to the CRM Enrichment & Website Builder Bot.\n\nCommands:\n• /analyse --range [x:y] - Run deep CRO/strategy analysis\n• build_<id>.txt or /build <id> - Build & deploy custom website via Antigravity Prompt\n• /pause, /resume, /stop - Manage running analysis'));
+
+// Handler for build_<id>.txt or /build <id>
+async function handleBuildRequest(ctx, text) {
+    const match = text.match(/(?:build_|\/build\s+|\/build_)(\d+)(?:\.txt)?/i);
+    if (!match) return;
+
+    const clientId = parseInt(match[1], 10);
+    console.log(`[Bot] Received build request for Client ID: ${clientId}`);
+
+    const builder = new WebsiteBuilder(bot, ctx.chat.id);
+    builder.buildClientWebsite(clientId).catch(e => {
+        console.error(`Error building website for Client ${clientId}:`, e);
+        ctx.reply(`❌ Build failed for Client ${clientId}: ${e.message}`);
+    });
+}
+
+bot.command('build', async (ctx) => {
+    await handleBuildRequest(ctx, ctx.message.text);
+});
+
+// Match raw text messages like "build_1.txt" or "build_1"
+bot.hears(/(?:build_|\/build\s+|\/build_)(\d+)(?:\.txt)?/i, async (ctx) => {
+    await handleBuildRequest(ctx, ctx.message.text);
+});
+
 
 bot.command('analyse', async (ctx) => {
     const text = ctx.message.text;

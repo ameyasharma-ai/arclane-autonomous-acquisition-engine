@@ -127,6 +127,11 @@ def parse_reports(exclude_ids=None):
                     if subject_match:
                         subject = subject_match.group(1).strip()
                         email_body = subject_match.group(2).strip()
+                        
+                    whatsapp_body = ""
+                    whatsapp_block_match = re.search(r'\[WHATSAPP_START\](.*?)\[WHATSAPP_END\]', content, re.DOTALL)
+                    if whatsapp_block_match:
+                        whatsapp_body = whatsapp_block_match.group(1).strip()
 
                     parsed_leads.append({
                         'client_id': client_id,
@@ -134,6 +139,7 @@ def parse_reports(exclude_ids=None):
                         'platform_reasoning': platform_text,
                         'subject': subject,
                         'message': email_body,
+                        'whatsapp_message': whatsapp_body,
                         'audit_text': audit_text
                     })
                 
@@ -395,13 +401,16 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         email_str = ", ".join(selected['email'])
         audit_status = "✅ Generated (Premium PDF)" if selected.get('audit_text') else "❌ None"
         
+        whatsapp_draft = selected.get('whatsapp_message', '')
+        whatsapp_text = f"\n\n📱 **WhatsApp Draft:**\n\n{whatsapp_draft}" if whatsapp_draft else ""
+        
         preview_text = (
             f"📋 **Lead ID:** {selected['client_id']}\n"
             f"📧 **Target Emails:** {email_str}\n"
             f"📎 **Audit File:** {audit_status}\n"
             f"🤖 **AI Reasoning:** {selected['platform_reasoning']}\n\n"
             f"**Subject:** {selected['subject']}\n\n"
-            f"📝 **Message Draft:**\n\n{selected['message']}"
+            f"📝 **Email Draft:**\n\n{selected['message']}{whatsapp_text}"
         )
         
         keyboard = []

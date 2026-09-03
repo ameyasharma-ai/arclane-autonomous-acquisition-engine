@@ -1,0 +1,51 @@
+[CONTACT_DETAILS]
+Email: Not available.
+Phone: +91 93340 80901
+WhatsApp: +91 93340 80901
+
+[OUTREACH_PLATFORM]
+WhatsApp: Direct WhatsApp messaging is ideal given the active phone contact and high mobile engagement among fitness enthusiasts in Patna.
+
+[FINAL_OUTREACH_MESSAGE]
+
+[EMAIL_START]
+Subject: Custom Website Concept for DOYEN THE GYM – Patna
+
+Hello DOYEN THE GYM,
+
+I came across your Google Business profile and noticed your strong reputation in Patna. To help you capture more direct customer inquiries and provide a modern digital storefront for your members, our team has designed a live, custom website demo tailored specifically for DOYEN THE GYM.
+
+Website Demo Link: https://client1-delta-three.vercel.app
+
+This website is fully customizable to your training programs, facility highlights, and inquiry workflows. I have also attached a comprehensive 14-point Website Strategy, UI/UX Architecture, and Local SEO Audit document for your review.
+
+If you'd like to walk through the demo together and discuss how we can tailor it to grow your membership, let's connect on a quick 10-minute call:
+Book a Call: https://calendly.com/sharmaameya999/30min
+
+Alternatively, feel free to reply directly to this email or message me on WhatsApp.
+
+Best regards,
+Ameya Sharma
+Website: [your-website-link]
+Phone: tel:+919097999898
+WhatsApp: [Chat on WhatsApp](https://wa.me/919097999898?text=Hi%20Ameya,%20I'd%20like%20to%20discuss%20the%20website%20demo%20for%20my%20business)
+[EMAIL_END]
+
+[WHATSAPP_START]
+Hello, maine apka Google business page visit kiya tha aur apke business (DOYEN THE GYM) ke liye ek custom website demo design ki hai.
+
+Website Demo: https://client1-delta-three.vercel.app
+
+Apke business ke hisab se fully customisable website hai jo direct customer calls aur membership inquiries ko convert karne ke liye optimized hai.
+
+Maine apke business ke liye ek detailed Website Strategy & Local SEO Audit bhi prepare kiya hai.
+
+Agar aapko demo pasand aaye, to kya hum ek quick 5-10 minute ki call par connect kar sakte hain jahan main apko walkthrough de sakun?
+
+Aap direct call/message kar sakte hain ya meeting schedule kar sakte hain:
+https://calendly.com/sharmaameya999/30min
+
+Best regards,
+Ameya Sharma
+Phone: +91 9097999898
+[WHATSAPP_END]
