@@ -52,6 +52,7 @@ export async function loadGoogleSheet() {
 export async function getLeads(sheet, startId, endId, excludedIds) {
     const rows = await sheet.getRows();
     const filteredLeads = [];
+    let alreadyProcessedCount = 0;
 
     for (const row of rows) {
         const rowData = row.toObject();
@@ -68,8 +69,11 @@ export async function getLeads(sheet, startId, endId, excludedIds) {
         // Check excluded
         if (excludedIds && excludedIds.includes(clientId)) continue;
 
-        // Skip if Notes cell is not empty
-        if (rowData['Notes'] && rowData['Notes'].trim() !== '') continue;
+        // Failsafe: Skip if Notes cell is not empty (already processed)
+        if (rowData['Notes'] && rowData['Notes'].trim() !== '') {
+            alreadyProcessedCount++;
+            continue;
+        }
 
         // Attach the actual row object and sheet so we can update it later
         filteredLeads.push({
@@ -80,6 +84,7 @@ export async function getLeads(sheet, startId, endId, excludedIds) {
         });
     }
 
+    console.log(`[Sheets] Lead Scan: Found ${filteredLeads.length} new leads to process (${alreadyProcessedCount} already processed leads with notes skipped).`);
     return filteredLeads;
 }
 

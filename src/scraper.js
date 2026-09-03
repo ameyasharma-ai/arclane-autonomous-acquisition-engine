@@ -15,7 +15,7 @@ export class Scraper {
             // This creates a dedicated 'chrome_profile' folder in the project.
             const userDataDir = path.join(process.cwd(), 'chrome_profile');
             this.context = await chromium.launchPersistentContext(userDataDir, { 
-                headless: false, 
+                headless: true, 
                 channel: 'chrome',
                 viewport: { width: 1366, height: 768 },
                 userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',

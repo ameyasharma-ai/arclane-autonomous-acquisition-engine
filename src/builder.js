@@ -35,13 +35,40 @@ export class WebsiteBuilder {
         }
     }
 
-    async buildClientWebsite(clientId) {
+    async buildClientWebsite(clientId, force = false) {
         const reportPath = path.join(this.reportsDir, `${clientId}.txt`);
         if (!fs.existsSync(reportPath)) {
             throw new Error(`Report file reports/${clientId}.txt not found. Please run /analyse first.`);
         }
 
         const reportContent = fs.readFileSync(reportPath, 'utf-8');
+
+        // Extract Business Name
+        let businessName = `Client ${clientId}`;
+        const nameMatch = reportContent.match(/\*\*Business Name:\*\*\s*(.+)/i) || reportContent.match(/REPORT:\s*(.+)/i);
+        if (nameMatch) {
+            businessName = nameMatch[1].replace(/[*#]/g, '').trim();
+        }
+
+        // Failsafe: Check if client website is already built and live
+        const reportsFinalPath = path.join(this.reportsDir, `final_${clientId}.txt`);
+        if (fs.existsSync(reportsFinalPath) && !force) {
+            const existingFinalContent = fs.readFileSync(reportsFinalPath, 'utf-8');
+            const existingUrlMatch = existingFinalContent.match(/https:\/\/[a-zA-Z0-9-.]+\.vercel\.app/i);
+            if (existingUrlMatch) {
+                const liveUrl = existingUrlMatch[0];
+                await this.sendStatus(`⏭️ *Lead ${clientId} (${businessName}) is already built & deployed!* \n\n` +
+                    `🔗 *Live Website:* ${liveUrl}\n` +
+                    `📄 *Final file:* \`final_${clientId}.txt\` is ready to dispatch.\n\n` +
+                    `💡 *(To force rebuild from scratch, send: \`build_${clientId}.txt --force\`)*`);
+                return {
+                    clientId,
+                    businessName,
+                    deployedUrl: liveUrl,
+                    alreadyBuilt: true
+                };
+            }
+        }
 
         // 1. Extract Antigravity Prompt
         let antigravityPrompt = "";
@@ -58,13 +85,6 @@ export class WebsiteBuilder {
             }
         }
 
-        // Extract Business Name
-        let businessName = `Client ${clientId}`;
-        const nameMatch = reportContent.match(/\*\*Business Name:\*\*\s*(.+)/i) || reportContent.match(/REPORT:\s*(.+)/i);
-        if (nameMatch) {
-            businessName = nameMatch[1].replace(/[*#]/g, '').trim();
-        }
-
         await this.sendStatus(`🚀 *[1/4] Generating Website Code for ${businessName}...*\nUsing Antigravity Prompt from reports/${clientId}.txt`);
 
         // 2. Generate Code using LLM
@@ -79,37 +99,50 @@ export class WebsiteBuilder {
             htmlCode = htmlCode.replace(/^```[\w]*\s*/i, '').replace(/\s*```$/i, '').trim();
         }
 
-        // 3. Save to generated_sites/client_${clientId}
-        const clientSiteDir = path.join(this.sitesDir, `client_${clientId}`);
+        // 3. Save to generated_sites/<repoSlug>
+        const repoSlug = `${businessName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-website`.replace(/^-+|-+$/g, '');
+        let githubRepoUrl = `https://github.com/ameyasharma-ai/${repoSlug}`;
+
+        const clientSiteDir = path.join(this.sitesDir, repoSlug);
         if (!fs.existsSync(clientSiteDir)) {
             fs.mkdirSync(clientSiteDir, { recursive: true });
         }
         const htmlFilePath = path.join(clientSiteDir, 'index.html');
         fs.writeFileSync(htmlFilePath, htmlCode, 'utf-8');
 
-        await this.sendStatus(`✅ *[2/4] Code Generated Successfully!*\nSaved locally to \`generated_sites/client_${clientId}/index.html\``);
+        // Write package.json so Vercel registers the exact business name
+        fs.writeFileSync(path.join(clientSiteDir, 'package.json'), JSON.stringify({ name: repoSlug, version: "1.0.0" }, null, 2), 'utf-8');
+
+        await this.sendStatus(`✅ *[2/4] Code Generated Successfully!*\nSaved locally to \`generated_sites/${repoSlug}/index.html\``);
 
         // 4. Git & GitHub Hosting
-        const repoSlug = `${businessName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-website`.replace(/^-+|-+$/g, '');
-        let githubRepoUrl = `https://github.com/ameyasharma-ai/${repoSlug}`;
-
         await this.sendStatus(`📦 *[3/4] Publishing to GitHub & Deploying to Vercel...*`);
         try {
             await execAsync(`git init`, { cwd: clientSiteDir });
             await execAsync(`git add .`, { cwd: clientSiteDir });
-            await execAsync(`git commit -m "Initial commit for ${businessName}"`, { cwd: clientSiteDir });
-            
-            // Try to create and push to GitHub repository via GitHub CLI
             try {
-                const { stdout: ghOut } = await execAsync(`gh repo create ameyasharma-ai/${repoSlug} --public --source=. --remote=origin --push`, { cwd: clientSiteDir });
+                await execAsync(`git commit -m "Initial commit for ${businessName}"`, { cwd: clientSiteDir });
+            } catch (cErr) {
+                // Commit already up to date
+            }
+            
+            const ghBinary = fs.existsSync("C:\\Program Files\\GitHub CLI\\gh.exe") 
+                ? `"C:\\Program Files\\GitHub CLI\\gh.exe"` 
+                : "gh";
+
+            try {
+                const { stdout: ghOut } = await execAsync(`${ghBinary} repo create ameyasharma-ai/${repoSlug} --public --source=. --remote=origin --push`, { cwd: clientSiteDir });
                 const ghMatch = ghOut.match(/https:\/\/github\.com\/[^\s]+/);
                 if (ghMatch) githubRepoUrl = ghMatch[0];
             } catch (ghErr) {
-                // If remote already exists, simply push
                 try {
                     await execAsync(`git push -u origin master`, { cwd: clientSiteDir });
                 } catch (pushErr) {
-                    console.log("GitHub push notice:", pushErr.message);
+                    try {
+                        await execAsync(`git push -u origin main`, { cwd: clientSiteDir });
+                    } catch (pushErr2) {
+                        console.log("GitHub push notice:", pushErr2.message);
+                    }
                 }
             }
         } catch (e) {
@@ -117,34 +150,40 @@ export class WebsiteBuilder {
         }
 
         // 5. Deploy to Vercel
-        let deployedUrl = `https://${businessName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-demo.vercel.app`;
+        let deployedUrl = "";
         try {
             const vercelCmd = process.env.VERCEL_TOKEN 
                 ? `npx -y vercel --prod --yes --token ${process.env.VERCEL_TOKEN}`
                 : `npx -y vercel --prod --yes`;
 
-            const { stdout } = await execAsync(vercelCmd, { cwd: clientSiteDir, timeout: 60000 });
+            const { stdout, stderr } = await execAsync(vercelCmd, { cwd: clientSiteDir, timeout: 60000 });
 
-            // Strip ANSI color codes from stdout
-            const cleanStdout = stdout.replace(/\x1B\[[0-9;]*[a-zA-Z]/g, '');
-            const aliasMatch = cleanStdout.match(/Aliased\s+(https:\/\/[a-zA-Z0-9-]+\.vercel\.app)/i);
-            const prodMatch = cleanStdout.match(/Production\s+(https:\/\/[a-zA-Z0-9-]+\.vercel\.app)/i);
-            
-            // Filter out team-specific SSO preview hashes (e.g. URLs containing team name 'sharmaameya999')
-            const publicMatches = (cleanStdout.match(/https:\/\/[a-zA-Z0-9-]+\.vercel\.app/g) || [])
-                .filter(u => !u.includes('sharmaameya999') && !u.includes('projects.vercel.app'));
+            // Combine stdout and stderr (Vercel CLI prints progress & Aliased domain to stderr)
+            const combinedOutput = `${stdout || ''}\n${stderr || ''}`;
+            const cleanOutput = combinedOutput.replace(/\x1B\[[0-9;]*[a-zA-Z]/g, '');
+            const aliasMatch = cleanOutput.match(/Aliased\s+(https:\/\/[a-zA-Z0-9-]+\.vercel\.app)/i);
 
             if (aliasMatch) {
-                deployedUrl = aliasMatch[1];
-            } else if (prodMatch && !prodMatch[1].includes('sharmaameya999')) {
-                deployedUrl = prodMatch[1];
-            } else if (publicMatches.length > 0) {
-                deployedUrl = publicMatches[0];
+                deployedUrl = aliasMatch[1].trim();
             } else {
-                deployedUrl = `https://client${clientId}-delta-three.vercel.app`;
+                // Fetch exact production domain from Vercel project list
+                try {
+                    const { stdout: lsOut, stderr: lsErr } = await execAsync(`npx -y vercel project ls`, { timeout: 30000 });
+                    const cleanLs = `${lsOut || ''}\n${lsErr || ''}`.replace(/\x1B\[[0-9;]*[a-zA-Z]/g, '');
+                    const projectMatch = cleanLs.match(new RegExp(`${repoSlug}\\s+(https:\\/\\/[a-zA-Z0-9-]+\\.vercel\\.app)`, 'i'));
+                    if (projectMatch) {
+                        deployedUrl = projectMatch[1].trim();
+                    }
+                } catch (lsErr) {
+                    console.log("Project list fetch notice:", lsErr.message);
+                }
             }
         } catch (e) {
-            console.log(`Vercel deployment notice (${e.message}). Using generated live demo link.`);
+            console.error(`Vercel deployment notice (${e.message}).`);
+        }
+
+        if (!deployedUrl) {
+            throw new Error(`Could not determine public Vercel production URL for ${businessName}. Please verify Vercel CLI credentials.`);
         }
 
         // 6. Generate final_${clientId}.txt containing Target Contact Details & Outreach Messages with updated website URL
@@ -167,11 +206,8 @@ export class WebsiteBuilder {
         // Replace [website-url] or previous vercel urls with newly deployed URL
         const updatedFinalMessage = finalOutreachMessage.replace(/\[website-url\]|https:\/\/[a-zA-Z0-9-.]+\.vercel\.app/g, deployedUrl);
 
-        // Write reports/final_${clientId}.txt and root final_${clientId}.txt
-        const reportsFinalPath = path.join(this.reportsDir, `final_${clientId}.txt`);
-        const rootFinalPath = path.join(process.cwd(), `final_${clientId}.txt`);
+        // Write reports/final_${clientId}.txt
         fs.writeFileSync(reportsFinalPath, updatedFinalMessage, 'utf-8');
-        fs.writeFileSync(rootFinalPath, updatedFinalMessage, 'utf-8');
 
         // 7. Update reports/${clientId}.txt research file with deployed URL
         const updatedReportContent = reportContent.replace(/\[website-url\]|https:\/\/[a-zA-Z0-9-.]+\.vercel\.app/g, deployedUrl);
@@ -191,8 +227,7 @@ export class WebsiteBuilder {
             businessName,
             deployedUrl,
             githubRepoUrl,
-            reportsFinalPath,
-            rootFinalPath
+            reportsFinalPath
         };
     }
 }

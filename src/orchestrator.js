@@ -3,6 +3,7 @@ import path from 'path';
 import { Scraper } from './scraper.js';
 import { Summarizer } from './summarizer.js';
 import { updateLeadNotes } from './sheets.js';
+import { WebsiteBuilder } from './builder.js';
 
 export class Orchestrator {
     constructor(telegramBot, chatId) {
@@ -54,10 +55,10 @@ export class Orchestrator {
                 // 1. Scrape
                 const scrapedData = await this.scraper.scrapeLead(lead.data);
                 
-                // 2. Summarize
+                // 2. Summarize & Generate 14-Point Strategy
                 const textReport = await this.summarizer.analyze(lead.data, scrapedData);
                 
-                // 3. Save to local dir
+                // 3. Save to local reports dir
                 const reportFileName = `${clientId}.txt`;
                 const reportPath = path.join(this.reportsDir, reportFileName);
                 fs.writeFileSync(reportPath, textReport, 'utf-8');
@@ -65,7 +66,17 @@ export class Orchestrator {
                 // 4. Update Google Sheet Notes column
                 await updateLeadNotes(lead, reportFileName);
                 
-                await this.sendStatus(`✅ Successfully processed ${businessName}`);
+                await this.sendStatus(`✅ Strategy report generated for ${businessName} (ID: ${clientId})`);
+
+                // 5. Automatically initiate Website Build & Hosting sequentially
+                try {
+                    const builder = new WebsiteBuilder(this.telegramBot, this.chatId);
+                    await builder.buildClientWebsite(clientId, false);
+                } catch (buildErr) {
+                    console.error(`Website auto-build error for ${businessName}:`, buildErr);
+                    await this.sendStatus(`⚠️ Website build failed for ${businessName}: ${buildErr.message}`);
+                }
+
             } catch (error) {
                 console.error(`Error processing client ${clientId}:`, error);
                 await this.sendStatus(`❌ Failed to process ${businessName}: ${error.message}`);
@@ -73,6 +84,6 @@ export class Orchestrator {
         }
 
         await this.scraper.close();
-        await this.sendStatus(`🎉 Analysis complete! Processed ${leads.length} leads.`);
+        await this.sendStatus(`🎉 Pipeline complete! Processed & built websites for ${leads.length} leads.`);
     }
 }

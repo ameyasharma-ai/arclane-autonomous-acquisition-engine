@@ -69,22 +69,16 @@ WhatsApp: [Chat on WhatsApp](https://wa.me/919097999898?text=Hi%20Ameya,%20I'd%2
 [EMAIL_END]
 
 [WHATSAPP_START]
-Hello, maine apka Google business page visit kiya tha aur apke business (<Business Name>) ke liye ek custom website demo design ki hai.
+Hello, maine apka Google profile visit kiya aur apke business (<Business Name>) ke liye ek live custom website demo design ki hai:
 
-Website Demo: [website-url]
+🔗 Demo Link: [website-url]
 
-Apke business ke hisab se fully customisable website hai jo direct customer calls aur inquiries ko convert karne ke liye optimized hai.
+Yeh website mobile-friendly hai aur direct customer calls & WhatsApp leads capture karne ke liye banayi gayi hai.
 
-Maine apke business ke liye ek detailed Website Strategy & Local SEO Audit bhi prepare kiya hai.
+Agar aapko demo pasand aaye to batayein, kya hum ek quick 5-minute call par connect kar sakte hain?
 
-Agar aapko demo pasand aaye, to kya hum ek quick 5-10 minute ki call par connect kar sakte hain jahan main apko walkthrough de sakun?
-
-Aap direct call/message kar sakte hain ya meeting schedule kar sakte hain:
-https://calendly.com/sharmaameya999/30min
-
-Best regards,
-Ameya Sharma
-Phone: +91 9097999898
+Regards,
+Ameya Sharma (+91 9097999898)
 [WHATSAPP_END]
 
 [AUDIT_START]
