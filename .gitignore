@@ -2,9 +2,14 @@ node_modules/
 .env
 service_account.json
 reports/
+generated_sites/
+exports/
+whatsapp_session/
+whatsapp_user_session/
+chrome_profile/
 .DS_Store
 *.log
 raw_prompts/
-chrome_profile/
 __pycache__/
 *.pyc
+

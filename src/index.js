@@ -3,13 +3,92 @@ import dotenv from 'dotenv';
 import { loadGoogleSheet, getLeads } from './sheets.js';
 import { Orchestrator } from './orchestrator.js';
 import { WebsiteBuilder } from './builder.js';
+import { WhatsAppSender } from './whatsapp_sender.js';
 
 dotenv.config();
 
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
 let currentOrchestrator = null;
 
-bot.start((ctx) => ctx.reply('Welcome to the CRM Enrichment & Website Builder Bot.\n\nCommands:\n• /analyse --range [x:y] - Run deep CRO/strategy analysis\n• build_<id>.txt or /build <id> - Build & deploy custom website via Antigravity Prompt\n• /pause, /resume, /stop - Manage running analysis'));
+bot.start((ctx) => ctx.reply(
+    '🤖 *Welcome to CRM Enrichment, Website Builder & WhatsApp Sender Bot!*\n\n' +
+    'Commands:\n' +
+    '• `/analyse --range [x:y]` - Run complete end-to-end analysis & website build\n' +
+    '• `/send [x:y]` - Automatically dispatch WhatsApp messages to leads\n' +
+    '• `/login` - Open browser window to scan WhatsApp Web QR code\n' +
+    '• `build_<id>.txt` or `/build <id>` - Manually build/rebuild website\n' +
+    '• `/pause`, `/resume`, `/stop` - Control analysis pipeline',
+    { parse_mode: 'Markdown' }
+));
+
+// Handler for /send [x:y] or /send <id>
+async function handleSendRequest(ctx, text) {
+    let startId = null;
+    let endId = null;
+
+    const rangeMatch = text.match(/(?:\/send|send)\s*\[?(\d+)\s*:\s*(\d+)\]?/i);
+    if (rangeMatch) {
+        startId = parseInt(rangeMatch[1], 10);
+        endId = parseInt(rangeMatch[2], 10);
+    } else {
+        const singleMatch = text.match(/(?:\/send|send)\s*\[?(\d+)\]?/i);
+        if (singleMatch) {
+            startId = parseInt(singleMatch[1], 10);
+            endId = startId;
+        }
+    }
+
+    if (startId === null || endId === null) {
+        return ctx.reply("❌ Invalid format. Use `/send [x:y]` (e.g. `/send [1:5]`) or `/send <id>` (e.g. `/send 1`).", { parse_mode: 'Markdown' });
+    }
+
+    console.log(`\n==================================================`);
+    console.log(`[Bot] 📲 Incoming WhatsApp Send Request -> Range: [${startId}:${endId}]`);
+    console.log(`==================================================`);
+
+    ctx.reply(`🚀 Initiating WhatsApp outreach for Range [${startId}:${endId}]...`);
+
+    const sender = new WhatsAppSender(bot, ctx.chat.id);
+    sender.sendRange(startId, endId).catch(e => {
+        console.error(`[Bot] ❌ Error during WhatsApp dispatch:`, e.message);
+        ctx.reply(`❌ WhatsApp dispatch failed: ${e.message}`);
+    });
+}
+
+bot.command('send', async (ctx) => {
+    await handleSendRequest(ctx, ctx.message.text);
+});
+
+bot.hears(/(?:\/send|send)\s*\[?(\d+)(?::(\d+))?\]?/i, async (ctx) => {
+    await handleSendRequest(ctx, ctx.message.text);
+});
+
+bot.command('login', async (ctx) => {
+    ctx.reply("🖥️ Opening WhatsApp Web browser window for login... Please scan the QR code if prompted.");
+    const sender = new WhatsAppSender(bot, ctx.chat.id);
+    try {
+        await sender.init(false);
+        ctx.reply("✅ WhatsApp Web session initialized!");
+    } catch (e) {
+        ctx.reply(`❌ Login initialization error: ${e.message}`);
+    }
+});
+
+bot.command('contacts', async (ctx) => {
+    let startId = 1;
+    let endId = 100;
+    const rangeMatch = ctx.message.text.match(/(?:\/contacts|contacts)\s*\[?(\d+)\s*:\s*(\d+)\]?/i);
+    if (rangeMatch) {
+        startId = parseInt(rangeMatch[1], 10);
+        endId = parseInt(rangeMatch[2], 10);
+    }
+    ctx.reply(`📇 Exporting contacts for Range [${startId}:${endId}]...`);
+    const sender = new WhatsAppSender(bot, ctx.chat.id);
+    const result = await sender.exportContacts(startId, endId);
+    if (!result) {
+        ctx.reply("⚠️ No contacts found in `reports/` for the specified range.");
+    }
+});
 
 // Handler for build_<id>.txt or /build <id>
 async function handleBuildRequest(ctx, text) {
