@@ -193,38 +193,144 @@ export class WhatsAppSender {
         return digits.length >= 10 ? digits : null;
     }
 
+    async dismissAnyModal() {
+        try {
+            if (!this.page) return;
+            const buttons = await this.page.$$(
+                'div[role="dialog"] button, ' +
+                'div[role="alertdialog"] button, ' +
+                'div[data-animate-modal-popup="true"] button, ' +
+                'button[data-animate-modal-popup-button="true"], ' +
+                'button:has-text("OK"), ' +
+                'div[role="button"]:has-text("OK"), ' +
+                'button:has-text("Ok"), ' +
+                'div[role="button"]:has-text("Ok")'
+            );
+            for (const btn of buttons) {
+                const isVis = await btn.isVisible().catch(() => false);
+                if (isVis) {
+                    console.log("[WhatsApp] Dismissing popup modal...");
+                    await btn.click().catch(() => {});
+                    await this.page.waitForTimeout(300);
+                }
+            }
+        } catch (e) {}
+    }
+
+    markContactAsPhoneOnly(clientId, phoneNumber) {
+        const finalPath = path.join(this.reportsDir, `final_${clientId}.txt`);
+        const basePath = path.join(this.reportsDir, `${clientId}.txt`);
+
+        const noticeHeader = `[STATUS_NOTICE]\n⚠️ THIS CONTACT HAS ONLY PHONE AVAILABLE WITH NO WHATSAPP.\n(Attempted WhatsApp outreach to ${phoneNumber || 'number'} failed: Number is not registered on WhatsApp. Outreach must be conducted via direct phone call).\n\n`;
+
+        const updateFile = (filePath) => {
+            if (fs.existsSync(filePath)) {
+                let content = fs.readFileSync(filePath, 'utf-8');
+                if (content.includes('[STATUS_NOTICE]')) {
+                    content = content.replace(/\[STATUS_NOTICE\][\s\S]*?\n\n/, noticeHeader);
+                } else {
+                    content = noticeHeader + content;
+                }
+                // Update WhatsApp field in CONTACT_DETAILS
+                content = content.replace(/WhatsApp:\s*([^\n\r]+)/i, `WhatsApp: Not registered on WhatsApp (Phone-only contact: ${phoneNumber || 'call only'})`);
+                fs.writeFileSync(filePath, content, 'utf-8');
+                console.log(`[WhatsApp] 📝 Added phone-only notice at top of ${path.basename(filePath)}`);
+            }
+        };
+
+        updateFile(finalPath);
+        updateFile(basePath);
+    }
+
     async sendSingleMessage(phoneNumber, messageText) {
         const cleanPhone = this.cleanPhoneNumber(phoneNumber);
         if (!cleanPhone) {
-            return { success: false, reason: `Invalid phone number format: "${phoneNumber}"` };
+            return { success: false, notOnWhatsApp: true, reason: `Invalid phone number format: "${phoneNumber}"` };
         }
 
         const targetUrl = `https://web.whatsapp.com/send?phone=${cleanPhone}`;
 
         try {
+            // Dismiss any old modal before starting new chat
+            await this.dismissAnyModal();
+
             console.log(`[WhatsApp] Navigating to chat with ${cleanPhone}...`);
             await this.page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 60000 });
 
-            // Wait for message box or invalid phone modal
-            await this.page.waitForSelector('footer div[contenteditable="true"], div[data-tab="10"], div[data-tab="6"], span[data-icon="send"], button[aria-label="Send"], div[data-animate-modal-popup="true"]', { timeout: 45000 });
+            // Poll for either message composer or invalid modal for up to 25 seconds
+            let isComposerReady = false;
+            let isNotRegistered = false;
+            let failureReason = null;
 
-            // Check if invalid popup appeared
-            const isInvalid = await this.page.$('div[data-animate-modal-popup="true"]');
-            if (isInvalid) {
-                const modalText = await isInvalid.innerText().catch(() => '');
-                if (modalText.includes('invalid') || modalText.includes('phone number')) {
-                    const okBtn = await this.page.$('button[data-animate-modal-popup-button="true"], div[role="button"]:has-text("OK")');
-                    if (okBtn) await okBtn.click().catch(() => {});
-                    return { success: false, reason: `Phone number +${cleanPhone} is not registered on WhatsApp.` };
+            const startTime = Date.now();
+            while (Date.now() - startTime < 25000) {
+                // 1. Check if input composer is ready
+                const composer = await this.page.$('footer div[contenteditable="true"], div[data-tab="10"], div[data-tab="6"], div[title="Type a message"]');
+                if (composer) {
+                    const isVis = await composer.isVisible().catch(() => false);
+                    if (isVis) {
+                        isComposerReady = true;
+                        break;
+                    }
                 }
+
+                // 2. Check for invalid phone popup / modal
+                const dialogs = await this.page.$$(
+                    'div[role="dialog"], ' +
+                    'div[role="alertdialog"], ' +
+                    'div[data-animate-modal-popup="true"], ' +
+                    'div[aria-modal="true"], ' +
+                    'div[data-testid="popup-contents"]'
+                );
+
+                for (const dialog of dialogs) {
+                    const isVis = await dialog.isVisible().catch(() => false);
+                    if (isVis) {
+                        const modalText = await dialog.innerText().catch(() => '');
+                        if (
+                            modalText.toLowerCase().includes('invalid') || 
+                            modalText.toLowerCase().includes('phone number') || 
+                            modalText.toLowerCase().includes('url is invalid') ||
+                            modalText.toLowerCase().includes('not on whatsapp')
+                        ) {
+                            isNotRegistered = true;
+                            failureReason = `Phone number +${cleanPhone} is not registered on WhatsApp.`;
+                            break;
+                        }
+                    }
+                }
+
+                if (isNotRegistered) break;
+
+                // 3. Fallback text check on entire page
+                const bodyText = await this.page.evaluate(() => document.body ? document.body.innerText : '').catch(() => '');
+                if (bodyText.includes('Phone number shared via url is invalid') || bodyText.includes('invalid phone number')) {
+                    isNotRegistered = true;
+                    failureReason = `Phone number +${cleanPhone} is not registered on WhatsApp.`;
+                    break;
+                }
+
+                await this.page.waitForTimeout(800);
             }
 
-            // Wait for input composer and focus it
-            const composer = await this.page.waitForSelector('footer div[contenteditable="true"], div[data-tab="10"], div[data-tab="6"]', { timeout: 45000 });
+            // Handle non-registered number
+            if (isNotRegistered || !isComposerReady) {
+                await this.dismissAnyModal();
+                console.log(`[WhatsApp] ⚠️ +${cleanPhone} is not registered on WhatsApp or chat could not be loaded.`);
+                return {
+                    success: false,
+                    notOnWhatsApp: true,
+                    phone: cleanPhone,
+                    reason: failureReason || `Phone number +${cleanPhone} is not registered on WhatsApp.`
+                };
+            }
+
+            // Composer is ready: focus and paste message
+            const composer = await this.page.waitForSelector('footer div[contenteditable="true"], div[data-tab="10"], div[data-tab="6"]', { timeout: 10000 });
             await composer.focus();
             await this.page.waitForTimeout(500);
 
-            // Paste entire multi-line message cleanly via Clipboard paste event (including full https:// links)
+            // Paste entire multi-line message cleanly via Clipboard paste event
             await this.page.evaluate((text) => {
                 const composerEl = document.querySelector('footer div[contenteditable="true"]');
                 if (composerEl) {
@@ -274,6 +380,7 @@ export class WhatsAppSender {
             console.log(`[WhatsApp] ✅ Message successfully sent to +${cleanPhone}`);
             return { success: true, phone: cleanPhone };
         } catch (err) {
+            await this.dismissAnyModal();
             return { success: false, reason: err.message };
         }
     }
@@ -352,11 +459,38 @@ export class WhatsAppSender {
                 }
             } else {
                 failCount++;
-                await this.sendStatus(`❌ *[Client ${clientId}] Failed:* ${sendResult.reason}`);
+                
+                // If number is not on WhatsApp, update report file and alert on Telegram
+                if (sendResult.notOnWhatsApp || sendResult.reason?.toLowerCase().includes('not registered') || sendResult.reason?.toLowerCase().includes('invalid')) {
+                    this.markContactAsPhoneOnly(clientId, targetPhone);
+                    
+                    await this.sendStatus(
+                        `⚠️ *[Client ${clientId}] Outreach Notice: No WhatsApp Account*\n\n` +
+                        `📞 *Phone Number:* \`${targetPhone}\` is *NOT registered on WhatsApp*.\n` +
+                        `📌 *Status:* Contact has *ONLY PHONE AVAILABLE* with no WhatsApp.\n` +
+                        `📝 *File Updated:* Added phone-only alert at top of \`final_${clientId}.txt\`.\n` +
+                        `💡 *Next Step:* Outreach must be conducted via direct phone call.`
+                    );
+
+                    // Update Google Sheet
+                    try {
+                        const { sheet } = await loadGoogleSheet();
+                        const rows = await sheet.getRows();
+                        const targetRow = rows.find(r => parseInt(r.toObject()['Client ID'], 10) === clientId);
+                        if (targetRow) {
+                            targetRow.set('Outreach Platform', 'Phone-Only (No WhatsApp)');
+                            await targetRow.save();
+                        }
+                    } catch (sheetErr) {
+                        console.error("Sheet update notice:", sheetErr.message);
+                    }
+                } else {
+                    await this.sendStatus(`❌ *[Client ${clientId}] Failed:* ${sendResult.reason}`);
+                }
             }
         }
 
-        await this.sendStatus(`🎉 *WhatsApp Dispatch Complete!*\n\n✅ *Sent:* ${successCount}\n❌ *Failed/Skipped:* ${failCount}`);
+        await this.sendStatus(`🎉 *WhatsApp Dispatch Complete!*\n\n✅ *Sent:* ${successCount}\n❌ *Failed/Skipped/Phone-Only:* ${failCount}`);
     }
 
     async close() {
