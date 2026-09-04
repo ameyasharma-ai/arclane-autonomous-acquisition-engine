@@ -77,7 +77,7 @@ CRITICAL DESIGN & AESTHETIC PRINCIPLES (MUST FOLLOW STRICTLY):
    - ZERO HERO COLLISION: The Announcement Bar and Header must sit naturally in normal document flow BEFORE the Hero section. Never use negative margins ('-mt-...'), 'top-[37px]', or absolute positioning that forces the Hero section underneath the navigation bar.
    - FLAWLESS MOBILE DRAWER & BACKDROP OVERLAY:
      * Mobile Backdrop: Always include '<div id="menu-backdrop" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[90] hidden transition-opacity duration-300"></div>'.
-     * Mobile Drawer: Structure with 'fixed inset-y-0 right-0 z-[100] w-full max-w-xs sm:max-w-sm bg-[#09090b] border-l border-zinc-800 p-6 flex flex-col justify-between transform translate-x-full transition-transform duration-300 lg:hidden shadow-2xl overflow-y-auto'.
+     * Mobile Drawer: Structure with 'fixed top-11 sm:top-12 bottom-0 right-0 z-[100] w-full max-w-xs sm:max-w-sm bg-[#09090b] border-l border-zinc-800 rounded-tl-2xl p-6 pt-5 flex flex-col justify-between transform translate-x-full transition-transform duration-300 lg:hidden shadow-2xl overflow-y-auto' (leave clean breathing room below top announcement banner with 'top-11 sm:top-12' and 'rounded-tl-2xl' corner).
      * Z-INDEX HIERARCHY: Mobile Drawer (z-[100]) > Backdrop Overlay (z-[90]) > Sticky Header (z-40) > Sticky Mobile Bottom Bar (z-40). This guarantees that when the mobile menu is opened, the drawer sits cleanly on top of BOTH the announcement bar and the bottom action bar with ZERO overlapping or clipping!
      * Body Scroll Lock: When the drawer is opened, JS must add 'overflow-hidden' to body and reveal the backdrop; when closed, remove 'overflow-hidden' and hide backdrop.
 
