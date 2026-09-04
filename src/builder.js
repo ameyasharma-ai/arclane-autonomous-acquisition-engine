@@ -99,6 +99,9 @@ export class WebsiteBuilder {
             htmlCode = htmlCode.replace(/^```[\w]*\s*/i, '').replace(/\s*```$/i, '').trim();
         }
 
+        // Apply deterministic design quality gate (guarantees solid header, top-11/12 mobile drawer spacing, rounded-tl-2xl, and backdrop overlay)
+        htmlCode = this.enforceDesignQualityStandards(htmlCode);
+
         // 3. Save to generated_sites/<repoSlug>
         const repoSlug = `${businessName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-website`.replace(/^-+|-+$/g, '');
         let githubRepoUrl = `https://github.com/ameyasharma-ai/${repoSlug}`;
@@ -230,5 +233,43 @@ export class WebsiteBuilder {
             reportsFinalPath
         };
     }
+
+    enforceDesignQualityStandards(html) {
+        if (!html || typeof html !== 'string') return html;
+
+        // 1. Ensure header is 100% solid/opaque and never transparent
+        html = html.replace(/(<header\s+[^>]*class=["'])([^"']*)(["'])/gi, (m, p1, classes, p3) => {
+            let c = classes;
+            c = c.replace(/\bbg-transparent\b/g, 'bg-[#09090b]');
+            c = c.replace(/\bbg-black\/[0-9]+\b/g, 'bg-[#09090b]');
+            c = c.replace(/\bbg-zinc-950\/[0-9]+\b/g, 'bg-[#09090b]');
+            c = c.replace(/\bbg-white\/[0-9]+\b/g, 'bg-white');
+            if (!c.includes('sticky')) c = `sticky top-0 ${c}`;
+            if (!c.includes('z-40') && !c.includes('z-50')) c = `z-40 ${c}`;
+            return `${p1}${c}${p3}`;
+        });
+
+        // 2. Ensure bottom mobile sticky bar has z-40 (so drawer and backdrop sit cleanly on top)
+        html = html.replace(/(class="[^"]*fixed\s+bottom-0[^"]*z-)(?:50|40|30|20)([^"]*")/g, '$140$2');
+
+        // 3. Enforce mobile menu drawer styling: top-11 sm:top-12, z-[100], rounded-tl-2xl, p-6 pt-5
+        html = html.replace(
+            /<div\s+[^>]*id=["']mobile-menu["'][^>]*class=["']([^"']*)["'][^>]*>/gi,
+            (match, classes) => {
+                const isLight = html.includes('bg-[#FAF9F6]') || html.includes('bg-[#FFFDF9]');
+                const drawerClasses = `fixed top-11 sm:top-12 bottom-0 right-0 z-[100] w-full max-w-xs sm:max-w-sm ${isLight ? 'bg-[#FAF9F6] border-l border-t border-[#D4AF37]/30 text-[#1A1A1A]' : 'bg-[#09090b] border-l border-t border-zinc-800 text-white'} p-6 pt-5 flex flex-col justify-between transform translate-x-full transition-transform duration-300 lg:hidden shadow-2xl overflow-y-auto rounded-tl-2xl`;
+                return `<div id="mobile-menu" class="${drawerClasses}">`;
+            }
+        );
+
+        // 4. Ensure backdrop overlay exists
+        if (html.includes('id="mobile-menu"') && !html.includes('id="menu-backdrop"')) {
+            const backdropHtml = `\n    <!-- Mobile Menu Backdrop Overlay -->\n    <div id="menu-backdrop" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[90] hidden transition-opacity duration-300"></div>\n`;
+            html = html.replace(/(<div\s+[^>]*id=["']mobile-menu["'])/i, `${backdropHtml}$1`);
+        }
+
+        return html;
+    }
 }
+
 
