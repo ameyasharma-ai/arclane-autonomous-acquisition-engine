@@ -68,20 +68,62 @@ async function handleSend(ctx, text) {
     }
 
     if (startId === null || endId === null) {
-        return ctx.reply("❌ Invalid format. Please use `/send [x:y]` (e.g. `/send [1:5]`) or `/send <id>` (e.g. `/send 1`).", { parse_mode: 'Markdown' });
+        return ctx.reply("❌ Invalid format. Please use `/send [x:y]` (e.g. `/send [1:5]`) or `/send <id>` (e.g. `/send 511`).", { parse_mode: 'Markdown' });
     }
 
     console.log(`\n[Bot] Received WhatsApp Send command for Range [${startId}:${endId}]`);
-    ctx.reply(`🚀 Preparing to send WhatsApp outreach for Range [${startId}:${endId}]...`);
+    await ctx.reply(`📇 Preparing contacts & vCard for Range [${startId}:${endId}]...`);
 
     const sender = new WhatsAppSender(bot, ctx.chat.id);
+    const exportResult = await sender.exportContacts(startId, endId);
+
+    if (!exportResult || exportResult.count === 0) {
+        return ctx.reply(`⚠️ No valid contacts found for Range [${startId}:${endId}]. Please check that the reports exist in \`reports/\`.`);
+    }
+
+    const labelRange = startId === endId ? `Client ${startId}` : `Clients [${startId}:${endId}]`;
+
+    await ctx.reply(
+        `⏸ *Outreach Paused: Contact vCard Ready*\n\n` +
+        `📇 *${exportResult.count} contact(s) exported for ${labelRange}.*\n\n` +
+        `📱 *Instructions:*\n` +
+        `1. Open the \`.vcf\` file sent above on your phone.\n` +
+        `2. Tap *Save / Import All Contacts* into your phone's address book.\n` +
+        `3. When you're ready to dispatch, tap the button below to start sending!`,
+        {
+            parse_mode: 'Markdown',
+            reply_markup: {
+                inline_keyboard: [
+                    [
+                        { text: `🚀 Start Sending WhatsApp Messages`, callback_data: `start_send_${startId}_${endId}` }
+                    ]
+                ]
+            }
+        }
+    );
+}
+
+bot.action(/^start_send_(\d+)_(\d+)$/, async (ctx) => {
+    const startId = parseInt(ctx.match[1], 10);
+    const endId = parseInt(ctx.match[2], 10);
+
     try {
-        await sender.sendRange(startId, endId);
-    } catch (e) {
+        await ctx.answerCbQuery("🚀 Resuming WhatsApp dispatch...");
+    } catch (e) {}
+
+    try {
+        await ctx.editMessageReplyMarkup({ inline_keyboard: [] });
+    } catch (e) {}
+
+    const labelRange = startId === endId ? `Client ${startId}` : `Range [${startId}:${endId}]`;
+    await ctx.reply(`▶️ *Resuming Dispatch for ${labelRange}...* Launching browser!`, { parse_mode: 'Markdown' });
+
+    const sender = new WhatsAppSender(bot, ctx.chat.id);
+    sender.sendRange(startId, endId, { skipExport: true }).catch(e => {
         console.error("WhatsApp dispatch error:", e);
         ctx.reply(`❌ Error during dispatch: ${e.message}`);
-    }
-}
+    });
+});
 
 bot.command('send', async (ctx) => {
     await handleSend(ctx, ctx.message.text);

@@ -26,6 +26,30 @@ export class WhatsAppSender {
         }
     }
 
+    extractContactPhone(content) {
+        if (!content) return null;
+        
+        // 1. Try explicit WhatsApp number
+        const waMatch = content.match(/WhatsApp:\s*([^\n\r]+)/i);
+        if (waMatch) {
+            const val = waMatch[1].trim();
+            if (val && !val.toLowerCase().includes('not available') && !val.toLowerCase().includes('n/a')) {
+                return val;
+            }
+        }
+
+        // 2. Fallback to Phone number assuming it can be a WhatsApp number
+        const phoneMatch = content.match(/Phone:\s*([^\n\r]+)/i);
+        if (phoneMatch) {
+            const val = phoneMatch[1].trim();
+            if (val && !val.toLowerCase().includes('not available') && !val.toLowerCase().includes('n/a')) {
+                return val;
+            }
+        }
+
+        return null;
+    }
+
     async exportContacts(startId, endId) {
         const contactList = [];
         for (let clientId = startId; clientId <= endId; clientId++) {
@@ -41,7 +65,7 @@ export class WhatsAppSender {
                 continue;
             }
 
-            const phoneMatch = content.match(/WhatsApp:\s*([^\n\r]+)/i) || content.match(/Phone:\s*([^\n\r]+)/i);
+            const phone = this.extractContactPhone(content);
             const emailMatch = content.match(/Email:\s*([^\n\r]+)/i);
 
             let businessName = `Client ${clientId}`;
@@ -52,16 +76,15 @@ export class WhatsAppSender {
                     businessName = baseNameMatch[1].replace(/[*#]/g, '').trim();
                 }
             } else {
-                const subjectMatch = content.match(/Subject:.*?(?:for|concept for|demo for)\s*(.+?)(?:\s*[–\-]|\s*in\s+Patna|$)/i);
+                const subjectMatch = content.match(/Subject:.*?(?:for|concept for|demo for)\s*(.+?)(?:\s*[–\-]|\s*in\s+Patna|\s*in\s+Pune|$)/i);
                 if (subjectMatch) {
                     businessName = subjectMatch[1].replace(/[*#]/g, '').trim();
                 }
             }
 
-            const phone = phoneMatch ? phoneMatch[1].trim() : null;
-            const email = emailMatch ? emailMatch[1].trim() : null;
+            const email = emailMatch && !emailMatch[1].toLowerCase().includes('not available') ? emailMatch[1].trim() : null;
 
-            if (phone && !phone.toLowerCase().includes('not available')) {
+            if (phone) {
                 contactList.push({ clientId, businessName, phone, email });
             }
         }
@@ -85,7 +108,7 @@ export class WhatsAppSender {
                     console.error("Failed to send vcf document:", docErr.message);
                 }
             }
-            return { vcfPath, csvPath, count: contactList.length };
+            return { vcfPath, csvPath, count: contactList.length, contacts: contactList };
         }
         return null;
     }
@@ -154,11 +177,16 @@ export class WhatsAppSender {
     cleanPhoneNumber(phoneStr) {
         if (!phoneStr) return null;
         let digits = phoneStr.replace(/\D/g, '');
-        // If starts with 0 and has 11 digits (e.g. 09031002808 -> 919031002808)
-        if (digits.startsWith('0') && digits.length === 11) {
+        
+        // If starts with 910 and has 13 digits (e.g. +91 020 66020121 -> 912066020121)
+        if (digits.startsWith('910') && digits.length === 13) {
+            digits = '91' + digits.substring(3);
+        }
+        // If starts with 0 and has 11 digits (e.g. 09031002808 -> 919031002808 or 02066020121 -> 912066020121)
+        else if (digits.startsWith('0') && digits.length === 11) {
             digits = '91' + digits.substring(1);
         }
-        // If 10 digits (e.g. 9801503503 -> 919801503503)
+        // If 10 digits (e.g. 9801503503 -> 919801503503 or 2066020121 -> 912066020121)
         else if (digits.length === 10) {
             digits = '91' + digits;
         }
@@ -250,11 +278,13 @@ export class WhatsAppSender {
         }
     }
 
-    async sendRange(startId, endId) {
+    async sendRange(startId, endId, options = {}) {
         await this.sendStatus(`🚀 *Initiating WhatsApp Dispatch for Range [${startId}:${endId}]...*`);
         
-        // Auto-export contacts with business names to vCard
-        await this.exportContacts(startId, endId);
+        // Auto-export contacts with business names to vCard unless skipped
+        if (!options.skipExport) {
+            await this.exportContacts(startId, endId);
+        }
 
         await this.init(false);
 
@@ -277,9 +307,8 @@ export class WhatsAppSender {
                 continue;
             }
 
-            // 2. Extract Phone / WhatsApp
-            const phoneMatch = content.match(/WhatsApp:\s*([^\n\r]+)/i) || content.match(/Phone:\s*([^\n\r]+)/i);
-            const targetPhone = phoneMatch ? phoneMatch[1].trim() : null;
+            // 2. Extract Phone / WhatsApp (fallback to Phone if WhatsApp missing)
+            const targetPhone = this.extractContactPhone(content);
 
             // 3. Extract WhatsApp Message
             let waMessage = "";
@@ -288,8 +317,8 @@ export class WhatsAppSender {
                 waMessage = waMatch[1].trim();
             }
 
-            if (!targetPhone || targetPhone.toLowerCase().includes('not available') || !waMessage) {
-                await this.sendStatus(`⚠️ *Client ${clientId}:* No valid WhatsApp contact or message found. Skipping.`);
+            if (!targetPhone || !waMessage) {
+                await this.sendStatus(`⚠️ *Client ${clientId}:* No valid WhatsApp/Phone contact or message found. Skipping.`);
                 failCount++;
                 continue;
             }
@@ -300,7 +329,7 @@ export class WhatsAppSender {
 
             if (sendResult.success) {
                 successCount++;
-                await this.sendStatus(`✅ *[Client ${clientId}] Sent Successfully to ${sendResult.phone}!*`);
+                await this.sendStatus(`✅ *[Client ${clientId}] Sent Successfully to +${sendResult.phone}!*`);
                 
                 // Update Google Sheet
                 try {
