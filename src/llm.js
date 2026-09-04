@@ -71,11 +71,15 @@ CRITICAL DESIGN & AESTHETIC PRINCIPLES (MUST FOLLOW STRICTLY):
    - Touch-Friendly: All buttons and interactive elements must have minimum 48px height for effortless finger taps.
    - Sticky Mobile Bottom Bar: Include a fixed bottom bar on mobile screens ('md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#09090b] border-t border-zinc-800 p-3') with high-contrast, glowing 'Call Now' (tel:) and 'WhatsApp' (wa.me) quick buttons. Add 'pb-24 md:pb-0' to body so page content and footer are never covered.
 
-2. 100% SOLID OPAQUE HEADER & ZERO-SWEEP MENU ARCHITECTURE (STRICT NO-TRANSPARENCY RULE):
-   - 100% OPAQUE, SOLID HEADER BACKGROUND: Every website header MUST have a 100% solid, fully opaque background (e.g. 'bg-[#09090b]' / 'bg-zinc-950' / 'bg-black' for dark themes or solid 'bg-white' / 'bg-[#FAF9F6]' for light themes), with 'border-b border-zinc-800' and 'sticky top-0 z-50'.
-   - NEVER USE TRANSPARENT OR SEMI-TRANSPARENT HEADERS: Absolutely NEVER use 'bg-transparent', 'bg-background/80', 'bg-zinc-950/80', 'bg-white/80', or 'absolute top-0' overlays. Transparent headers allow hero text, titles, and pictures to sweep and bleed directly through the menu, creating horrific visual clashes.
+2. 100% SOLID OPAQUE HEADER & FLAWLESS MOBILE DRAWER ARCHITECTURE (ZERO OVERLAPS / ZERO CLIPPING):
+   - 100% OPAQUE, SOLID HEADER: Every website header MUST have a 100% solid, fully opaque background (e.g. 'bg-[#09090b]' / 'bg-zinc-950' / 'bg-black' for dark themes or solid 'bg-white' / 'bg-[#FAF9F6]' for light themes), with 'border-b border-zinc-800' and 'sticky top-0 z-40'.
+   - NEVER USE TRANSPARENT OR SEMI-TRANSPARENT HEADERS: Absolutely NEVER use 'bg-transparent', 'bg-background/80', 'bg-zinc-950/80', 'bg-white/80', or 'absolute top-0' overlays.
    - ZERO HERO COLLISION: The Announcement Bar and Header must sit naturally in normal document flow BEFORE the Hero section. Never use negative margins ('-mt-...'), 'top-[37px]', or absolute positioning that forces the Hero section underneath the navigation bar.
-   - 100% SOLID MOBILE DRAWER: The mobile menu drawer / modal MUST have a 100% solid opaque background ('bg-[#09090b]' / 'bg-zinc-950' / 'bg-white'), a high z-index ('z-50'), and a full dark backdrop overlay for tap-to-dismiss. Page content underneath must NEVER bleed through when the mobile menu is open.
+   - FLAWLESS MOBILE DRAWER & BACKDROP OVERLAY:
+     * Mobile Backdrop: Always include '<div id="menu-backdrop" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[90] hidden transition-opacity duration-300"></div>'.
+     * Mobile Drawer: Structure with 'fixed inset-y-0 right-0 z-[100] w-full max-w-xs sm:max-w-sm bg-[#09090b] border-l border-zinc-800 p-6 flex flex-col justify-between transform translate-x-full transition-transform duration-300 lg:hidden shadow-2xl overflow-y-auto'.
+     * Z-INDEX HIERARCHY: Mobile Drawer (z-[100]) > Backdrop Overlay (z-[90]) > Sticky Header (z-40) > Sticky Mobile Bottom Bar (z-40). This guarantees that when the mobile menu is opened, the drawer sits cleanly on top of BOTH the announcement bar and the bottom action bar with ZERO overlapping or clipping!
+     * Body Scroll Lock: When the drawer is opened, JS must add 'overflow-hidden' to body and reveal the backdrop; when closed, remove 'overflow-hidden' and hide backdrop.
 
 3. ULTRA-PREMIUM AGENCY VISUAL AESTHETICS (ZERO GENERIC LOOKS):
    - Dark/Sleek or Modern Tailored Palette matching the industry with high WCAG AAA contrast.
