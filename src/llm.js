@@ -69,15 +69,21 @@ CRITICAL DESIGN & AESTHETIC PRINCIPLES (MUST FOLLOW STRICTLY):
    - ZERO Overlapping / Text Clipping: Never use fixed pixel heights (e.g. 'h-[300px]') on content cards. Always use 'min-h-...', 'flex flex-col justify-between', and auto-wrapping text ('break-words', 'leading-relaxed') so titles, descriptions, and CTA buttons never collide or overlap on small screens.
    - ZERO Image Distortion: All image wrappers must use consistent aspect ratios ('aspect-video', 'aspect-square', or 'aspect-[4/3]') with 'object-cover w-full h-full rounded-xl' so pictures never stretch or warp on any display (320px to 4K).
    - Touch-Friendly: All buttons and interactive elements must have minimum 48px height for effortless finger taps.
-   - Sticky Mobile Bottom Bar: Include a fixed bottom bar on mobile screens ('md:hidden fixed bottom-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-lg border-t border-zinc-800 p-3') with high-contrast, glowing 'Call Now' (tel:) and 'WhatsApp' (wa.me) quick buttons. Add 'pb-24 md:pb-0' to body so page content and footer are never covered.
+   - Sticky Mobile Bottom Bar: Include a fixed bottom bar on mobile screens ('md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#09090b] border-t border-zinc-800 p-3') with high-contrast, glowing 'Call Now' (tel:) and 'WhatsApp' (wa.me) quick buttons. Add 'pb-24 md:pb-0' to body so page content and footer are never covered.
 
-2. ULTRA-PREMIUM AGENCY VISUAL AESTHETICS (ZERO GENERIC LOOKS):
+2. 100% SOLID OPAQUE HEADER & ZERO-SWEEP MENU ARCHITECTURE (STRICT NO-TRANSPARENCY RULE):
+   - 100% OPAQUE, SOLID HEADER BACKGROUND: Every website header MUST have a 100% solid, fully opaque background (e.g. 'bg-[#09090b]' / 'bg-zinc-950' / 'bg-black' for dark themes or solid 'bg-white' / 'bg-[#FAF9F6]' for light themes), with 'border-b border-zinc-800' and 'sticky top-0 z-50'.
+   - NEVER USE TRANSPARENT OR SEMI-TRANSPARENT HEADERS: Absolutely NEVER use 'bg-transparent', 'bg-background/80', 'bg-zinc-950/80', 'bg-white/80', or 'absolute top-0' overlays. Transparent headers allow hero text, titles, and pictures to sweep and bleed directly through the menu, creating horrific visual clashes.
+   - ZERO HERO COLLISION: The Announcement Bar and Header must sit naturally in normal document flow BEFORE the Hero section. Never use negative margins ('-mt-...'), 'top-[37px]', or absolute positioning that forces the Hero section underneath the navigation bar.
+   - 100% SOLID MOBILE DRAWER: The mobile menu drawer / modal MUST have a 100% solid opaque background ('bg-[#09090b]' / 'bg-zinc-950' / 'bg-white'), a high z-index ('z-50'), and a full dark backdrop overlay for tap-to-dismiss. Page content underneath must NEVER bleed through when the mobile menu is open.
+
+3. ULTRA-PREMIUM AGENCY VISUAL AESTHETICS (ZERO GENERIC LOOKS):
    - Dark/Sleek or Modern Tailored Palette matching the industry with high WCAG AAA contrast.
-   - Rich visual depth: Use subtle glassmorphism backdrop blurs ('backdrop-blur-md bg-zinc-950/80 border border-zinc-800/80'), radial gradient ambient glows matching the primary accent color, and soft card shadows.
+   - Rich visual depth: Use solid elevated card surfaces ('bg-zinc-900 border border-zinc-800'), subtle radial gradient ambient glows matching the primary accent color, and soft card shadows.
    - Typography: Pair Google Fonts beautifully (e.g. Syne / Outfit for bold punchy headings, Inter / Plus Jakarta Sans for clean readable body copy).
    - Micro-interactions: Add smooth hover zoom (1.02x), border highlight transitions ('transition-all duration-300'), and button pulse animations.
 
-3. ROBUST INTERACTIVITY & ZERO-BUG FUNCTIONALITY:
+4. ROBUST INTERACTIVITY & ZERO-BUG FUNCTIONALITY:
    - Mobile Hamburger Menu: Fully working toggle script with clean slide-in animation and backdrop dismiss.
    - Interactive FAQ Accordion: Working JavaScript accordion where clicking a question smoothly toggles the answer and rotates the chevron icon.
    - Customer Reviews / Testimonials: Visual rating stars (5★ with Lucide 'star' icons), authentic review snippets, and reviewer avatars.
@@ -86,7 +92,7 @@ CRITICAL DESIGN & AESTHETIC PRINCIPLES (MUST FOLLOW STRICTLY):
    - Clickable Links: All phone numbers ('tel:...'), WhatsApp links ('https://wa.me/...'), and maps links must be active and correctly formatted.
    - High-Quality Imagery: Use crisp, relevant Unsplash photos with curated query parameters (e.g. 'https://images.unsplash.com/photo-...?auto=format&fit=crop&w=800&q=80') and beautiful gradient fallback backgrounds.
 
-4. DELIVERABLE FORMAT:
+5. DELIVERABLE FORMAT:
    - Output a single, complete, beautiful index.html file.
    - Load Tailwind CSS via CDN: <script src="https://cdn.tailwindcss.com"></script>
    - Load Google Fonts & Lucide Icons (<script src="https://unpkg.com/lucide@latest"></script> + lucide.createIcons()).

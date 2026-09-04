@@ -1,7 +1,7 @@
 import { chromium } from 'playwright';
 import path from 'path';
 import fs from 'fs';
-import { loadGoogleSheet } from './sheets.js';
+import { loadGoogleSheet, updateLeadField } from './sheets.js';
 import { ContactManager } from './contacts.js';
 
 export class WhatsAppSender {
@@ -438,15 +438,10 @@ export class WhatsAppSender {
                 successCount++;
                 await this.sendStatus(`✅ *[Client ${clientId}] Sent Successfully to +${sendResult.phone}!*`);
                 
-                // Update Google Sheet
+                // Update Google Sheet safely
                 try {
                     const { sheet } = await loadGoogleSheet();
-                    const rows = await sheet.getRows();
-                    const targetRow = rows.find(r => parseInt(r.toObject()['Client ID'], 10) === clientId);
-                    if (targetRow) {
-                        targetRow.set('Outreach Platform', 'WhatsApp-Sent');
-                        await targetRow.save();
-                    }
+                    await updateLeadField(sheet, clientId, 'Outreach Platform', 'WhatsApp-Sent');
                 } catch (sheetErr) {
                     console.error("Sheet update notice:", sheetErr.message);
                 }
@@ -472,15 +467,10 @@ export class WhatsAppSender {
                         `💡 *Next Step:* Outreach must be conducted via direct phone call.`
                     );
 
-                    // Update Google Sheet
+                    // Update Google Sheet safely
                     try {
                         const { sheet } = await loadGoogleSheet();
-                        const rows = await sheet.getRows();
-                        const targetRow = rows.find(r => parseInt(r.toObject()['Client ID'], 10) === clientId);
-                        if (targetRow) {
-                            targetRow.set('Outreach Platform', 'Phone-Only (No WhatsApp)');
-                            await targetRow.save();
-                        }
+                        await updateLeadField(sheet, clientId, 'Outreach Platform', 'Phone-Only (No WhatsApp)');
                     } catch (sheetErr) {
                         console.error("Sheet update notice:", sheetErr.message);
                     }

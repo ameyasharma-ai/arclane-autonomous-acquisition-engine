@@ -300,7 +300,7 @@ You are an expert full-stack web developer and UI/UX designer. Build a complete,
 - **Icons:** Use Lucide React icons or FontAwesome CDN.
 
 ### REQUIRED PAGES & SECTIONS (SINGLE-PAGE OR MULTI-PAGE APP):
-1. **Sticky Header & Announcement Bar:** Logo, Navigation links, Phone & WhatsApp CTAs, Operating hours alert.
+1. **100% Solid Opaque Sticky Header & Announcement Bar:** Logo, Navigation links, Phone & WhatsApp CTAs, Operating hours alert. Header MUST have a 100% solid opaque background (no transparency/sweep-through) with 'sticky top-0 z-50 border-b'.
 2. **Hero Section:** H1 heading, value proposition subheadline, Trust rating badge (<Rating>★ from Google Reviews), Primary CTA button ("Book Now" / "Call Now") and Secondary CTA ("Explore Services").
 3. **Trust & Social Proof Bar:** Key stats (e.g. Total reviews, rating, certified staff, prime location).
 4. **Services / Offerings Grid:** Interactive cards showcasing main services with icons, concise descriptions, and inquiry buttons.
@@ -316,10 +316,11 @@ You are an expert full-stack web developer and UI/UX designer. Build a complete,
 ### INTERACTION, MOBILE-FIRST & TECHNICAL REQUIREMENTS:
 - **Mobile-First Priority:** Over 80% of local customers browse on mobile. Design every section, typography size, and button for flawless mobile rendering (375px–428px) before scaling up to tablet and desktop.
 - **Zero Horizontal Overflow:** Ensure 'overflow-x-hidden' and fluid responsive containers ('w-full max-w-7xl mx-auto') so there are zero horizontal layout glitches or scrollbars.
-- **Sticky Mobile Action Bar:** Fixed at the bottom on mobile screens ('md:hidden fixed bottom-0 left-0 right-0 z-50') with high-contrast, glowing 'Call Now' (tel:) and 'WhatsApp' (wa.me) buttons. Add 'pb-20 md:pb-0' to body so content is never obscured.
-- **Agency-Grade Visual Polish:** Modern glassmorphism blur headers, radial gradient ambient lighting matching the primary accent color, dark elevated card surfaces with subtle border highlights on hover.
+- **100% Solid Opaque Header (Zero Transparency Bleed):** Every website header and mobile menu drawer MUST have a 100% solid, fully opaque background (e.g. 'bg-[#09090b]' / 'bg-zinc-950' or 'bg-white') so hero text and images NEVER sweep or bleed through the navigation bar when scrolling.
+- **Sticky Mobile Action Bar:** Fixed at the bottom on mobile screens ('md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#09090b] border-t border-zinc-800') with high-contrast, glowing 'Call Now' (tel:) and 'WhatsApp' (wa.me) buttons. Add 'pb-20 md:pb-0' to body so content is never obscured.
+- **Agency-Grade Visual Polish:** Crisp solid elevated surfaces, radial gradient ambient lighting matching the primary accent color, dark elevated card surfaces with subtle border highlights on hover.
 - **Fully Interactive Components (Zero Bugs):**
-  - Working mobile hamburger toggle menu with smooth transition.
+  - Working mobile hamburger toggle menu with clean 100% opaque drawer and backdrop dismiss.
   - Interactive working FAQ accordion with animated chevron rotation.
   - Testimonial cards with 5-star ratings and authentic review quotes.
   - Working contact/inquiry form with real-time validation, loading state, and success modal popup.

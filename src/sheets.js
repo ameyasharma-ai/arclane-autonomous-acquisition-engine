@@ -88,26 +88,40 @@ export async function getLeads(sheet, startId, endId, excludedIds) {
     return filteredLeads;
 }
 
-export async function updateLeadNotes(lead, notesContent) {
-    const sheet = lead.sheet;
-    const row = lead.row;
-    const rowIndex = row.rowNumber - 1; // 0-indexed API
+export async function updateLeadField(sheet, clientId, fieldName, value) {
+    const rows = await sheet.getRows();
+    const targetRow = rows.find(r => parseInt(r.toObject()['Client ID'], 10) === clientId);
+    if (!targetRow) {
+        console.warn(`[Sheets] Could not find row for Client ID ${clientId}`);
+        return false;
+    }
 
-    // Load only the specific row
+    const rowIndex = targetRow.rowNumber - 1; // 0-indexed API
+    const headerValues = sheet.headerValues;
+    const colIndex = headerValues.indexOf(fieldName);
+
+    if (colIndex === -1) {
+        console.warn(`[Sheets] Field "${fieldName}" not found in header values`);
+        return false;
+    }
+
+    // Load ONLY the specific cell to prevent altering other cell data types
     await sheet.loadCells({
         startRowIndex: rowIndex,
         endRowIndex: rowIndex + 1,
-        startColumnIndex: 0,
-        endColumnIndex: sheet.columnCount
+        startColumnIndex: colIndex,
+        endColumnIndex: colIndex + 1
     });
 
-    // Find the Notes column
-    const headerValues = sheet.headerValues;
-    const notesColIndex = headerValues.indexOf('Notes');
-    
-    if (notesColIndex !== -1) {
-        const cell = sheet.getCell(rowIndex, notesColIndex);
-        cell.value = notesContent;
-        await sheet.saveUpdatedCells();
-    }
+    const cell = sheet.getCell(rowIndex, colIndex);
+    cell.value = value;
+    await sheet.saveUpdatedCells();
+    console.log(`[Sheets] ✅ Updated "${fieldName}" for Client ${clientId} -> ${value}`);
+    return true;
+}
+
+export async function updateLeadNotes(lead, notesContent) {
+    const sheet = lead.sheet;
+    const clientId = lead.clientId;
+    return await updateLeadField(sheet, clientId, 'Notes', notesContent);
 }
