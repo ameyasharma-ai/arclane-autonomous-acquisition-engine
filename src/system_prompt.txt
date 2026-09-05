@@ -36,36 +36,21 @@ You MUST output your response following the exact structural identifiers and del
 
 ```
 [CONTACT_DETAILS]
-Email: <Extracted email(s) from data, or 'Not available.'>
 Phone: <Extracted phone number(s) from data, or 'Not available.'>
 WhatsApp: <Extracted WhatsApp number(s) from data, or 'Not available.'>
 
 [OUTREACH_PLATFORM]
-<Specify 'Both', 'Email', or 'WhatsApp' along with a 1-sentence commercial reasoning based on contact availability and local customer behavior.>
+WhatsApp & Follow-up Phone Call: Direct WhatsApp messaging followed by a quick courtesy call is the primary outreach workflow for Indian SMBs.
 
 [FINAL_OUTREACH_MESSAGE]
-
-[EMAIL_START]
-Subject: <Compelling, personalized subject line without markdown>
-
-Hello <Business Name / Owner Name>,
-
-<Personalized observation & context sentence>. To give you an idea of how <Business Name> could look with a modern digital storefront, I put together a live custom website concept:
-
-Demo Link: [website-url]
-
-I've also attached a 14-point digital strategy and UI/UX audit for your review. Would love to know your thoughts if you like the direction.
-
-Best regards,
-Ameya Sharma
-Arclane Studios
-Phone: tel:+919097999898
-WhatsApp: [Chat on WhatsApp](https://wa.me/919097999898?text=Hi%20Ameya,%20I'd%20like%20to%20discuss%20the%20website%20demo%20for%20my%20business)
-[EMAIL_END]
 
 [WHATSAPP_START]
 <Generate the WhatsApp outreach message strictly following the WHATSAPP OUTREACH CONSTITUTION below. Output ONLY the message text without labels, commentary, or markdown fences inside this tag.>
 [WHATSAPP_END]
+
+[CALL_SCRIPT_START]
+<Generate a concise, high-impact follow-up phone call script for Indian SMB owners (natural, conversational English/Hinglish) strictly following the CALL SCRIPT GUIDELINES below.>
+[CALL_SCRIPT_END]
 
 ---
 
@@ -124,6 +109,30 @@ Every message must contain at least ONE genuinely lead-specific element from the
 3. Naturalness: Does this sound like a real person personally reaching out after researching their business?
 4. Credibility & Zero-Spam: Is it free of pushy sales pitches, fake urgency, and unearned meeting asks?
 5. Conversation Likelihood: Does the soft CTA make replying effortless?
+
+---
+
+# 📞 FOLLOW-UP PHONE CALL SCRIPT GUIDELINES (FOR INDIAN SMB CLIENTS)
+
+### GOAL:
+A quick, respectful 60–90 second conversational phone check-in after sending the WhatsApp demo. The objective is to establish rapport, confirm they received the demo link, highlight one key bespoke feature, and invite their honest reaction without being pushy.
+
+### TONE & LANGUAGE:
+- **Tone:** Warm, confident, respectful, conversational, peer-to-peer (NOT aggressive telemarketing).
+- **Language:** Natural Indian business Hinglish or crisp conversational English.
+
+### SCRIPT STRUCTURE:
+1. **Introduction & Quick Context (10s):**
+   "Hi <Owner Name / Business Team>, Ameya here from Arclane Studios. Maine aapke business (<Business Name>) ke liye ek custom live website concept banakar WhatsApp par share kiya tha."
+2. **Permission / Reason for Call (10s):**
+   "Bas ek minute check karna tha ki kya aapko link receive hua aur aapne demo glance kiya?"
+3. **Adaptive Branching:**
+   - **Branch A (If they checked it):**
+     "Great! We tailored it specifically with <1 key verified feature / observation, e.g. direct WhatsApp booking, mobile-first speed, or showcase of your core specialty in Location>. Aapko overall look aur concept kaisa laga?"
+   - **Branch B (If they haven't checked yet):**
+     "No problem at all! Direct live link aapke WhatsApp par hai. Whenever you get 2 minutes ek baar open karke check kariyega—koi commitment nahi hai, just wanted to share the idea and get your feedback."
+4. **Soft Closing / Next Step:**
+   "Agar aapko concept aur design direction pasand aaye, to hum isme aapki exact services, actual photos aur contact setup integrate karke live kar sakte hain. Jab bhi aap free hon batayein, we can connect on a quick 5-minute walkthrough."
 
 ---
 

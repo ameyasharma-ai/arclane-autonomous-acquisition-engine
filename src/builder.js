@@ -199,10 +199,10 @@ export class WebsiteBuilder {
             if (finalMessageMatch) {
                 finalOutreachMessage = finalMessageMatch[1].trim();
             } else {
-                // Fallback: extract email & whatsapp blocks
-                const emailMatch = reportContent.match(/\[EMAIL_START\][\s\S]*?\[EMAIL_END\]/i);
+                // Fallback: extract whatsapp & call script blocks
                 const waMatch = reportContent.match(/\[WHATSAPP_START\][\s\S]*?\[WHATSAPP_END\]/i);
-                finalOutreachMessage = `[FINAL_OUTREACH_MESSAGE]\n\n${emailMatch ? emailMatch[0] : ''}\n\n${waMatch ? waMatch[0] : ''}`;
+                const callMatch = reportContent.match(/\[CALL_SCRIPT_START\][\s\S]*?\[CALL_SCRIPT_END\]/i);
+                finalOutreachMessage = `[FINAL_OUTREACH_MESSAGE]\n\n${waMatch ? waMatch[0] : ''}\n\n${callMatch ? callMatch[0] : ''}`;
             }
         }
 
