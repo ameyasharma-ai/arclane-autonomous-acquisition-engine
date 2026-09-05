@@ -1,0 +1,307 @@
+{
+  "blueprintVersion": "1.0.0",
+  "agency": {
+    "name": "Arclane Studios",
+    "founder": "Ameya Sharma",
+    "targetMarket": "Indian SMBs (Gyms, Salons, Spas, Clinics, Cafes)",
+    "targetGoal": {
+      "clientsWeek1": 10,
+      "revenueWeek1INR": "80,000 - 1,20,000",
+      "averageDealSizeINR": 7999
+    }
+  },
+  "automationSettings": {
+    "autoStartCron": true,
+    "timezone": "Asia/Kolkata",
+    "leadQualificationFilter": {
+      "minRating": 4.5,
+      "minReviews": 40,
+      "websiteRequired": false
+    },
+    "whatsappSafeLimits": {
+      "maxPerBatch": 20,
+      "maxPerDay": 40,
+      "minDelaySeconds": 30,
+      "maxDelaySeconds": 75,
+      "requireVcfImport": true
+    }
+  },
+  "dailySchedule": [
+    {
+      "dayIndex": 1,
+      "dayName": "Monday",
+      "focus": "Gyms & Hardcore Fitness Centers in Pune",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "09:30",
+          "query": "Gyms",
+          "locality": "in Pune",
+          "city": "Pune",
+          "targetLeads": 35
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "10:30",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 35
+        },
+        "dispatchWave1": {
+          "enabled": true,
+          "cronTime": "12:00",
+          "batchSize": 18
+        },
+        "dispatchWave2": {
+          "enabled": true,
+          "cronTime": "16:30",
+          "batchSize": 17
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": false,
+          "notes": "Day 1 kickoff. Monitor incoming instant replies on WhatsApp Web."
+        }
+      }
+    },
+    {
+      "dayIndex": 2,
+      "dayName": "Tuesday",
+      "focus": "Fitness Studios & Gyms in Surat",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "09:30",
+          "query": "Gyms",
+          "locality": "in Surat",
+          "city": "Surat",
+          "targetLeads": 35
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "10:30",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 35
+        },
+        "dispatchWave1": {
+          "enabled": true,
+          "cronTime": "12:00",
+          "batchSize": 18
+        },
+        "dispatchWave2": {
+          "enabled": true,
+          "cronTime": "16:30",
+          "batchSize": 17
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 15,
+          "targetCloses": 1,
+          "notes": "Call Monday leads (sent 24h ago). Target: 1 Closed Deal."
+        }
+      }
+    },
+    {
+      "dayIndex": 3,
+      "dayName": "Wednesday",
+      "focus": "Premium Unisex Salons in Gurugram",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "09:30",
+          "query": "Unisex Salons",
+          "locality": "in Gurugram",
+          "city": "Gurugram",
+          "targetLeads": 35
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "10:30",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 35
+        },
+        "dispatchWave1": {
+          "enabled": true,
+          "cronTime": "12:00",
+          "batchSize": 18
+        },
+        "dispatchWave2": {
+          "enabled": true,
+          "cronTime": "16:30",
+          "batchSize": 17
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 15,
+          "targetCloses": 2,
+          "notes": "Call Tuesday leads + Monday warm follow-ups. Target: 2 Closed Deals."
+        }
+      }
+    },
+    {
+      "dayIndex": 4,
+      "dayName": "Thursday",
+      "focus": "Dental & Specialty Care Clinics in Ahmedabad",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "09:30",
+          "query": "Dental Clinics",
+          "locality": "in Ahmedabad",
+          "city": "Ahmedabad",
+          "targetLeads": 35
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "10:30",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 35
+        },
+        "dispatchWave1": {
+          "enabled": true,
+          "cronTime": "12:00",
+          "batchSize": 18
+        },
+        "dispatchWave2": {
+          "enabled": true,
+          "cronTime": "16:30",
+          "batchSize": 17
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 15,
+          "targetCloses": 2,
+          "notes": "Call Wednesday leads + ongoing pipeline. Target: 2 Closed Deals."
+        }
+      }
+    },
+    {
+      "dayIndex": 5,
+      "dayName": "Friday",
+      "focus": "Fitness Gyms & CrossFit in Jaipur & Indore",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "09:30",
+          "query": "Gyms",
+          "locality": "in Jaipur",
+          "city": "Jaipur",
+          "targetLeads": 35
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "10:30",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 35
+        },
+        "dispatchWave1": {
+          "enabled": true,
+          "cronTime": "12:00",
+          "batchSize": 18
+        },
+        "dispatchWave2": {
+          "enabled": true,
+          "cronTime": "16:30",
+          "batchSize": 17
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 15,
+          "targetCloses": 2,
+          "notes": "Friday power close. Collect 50% advance tokens on closed deals."
+        }
+      }
+    },
+    {
+      "dayIndex": 6,
+      "dayName": "Saturday",
+      "focus": "Spas, Hair Care & Wellness Studios in Chandigarh",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "09:30",
+          "query": "Spas and Salons",
+          "locality": "in Chandigarh",
+          "city": "Chandigarh",
+          "targetLeads": 35
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "10:30",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 35
+        },
+        "dispatchWave1": {
+          "enabled": true,
+          "cronTime": "12:00",
+          "batchSize": 18
+        },
+        "dispatchWave2": {
+          "enabled": true,
+          "cronTime": "16:30",
+          "batchSize": 17
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 20,
+          "targetCloses": 2,
+          "notes": "Weekend follow-ups. Collect assets from onboarded clients."
+        }
+      }
+    },
+    {
+      "dayIndex": 7,
+      "dayName": "Sunday",
+      "focus": "Pipeline Review, Domain Mapping & Balance Payments",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "09:30",
+          "query": "Gyms",
+          "locality": "in Lucknow",
+          "city": "Lucknow",
+          "targetLeads": 20
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "10:30",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 20
+        },
+        "dispatchWave1": {
+          "enabled": false,
+          "cronTime": "12:00",
+          "batchSize": 0
+        },
+        "dispatchWave2": {
+          "enabled": false,
+          "cronTime": "16:30",
+          "batchSize": 0
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 10,
+          "targetCloses": 2,
+          "notes": "Domain mapping in Vercel, collect remaining 50% balance, trigger referral loop."
+        }
+      }
+    }
+  ],
+  "phoneScriptTemplates": {
+    "courtesyOpener": "Hi [Owner Name], Ameya here from Arclane Studios. Maine aapke business ([Business Name]) ke liye ek custom live website concept banakar WhatsApp par share kiya tha. Bas ek minute check karna tha ki kya aapko link mila aur aapne glance kiya?",
+    "pricingOffer": "Humne aapka base design ready kar liya hai, isliye flat partner launch price ₹7,999 one-time me custom .com domain, lifetime hosting, WhatsApp booking aur Google Maps setup ke sath 24 hours me live kar denge.",
+    "referralScript": "Hi [Owner Name], aapki website live ho chuki hai! Agar aapke circle me kisi aur business owner ko website chahiye, share my contact—I will give them the same ₹7,999 partner discount."
+  }
+}
