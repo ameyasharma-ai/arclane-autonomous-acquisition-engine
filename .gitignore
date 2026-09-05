@@ -1,15 +1,36 @@
+# Dependencies
 node_modules/
+
+# Environment & Credentials
 .env
 service_account.json
+
+# Reports, Prompts & Text Files
 reports/
+reports/*.txt
+raw_prompts/
+raw_prompts/*.txt
+final_*.txt
+build_*.txt
+*.txt
+!requirements.txt
+!src/system_prompt.txt
+
+# Generated Sites & Exports
 generated_sites/
 exports/
+scratch/
+sheet_dump.json
+
+# WhatsApp Sessions & Profiles
 whatsapp_session/
 whatsapp_user_session/
 chrome_profile/
+
+# OS & Logs
 .DS_Store
 *.log
-raw_prompts/
 __pycache__/
 *.pyc
+
 
