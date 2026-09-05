@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { Scraper } from './scraper.js';
 import { Summarizer } from './summarizer.js';
-import { updateLeadNotes } from './sheets.js';
+import { updateLeadFields, updateLeadNotes } from './sheets.js';
 import { WebsiteBuilder } from './builder.js';
 
 export class Orchestrator {
@@ -66,13 +66,20 @@ export class Orchestrator {
                 const auditPath = path.join(clientReportsDir, 'audit.md');
                 fs.writeFileSync(auditPath, textReport, 'utf-8');
 
-                // Also save legacy text file for backward compatibility
-                const reportFileName = `${clientId}.txt`;
-                const legacyReportPath = path.join(this.reportsDir, reportFileName);
-                fs.writeFileSync(legacyReportPath, textReport, 'utf-8');
-                
-                // 4. Update Google Sheet Notes column
-                await updateLeadNotes(lead, reportFileName);
+                // Extract AI Outreach Hook from WhatsApp message
+                let outreachHook = "";
+                const waMatch = textReport.match(/\[WHATSAPP_START\]([\s\S]*?)\[WHATSAPP_END\]/i);
+                if (waMatch) {
+                    const lines = waMatch[1].trim().split('\n').filter(l => l.trim().length > 0);
+                    outreachHook = lines.slice(0, 2).join(' ').replace(/https:\/\/[^\s]+/g, '').trim();
+                }
+
+                // 4. Update Google Sheet (Notes, AI Outreach Hook, Current Status)
+                await updateLeadFields(lead.sheet, clientId, {
+                    'Notes': `reports/${clientId}/audit.md`,
+                    'AI Outreach Hook': outreachHook,
+                    'Current Status': 'Analyzed'
+                });
                 
                 await this.sendStatus(`✅ Strategy report generated for ${businessName} (ID: ${clientId})\nSaved to \`reports/${clientId}/audit.md\``);
 

@@ -88,7 +88,7 @@ export async function getLeads(sheet, startId, endId, excludedIds) {
     return filteredLeads;
 }
 
-export async function updateLeadField(sheet, clientId, fieldName, value) {
+export async function updateLeadFields(sheet, clientId, fieldsObj) {
     const rows = await sheet.getRows();
     const targetRow = rows.find(r => parseInt(r.toObject()['Client ID'], 10) === clientId);
     if (!targetRow) {
@@ -98,26 +98,41 @@ export async function updateLeadField(sheet, clientId, fieldName, value) {
 
     const rowIndex = targetRow.rowNumber - 1; // 0-indexed API
     const headerValues = sheet.headerValues;
-    const colIndex = headerValues.indexOf(fieldName);
 
-    if (colIndex === -1) {
-        console.warn(`[Sheets] Field "${fieldName}" not found in header values`);
-        return false;
+    const validUpdates = [];
+    for (const [fieldName, value] of Object.entries(fieldsObj)) {
+        const colIndex = headerValues.indexOf(fieldName);
+        if (colIndex !== -1) {
+            validUpdates.push({ colIndex, fieldName, value });
+        } else {
+            console.warn(`[Sheets] Field "${fieldName}" not found in sheet columns`);
+        }
     }
 
-    // Load ONLY the specific cell to prevent altering other cell data types
+    if (validUpdates.length === 0) return false;
+
+    const minCol = Math.min(...validUpdates.map(u => u.colIndex));
+    const maxCol = Math.max(...validUpdates.map(u => u.colIndex));
+
     await sheet.loadCells({
         startRowIndex: rowIndex,
         endRowIndex: rowIndex + 1,
-        startColumnIndex: colIndex,
-        endColumnIndex: colIndex + 1
+        startColumnIndex: minCol,
+        endColumnIndex: maxCol + 1
     });
 
-    const cell = sheet.getCell(rowIndex, colIndex);
-    cell.value = value;
+    for (const { colIndex, fieldName, value } of validUpdates) {
+        const cell = sheet.getCell(rowIndex, colIndex);
+        cell.value = value;
+    }
+
     await sheet.saveUpdatedCells();
-    console.log(`[Sheets] ✅ Updated "${fieldName}" for Client ${clientId} -> ${value}`);
+    console.log(`[Sheets] ✅ Updated ${validUpdates.length} fields for Client ${clientId}:`, Object.keys(fieldsObj).join(', '));
     return true;
+}
+
+export async function updateLeadField(sheet, clientId, fieldName, value) {
+    return await updateLeadFields(sheet, clientId, { [fieldName]: value });
 }
 
 export async function updateLeadNotes(lead, notesContent) {
@@ -125,3 +140,4 @@ export async function updateLeadNotes(lead, notesContent) {
     const clientId = lead.clientId;
     return await updateLeadField(sheet, clientId, 'Notes', notesContent);
 }
+

@@ -3,6 +3,7 @@ import path from 'path';
 import { exec } from 'child_process';
 import util from 'util';
 import { LLMClient } from './llm.js';
+import { loadGoogleSheet, updateLeadFields } from './sheets.js';
 
 const execAsync = util.promisify(exec);
 
@@ -58,8 +59,8 @@ export class WebsiteBuilder {
 
         // Failsafe: Check if client website is already built and live
         const outreachJsonPath = path.join(clientReportsDir, 'outreach.json');
-        const reportsFinalPath = path.join(this.reportsDir, `final_${clientId}.txt`);
         const clientFinalPath = path.join(clientReportsDir, 'final.txt');
+        const clientOutreachTxtPath = path.join(clientReportsDir, 'outreach.txt');
 
         if (!force) {
             let existingLiveUrl = null;
@@ -69,9 +70,13 @@ export class WebsiteBuilder {
                     if (parsed.deployedUrl) existingLiveUrl = parsed.deployedUrl;
                 } catch (e) {}
             }
-            if (!existingLiveUrl && fs.existsSync(reportsFinalPath)) {
-                const existingFinalContent = fs.readFileSync(reportsFinalPath, 'utf-8');
-                const existingUrlMatch = existingFinalContent.match(/https:\/\/[a-zA-Z0-9-.]+\.vercel\.app/i);
+            if (!existingLiveUrl && fs.existsSync(clientOutreachTxtPath)) {
+                const existingContent = fs.readFileSync(clientOutreachTxtPath, 'utf-8');
+                const existingUrlMatch = existingContent.match(/https:\/\/[a-zA-Z0-9-.]+\.vercel\.app/i);
+                if (existingUrlMatch) existingLiveUrl = existingUrlMatch[0];
+            } else if (!existingLiveUrl && fs.existsSync(clientFinalPath)) {
+                const existingContent = fs.readFileSync(clientFinalPath, 'utf-8');
+                const existingUrlMatch = existingContent.match(/https:\/\/[a-zA-Z0-9-.]+\.vercel\.app/i);
                 if (existingUrlMatch) existingLiveUrl = existingUrlMatch[0];
             }
             if (existingLiveUrl) {
@@ -251,12 +256,21 @@ export class WebsiteBuilder {
         const outreachTxt = `[CONTACT_DETAILS]\nPhone: ${phone || 'Not available.'}\nWhatsApp: ${whatsappPhone || 'Not available.'}\n\n[OUTREACH_PLATFORM]\nWhatsApp & Follow-up Phone Call\n\n[FINAL_OUTREACH_MESSAGE]\n\n[WHATSAPP_START]\n${waMessage}\n[WHATSAPP_END]\n\n[CALL_SCRIPT_START]\n${callScript}\n[CALL_SCRIPT_END]`;
         fs.writeFileSync(path.join(clientReportsDir, 'outreach.txt'), outreachTxt, 'utf-8');
         fs.writeFileSync(clientFinalPath, outreachTxt, 'utf-8');
-        fs.writeFileSync(reportsFinalPath, outreachTxt, 'utf-8');
 
-        // Update audit.md / report.txt with live deployed URL
+        // Update audit.md with live deployed URL
         const updatedReportContent = reportContent.replace(/\[website-url\]|https:\/\/[a-zA-Z0-9-.]+\.vercel\.app/g, deployedUrl);
         fs.writeFileSync(auditMdPath, updatedReportContent, 'utf-8');
-        fs.writeFileSync(legacyReportPath, updatedReportContent, 'utf-8');
+
+        // Update Google Sheet with Website URL & Status
+        try {
+            const { sheet } = await loadGoogleSheet();
+            await updateLeadFields(sheet, Number(clientId), {
+                'Website URL': deployedUrl,
+                'Current Status': 'Website Built'
+            });
+        } catch (sheetErr) {
+            console.error("Sheet update notice:", sheetErr.message);
+        }
 
         await this.sendStatus(`🎉 *[4/4] Website Built & Hosted Successfully!*\n\n` +
             `🔗 *Live Website:* ${deployedUrl}\n` +
@@ -272,7 +286,6 @@ export class WebsiteBuilder {
             businessName,
             deployedUrl,
             githubRepoUrl,
-            reportsFinalPath,
             outreachJsonPath
         };
     }

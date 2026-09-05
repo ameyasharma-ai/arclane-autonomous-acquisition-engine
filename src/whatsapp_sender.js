@@ -1,7 +1,7 @@
 import { chromium } from 'playwright';
 import path from 'path';
 import fs from 'fs';
-import { loadGoogleSheet, updateLeadField } from './sheets.js';
+import { loadGoogleSheet, updateLeadField, updateLeadFields } from './sheets.js';
 import { ContactManager } from './contacts.js';
 
 export class WhatsAppSender {
@@ -244,8 +244,21 @@ export class WhatsAppSender {
     }
 
     markContactAsPhoneOnly(clientId, phoneNumber) {
-        const finalPath = path.join(this.reportsDir, `final_${clientId}.txt`);
-        const basePath = path.join(this.reportsDir, `${clientId}.txt`);
+        const clientDir = path.join(this.reportsDir, String(clientId));
+        const jsonPath = path.join(clientDir, 'outreach.json');
+        const txtPath = path.join(clientDir, 'outreach.txt');
+        const finalPath = path.join(clientDir, 'final.txt');
+        const auditPath = path.join(clientDir, 'audit.md');
+
+        if (fs.existsSync(jsonPath)) {
+            try {
+                const data = JSON.parse(fs.readFileSync(jsonPath, 'utf-8'));
+                data.whatsappStatus = 'Not registered on WhatsApp (Phone-only)';
+                data.hasWhatsApp = false;
+                data.updatedAt = new Date().toISOString();
+                fs.writeFileSync(jsonPath, JSON.stringify(data, null, 2), 'utf-8');
+            } catch (e) {}
+        }
 
         const noticeHeader = `[STATUS_NOTICE]\n⚠️ THIS CONTACT HAS ONLY PHONE AVAILABLE WITH NO WHATSAPP.\n(Attempted WhatsApp outreach to ${phoneNumber || 'number'} failed: Number is not registered on WhatsApp. Outreach must be conducted via direct phone call).\n\n`;
 
@@ -257,15 +270,15 @@ export class WhatsAppSender {
                 } else {
                     content = noticeHeader + content;
                 }
-                // Update WhatsApp field in CONTACT_DETAILS
                 content = content.replace(/WhatsApp:\s*([^\n\r]+)/i, `WhatsApp: Not registered on WhatsApp (Phone-only contact: ${phoneNumber || 'call only'})`);
                 fs.writeFileSync(filePath, content, 'utf-8');
                 console.log(`[WhatsApp] 📝 Added phone-only notice at top of ${path.basename(filePath)}`);
             }
         };
 
+        updateFile(txtPath);
         updateFile(finalPath);
-        updateFile(basePath);
+        updateFile(auditPath);
     }
 
     async sendSingleMessage(phoneNumber, messageText) {
@@ -449,10 +462,23 @@ export class WhatsAppSender {
                 successCount++;
                 await this.sendStatus(`✅ *[Client ${clientId}] Sent Successfully to +${sendResult.phone}!*`);
                 
-                // Update Google Sheet safely
+                // Calculate Outreach Date & Tentative Follow-up Date (+3 days)
+                const now = new Date();
+                const pad = (n) => String(n).padStart(2, '0');
+                const outreachDate = `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()}`;
+                const followUp = new Date(now);
+                followUp.setDate(now.getDate() + 3);
+                const followUpDate = `${pad(followUp.getDate())}/${pad(followUp.getMonth() + 1)}/${followUp.getFullYear()}`;
+
+                // Update Google Sheet safely (Outreach Platform, Outreach Date, Follow-Up Date, Current Status)
                 try {
                     const { sheet } = await loadGoogleSheet();
-                    await updateLeadField(sheet, clientId, 'Outreach Platform', 'WhatsApp-Sent');
+                    await updateLeadFields(sheet, clientId, {
+                        'Outreach Platform': 'WhatsApp-Sent',
+                        'Outreach Date': outreachDate,
+                        'Follow-Up Date': followUpDate,
+                        'Current Status': 'Contacted'
+                    });
                 } catch (sheetErr) {
                     console.error("Sheet update notice:", sheetErr.message);
                 }
@@ -474,19 +500,22 @@ export class WhatsAppSender {
                         `⚠️ *[Client ${clientId}] Outreach Notice: No WhatsApp Account*\n\n` +
                         `📞 *Phone Number:* \`${targetPhone}\` is *NOT registered on WhatsApp*.\n` +
                         `📌 *Status:* Contact has *ONLY PHONE AVAILABLE* with no WhatsApp.\n` +
-                        `📝 *File Updated:* Added phone-only alert at top of \`final_${clientId}.txt\`.\n` +
+                        `📝 *Report Updated:* Added phone-only alert in \`reports/${clientId}/outreach.json\`.\n` +
                         `💡 *Next Step:* Outreach must be conducted via direct phone call.`
                     );
 
                     // Update Google Sheet safely
                     try {
                         const { sheet } = await loadGoogleSheet();
-                        await updateLeadField(sheet, clientId, 'Outreach Platform', 'Phone-Only (No WhatsApp)');
+                        await updateLeadFields(sheet, clientId, {
+                            'Outreach Platform': 'Phone-Only (No WhatsApp)',
+                            'Current Status': 'Requires Phone Call'
+                        });
                     } catch (sheetErr) {
                         console.error("Sheet update notice:", sheetErr.message);
                     }
                 } else {
-                    await this.sendStatus(`❌ *[Client ${clientId}] Failed:* ${sendResult.reason}`);
+                    await this.sendStatus(`❌ *[Client ${clientId}] Failed:* ${sendResult.reason || 'Unknown error'}`);
                 }
             }
         }
