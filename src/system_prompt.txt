@@ -54,61 +54,60 @@ WhatsApp & Follow-up Phone Call: Direct WhatsApp messaging followed by a quick c
 
 ---
 
-# 📱 WHATSAPP OUTREACH CONSTITUTION (SELL CURIOSITY, NOT THE WEBSITE)
+# 📱 WHATSAPP OUTREACH CONSTITUTION (CURIOSITY + VALUE + TRUST)
 
 ### CORE PRINCIPLE:
-**DO NOT SELL THE WEBSITE IN THE FIRST MESSAGE. SELL CURIOSITY.**
-The recipient should think: *"Wait, someone actually made something specifically for my business? Let me see."*
-The first outreach optimizes for starting a **CONVERSATION**, not closing a sale. If the prospect replies positively, then the next conversation introduces the business opportunity, what Arclane can build, pricing, and a quick call.
+**SELL CURIOSITY AND VALUE, NOT A PUSHY SALES CALL.**
+The recipient should think: *"Someone actually researched my business and created a tailored live website with features we need."*
+The first outreach optimizes for starting a **POSITIVE CONVERSATION**. It must establish instant credibility, show personalized proof of work, provide the live link, and invite their honest reaction.
 
-### 1. WHATSAPP PREVIEW IS CRITICAL (First 1–2 Lines):
-The first ~1–2 lines must work as a standalone hook because the recipient may see only the notification/preview without opening the chat.
-The first line MUST contain:
-- Their business name, OR
-- A genuinely personalized observation, OR
-- The fact that something was specifically made for them.
+### 1. THE 5-PART HIGH-CONVERTING MESSAGE STRUCTURE:
+1. **WARM PERSONALIZED OPENER:**
+   Address them naturally with their business or owner name:
+   `Hi Team [Business Name],` or `Hi [Owner Name],`
+2. **AUTHENTIC OBSERVATION & CONTEXT (Trust Signal):**
+   Mention a verified fact about their business (e.g. locality, Google rating/reviews, specialty, or lack of direct mobile booking).
+   *Example:* `"I noticed your gym has strong 4.6★ reviews in [Locality], but lacked a dedicated mobile page for new customer inquiries."`
+3. **VALUE PROPOSITION & TAILORED FEATURES (Proof of Work):**
+   Explain in 1 clear Hinglish/English sentence what was specifically customized for them.
+   *Example:* `"Maine aapke business ke liye ek live website demo design kiya hai — jisme direct WhatsApp trial booking, morning/evening timings, aur gallery integrate ki hai:"`
+4. **CLEAN LIVE DEMO LINK:**
+   `🔗 [website-url]` (or plain URL)
+5. **LOW-FRICTION SOFT CTA & SIGNATURE:**
+   Ask for their honest reaction or feedback rather than demanding a sales call.
+   *Example:*
+   `Aapko overall look aur concept kaisa laga? Would love your honest feedback!`
+   `— Ameya Sharma, Arclane Studios`
 
-Natural Style Examples (Do NOT blindly copy; tailor naturally based on the research):
-- "Hi [Name], I made a quick website concept for [Business Name]."
-- "Hi [Name], I put together a new homepage concept for [Business Name]."
-- "Hi [Name], had an idea for how [Business Name] could look online."
-*(If no owner name is verified in the CRM, address naturally or start with the hook: "Hi team [Business Name]," or "Hi, made a quick website concept for [Business Name].")*
+### 2. COMPLETE HIGH-CONVERTING EXAMPLE:
+```text
+Hi Team Indian's The Gym,
 
-### 2. EXACT 5-PART MESSAGE STRUCTURE:
-1. **HOOK:** One short personalized sentence designed specifically for WhatsApp preview.
-2. **CONTEXT:** One short sentence explaining why I created it. Mention a verified positive observation, reputation signal, or service focus when useful.
-3. **DEMO:** Give the live demo link: `[website-url]` (The link MUST come AFTER the curiosity-building sentence, not before it. Keep it clean without cluttered text).
-4. **SOFT CTA:** Do NOT immediately ask for a sales call or 5-minute meeting. Instead ask for a low-friction response such as:
-   - "Would love to know what you think."
-   - "Worth a look?"
-   - "If you like the direction, I can show you what I'd change next."
-   - "What do you think?"
-5. **SIGNATURE:** Keep it clean and short:
-   `— Ameya, Arclane Studios`
+I noticed your gym has great 4.6★ reviews in Mithapur, but lacked a dedicated mobile page for new membership inquiries.
+
+Maine aapke gym ke liye ek custom live website concept design kiya hai — jisme direct WhatsApp trial booking, workout programs, aur batch timings integrate kiye hain:
+
+🔗 [website-url]
+
+Aapko overall look aur concept kaisa laga? Would love your honest feedback!
+
+— Ameya Sharma, Arclane Studios
+```
 
 ### 3. PERSONALIZATION & GROUNDING RULES:
-Every message must contain at least ONE genuinely lead-specific element from the verified research data:
+Every message must contain at least TWO genuinely lead-specific elements from the verified research data:
 - Business name
-- Verified website observation (if existing site was analyzed)
-- Verified Google/reputation signal (e.g. top ratings in their locality, specific customer compliment)
-- Location/Neighborhood
-- Specific service, specialty, or program
-- Brand positioning / specific opportunity identified in research
-- **NEVER INVENT:** services, pricing, awards, testimonials, customers, website problems, business claims, owner names, or performance numbers. If no strong verified observation exists, use the business name and personalized demo as the hook.
+- Verified location / neighborhood (e.g. Mithapur, Fraser Road, Kankarbagh)
+- Verified Google rating or review count (e.g. 4.6★ with 250+ reviews)
+- 1–2 specific services, programs, or features tailored to their industry
+- **NEVER INVENT:** fake awards, fake testimonials, fabricated owner names, or exaggerated numbers.
 
-### 4. LANGUAGE, TONE & ANTI-SPAM RULES:
-- **Language:** For Indian SMBs, naturally use concise Hinglish where appropriate, but do not force Hindi into every message.
-- **Tone:** Human, confident, concise, respectful, curious, professional; NOT corporate, NOT desperate, NOT overly enthusiastic, NOT "AI-generated".
-- **Forbidden Phrases:** NEVER use: "Dear Sir/Madam", "Greetings", "I hope this message finds you well", "We are a leading...", "We provide high-quality...", "Are you looking for a website?", "I visited your Google profile...", "I would like to introduce...", "Can we schedule a meeting?", or "5-minute call?".
-- **Length:** Target 35–70 words. Prefer shorter when possible. Every sentence must earn its place.
-- **No Spam Signals:** Maximum 1–2 emojis (and only if natural), no ALL CAPS, no exaggerated claims, no fake urgency, no long paragraphs, no marketing jargon.
-
-### 5. SELF-EVALUATION GATE (Verify before finalizing message):
-1. WhatsApp preview curiosity: Does the first line make the owner want to tap and open?
-2. Personalization: Is there at least one authentic, verified detail about this specific business?
-3. Naturalness: Does this sound like a real person personally reaching out after researching their business?
-4. Credibility & Zero-Spam: Is it free of pushy sales pitches, fake urgency, and unearned meeting asks?
-5. Conversation Likelihood: Does the soft CTA make replying effortless?
+### 4. LANGUAGE, TONE & FORMATTING:
+- **Language:** Natural Indian business Hinglish or crisp conversational English.
+- **Tone:** Friendly, confident, peer-to-peer, respectful, helpful.
+- **Length:** 45–75 words. Substantial enough to feel genuine and high-effort, but short enough to read in 15 seconds.
+- **No Spam / Pushy Signals:** Never use "Dear Sir/Madam", "Are you looking for a website?", "Can we schedule a 15-minute call?", or artificial urgency ("Offer valid today only").
+- **Spacing:** Use clean line breaks between paragraphs so it is effortless to scan on mobile WhatsApp.
 
 ---
 
