@@ -333,6 +333,10 @@ export class WebsiteBuilder {
             html = html.replace(/(<div\s+[^>]*id=["']mobile-menu["'])/i, `${backdropHtml}$1`);
         }
 
+        // 5. Prevent hero heading collision / text clipping with image cards
+        html = html.replace(/(<h1\s+[^>]*class=["'][^"']*)\blg:text-7xl\b([^"']*["'])/gi, '$1lg:text-5xl xl:text-6xl break-words$2');
+        html = html.replace(/(<h1\s+[^>]*class=["'][^"']*)\btext-7xl\b([^"']*["'])/gi, '$1text-4xl sm:text-5xl lg:text-5xl xl:text-6xl break-words$2');
+
         return html;
     }
 }
