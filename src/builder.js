@@ -328,14 +328,44 @@ export class WebsiteBuilder {
         );
 
         // 4. Ensure backdrop overlay exists
-        if (html.includes('id="mobile-menu"') && !html.includes('id="menu-backdrop"')) {
+        if ((html.includes('id="mobile-menu"') || html.includes('id="mobile-drawer"')) && !html.includes('id="menu-backdrop"')) {
             const backdropHtml = `\n    <!-- Mobile Menu Backdrop Overlay -->\n    <div id="menu-backdrop" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[90] hidden transition-opacity duration-300"></div>\n`;
-            html = html.replace(/(<div\s+[^>]*id=["']mobile-menu["'])/i, `${backdropHtml}$1`);
+            html = html.replace(/(<div\s+[^>]*id=["']mobile-(?:menu|drawer)["'])/i, `${backdropHtml}$1`);
         }
 
-        // 5. Prevent hero heading collision / text clipping with image cards
-        html = html.replace(/(<h1\s+[^>]*class=["'][^"']*)\blg:text-7xl\b([^"']*["'])/gi, '$1lg:text-5xl xl:text-6xl break-words$2');
-        html = html.replace(/(<h1\s+[^>]*class=["'][^"']*)\btext-7xl\b([^"']*["'])/gi, '$1text-4xl sm:text-5xl lg:text-5xl xl:text-6xl break-words$2');
+        // 5. Enforce Fluid Mobile Typography on H1 (Prevents horizontal overflow and clipping on 360px-420px mobile screens)
+        html = html.replace(/(<h1\s+[^>]*class=["'])([^"']*)(["'])/gi, (m, p1, classes, p3) => {
+            let c = classes;
+            // Remove oversized base font sizes
+            c = c.replace(/\btext-[3-7]xl\b/g, '');
+            c = c.replace(/\bsm:text-[4-7]xl\b/g, '');
+            c = c.replace(/\blg:text-[5-7]xl\b/g, '');
+            c = c.replace(/\bxl:text-[6-7]xl\b/g, '');
+            c = `text-2xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl leading-[1.15] break-words ${c}`.replace(/\s+/g, ' ').trim();
+            return `${p1}${c}${p3}`;
+        });
+
+        // 6. Ensure H2 Section Headings are wrap-safe on mobile
+        html = html.replace(/(<h2\s+[^>]*class=["'])([^"']*)(["'])/gi, (m, p1, classes, p3) => {
+            let c = classes;
+            if (!c.includes('break-words')) c = `break-words ${c}`;
+            c = c.replace(/\btext-[4-7]xl\b/g, 'text-2xl sm:text-3xl md:text-4xl');
+            return `${p1}${c}${p3}`;
+        });
+
+        // 7. Ensure Body and HTML have zero horizontal overflow and ample bottom padding for mobile sticky action bar
+        html = html.replace(/(<body\s+[^>]*class=["'])([^"']*)(["'])/gi, (m, p1, classes, p3) => {
+            let c = classes;
+            if (!c.includes('pb-28') && !c.includes('pb-24') && !c.includes('pb-20')) c = `pb-28 lg:pb-0 ${c}`;
+            if (!c.includes('overflow-x-hidden')) c = `overflow-x-hidden ${c}`;
+            return `${p1}${c}${p3}`;
+        });
+
+        html = html.replace(/(<html\s+[^>]*class=["'])([^"']*)(["'])/gi, (m, p1, classes, p3) => {
+            let c = classes;
+            if (!c.includes('overflow-x-hidden')) c = `overflow-x-hidden ${c}`;
+            return `${p1}${c}${p3}`;
+        });
 
         return html;
     }
