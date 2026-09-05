@@ -29,14 +29,36 @@ function getMainKeyboard(isAuto = true) {
     ]);
 }
 
+// Global logger & chat ID detector middleware
+bot.use(async (ctx, next) => {
+    const text = ctx.message?.text || ctx.callbackQuery?.data || '';
+    console.log(`[ControllerBot] 📩 Update: ${ctx.updateType} from chat ${ctx.chat?.id} (@${ctx.from?.username || ctx.from?.first_name || 'User'}): "${text}"`);
+    
+    if (ctx.chat?.id) {
+        masterChatId = ctx.chat.id;
+        if (!scheduler) {
+            scheduler = new Scheduler(bot, masterChatId);
+            scheduler.start();
+        } else {
+            scheduler.setChatId(masterChatId);
+        }
+    }
+    return next();
+});
+
+// Global Error Handler
+bot.catch((err, ctx) => {
+    console.error('[ControllerBot] ❌ Error in update handler:', err);
+    try {
+        ctx.reply(`⚠️ *Error:* ${err.message}`, { parse_mode: 'Markdown' }).catch(() => {});
+    } catch (e) {}
+});
+
+// Command: /start
 bot.start(async (ctx) => {
     masterChatId = ctx.chat.id;
-    if (!scheduler) {
-        scheduler = new Scheduler(bot, masterChatId);
-        scheduler.start();
-    } else {
-        scheduler.setChatId(masterChatId);
-    }
+    if (!scheduler) scheduler = new Scheduler(bot, masterChatId);
+    scheduler.setChatId(masterChatId);
 
     const status = scheduler.getStatus();
 
@@ -161,7 +183,7 @@ bot.command('trigger_analyse', async (ctx) => {
     if (!scheduler) scheduler = new Scheduler(bot, ctx.chat.id);
     scheduler.setChatId(ctx.chat.id);
 
-    const args = ctx.message.text.split(' ').slice(1);
+    const args = parseArgs(ctx.message.text);
     const count = parseInt(args[0], 10) || 35;
 
     await ctx.reply(`🚀 Manually triggering batch analysis & website build (max ${count} leads)...`, { parse_mode: 'Markdown' });
@@ -173,7 +195,7 @@ bot.command('trigger_send', async (ctx) => {
     if (!scheduler) scheduler = new Scheduler(bot, ctx.chat.id);
     scheduler.setChatId(ctx.chat.id);
 
-    const args = ctx.message.text.split(' ').slice(1);
+    const args = parseArgs(ctx.message.text);
     const count = parseInt(args[0], 10) || 18;
 
     await ctx.reply(`🚀 Manually triggering WhatsApp dispatch wave (batch size: ${count})...`, { parse_mode: 'Markdown' });
@@ -286,14 +308,16 @@ console.log("==================================================");
 console.log(`[ControllerBot] 🚀 Starting Controller Bot on token: ${CONFIG.BOT_TOKEN.slice(0, 10)}...`);
 console.log("==================================================");
 
-bot.launch().then(() => {
-    console.log("[ControllerBot] ✅ Telegram Bot connected and listening!");
-    // Initialize scheduler immediately
-    scheduler = new Scheduler(bot, null);
-    scheduler.start();
+scheduler = new Scheduler(bot, null);
+scheduler.start();
+
+bot.launch({
+    dropPendingUpdates: false
 }).catch(err => {
-    console.error("[ControllerBot] ❌ Failed to launch Telegram Bot:", err.message);
+    console.error("[ControllerBot] ❌ Polling error:", err.message);
 });
+
+console.log("[ControllerBot] ✅ Telegram Bot is actively listening for messages & commands!");
 
 // Enable graceful stop
 process.once('SIGINT', () => {

@@ -1,0 +1,265 @@
+================================================================================
+ARCLANE 24/7 SERVER DEPLOYMENT & ZERO-CRASH PRODUCTION GUIDE
+================================================================================
+Target System: Full Multi-Bot Ecosystem (Indian & International GMaps Scrapers, 
+BI Reporting Agents, WhatsApp Dispatchers, Next.js Web Agency, & Autonomous Controller)
+Document Version: 1.0.0
+Date: September 2026
+
+--------------------------------------------------------------------------------
+TABLE OF CONTENTS
+--------------------------------------------------------------------------------
+1. Free Cloud Hosting via GitHub Student Developer Pack
+2. Recommended Server Specifications & Resource Architecture
+3. Initial Server Setup & Swap Memory Allocation (Zero-Crash Guard)
+4. System Dependencies & Headless Browser Library Installation
+5. Cloning Repositories & Folder Structure
+6. Environment Variables & Secret Configuration
+7. WhatsApp Web Session Setup on Server
+8. 24/7 Process Management with PM2 (All 6 Bots)
+9. Auto-Start on Server Reboot
+10. Monitoring, Live Logs & Maintenance Commands
+
+================================================================================
+1. FREE CLOUD HOSTING VIA GITHUB STUDENT DEVELOPER PACK
+================================================================================
+Yes! You can host this entire bot ecosystem 100% FREE using benefits included 
+in your GitHub Student Developer Pack:
+
+A. DIGITALOCEAN ($200 Free Credits for 1 Year)
+   - Go to: https://education.github.com/pack
+   - Claim the DigitalOcean $200 platform credit promo code.
+   - Deploy a Droplet:
+     * Image: Ubuntu 24.04 LTS (x64)
+     * Plan: Basic / Premium Intel
+     * Size: 4 vCPU / 8 GB RAM ($48/mo - fully covered by your $200 credits for 4+ months)
+       OR 2 vCPU / 4 GB RAM ($24/mo - fully covered for 8+ months with Swap enabled)
+     * Datacenter: Bangalore (BLR1) for ultra-low Indian WhatsApp/Google latency.
+
+B. MICROSOFT AZURE FOR STUDENTS ($100 Annual Free Credit + 12 Mo Free Services)
+   - Claim via GitHub Student Pack (No credit card required).
+   - Create a Linux VM: Standard_B2s (2 vCPU, 4 GB RAM) or Standard_B4ms (4 vCPU, 16 GB RAM).
+   - Location: Central India (Pune) or South India (Chennai).
+
+C. ORACLE CLOUD "ALWAYS FREE" TIER (Lifetime 100% Free Alternative)
+   - Even without GitHub credits, Oracle Cloud gives an "Always Free" ARM instance:
+     * Spec: 4 OCPU (Ampere Altra ARM) + 24 GB RAM + 200 GB NVMe SSD.
+     * Cost: $0.00 / month forever.
+     * Location: Mumbai or Hyderabad.
+
+================================================================================
+2. RECOMMENDED SERVER SPECIFICATIONS & RESOURCE ARCHITECTURE
+================================================================================
+Running all 6 processes concurrently requires managing headless Chromium instances.
+
+Component Breakdown:
+- Indian GMaps Scraper (Python + Playwright Chromium): ~500 MB RAM (during active scrape)
+- International GMaps Scraper (Python + Playwright Chromium): ~500 MB RAM
+- Indian BI Agent & WhatsApp Sender (Node.js + Puppeteer): ~500 MB RAM
+- International BI Agent & WhatsApp Sender (Node.js + Puppeteer): ~500 MB RAM
+- 24/7 Controller Bot (Node.js Telegraf + Cron Engine): ~150 MB RAM
+- Web Agency Frontend (Next.js / Vite Dev/Prod Server): ~350 MB RAM
+- OS (Ubuntu Linux) + Xvfb Virtual Framebuffer: ~600 MB RAM
+
+OPTIMAL SERVER PROFILE (Zero Crash Guarantee):
+- CPU: 2 to 4 vCPUs
+- RAM: 4 GB to 8 GB Physical RAM
+- Storage: 50 GB - 80 GB SSD / NVMe
+- Swap File: 8 GB Virtual Swap (Critical safeguard against OOM crashes)
+
+================================================================================
+3. INITIAL SERVER SETUP & SWAP MEMORY ALLOCATION
+================================================================================
+Connect to your server via SSH from your terminal:
+   ssh root@YOUR_SERVER_IP
+
+Step 3.1: Update & Upgrade Linux Packages
+   sudo apt-get update && sudo apt-get upgrade -y
+
+Step 3.2: Create an 8 GB Swapfile (CRITICAL: Prevents Out-Of-Memory termination)
+   sudo fallocate -l 8G /swapfile
+   sudo chmod 600 /swapfile
+   sudo mkswap /swapfile
+   sudo swapon /swapfile
+   echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+   sudo sysctl vm.swappiness=10
+   echo 'vm.swappiness=10' | sudo tee -a /etc/sysctl.conf
+
+================================================================================
+4. SYSTEM DEPENDENCIES & HEADLESS BROWSER INSTALLATION
+================================================================================
+Step 4.1: Install Node.js 20 LTS & Build Essentials
+   curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+   sudo apt-get install -y nodejs git build-essential
+
+Step 4.2: Install Python 3.10+, Pip, and Virtualenv
+   sudo apt-get install -y python3 python3-pip python3-venv
+
+Step 4.3: Install Chromium & Headless Display Libraries (Required for Playwright/Puppeteer)
+   sudo apt-get install -y xvfb libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 \
+   libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxrandr2 libgbm1 libasound2 \
+   libpangocairo-1.0-0 libpango-1.0-0 libxshmfence1 libglib2.0-0
+
+Step 4.4: Install Global PM2 & Vercel CLI
+   sudo npm install -g pm2 vercel
+
+================================================================================
+5. CLONING REPOSITORIES & FOLDER STRUCTURE
+================================================================================
+Create a dedicated deployment directory on the server:
+   mkdir -p /root/agency-bots
+   cd /root/agency-bots
+
+Clone your repositories into separate folders:
+
+1. Indian BI Reporting & Controller Bot:
+   git clone https://github.com/ameyasharma-ai/business_intelligence_reporting_agent.git ./bi-agent-indian
+   cd bi-agent-indian
+   npm install
+   cd ..
+
+2. Indian Google Maps Scraper:
+   git clone https://github.com/YOUR_GITHUB_USERNAME/gmaps-scraper-Indian.git ./scraper-indian
+   cd scraper-indian
+   python3 -m venv venv
+   source venv/bin/activate
+   pip install -r requirements.txt
+   playwright install chromium
+   playwright install-deps
+   deactivate
+   cd ..
+
+3. International BI Reporting Agent:
+   git clone https://github.com/YOUR_GITHUB_USERNAME/business_intelligence_reporting_agent-International.git ./bi-agent-intl
+   cd bi-agent-intl
+   npm install
+   cd ..
+
+4. International Google Maps Scraper:
+   git clone https://github.com/YOUR_GITHUB_USERNAME/gmaps-scraper-International.git ./scraper-intl
+   cd scraper-intl
+   python3 -m venv venv
+   source venv/bin/activate
+   pip install -r requirements.txt
+   playwright install chromium
+   playwright install-deps
+   deactivate
+   cd ..
+
+5. Web Agency Frontend:
+   git clone https://github.com/YOUR_GITHUB_USERNAME/WEB-DEV-AGENCY.git ./web-agency
+   cd web-agency
+   npm install
+   npm run build
+   cd ..
+
+================================================================================
+6. ENVIRONMENT VARIABLES & SECRETS CONFIGURATION
+================================================================================
+For each project, create its `.env` file and place `service_account.json`:
+
+In `/root/agency-bots/bi-agent-indian/.env`:
+--------------------------------------------------
+TELEGRAM_BOT_TOKEN=[REDACTED_TELEGRAM_TOKEN]
+TELEGRAM_SALES_BOT_TOKEN=[REDACTED_TELEGRAM_TOKEN]
+OPENROUTER_API_KEY=your_openrouter_api_key_here
+SPREADSHEET_NAME="Google Maps Leads"
+WORKSHEET_NAME="Sheet1"
+SERVICE_ACCOUNT_FILE="service_account.json"
+GMAIL_ADDRESS="ameyasharma401@gmail.com"
+GMAIL_APP_PASSWORD="your_gmail_app_password"
+VERCEL_TOKEN="your_vercel_token"
+--------------------------------------------------
+(Also upload your Google Cloud `service_account.json` into `/root/agency-bots/bi-agent-indian/`)
+
+================================================================================
+7. WHATSAPP WEB HEADLESS SESSION SETUP ON SERVER
+================================================================================
+To authenticate WhatsApp Web on a remote Linux server:
+
+Option A (Fastest: Copy existing session from your PC):
+   Copy your local `whatsapp_user_session/` folder from your PC to the server:
+   scp -r "c:\Users\Ameya Sharma\Downloads\business_intelligence_reporting_agent- Indian\whatsapp_user_session" root@YOUR_SERVER_IP:/root/agency-bots/bi-agent-indian/
+
+Option B (Authenticate via Telegram on Server):
+   The bot supports `/login` which can send the QR code terminal snapshot or 
+   run via virtual framebuffer (Xvfb) so you can scan it once from your phone.
+
+================================================================================
+8. 24/7 PROCESS MANAGEMENT WITH PM2 (RUNNING ALL 6 PROCESSES)
+================================================================================
+PM2 ensures auto-restart on any crash, memory capping, and log rotation.
+
+Execute the following commands on the server:
+
+1. Launch Indian GMaps Scraper Bot:
+   pm2 start "/root/agency-bots/scraper-indian/venv/bin/python telegram_bot.py" \
+     --name "scraper-indian" \
+     --cwd "/root/agency-bots/scraper-indian" \
+     --max-memory-restart 800M
+
+2. Launch International GMaps Scraper Bot:
+   pm2 start "/root/agency-bots/scraper-intl/venv/bin/python telegram_bot.py" \
+     --name "scraper-intl" \
+     --cwd "/root/agency-bots/scraper-intl" \
+     --max-memory-restart 800M
+
+3. Launch Indian BI & WhatsApp Pipeline Bot:
+   pm2 start "node src/index.js" \
+     --name "pipeline-indian" \
+     --cwd "/root/agency-bots/bi-agent-indian" \
+     --max-memory-restart 800M
+
+4. Launch International BI & WhatsApp Pipeline Bot:
+   pm2 start "node src/index.js" \
+     --name "pipeline-intl" \
+     --cwd "/root/agency-bots/bi-agent-intl" \
+     --max-memory-restart 800M
+
+5. Launch 24/7 Autonomous Controller Bot (@controller_Ameya_999_Bot):
+   pm2 start "node controller_bot/index.js" \
+     --name "arclane-controller" \
+     --cwd "/root/agency-bots/bi-agent-indian" \
+     --max-memory-restart 400M
+
+6. Launch Agency Web App Server:
+   pm2 start "npm run start" \
+     --name "agency-web" \
+     --cwd "/root/agency-bots/web-agency" \
+     --max-memory-restart 500M
+
+================================================================================
+9. AUTO-START ON SERVER REBOOT
+================================================================================
+Save the running process list so all bots automatically resurrect after server restart:
+
+   pm2 save
+   pm2 startup
+
+(Copy and paste the sudo env command generated by `pm2 startup` if prompted).
+
+================================================================================
+10. MONITORING, LIVE LOGS & MAINTENANCE COMMANDS
+================================================================================
+
+• View All Running Bots & CPU/RAM Usage:
+   pm2 status
+   pm2 monit
+
+• Stream Real-Time Logs for a Specific Bot:
+   pm2 logs arclane-controller
+   pm2 logs pipeline-indian
+   pm2 logs scraper-indian
+
+• Restart Any Bot After Code Updates:
+   pm2 restart arclane-controller
+   pm2 restart all
+
+• Pull Latest Code from GitHub:
+   cd /root/agency-bots/bi-agent-indian && git pull && pm2 restart all
+
+================================================================================
+Summary: With 8 GB RAM (or 4 GB RAM + 8 GB Swap) on Ubuntu 24.04 via GitHub 
+Student credits (DigitalOcean/Azure), your entire 6-bot infrastructure will run 
+24 hours a day, 7 days a week with zero crashes.
+================================================================================
