@@ -36,9 +36,15 @@ export class WebsiteBuilder {
     }
 
     async buildClientWebsite(clientId, force = false) {
-        const reportPath = path.join(this.reportsDir, `${clientId}.txt`);
-        if (!fs.existsSync(reportPath)) {
-            throw new Error(`Report file reports/${clientId}.txt not found. Please run /analyse first.`);
+        const clientReportsDir = path.join(this.reportsDir, String(clientId));
+        const auditMdPath = path.join(clientReportsDir, 'audit.md');
+        const legacyReportPath = path.join(this.reportsDir, `${clientId}.txt`);
+
+        let reportPath = legacyReportPath;
+        if (fs.existsSync(auditMdPath)) {
+            reportPath = auditMdPath;
+        } else if (!fs.existsSync(legacyReportPath)) {
+            throw new Error(`Report file for Client ${clientId} not found. Please run /analyse first.`);
         }
 
         const reportContent = fs.readFileSync(reportPath, 'utf-8');
@@ -51,20 +57,32 @@ export class WebsiteBuilder {
         }
 
         // Failsafe: Check if client website is already built and live
+        const outreachJsonPath = path.join(clientReportsDir, 'outreach.json');
         const reportsFinalPath = path.join(this.reportsDir, `final_${clientId}.txt`);
-        if (fs.existsSync(reportsFinalPath) && !force) {
-            const existingFinalContent = fs.readFileSync(reportsFinalPath, 'utf-8');
-            const existingUrlMatch = existingFinalContent.match(/https:\/\/[a-zA-Z0-9-.]+\.vercel\.app/i);
-            if (existingUrlMatch) {
-                const liveUrl = existingUrlMatch[0];
+        const clientFinalPath = path.join(clientReportsDir, 'final.txt');
+
+        if (!force) {
+            let existingLiveUrl = null;
+            if (fs.existsSync(outreachJsonPath)) {
+                try {
+                    const parsed = JSON.parse(fs.readFileSync(outreachJsonPath, 'utf-8'));
+                    if (parsed.deployedUrl) existingLiveUrl = parsed.deployedUrl;
+                } catch (e) {}
+            }
+            if (!existingLiveUrl && fs.existsSync(reportsFinalPath)) {
+                const existingFinalContent = fs.readFileSync(reportsFinalPath, 'utf-8');
+                const existingUrlMatch = existingFinalContent.match(/https:\/\/[a-zA-Z0-9-.]+\.vercel\.app/i);
+                if (existingUrlMatch) existingLiveUrl = existingUrlMatch[0];
+            }
+            if (existingLiveUrl) {
                 await this.sendStatus(`⏭️ *Lead ${clientId} (${businessName}) is already built & deployed!* \n\n` +
-                    `🔗 *Live Website:* ${liveUrl}\n` +
-                    `📄 *Final file:* \`final_${clientId}.txt\` is ready to dispatch.\n\n` +
+                    `🔗 *Live Website:* ${existingLiveUrl}\n` +
+                    `📄 *Reports:* \`reports/${clientId}/outreach.json\` is ready.\n\n` +
                     `💡 *(To force rebuild from scratch, send: \`build_${clientId}.txt --force\`)*`);
                 return {
                     clientId,
                     businessName,
-                    deployedUrl: liveUrl,
+                    deployedUrl: existingLiveUrl,
                     alreadyBuilt: true
                 };
             }
@@ -85,7 +103,7 @@ export class WebsiteBuilder {
             }
         }
 
-        await this.sendStatus(`🚀 *[1/4] Generating Website Code for ${businessName}...*\nUsing Antigravity Prompt from reports/${clientId}.txt`);
+        await this.sendStatus(`🚀 *[1/4] Generating Website Code for ${businessName}...*\nUsing Antigravity Prompt from reports/${clientId}`);
 
         // 2. Generate Code using LLM
         let rawCode = await this.llmClient.generateCode(antigravityPrompt);
@@ -102,21 +120,22 @@ export class WebsiteBuilder {
         // Apply deterministic design quality gate (guarantees solid header, top-11/12 mobile drawer spacing, rounded-tl-2xl, and backdrop overlay)
         htmlCode = this.enforceDesignQualityStandards(htmlCode);
 
-        // 3. Save to generated_sites/<repoSlug>
-        const repoSlug = `${businessName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-website`.replace(/^-+|-+$/g, '');
-        let githubRepoUrl = `https://github.com/ameyasharma-ai/${repoSlug}`;
-
-        const clientSiteDir = path.join(this.sitesDir, repoSlug);
+        // 3. Save locally to generated_sites/<clientId>
+        const clientSiteDir = path.join(this.sitesDir, String(clientId));
         if (!fs.existsSync(clientSiteDir)) {
             fs.mkdirSync(clientSiteDir, { recursive: true });
         }
         const htmlFilePath = path.join(clientSiteDir, 'index.html');
         fs.writeFileSync(htmlFilePath, htmlCode, 'utf-8');
 
-        // Write package.json so Vercel registers the exact business name
-        fs.writeFileSync(path.join(clientSiteDir, 'package.json'), JSON.stringify({ name: repoSlug, version: "1.0.0" }, null, 2), 'utf-8');
+        // Vercel & GitHub project name (clean business slug with NO "website" suffix)
+        const vercelSlug = businessName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+        let githubRepoUrl = `https://github.com/ameyasharma-ai/${vercelSlug}`;
 
-        await this.sendStatus(`✅ *[2/4] Code Generated Successfully!*\nSaved locally to \`generated_sites/${repoSlug}/index.html\``);
+        // Write package.json so Vercel registers the exact clean business name
+        fs.writeFileSync(path.join(clientSiteDir, 'package.json'), JSON.stringify({ name: vercelSlug, version: "1.0.0" }, null, 2), 'utf-8');
+
+        await this.sendStatus(`✅ *[2/4] Code Generated Successfully!*\nSaved locally to \`generated_sites/${clientId}/index.html\``);
 
         // 4. Git & GitHub Hosting
         await this.sendStatus(`📦 *[3/4] Publishing to GitHub & Deploying to Vercel...*`);
@@ -134,7 +153,7 @@ export class WebsiteBuilder {
                 : "gh";
 
             try {
-                const { stdout: ghOut } = await execAsync(`${ghBinary} repo create ameyasharma-ai/${repoSlug} --public --source=. --remote=origin --push`, { cwd: clientSiteDir });
+                const { stdout: ghOut } = await execAsync(`${ghBinary} repo create ameyasharma-ai/${vercelSlug} --public --source=. --remote=origin --push`, { cwd: clientSiteDir });
                 const ghMatch = ghOut.match(/https:\/\/github\.com\/[^\s]+/);
                 if (ghMatch) githubRepoUrl = ghMatch[0];
             } catch (ghErr) {
@@ -173,7 +192,7 @@ export class WebsiteBuilder {
                 try {
                     const { stdout: lsOut, stderr: lsErr } = await execAsync(`npx -y vercel project ls`, { timeout: 30000 });
                     const cleanLs = `${lsOut || ''}\n${lsErr || ''}`.replace(/\x1B\[[0-9;]*[a-zA-Z]/g, '');
-                    const projectMatch = cleanLs.match(new RegExp(`${repoSlug}\\s+(https:\\/\\/[a-zA-Z0-9-]+\\.vercel\\.app)`, 'i'));
+                    const projectMatch = cleanLs.match(new RegExp(`${vercelSlug}\\s+(https:\\/\\/[a-zA-Z0-9-]+\\.vercel\\.app)`, 'i'));
                     if (projectMatch) {
                         deployedUrl = projectMatch[1].trim();
                     }
@@ -189,48 +208,72 @@ export class WebsiteBuilder {
             throw new Error(`Could not determine public Vercel production URL for ${businessName}. Please verify Vercel CLI credentials.`);
         }
 
-        // 6. Generate final_${clientId}.txt containing Target Contact Details & Outreach Messages with updated website URL
-        let finalOutreachMessage = "";
-        const outreachMatch = reportContent.match(/(\[CONTACT_DETAILS\][\s\S]*?)(?=\[AUDIT_START\]|$)/i);
-        if (outreachMatch) {
-            finalOutreachMessage = outreachMatch[1].trim();
-        } else {
-            const finalMessageMatch = reportContent.match(/(\[FINAL_OUTREACH_MESSAGE\][\s\S]*?)(?=\[AUDIT_START\]|$)/i);
-            if (finalMessageMatch) {
-                finalOutreachMessage = finalMessageMatch[1].trim();
-            } else {
-                // Fallback: extract whatsapp & call script blocks
-                const waMatch = reportContent.match(/\[WHATSAPP_START\][\s\S]*?\[WHATSAPP_END\]/i);
-                const callMatch = reportContent.match(/\[CALL_SCRIPT_START\][\s\S]*?\[CALL_SCRIPT_END\]/i);
-                finalOutreachMessage = `[FINAL_OUTREACH_MESSAGE]\n\n${waMatch ? waMatch[0] : ''}\n\n${callMatch ? callMatch[0] : ''}`;
-            }
+        // 6. Generate structured & formatted reports in reports/<clientId>/
+        if (!fs.existsSync(clientReportsDir)) {
+            fs.mkdirSync(clientReportsDir, { recursive: true });
         }
 
-        // Replace [website-url] or previous vercel urls with newly deployed URL
-        const updatedFinalMessage = finalOutreachMessage.replace(/\[website-url\]|https:\/\/[a-zA-Z0-9-.]+\.vercel\.app/g, deployedUrl);
+        // Extract WhatsApp message
+        let waMessage = "";
+        const waMatch = reportContent.match(/\[WHATSAPP_START\]([\s\S]*?)\[WHATSAPP_END\]/i);
+        if (waMatch) {
+            waMessage = waMatch[1].trim().replace(/\[website-url\]|https:\/\/[a-zA-Z0-9-.]+\.vercel\.app/g, deployedUrl);
+        }
 
-        // Write reports/final_${clientId}.txt
-        fs.writeFileSync(reportsFinalPath, updatedFinalMessage, 'utf-8');
+        // Extract Call Script
+        let callScript = "";
+        const callMatch = reportContent.match(/\[CALL_SCRIPT_START\]([\s\S]*?)\[CALL_SCRIPT_END\]/i);
+        if (callMatch) {
+            callScript = callMatch[1].trim().replace(/\[website-url\]|https:\/\/[a-zA-Z0-9-.]+\.vercel\.app/g, deployedUrl);
+        }
 
-        // 7. Update reports/${clientId}.txt research file with deployed URL
+        // Extract Contact info
+        const phoneMatch = reportContent.match(/Phone:\s*([^\n\r]+)/i);
+        const waPhoneMatch = reportContent.match(/WhatsApp:\s*([^\n\r]+)/i);
+        const phone = phoneMatch && !phoneMatch[1].toLowerCase().includes('not available') ? phoneMatch[1].trim() : '';
+        const whatsappPhone = waPhoneMatch && !waPhoneMatch[1].toLowerCase().includes('not available') ? waPhoneMatch[1].trim() : phone;
+
+        // Construct structured JSON
+        const outreachJson = {
+            clientId: Number(clientId),
+            businessName,
+            phone,
+            whatsapp: whatsappPhone,
+            deployedUrl,
+            githubRepoUrl,
+            whatsappMessage: waMessage,
+            callScript: callScript,
+            updatedAt: new Date().toISOString()
+        };
+        fs.writeFileSync(outreachJsonPath, JSON.stringify(outreachJson, null, 2), 'utf-8');
+
+        // Construct human-readable outreach text
+        const outreachTxt = `[CONTACT_DETAILS]\nPhone: ${phone || 'Not available.'}\nWhatsApp: ${whatsappPhone || 'Not available.'}\n\n[OUTREACH_PLATFORM]\nWhatsApp & Follow-up Phone Call\n\n[FINAL_OUTREACH_MESSAGE]\n\n[WHATSAPP_START]\n${waMessage}\n[WHATSAPP_END]\n\n[CALL_SCRIPT_START]\n${callScript}\n[CALL_SCRIPT_END]`;
+        fs.writeFileSync(path.join(clientReportsDir, 'outreach.txt'), outreachTxt, 'utf-8');
+        fs.writeFileSync(clientFinalPath, outreachTxt, 'utf-8');
+        fs.writeFileSync(reportsFinalPath, outreachTxt, 'utf-8');
+
+        // Update audit.md / report.txt with live deployed URL
         const updatedReportContent = reportContent.replace(/\[website-url\]|https:\/\/[a-zA-Z0-9-.]+\.vercel\.app/g, deployedUrl);
-        fs.writeFileSync(reportPath, updatedReportContent, 'utf-8');
+        fs.writeFileSync(auditMdPath, updatedReportContent, 'utf-8');
+        fs.writeFileSync(legacyReportPath, updatedReportContent, 'utf-8');
 
         await this.sendStatus(`🎉 *[4/4] Website Built & Hosted Successfully!*\n\n` +
             `🔗 *Live Website:* ${deployedUrl}\n` +
             `📦 *GitHub Repo:* ${githubRepoUrl}\n` +
-            `📄 *Created:* \`final_${clientId}.txt\` (Contains updated outreach messages)\n` +
-            `📝 *Updated:* \`reports/${clientId}.txt\` (Replaced [website-url] with live link)`);
+            `📁 *Local Site:* \`generated_sites/${clientId}/\`\n` +
+            `📄 *Structured Report:* \`reports/${clientId}/outreach.json\``);
 
         // Send preview of final outreach message
-        await this.sendStatus(`📋 *Ready-to-Send Outreach Preview:*\n\n\`\`\`\n${updatedFinalMessage}\n\`\`\``);
+        await this.sendStatus(`📋 *Ready-to-Send WhatsApp Outreach Preview:*\n\n\`\`\`\n${waMessage}\n\`\`\``);
 
         return {
             clientId,
             businessName,
             deployedUrl,
             githubRepoUrl,
-            reportsFinalPath
+            reportsFinalPath,
+            outreachJsonPath
         };
     }
 

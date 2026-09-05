@@ -50,42 +50,68 @@ export class WhatsAppSender {
         return null;
     }
 
+    getClientOutreachData(clientId) {
+        const clientDir = path.join(this.reportsDir, String(clientId));
+        const jsonPath = path.join(clientDir, 'outreach.json');
+        const txtPath = path.join(clientDir, 'outreach.txt');
+        const clientFinalPath = path.join(clientDir, 'final.txt');
+        const legacyFinalPath = path.join(this.reportsDir, `final_${clientId}.txt`);
+        const legacyBasePath = path.join(this.reportsDir, `${clientId}.txt`);
+        const auditMdPath = path.join(clientDir, 'audit.md');
+
+        if (fs.existsSync(jsonPath)) {
+            try {
+                const data = JSON.parse(fs.readFileSync(jsonPath, 'utf-8'));
+                return {
+                    businessName: data.businessName || `Client ${clientId}`,
+                    phone: data.whatsapp || data.phone || '',
+                    waMessage: data.whatsappMessage || '',
+                    callScript: data.callScript || '',
+                    deployedUrl: data.deployedUrl || ''
+                };
+            } catch (e) {}
+        }
+
+        let content = "";
+        if (fs.existsSync(txtPath)) {
+            content = fs.readFileSync(txtPath, 'utf-8');
+        } else if (fs.existsSync(clientFinalPath)) {
+            content = fs.readFileSync(clientFinalPath, 'utf-8');
+        } else if (fs.existsSync(legacyFinalPath)) {
+            content = fs.readFileSync(legacyFinalPath, 'utf-8');
+        } else if (fs.existsSync(auditMdPath)) {
+            content = fs.readFileSync(auditMdPath, 'utf-8');
+        } else if (fs.existsSync(legacyBasePath)) {
+            content = fs.readFileSync(legacyBasePath, 'utf-8');
+        }
+
+        if (!content) return null;
+
+        const phone = this.extractContactPhone(content);
+        let waMessage = "";
+        const waMatch = content.match(/\[WHATSAPP_START\]([\s\S]*?)\[WHATSAPP_END\]/i);
+        if (waMatch) waMessage = waMatch[1].trim();
+
+        let businessName = `Client ${clientId}`;
+        const nameMatch = content.match(/\*\*Business Name:\*\*\s*(.+)/i) || content.match(/REPORT:\s*(.+)/i);
+        if (nameMatch) {
+            businessName = nameMatch[1].replace(/[*#]/g, '').trim();
+        }
+
+        return { businessName, phone, waMessage, content };
+    }
+
     async exportContacts(startId, endId) {
         const contactList = [];
         for (let clientId = startId; clientId <= endId; clientId++) {
-            const finalPath = path.join(this.reportsDir, `final_${clientId}.txt`);
-            const basePath = path.join(this.reportsDir, `${clientId}.txt`);
-            
-            let content = "";
-            if (fs.existsSync(finalPath)) {
-                content = fs.readFileSync(finalPath, 'utf-8');
-            } else if (fs.existsSync(basePath)) {
-                content = fs.readFileSync(basePath, 'utf-8');
-            } else {
-                continue;
-            }
+            const data = this.getClientOutreachData(clientId);
+            if (!data) continue;
 
-            const phone = this.extractContactPhone(content);
-            const emailMatch = content.match(/Email:\s*([^\n\r]+)/i);
-
-            let businessName = `Client ${clientId}`;
-            if (fs.existsSync(basePath)) {
-                const baseContent = fs.readFileSync(basePath, 'utf-8');
-                const baseNameMatch = baseContent.match(/\*\*Business Name:\*\*\s*(.+)/i) || baseContent.match(/REPORT:\s*(.+)/i);
-                if (baseNameMatch) {
-                    businessName = baseNameMatch[1].replace(/[*#]/g, '').trim();
-                }
-            } else {
-                const subjectMatch = content.match(/Subject:.*?(?:for|concept for|demo for)\s*(.+?)(?:\s*[–\-]|\s*in\s+Patna|\s*in\s+Pune|$)/i);
-                if (subjectMatch) {
-                    businessName = subjectMatch[1].replace(/[*#]/g, '').trim();
-                }
-            }
-
-            const email = emailMatch && !emailMatch[1].toLowerCase().includes('not available') ? emailMatch[1].trim() : null;
+            const phone = data.phone;
+            const businessName = data.businessName;
 
             if (phone) {
-                contactList.push({ clientId, businessName, phone, email });
+                contactList.push({ clientId, businessName, phone, email: null });
             }
         }
 
@@ -399,30 +425,15 @@ export class WhatsAppSender {
         let failCount = 0;
 
         for (let clientId = startId; clientId <= endId; clientId++) {
-            // 1. Read final report or base report
-            const finalPath = path.join(this.reportsDir, `final_${clientId}.txt`);
-            const basePath = path.join(this.reportsDir, `${clientId}.txt`);
-            
-            let content = "";
-            if (fs.existsSync(finalPath)) {
-                content = fs.readFileSync(finalPath, 'utf-8');
-            } else if (fs.existsSync(basePath)) {
-                content = fs.readFileSync(basePath, 'utf-8');
-            } else {
-                await this.sendStatus(`⚠️ *Client ${clientId}:* Report not found in \`reports/\`. Skipping.`);
+            const data = this.getClientOutreachData(clientId);
+            if (!data) {
+                await this.sendStatus(`⚠️ *Client ${clientId}:* Report/Outreach file not found in \`reports/\`. Skipping.`);
                 failCount++;
                 continue;
             }
 
-            // 2. Extract Phone / WhatsApp (fallback to Phone if WhatsApp missing)
-            const targetPhone = this.extractContactPhone(content);
-
-            // 3. Extract WhatsApp Message
-            let waMessage = "";
-            const waMatch = content.match(/\[WHATSAPP_START\]([\s\S]*?)\[WHATSAPP_END\]/i);
-            if (waMatch) {
-                waMessage = waMatch[1].trim();
-            }
+            const targetPhone = data.phone;
+            const waMessage = data.waMessage;
 
             if (!targetPhone || !waMessage) {
                 await this.sendStatus(`⚠️ *Client ${clientId}:* No valid WhatsApp/Phone contact or message found. Skipping.`);
@@ -430,7 +441,7 @@ export class WhatsAppSender {
                 continue;
             }
 
-            await this.sendStatus(`📲 *[Client ${clientId}] Sending WhatsApp message to ${targetPhone}...*`);
+            await this.sendStatus(`📲 *[Client ${clientId} - ${data.businessName}] Sending WhatsApp message to ${targetPhone}...*`);
 
             const sendResult = await this.sendSingleMessage(targetPhone, waMessage);
 

@@ -58,15 +58,23 @@ export class Orchestrator {
                 // 2. Summarize & Generate 14-Point Strategy
                 const textReport = await this.summarizer.analyze(lead.data, scrapedData);
                 
-                // 3. Save to local reports dir
+                // 3. Save to local reports/<clientId>/ dir
+                const clientReportsDir = path.join(this.reportsDir, String(clientId));
+                if (!fs.existsSync(clientReportsDir)) {
+                    fs.mkdirSync(clientReportsDir, { recursive: true });
+                }
+                const auditPath = path.join(clientReportsDir, 'audit.md');
+                fs.writeFileSync(auditPath, textReport, 'utf-8');
+
+                // Also save legacy text file for backward compatibility
                 const reportFileName = `${clientId}.txt`;
-                const reportPath = path.join(this.reportsDir, reportFileName);
-                fs.writeFileSync(reportPath, textReport, 'utf-8');
+                const legacyReportPath = path.join(this.reportsDir, reportFileName);
+                fs.writeFileSync(legacyReportPath, textReport, 'utf-8');
                 
                 // 4. Update Google Sheet Notes column
                 await updateLeadNotes(lead, reportFileName);
                 
-                await this.sendStatus(`✅ Strategy report generated for ${businessName} (ID: ${clientId})`);
+                await this.sendStatus(`✅ Strategy report generated for ${businessName} (ID: ${clientId})\nSaved to \`reports/${clientId}/audit.md\``);
 
                 // 5. Automatically initiate Website Build & Hosting sequentially
                 try {
