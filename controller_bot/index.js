@@ -130,12 +130,19 @@ bot.command('pause_auto', async (ctx) => {
     });
 });
 
+// Helper for quoted argument parsing (e.g. /trigger_scrape "Dental Clinics" Gurugram 20)
+function parseArgs(text) {
+    const match = text.match(/[^\s"']+|"([^"]*)"|'([^']*)'/g);
+    if (!match) return [];
+    return match.map(arg => arg.replace(/^['"]|['"]$/g, '')).slice(1);
+}
+
 // Command: /trigger_scrape [query] [city] [count]
 bot.command('trigger_scrape', async (ctx) => {
     if (!scheduler) scheduler = new Scheduler(bot, ctx.chat.id);
     scheduler.setChatId(ctx.chat.id);
 
-    const args = ctx.message.text.split(' ').slice(1);
+    const args = parseArgs(ctx.message.text);
     const query = args[0] || "Gyms";
     const city = args[1] || "Pune";
     const count = parseInt(args[2], 10) || 35;
