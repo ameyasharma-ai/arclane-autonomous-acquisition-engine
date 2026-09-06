@@ -34,34 +34,34 @@ The ecosystem links two primary directories (`gmaps-scraper-Indian` and `busines
 ```mermaid
 flowchart TD
     subgraph LeadGen ["1. Lead Extraction (gmaps-scraper-Indian)"]
-        WATCHDOG["Self-Healing Watchdog\n(telegram_bot.py)"] --> GMAPS["Playwright Scraper Engine\n(scraper_no_website.py)"]
-        GMAPS -->|Stream Event [STREAM_LEAD]| STREAM["stdout IPC Stream"]
-        GMAPS -->|Appends Row| GS["Google Sheets CRM\n(Live Sheet1)"]
+        WATCHDOG["Self-Healing Watchdog (telegram_bot.py)"] --> GMAPS["Playwright Scraper Engine (scraper_no_website.py)"]
+        GMAPS -->|Stream Event: STREAM_LEAD| STREAM["stdout IPC Stream"]
+        GMAPS -->|Appends Row| GS["Google Sheets CRM (Live Sheet1)"]
     end
 
-    subgraph Controller ["2. Master Controller (controller_bot/)"]
-        CRON["Scheduler Engine (Asia/Kolkata)\n(plan/week_1_plan.json)"]
-        TG_CTRL["Controller Bot Telegram UI\n(index.js)"]
-        CRON --> STREAM_RUNNER["Stream Pipeline Runner\n(pipeline_runner.js)"]
-        STREAM -->|PQueue Consumer (Concurrency: 1)| STREAM_RUNNER
+    subgraph Controller ["2. Master Controller (controller_bot)"]
+        CRON["Scheduler Engine (plan/week_1_plan.json)"]
+        TG_CTRL["Controller Bot Telegram UI (index.js)"]
+        CRON --> STREAM_RUNNER["Stream Pipeline Runner (pipeline_runner.js)"]
+        STREAM -->|PQueue Consumer: Concurrency 1| STREAM_RUNNER
     end
 
-    subgraph Intelligence ["3. Deep BI & Website Builder (src/)"]
+    subgraph Intelligence ["3. Deep BI & Website Builder (src)"]
         STREAM_RUNNER --> WEB_CRAWL["Deep Web Crawler (scraper.js)"]
         WEB_CRAWL --> LLM["14-Point Strategic Audit (summarizer.js)"]
         LLM --> BUILD["Tailwind CSS Builder (builder.js)"]
         BUILD --> GH["GitHub Repo Creator (gh CLI)"]
         BUILD --> VERCEL["Vercel Production Deployer (vercel CLI)"]
         VERCEL -->|Writes Live URL & Status| GS
-        BUILD --> REPORT["Saved Reports:\n• reports/<id>/audit.md\n• reports/<id>/outreach.json\n• generated_sites/<id>/index.html"]
+        BUILD --> REPORT["Saved Reports (audit.md, outreach.json, index.html)"]
     end
 
     subgraph Outreach ["4. Multi-Channel Outreach Dispatch"]
-        REPORT --> WA["WhatsApp Web Engine\n• vCard Address Book (.vcf)\n• 12:00 PM Wave 1 (18 msgs)\n• 04:30 PM Wave 2 (17 msgs)"]
-        REPORT --> EMAIL["Sales Dispatcher (sales_bot.py)\n• Styled HTML Email + Audit Attachment"]
+        REPORT --> WA["WhatsApp Web Engine (vCard export & scheduled waves)"]
+        REPORT --> EMAIL["Sales Dispatcher (sales_bot.py & HTML emails)"]
         WA --> CLIENT["Business Owner"]
         EMAIL --> CLIENT
-        CRON -->|06:00 PM| CALLS["Telegram Phone Closing Scripts"]
+        CRON -->|06:00 PM Window| CALLS["Telegram Phone Closing Scripts"]
     end
 ```
 
