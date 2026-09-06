@@ -22,7 +22,7 @@ export class ScraperRunner {
         }
     }
 
-    async runScrape({ query, locality, city, targetLeads = 35 }) {
+    async runScrape({ query, locality, city, targetLeads = 35, onLeadScraped = null }) {
         if (this.isRunning) {
             throw new Error("A scraper task is already currently running!");
         }
@@ -40,7 +40,8 @@ export class ScraperRunner {
             `📍 *Query:* \`${query}\`\n` +
             `🏙️ *Location:* \`${locality || city}\`\n` +
             `🎯 *Target Leads:* \`${targetLeads}\`\n` +
-            `⏰ *Started:* ${startTime.toLocaleTimeString('en-IN', { timeZone: CONFIG.TIMEZONE })}`
+            `⏰ *Started:* ${startTime.toLocaleTimeString('en-IN', { timeZone: CONFIG.TIMEZONE })}\n` +
+            `${onLeadScraped ? `⚡ *Streaming Mode:* Real-time website build enabled` : ''}`
         );
 
         return new Promise((resolve, reject) => {
@@ -64,11 +65,31 @@ export class ScraperRunner {
 
             let stdoutData = "";
             let stderrData = "";
+            let lineBuffer = "";
 
             this.activeProcess.stdout.on('data', (data) => {
                 const str = data.toString();
                 stdoutData += str;
                 process.stdout.write(str);
+
+                if (onLeadScraped) {
+                    lineBuffer += str;
+                    const lines = lineBuffer.split('\n');
+                    lineBuffer = lines.pop(); // keep last incomplete line
+
+                    for (const line of lines) {
+                        const trimmed = line.trim();
+                        if (trimmed.includes('[STREAM_LEAD]:')) {
+                            const jsonStr = trimmed.split('[STREAM_LEAD]:')[1].trim();
+                            try {
+                                const leadObj = JSON.parse(jsonStr);
+                                onLeadScraped(leadObj);
+                            } catch (parseErr) {
+                                console.error("[ScraperRunner] Error parsing streamed lead JSON:", parseErr.message);
+                            }
+                        }
+                    }
+                }
             });
 
             this.activeProcess.stderr.on('data', (data) => {

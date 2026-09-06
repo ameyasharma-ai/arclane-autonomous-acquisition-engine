@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arclane AI Ecosystem — Master System Documentation</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Outfit', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            900: '#1e1b4b',
+                        },
+                        emerald: {
+                            400: '#34d399',
+                            500: '#10b981',
+                            900: '#064e3b',
+                        },
+                        amber: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #09090b; }
+        ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
+        .glass-card {
+            background: rgba(24, 24, 27, 0.65);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glow-effect {
+            box-shadow: 0 0 50px -10px rgba(99, 102, 241, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-[#09090b] text-zinc-300 font-sans antialiased selection:bg-indigo-500 selection:text-white pb-16">
+
+    <!-- Top Navigation Header -->
+    <header class="sticky top-0 z-50 bg-[#09090b]/90 backdrop-blur-md border-b border-zinc-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30">
+                    <i data-lucide="bot" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="font-heading font-bold text-white text-lg tracking-tight">ARCLANE STUDIOS</h1>
+                    <p class="text-xs text-zinc-400 font-mono">Autonomous Growth Engine v3.0</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Production Ready
+                </span>
+                <span class="hidden sm:inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-mono bg-zinc-800 text-zinc-300 border border-zinc-700">
+                    <i data-lucide="map-pin" class="w-3.5 h-3.5 text-amber-400"></i> Indian SMBs
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 flex gap-8">
+        
+        <!-- Sticky Sidebar Navigation -->
+        <aside class="hidden lg:block w-64 shrink-0">
+            <div class="sticky top-24 space-y-1 glass-card p-4 rounded-2xl">
+                <p class="text-xs font-mono font-semibold text-zinc-400 uppercase tracking-wider px-3 mb-2">Navigation</p>
+                <a href="#overview" class="flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-white hover:bg-zinc-800/80 rounded-xl transition-colors">
+                    <i data-lucide="activity" class="w-4 h-4 text-indigo-400"></i> System Overview
+                </a>
+                <a href="#architecture" class="flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-zinc-400 hover:text-white hover:bg-zinc-800/80 rounded-xl transition-colors">
+                    <i data-lucide="git-branch" class="w-4 h-4 text-violet-400"></i> Streaming Architecture
+                </a>
+                <a href="#pillars" class="flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-zinc-400 hover:text-white hover:bg-zinc-800/80 rounded-xl transition-colors">
+                    <i data-lucide="layers" class="w-4 h-4 text-blue-400"></i> Core Pillars
+                </a>
+                <a href="#commands" class="flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-zinc-400 hover:text-white hover:bg-zinc-800/80 rounded-xl transition-colors">
+                    <i data-lucide="terminal" class="w-4 h-4 text-amber-400"></i> Command Reference
+                </a>
+                <a href="#crm" class="flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-zinc-400 hover:text-white hover:bg-zinc-800/80 rounded-xl transition-colors">
+                    <i data-lucide="table" class="w-4 h-4 text-emerald-400"></i> Google Sheets CRM
+                </a>
+                <a href="#deployment" class="flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-zinc-400 hover:text-white hover:bg-zinc-800/80 rounded-xl transition-colors">
+                    <i data-lucide="server" class="w-4 h-4 text-pink-400"></i> Server & PM2 Setup
+                </a>
+                <a href="#troubleshooting" class="flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-zinc-400 hover:text-white hover:bg-zinc-800/80 rounded-xl transition-colors">
+                    <i data-lucide="help-circle" class="w-4 h-4 text-cyan-400"></i> Troubleshooting
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 space-y-12 min-w-0">
+
+            <!-- Hero Section -->
+            <section id="overview" class="glass-card rounded-3xl p-8 sm:p-10 relative overflow-hidden glow-effect">
+                <div class="absolute -right-16 -top-16 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="space-y-4 max-w-3xl">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-medium bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                        <i data-lucide="zap" class="w-3.5 h-3.5"></i> 100% Autonomous Client Acquisition
+                    </div>
+                    <h2 class="text-3xl sm:text-4xl font-heading font-extrabold text-white tracking-tight leading-tight">
+                        Arclane AI Multi-Agent Growth Machine
+                    </h2>
+                    <p class="text-zinc-400 text-base sm:text-lg leading-relaxed">
+                        An end-to-end autonomous ecosystem linking high-speed Google Maps scraping, 14-point strategic audits, custom mobile-first Tailwind website generation deployed live on Vercel, and rate-limited WhatsApp curiosity outreach into a unified 24/7 client-closing pipeline.
+                    </p>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-zinc-800/80">
+                        <div class="p-3 bg-zinc-900/60 rounded-xl border border-zinc-800">
+                            <p class="text-xs text-zinc-500 uppercase font-mono">Daily Target</p>
+                            <p class="text-xl font-heading font-bold text-white mt-1">35 Leads</p>
+                        </div>
+                        <div class="p-3 bg-zinc-900/60 rounded-xl border border-zinc-800">
+                            <p class="text-xs text-zinc-500 uppercase font-mono">Deal Price</p>
+                            <p class="text-xl font-heading font-bold text-emerald-400 mt-1">₹7,999</p>
+                        </div>
+                        <div class="p-3 bg-zinc-900/60 rounded-xl border border-zinc-800">
+                            <p class="text-xs text-zinc-500 uppercase font-mono">Hosting</p>
+                            <p class="text-xl font-heading font-bold text-indigo-400 mt-1">Vercel *.app</p>
+                        </div>
+                        <div class="p-3 bg-zinc-900/60 rounded-xl border border-zinc-800">
+                            <p class="text-xs text-zinc-500 uppercase font-mono">Outreach</p>
+                            <p class="text-xl font-heading font-bold text-amber-400 mt-1">WhatsApp & Call</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Architecture Flow Section -->
+            <section id="architecture" class="space-y-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center text-violet-400">
+                        <i data-lucide="git-branch" class="w-5 h-5"></i>
+                    </div>
+                    <h3 class="text-2xl font-heading font-bold text-white">Producer-Consumer Streaming Architecture</h3>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 sm:p-8 space-y-6">
+                    <p class="text-sm text-zinc-400 leading-relaxed">
+                        Rather than waiting for the entire city batch of 35 leads to finish before starting website generation, the system operates as a <strong class="text-white">real-time reactive stream</strong>:
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- Step 1 -->
+                        <div class="p-5 rounded-xl bg-zinc-900/90 border border-zinc-800 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="px-2.5 py-1 rounded-md text-xs font-mono bg-blue-500/10 text-blue-400 border border-blue-500/20">Phase 1: Producer</span>
+                                <i data-lucide="search" class="w-4 h-4 text-blue-400"></i>
+                            </div>
+                            <h4 class="font-heading font-bold text-white text-base">Google Maps Scraper</h4>
+                            <p class="text-xs text-zinc-400 leading-relaxed">
+                                Extracts business cards on Google Maps. As soon as Lead #1 is saved to Google Sheets, it emits a <code class="text-blue-300 font-mono text-[11px]">[STREAM_LEAD]</code> event over IPC and continues scrolling for Lead #2 in parallel.
+                            </p>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="p-5 rounded-xl bg-zinc-900/90 border border-zinc-800 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="px-2.5 py-1 rounded-md text-xs font-mono bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">Phase 2: Stream Worker</span>
+                                <i data-lucide="cpu" class="w-4 h-4 text-indigo-400"></i>
+                            </div>
+                            <h4 class="font-heading font-bold text-white text-base">BI Audit & Site Builder</h4>
+                            <p class="text-xs text-zinc-400 leading-relaxed">
+                                Picks up Lead #1 immediately from the queue. Crawls existing web presence, runs 14-point SWOT audit, generates mobile-first Tailwind code, and publishes to GitHub + Vercel (<code class="text-indigo-300 font-mono text-[11px]">*.vercel.app</code>).
+                            </p>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="p-5 rounded-xl bg-zinc-900/90 border border-zinc-800 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="px-2.5 py-1 rounded-md text-xs font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Phase 3: Dispatcher</span>
+                                <i data-lucide="message-square" class="w-4 h-4 text-emerald-400"></i>
+                            </div>
+                            <h4 class="font-heading font-bold text-white text-base">WhatsApp Outreach</h4>
+                            <p class="text-xs text-zinc-400 leading-relaxed">
+                                Ready websites enter the dispatch queue. Dispatched in two high-conversion waves (12:00 PM & 04:30 PM) with 30–75s safe delays and vCard address book synchronization.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Core Pillars Section -->
+            <section id="pillars" class="space-y-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+                        <i data-lucide="layers" class="w-5 h-5"></i>
+                    </div>
+                    <h3 class="text-2xl font-heading font-bold text-white">The 5 Operational Pillars</h3>
+                </div>
+
+                <div class="space-y-4">
+                    <!-- Pillar 1 -->
+                    <div class="glass-card rounded-2xl p-6 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-heading font-bold text-white text-lg flex items-center gap-2">
+                                <span class="w-6 h-6 rounded-md bg-blue-500/20 text-blue-400 flex items-center justify-center text-xs font-mono">1</span>
+                                Google Maps AI Scraper & Watchdog (`gmaps-scraper-Indian`)
+                            </h4>
+                            <span class="text-xs font-mono text-zinc-500">Python + Playwright</span>
+                        </div>
+                        <p class="text-sm text-zinc-400">
+                            Maintains 24/7 scraping stability with an autonomous Watchdog. If Chromium freezes for $>3$ minutes, it safely terminates the process and resumes without losing progress via <code class="text-zinc-300 font-mono text-xs">scraped_places.txt</code>. Cleans data via Gemini Flash Lite and writes directly to Google Sheets.
+                        </p>
+                    </div>
+
+                    <!-- Pillar 2 -->
+                    <div class="glass-card rounded-2xl p-6 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-heading font-bold text-white text-lg flex items-center gap-2">
+                                <span class="w-6 h-6 rounded-md bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs font-mono">2</span>
+                                24/7 Autonomous Controller Bot (`controller_bot/`)
+                            </h4>
+                            <span class="text-xs font-mono text-zinc-500">Node.js + Telegraf + Cron</span>
+                        </div>
+                        <p class="text-sm text-zinc-400">
+                            Executes your weekly timetable automatically: 09:30 AM Real-Time Stream Scrape & Build $\rightarrow$ 10:30 AM Safety Sweep $\rightarrow$ 12:00 PM WhatsApp Wave 1 $\rightarrow$ 04:30 PM WhatsApp Wave 2 $\rightarrow$ 06:00 PM Deal-Closing Phone Reminder. Controlled remotely via Telegram inline buttons.
+                        </p>
+                    </div>
+
+                    <!-- Pillar 3 -->
+                    <div class="glass-card rounded-2xl p-6 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-heading font-bold text-white text-lg flex items-center gap-2">
+                                <span class="w-6 h-6 rounded-md bg-violet-500/20 text-violet-400 flex items-center justify-center text-xs font-mono">3</span>
+                                14-Point Strategic BI Audit & Website Builder (`src/`)
+                            </h4>
+                            <span class="text-xs font-mono text-zinc-500">LLM + GitHub CLI + Vercel CLI</span>
+                        </div>
+                        <p class="text-sm text-zinc-400">
+                            Crawls existing prospect sites, generates SWOT and SPIN hooks, converts Antigravity prompts into modern Tailwind websites with design quality gates (solid headers, fluid typography, mobile drawers), creates GitHub repos, and deploys live production domains to Vercel.
+                        </p>
+                    </div>
+
+                    <!-- Pillar 4 -->
+                    <div class="glass-card rounded-2xl p-6 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-heading font-bold text-white text-lg flex items-center gap-2">
+                                <span class="w-6 h-6 rounded-md bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-mono">4</span>
+                                WhatsApp Curiosity Outreach Engine (`src/whatsapp_sender.js`)
+                            </h4>
+                            <span class="text-xs font-mono text-zinc-500">Playwright Web Session + vCard</span>
+                        </div>
+                        <p class="text-sm text-zinc-400">
+                            Exports one-tap <code class="text-zinc-300 font-mono text-xs">.vcf</code> address book contacts to your phone and automates WhatsApp Web sends with randomized 30–75s anti-ban delays, sharing the business owner's custom live website.
+                        </p>
+                    </div>
+
+                    <!-- Pillar 5 -->
+                    <div class="glass-card rounded-2xl p-6 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-heading font-bold text-white text-lg flex items-center gap-2">
+                                <span class="w-6 h-6 rounded-md bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs font-mono">5</span>
+                                Sales Email Dispatcher (`sales_bot.py`)
+                            </h4>
+                            <span class="text-xs font-mono text-zinc-500">Python Telegram Bot</span>
+                        </div>
+                        <p class="text-sm text-zinc-400">
+                            Interactive Telegram interface to review leads, preview drafted HTML emails, and attach formatted CSS-styled SEO Audits (<code class="text-zinc-300 font-mono text-xs">Website_UX_SEO_Audit.html</code>).
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Command Reference Section -->
+            <section id="commands" class="space-y-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+                        <i data-lucide="terminal" class="w-5 h-5"></i>
+                    </div>
+                    <h3 class="text-2xl font-heading font-bold text-white">Complete Telegram Command Reference</h3>
+                </div>
+
+                <!-- Table 1: Controller Bot -->
+                <div class="glass-card rounded-2xl overflow-hidden">
+                    <div class="bg-zinc-900/80 px-6 py-4 border-b border-zinc-800 flex items-center justify-between">
+                        <h4 class="font-heading font-bold text-white text-base">🤖 Controller Bot (`controller_bot/index.js`)</h4>
+                        <span class="text-xs font-mono text-indigo-400">Token: 8682918703</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-zinc-950/60 text-xs font-mono uppercase text-zinc-400 border-b border-zinc-800">
+                                <tr>
+                                    <th class="px-6 py-3">Command / Button</th>
+                                    <th class="px-6 py-3">Action Description</th>
+                                    <th class="px-6 py-3">Example Usage</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-zinc-800/60 font-mono text-xs text-zinc-300">
+                                <tr class="hover:bg-zinc-900/40">
+                                    <td class="px-6 py-3 text-indigo-400 font-semibold">/start or /menu</td>
+                                    <td class="px-6 py-3 font-sans text-sm">Opens main interactive dashboard with control buttons</td>
+                                    <td class="px-6 py-3 text-zinc-500">/start</td>
+                                </tr>
+                                <tr class="hover:bg-zinc-900/40">
+                                    <td class="px-6 py-3 text-indigo-400 font-semibold">/status</td>
+                                    <td class="px-6 py-3 font-sans text-sm">Shows real-time task state and daily timetable</td>
+                                    <td class="px-6 py-3 text-zinc-500">/status</td>
+                                </tr>
+                                <tr class="hover:bg-zinc-900/40">
+                                    <td class="px-6 py-3 text-indigo-400 font-semibold">/today</td>
+                                    <td class="px-6 py-3 font-sans text-sm">Displays today's schedule, query, city, and phone script</td>
+                                    <td class="px-6 py-3 text-zinc-500">/today</td>
+                                </tr>
+                                <tr class="hover:bg-zinc-900/40">
+                                    <td class="px-6 py-3 text-amber-400 font-semibold">/trigger_stream</td>
+                                    <td class="px-6 py-3 font-sans text-sm">⚡ Concurrent real-time scrape & website build per lead</td>
+                                    <td class="px-6 py-3 text-amber-300">/trigger_stream "Gyms" "Pune" 35</td>
+                                </tr>
+                                <tr class="hover:bg-zinc-900/40">
+                                    <td class="px-6 py-3 text-zinc-300 font-semibold">/trigger_scrape</td>
+                                    <td class="px-6 py-3 font-sans text-sm">Scrapes Google Maps leads only into Google Sheets</td>
+                                    <td class="px-6 py-3 text-zinc-500">/trigger_scrape "Salons" "Surat" 20</td>
+                                </tr>
+                                <tr class="hover:bg-zinc-900/40">
+                                    <td class="px-6 py-3 text-zinc-300 font-semibold">/trigger_analyse</td>
+                                    <td class="px-6 py-3 font-sans text-sm">Runs batch website builds for all pending leads in sheet</td>
+                                    <td class="px-6 py-3 text-zinc-500">/trigger_analyse 35</td>
+                                </tr>
+                                <tr class="hover:bg-zinc-900/40">
+                                    <td class="px-6 py-3 text-emerald-400 font-semibold">/trigger_send</td>
+                                    <td class="px-6 py-3 font-sans text-sm">Triggers an immediate WhatsApp outreach wave</td>
+                                    <td class="px-6 py-3 text-emerald-300">/trigger_send 18</td>
+                                </tr>
+                                <tr class="hover:bg-zinc-900/40">
+                                    <td class="px-6 py-3 text-zinc-400">/pause_auto / /start_auto</td>
+                                    <td class="px-6 py-3 font-sans text-sm">Suspends or resumes 24/7 automated cron schedule</td>
+                                    <td class="px-6 py-3 text-zinc-500">/pause_auto</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Table 2: Analyzer Bot -->
+                <div class="glass-card rounded-2xl overflow-hidden">
+                    <div class="bg-zinc-900/80 px-6 py-4 border-b border-zinc-800 flex items-center justify-between">
+                        <h4 class="font-heading font-bold text-white text-base">⚙️ Main Analyzer Bot (`src/index.js`)</h4>
+                        <span class="text-xs font-mono text-violet-400">Token: 8927964799</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-zinc-950/60 text-xs font-mono uppercase text-zinc-400 border-b border-zinc-800">
+                                <tr>
+                                    <th class="px-6 py-3">Command</th>
+                                    <th class="px-6 py-3">Action Description</th>
+                                    <th class="px-6 py-3">Example Usage</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-zinc-800/60 font-mono text-xs text-zinc-300">
+                                <tr class="hover:bg-zinc-900/40">
+                                    <td class="px-6 py-3 text-violet-400 font-semibold">/analyse --range [x:y]</td>
+                                    <td class="px-6 py-3 font-sans text-sm">Runs web crawl, 14-point audit, and site builds for range</td>
+                                    <td class="px-6 py-3 text-violet-300">/analyse --range [1:35]</td>
+                                </tr>
+                                <tr class="hover:bg-zinc-900/40">
+                                    <td class="px-6 py-3 text-emerald-400 font-semibold">/send [x:y]</td>
+                                    <td class="px-6 py-3 font-sans text-sm">Prepares vCard export and dispatches WhatsApp wave for range</td>
+                                    <td class="px-6 py-3 text-emerald-300">/send [1:18]</td>
+                                </tr>
+                                <tr class="hover:bg-zinc-900/40">
+                                    <td class="px-6 py-3 text-amber-400 font-semibold">/build &lt;id&gt;</td>
+                                    <td class="px-6 py-3 font-sans text-sm">Builds or forces rebuild of website for Client ID</td>
+                                    <td class="px-6 py-3 text-amber-300">/build 586 --force</td>
+                                </tr>
+                                <tr class="hover:bg-zinc-900/40">
+                                    <td class="px-6 py-3 text-blue-400 font-semibold">/login</td>
+                                    <td class="px-6 py-3 font-sans text-sm">Opens browser window to scan WhatsApp Web QR code</td>
+                                    <td class="px-6 py-3 text-blue-300">/login</td>
+                                </tr>
+                                <tr class="hover:bg-zinc-900/40">
+                                    <td class="px-6 py-3 text-zinc-300 font-semibold">/contacts [x:y]</td>
+                                    <td class="px-6 py-3 font-sans text-sm">Exports .vcf contact card batch to chat</td>
+                                    <td class="px-6 py-3 text-zinc-500">/contacts [1:35]</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Table 3: Google Maps Scraper Bot -->
+                <div class="glass-card rounded-2xl overflow-hidden">
+                    <div class="bg-zinc-900/80 px-6 py-4 border-b border-zinc-800 flex items-center justify-between">
+                        <h4 class="font-heading font-bold text-white text-base">🔍 Google Maps Scraper (`telegram_bot.py`)</h4>
+                        <span class="text-xs font-mono text-blue-400">Path: ../gmaps-scraper-Indian</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-zinc-950/60 text-xs font-mono uppercase text-zinc-400 border-b border-zinc-800">
+                                <tr>
+                                    <th class="px-6 py-3">Command</th>
+                                    <th class="px-6 py-3">Action Description</th>
+                                    <th class="px-6 py-3">Example Usage</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-zinc-800/60 font-mono text-xs text-zinc-300">
+                                <tr class="hover:bg-zinc-900/40">
+                                    <td class="px-6 py-3 text-blue-400 font-semibold">/scrape [flags]</td>
+                                    <td class="px-6 py-3 font-sans text-sm">Launches full Google Maps search and AI cleaner</td>
+                                    <td class="px-6 py-3 text-blue-300">/scrape --query "Gyms" --locality "in Pune" --leads 35</td>
+                                </tr>
+                                <tr class="hover:bg-zinc-900/40">
+                                    <td class="px-6 py-3 text-red-400 font-semibold">/stop</td>
+                                    <td class="px-6 py-3 font-sans text-sm">Safely shuts scraper browser and compiles Excel backup</td>
+                                    <td class="px-6 py-3 text-red-300">/stop</td>
+                                </tr>
+                                <tr class="hover:bg-zinc-900/40">
+                                    <td class="px-6 py-3 text-zinc-300 font-semibold">/status / /logs</td>
+                                    <td class="px-6 py-3 font-sans text-sm">Returns live scraper heartbeat and last 50 log lines</td>
+                                    <td class="px-6 py-3 text-zinc-500">/logs</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Google Sheets CRM Schema -->
+            <section id="crm" class="space-y-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                        <i data-lucide="table" class="w-5 h-5"></i>
+                    </div>
+                    <h3 class="text-2xl font-heading font-bold text-white">Google Sheets CRM Schema & Lifecycle</h3>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 sm:p-8 space-y-4">
+                    <p class="text-sm text-zinc-400">
+                        The Google Sheet operates as your real-time central database. Status transitions occur automatically at each milestone:
+                    </p>
+                    
+                    <div class="flex flex-wrap items-center gap-2 font-mono text-xs py-2">
+                        <span class="px-3 py-1.5 rounded-lg bg-zinc-800 text-zinc-400 border border-zinc-700">[1] Scraped / Blank</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4 text-zinc-600"></i>
+                        <span class="px-3 py-1.5 rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">[2] Website Built</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4 text-zinc-600"></i>
+                        <span class="px-3 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">[3] Contacted - WhatsApp</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4 text-zinc-600"></i>
+                        <span class="px-3 py-1.5 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/30">[4] Call Completed</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4 text-zinc-600"></i>
+                        <span class="px-3 py-1.5 rounded-lg bg-green-500 text-black font-bold">[5] Closed ₹7,999</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-zinc-800">
+                        <div class="space-y-1">
+                            <p class="text-xs font-mono font-semibold text-zinc-400">Core CRM Fields</p>
+                            <ul class="text-xs text-zinc-400 space-y-1 list-disc list-inside">
+                                <li><strong>Client ID:</strong> Sequential integer (1, 2, 3...)</li>
+                                <li><strong>Business Name:</strong> Clean business title</li>
+                                <li><strong>Website URL:</strong> Auto-updated to <code class="text-indigo-400">https://*.vercel.app</code></li>
+                                <li><strong>Phone / WhatsApp:</strong> Cleaned contact number</li>
+                            </ul>
+                        </div>
+                        <div class="space-y-1">
+                            <p class="text-xs font-mono font-semibold text-zinc-400">Enrichment & Audit Fields</p>
+                            <ul class="text-xs text-zinc-400 space-y-1 list-disc list-inside">
+                                <li><strong>AI Outreach Hook:</strong> Custom pain-point pitch</li>
+                                <li><strong>Notes:</strong> Pointer to <code class="text-zinc-300">reports/&lt;id&gt;/audit.md</code></li>
+                                <li><strong>Ratings & Reviews:</strong> Google Maps social proof</li>
+                                <li><strong>Timings & Address:</strong> Operating hours & city</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Production Deployment Section -->
+            <section id="deployment" class="space-y-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-pink-500/10 border border-pink-500/20 flex items-center justify-center text-pink-400">
+                        <i data-lucide="server" class="w-5 h-5"></i>
+                    </div>
+                    <h3 class="text-2xl font-heading font-bold text-white">24/7 VPS Deployment & PM2 Setup</h3>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 sm:p-8 space-y-6">
+                    <div class="space-y-3">
+                        <h4 class="font-heading font-bold text-white text-base flex items-center gap-2">
+                            <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i> Step 1: Create 8 GB Virtual Swap (Zero-Crash Guard)
+                        </h4>
+                        <pre class="bg-zinc-950 p-4 rounded-xl text-xs font-mono text-zinc-300 border border-zinc-800 overflow-x-auto"><code>sudo fallocate -l 8G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab</code></pre>
+                    </div>
+
+                    <div class="space-y-3">
+                        <h4 class="font-heading font-bold text-white text-base flex items-center gap-2">
+                            <i data-lucide="play" class="w-4 h-4 text-indigo-400"></i> Step 2: Start 24/7 Process Manager (PM2)
+                        </h4>
+                        <pre class="bg-zinc-950 p-4 rounded-xl text-xs font-mono text-zinc-300 border border-zinc-800 overflow-x-auto"><code># Install PM2 globally
+sudo npm install -g pm2
+
+# Start Autonomous Controller Bot
+pm2 start controller_bot/index.js --name "arclane-controller" --max-memory-restart 1G
+
+# Start Main Analyzer & Builder Bot
+pm2 start src/index.js --name "arclane-analyzer" --max-memory-restart 1G
+
+# Start Google Maps Scraper Command Center
+pm2 start "python telegram_bot.py" --name "gmaps-scraper" --cwd "../gmaps-scraper-Indian" --max-memory-restart 1G
+
+# Persist across server reboots
+pm2 save
+pm2 startup</code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Troubleshooting Section -->
+            <section id="troubleshooting" class="space-y-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400">
+                        <i data-lucide="help-circle" class="w-5 h-5"></i>
+                    </div>
+                    <h3 class="text-2xl font-heading font-bold text-white">Troubleshooting & Emergency Playbook</h3>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="glass-card rounded-2xl p-5 space-y-2 border-l-4 border-amber-500">
+                        <h4 class="font-heading font-bold text-white text-sm">WhatsApp Web Requires QR Scan</h4>
+                        <p class="text-xs text-zinc-400">
+                            In Telegram Analyzer Bot, send <code class="text-zinc-200 font-mono">/login</code> to open the browser window and scan the QR code. Sessions persist in <code class="text-zinc-200 font-mono">whatsapp_user_session/</code>.
+                        </p>
+                    </div>
+
+                    <div class="glass-card rounded-2xl p-5 space-y-2 border-l-4 border-blue-500">
+                        <h4 class="font-heading font-bold text-white text-sm">Google Sheets 403 Permission Error</h4>
+                        <p class="text-xs text-zinc-400">
+                            Open your Google Sheet $\rightarrow$ Click Share $\rightarrow$ Add the email from <code class="text-zinc-200 font-mono">service_account.json</code> as an <strong>Editor</strong>.
+                        </p>
+                    </div>
+
+                    <div class="glass-card rounded-2xl p-5 space-y-2 border-l-4 border-violet-500">
+                        <h4 class="font-heading font-bold text-white text-sm">Vercel Deployment CLI Error</h4>
+                        <p class="text-xs text-zinc-400">
+                            Run <code class="text-zinc-200 font-mono">npx vercel login</code> on your server terminal or set <code class="text-zinc-200 font-mono">VERCEL_TOKEN="..."</code> in your <code class="text-zinc-200 font-mono">.env</code> file.
+                        </p>
+                    </div>
+
+                    <div class="glass-card rounded-2xl p-5 space-y-2 border-l-4 border-red-500">
+                        <h4 class="font-heading font-bold text-white text-sm">Scraper Freezes on Google Maps</h4>
+                        <p class="text-xs text-zinc-400">
+                            The built-in Watchdog will automatically detect 3 minutes of silence and restart. To manually restart, send <code class="text-zinc-200 font-mono">/stop</code> then <code class="text-zinc-200 font-mono">/scrape ...</code> in Telegram.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16 pt-8 border-t border-zinc-800/80 text-center text-xs text-zinc-500 font-mono">
+        <p>Arclane Studios Ecosystem • Developed by Ameya Sharma • All Rights Reserved</p>
+    </footer>
+
+    <!-- Initialize Lucide Icons -->
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

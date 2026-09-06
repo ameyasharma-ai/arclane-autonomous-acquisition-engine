@@ -49,26 +49,28 @@ export class Scheduler {
 
         console.log(`[Scheduler] 🚀 Starting 24/7 Automation Scheduler (Timezone: ${CONFIG.TIMEZONE})...`);
 
-        // 1. Daily Scraping Job (09:30 AM every day)
-        const scrapeCron = cron.schedule('30 9 * * *', async () => {
+        // 1. Daily Real-Time Streaming Scrape & Build Job (09:30 AM every day)
+        // Concurrently streams each scraped lead directly into the website builder & deployer!
+        const streamCron = cron.schedule('30 9 * * *', async () => {
             if (!this.isAutoRunning) return;
             const today = this.getTodayPlan();
             if (today && today.tasks.scraper.enabled) {
                 try {
-                    await this.scraperRunner.runScrape({
+                    await this.pipelineRunner.runStreamingScrapeAndBuild({
                         query: today.tasks.scraper.query,
                         locality: today.tasks.scraper.locality,
                         city: today.tasks.scraper.city,
-                        targetLeads: today.tasks.scraper.targetLeads
+                        targetLeads: today.tasks.scraper.targetLeads,
+                        scraperRunner: this.scraperRunner
                     });
                 } catch (e) {
-                    console.error("[Scheduler] Scheduled scrape error:", e);
+                    console.error("[Scheduler] Scheduled stream scrape & build error:", e);
                 }
             }
         }, { timezone: CONFIG.TIMEZONE });
-        this.cronJobs.push(scrapeCron);
+        this.cronJobs.push(streamCron);
 
-        // 2. Daily Analysis & Website Build Job (10:30 AM every day)
+        // 2. Safety Sweep Analysis Job (10:30 AM every day) - Catches any manually added leads
         const analyseCron = cron.schedule('30 10 * * *', async () => {
             if (!this.isAutoRunning) return;
             const today = this.getTodayPlan();
@@ -76,7 +78,7 @@ export class Scheduler {
                 try {
                     await this.pipelineRunner.runAnalyseAndBuild(today.tasks.analyseAndBuild.maxLeadsToProcess || 35);
                 } catch (e) {
-                    console.error("[Scheduler] Scheduled analysis error:", e);
+                    console.error("[Scheduler] Scheduled safety sweep analysis error:", e);
                 }
             }
         }, { timezone: CONFIG.TIMEZONE });
@@ -127,7 +129,7 @@ export class Scheduler {
         }, { timezone: CONFIG.TIMEZONE });
         this.cronJobs.push(followUpCron);
 
-        console.log(`[Scheduler] ✅ Registered 5 daily automated cron schedules.`);
+        console.log(`[Scheduler] ✅ Registered 5 daily automated cron schedules with Real-Time Streaming.`);
     }
 
     pause() {

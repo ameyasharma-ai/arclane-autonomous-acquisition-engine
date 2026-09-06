@@ -14,11 +14,12 @@ function getMainKeyboard(isAuto = true) {
             Markup.button.callback('📅 Today\'s Plan', 'cmd_today')
         ],
         [
-            Markup.button.callback('🔍 Trigger Scrape', 'cmd_manual_scrape'),
-            Markup.button.callback('⚙️ Trigger Analyse & Build', 'cmd_manual_analyse')
+            Markup.button.callback('⚡ Stream Scrape & Build', 'cmd_manual_stream'),
+            Markup.button.callback('📲 WhatsApp Dispatch', 'cmd_manual_send')
         ],
         [
-            Markup.button.callback('📲 Trigger WhatsApp Dispatch', 'cmd_manual_send')
+            Markup.button.callback('🔍 Scrape Only', 'cmd_manual_scrape'),
+            Markup.button.callback('⚙️ Build Only', 'cmd_manual_analyse')
         ],
         [
             isAuto 
@@ -65,8 +66,8 @@ bot.start(async (ctx) => {
     await ctx.reply(
         `🤖 *Arclane 24/7 Autonomous Controller Bot*\n\n` +
         `Welcome! I autonomously manage your entire client acquisition pipeline:\n` +
-        `• *Google Maps Scraper:* Automatic daily lead generation\n` +
-        `• *BI Intelligence & Builder:* 14-point audit & responsive website building\n` +
+        `• *Real-Time Stream Scraper:* Streams leads from Google Maps concurrently into the builder\n` +
+        `• *BI Intelligence & Builder:* 14-point audit & responsive website building per lead\n` +
         `• *Vercel Deployer:* Live business slug deployments\n` +
         `• *WhatsApp Dispatcher:* Timed, safe curiosity outreach waves\n\n` +
         `📍 *Status:* ${status.isAutoRunning ? '🟢 Running Automatically (24/7)' : '⏸ Paused'}\n` +
@@ -98,12 +99,12 @@ bot.command('status', async (ctx) => {
         `*Live Task State:*\n` +
         `• 🔍 Scraper: ${s.isScraperRunning ? '🟡 Scraping Active' : '⚪ Idle'}\n` +
         `• ⚙️ Pipeline/Builder: ${s.isPipelineRunning ? '🟡 Building / Dispatching Active' : '⚪ Idle'}\n\n` +
-        `*Daily Cron Schedule:*\n` +
-        `• 09:30 AM: Scrape 35 ${plan?.tasks.scraper.query || 'Leads'}\n` +
-        `• 10:30 AM: Analyse & Build Vercel Websites\n` +
-        `• 12:00 PM: Morning WhatsApp Dispatch (18 msgs)\n` +
-        `• 04:30 PM: Afternoon WhatsApp Dispatch (17 msgs)\n` +
-        `• 06:00 PM: Evening Follow-up Call Reminder`;
+        `*Daily Cron Schedule (Asia/Kolkata):*\n` +
+        `• 09:30 AM: ⚡ Real-time Stream Scrape & Build (35 Leads)\n` +
+        `• 10:30 AM: ⚙️ Safety Sweep Analysis\n` +
+        `• 12:00 PM: 📲 Morning WhatsApp Dispatch Wave (${plan?.tasks.dispatchWave1.batchSize || 18} msgs)\n` +
+        `• 04:30 PM: 📲 Afternoon WhatsApp Dispatch Wave (${plan?.tasks.dispatchWave2.batchSize || 17} msgs)\n` +
+        `• 06:00 PM: 📞 Evening Follow-Up Phone Calls & Scripts`;
 
     await ctx.reply(msg, {
         parse_mode: 'Markdown',
@@ -113,30 +114,36 @@ bot.command('status', async (ctx) => {
 
 // Command: /today
 bot.command('today', async (ctx) => {
-    if (!scheduler) scheduler = new Scheduler(bot, ctx.chat.id);
+    masterChatId = ctx.chat.id;
+    if (!scheduler) scheduler = new Scheduler(bot, masterChatId);
+    scheduler.setChatId(masterChatId);
+
     const plan = scheduler.getTodayPlan();
-    if (!plan) return ctx.reply("⚠️ Could not load schedule plan.");
+    if (!plan) return ctx.reply("Could not load today's plan.");
 
     const msg = 
-        `📅 *Today's Schedule Plan: ${plan.dayName}*\n\n` +
-        `🎯 *Industry Focus:* ${plan.focus}\n\n` +
-        `*Scheduled Timings:*\n` +
-        `• *09:30 AM:* Scrape \`${plan.tasks.scraper.query}\` (${plan.tasks.scraper.locality})\n` +
-        `• *10:30 AM:* Auto-Analyse & Build (up to ${plan.tasks.analyseAndBuild.maxLeadsToProcess} leads)\n` +
-        `• *12:00 PM:* Wave 1 WhatsApp Dispatch (${plan.tasks.dispatchWave1.batchSize} leads)\n` +
-        `• *04:30 PM:* Wave 2 WhatsApp Dispatch (${plan.tasks.dispatchWave2.batchSize} leads)\n` +
-        `• *06:00 PM:* Follow-Up Call Window (${plan.tasks.followUpReview.targetCalls || 15} calls, Goal: ${plan.tasks.followUpReview.targetCloses || 1} close)\n\n` +
-        `📝 *Notes:* ${plan.tasks.followUpReview.notes}`;
+        `📅 *Today's Strategy Blueprint (${plan.dayName})*\n\n` +
+        `🎯 *Target Niche & City:* ${plan.focus}\n\n` +
+        `🔍 *Search Query:* \`${plan.tasks.scraper.query}\` (${plan.tasks.scraper.locality})\n` +
+        `🎯 *Target Volume:* ${plan.tasks.scraper.targetLeads} leads\n\n` +
+        `*Scheduled Timetable:*\n` +
+        `• 09:30 AM: ⚡ Stream Scrape & Build\n` +
+        `• 12:00 PM: 📲 WhatsApp Wave 1 (${plan.tasks.dispatchWave1.batchSize} leads)\n` +
+        `• 04:30 PM: 📲 WhatsApp Wave 2 (${plan.tasks.dispatchWave2.batchSize} leads)\n` +
+        `• 06:00 PM: 📞 Follow-up Calling Window\n\n` +
+        `💡 *Phone Close Script:*\n` +
+        `_${CONFIG.loadPlan()?.phoneScriptTemplates?.courtesyOpener || 'Hi [Owner], Maine aapke business ke liye live website concept share kiya tha...'}_`;
 
     await ctx.reply(msg, { parse_mode: 'Markdown' });
 });
 
 // Command: /start_auto
 bot.command('start_auto', async (ctx) => {
-    if (!scheduler) scheduler = new Scheduler(bot, ctx.chat.id);
-    scheduler.setChatId(ctx.chat.id);
+    masterChatId = ctx.chat.id;
+    if (!scheduler) scheduler = new Scheduler(bot, masterChatId);
+    scheduler.setChatId(masterChatId);
     scheduler.resume();
-    await ctx.reply("🟢 *Autonomous 24/7 Cron Engine Activated!* Daily tasks will run on schedule.", {
+    await ctx.reply(`🟢 *24/7 Autonomous Scheduler Active!*\nRunning daily timetable in \`Asia/Kolkata\` timezone.`, {
         parse_mode: 'Markdown',
         ...getMainKeyboard(true)
     });
@@ -144,20 +151,43 @@ bot.command('start_auto', async (ctx) => {
 
 // Command: /pause_auto
 bot.command('pause_auto', async (ctx) => {
-    if (!scheduler) scheduler = new Scheduler(bot, ctx.chat.id);
+    masterChatId = ctx.chat.id;
+    if (!scheduler) scheduler = new Scheduler(bot, masterChatId);
+    scheduler.setChatId(masterChatId);
     scheduler.pause();
-    await ctx.reply("⏸ *Automation Paused.* Cron triggers will not run until resumed. You can still trigger tasks manually.", {
+    await ctx.reply(`⏸ *Autonomous Scheduler Paused.*\nNo automated cron jobs will trigger until resumed. (Manual triggers still work)`, {
         parse_mode: 'Markdown',
         ...getMainKeyboard(false)
     });
 });
 
-// Helper for quoted argument parsing (e.g. /trigger_scrape "Dental Clinics" Gurugram 20)
+// Helper for quoted argument parsing (e.g. /trigger_stream "Dental Clinics" Gurugram 20)
 function parseArgs(text) {
     const match = text.match(/[^\s"']+|"([^"]*)"|'([^']*)'/g);
     if (!match) return [];
     return match.map(arg => arg.replace(/^['"]|['"]$/g, '')).slice(1);
 }
+
+// Command: /trigger_stream [query] [city] [count]
+bot.command('trigger_stream', async (ctx) => {
+    if (!scheduler) scheduler = new Scheduler(bot, ctx.chat.id);
+    scheduler.setChatId(ctx.chat.id);
+
+    const args = parseArgs(ctx.message.text);
+    const plan = scheduler.getTodayPlan();
+    const query = args[0] || plan?.tasks.scraper.query || "Gyms";
+    const city = args[1] || plan?.tasks.scraper.city || "Pune";
+    const count = parseInt(args[2], 10) || plan?.tasks.scraper.targetLeads || 35;
+
+    await ctx.reply(`⚡ Launching concurrent stream scrape & build for *${query}* in *${city}* (${count} leads)...`, { parse_mode: 'Markdown' });
+    scheduler.pipelineRunner.runStreamingScrapeAndBuild({
+        query,
+        locality: `in ${city}`,
+        city,
+        targetLeads: count,
+        scraperRunner: scheduler.scraperRunner
+    }).catch(e => ctx.reply(`❌ Stream error: ${e.message}`));
+});
 
 // Command: /trigger_scrape [query] [city] [count]
 bot.command('trigger_scrape', async (ctx) => {
@@ -218,11 +248,11 @@ bot.action('cmd_status', async (ctx) => {
         `• 🔍 Scraper: ${s.isScraperRunning ? '🟡 Scraping Active' : '⚪ Idle'}\n` +
         `• ⚙️ Pipeline/Builder: ${s.isPipelineRunning ? '🟡 Building / Dispatching Active' : '⚪ Idle'}\n\n` +
         `*Daily Cron Schedule:*\n` +
-        `• 09:30 AM: Scrape 35 ${plan?.tasks.scraper.query || 'Leads'}\n` +
-        `• 10:30 AM: Analyse & Build Vercel Websites\n` +
-        `• 12:00 PM: Morning WhatsApp Dispatch (18 msgs)\n` +
-        `• 04:30 PM: Afternoon WhatsApp Dispatch (17 msgs)\n` +
-        `• 06:00 PM: Evening Follow-up Call Reminder`,
+        `• 09:30 AM: ⚡ Real-Time Stream Scrape & Build (35 Leads)\n` +
+        `• 10:30 AM: ⚙️ Safety Sweep Analysis\n` +
+        `• 12:00 PM: 📲 Morning WhatsApp Dispatch (${plan?.tasks.dispatchWave1.batchSize || 18} msgs)\n` +
+        `• 04:30 PM: 📲 Afternoon WhatsApp Dispatch (${plan?.tasks.dispatchWave2.batchSize || 17} msgs)\n` +
+        `• 06:00 PM: 📞 Evening Follow-up Call Reminder`,
         {
             parse_mode: 'Markdown',
             ...getMainKeyboard(s.isAutoRunning)
@@ -261,6 +291,24 @@ bot.action('cmd_resume_auto', async (ctx) => {
     await ctx.reply("🟢 *Automation Resumed.* Running 24/7 on schedule.");
 });
 
+bot.action('cmd_manual_stream', async (ctx) => {
+    try { await ctx.answerCbQuery(); } catch (e) {}
+    if (!scheduler) scheduler = new Scheduler(bot, ctx.chat.id);
+    const plan = scheduler.getTodayPlan();
+    const query = plan?.tasks.scraper.query || "Gyms";
+    const city = plan?.tasks.scraper.city || "Pune";
+    const count = plan?.tasks.scraper.targetLeads || 35;
+
+    await ctx.reply(`⚡ Launching concurrent stream scrape & build for *${query}* in *${city}* (${count} leads)...`, { parse_mode: 'Markdown' });
+    scheduler.pipelineRunner.runStreamingScrapeAndBuild({
+        query,
+        locality: `in ${city}`,
+        city,
+        targetLeads: count,
+        scraperRunner: scheduler.scraperRunner
+    }).catch(e => ctx.reply(`❌ Stream error: ${e.message}`));
+});
+
 bot.action('cmd_manual_scrape', async (ctx) => {
     try { await ctx.answerCbQuery(); } catch (e) {}
     if (!scheduler) scheduler = new Scheduler(bot, ctx.chat.id);
@@ -281,7 +329,7 @@ bot.action('cmd_manual_scrape', async (ctx) => {
 bot.action('cmd_manual_analyse', async (ctx) => {
     try { await ctx.answerCbQuery(); } catch (e) {}
     if (!scheduler) scheduler = new Scheduler(bot, ctx.chat.id);
-    await ctx.reply(`🚀 Starting manual analysis & website builds for new leads...`, { parse_mode: 'Markdown' });
+    await ctx.reply(`🚀 Starting manual batch analysis & website builds for new leads...`, { parse_mode: 'Markdown' });
     scheduler.pipelineRunner.runAnalyseAndBuild(35).catch(e => ctx.reply(`❌ Analysis error: ${e.message}`));
 });
 
@@ -296,8 +344,7 @@ bot.action('cmd_view_plan', async (ctx) => {
     try { await ctx.answerCbQuery(); } catch (e) {}
     await ctx.reply(
         `📜 *Weekly Acquisition Blueprint JSON*\n\n` +
-        `File Path: \`plan/week_1_plan.json\`\n` +
-        `HTML Dashboard: \`plan/week_1_plan.html\`\n\n` +
+        `File Path: \`plan/week_1_plan.json\`\n\n` +
         `To modify daily search targets or timings, edit \`plan/week_1_plan.json\` and send \`/start\` to reload.`,
         { parse_mode: 'Markdown' }
     );
