@@ -148,6 +148,18 @@ export class Scheduler {
         this.pipelineRunner.abort();
     }
 
+    abortAndResumePlan() {
+        console.log("[Scheduler] 🛑 Aborting active tasks and resetting to scheduled 24/7 plan...");
+        this.scraperRunner.stop();
+        this.pipelineRunner.abort();
+        
+        setTimeout(() => {
+            this.pipelineRunner.reset();
+            this.isAutoRunning = true;
+            console.log("[Scheduler] 🟢 Scheduler is back in pristine 24/7 automatic timetable mode.");
+        }, 1000);
+    }
+
     stop() {
         for (const job of this.cronJobs) {
             try {

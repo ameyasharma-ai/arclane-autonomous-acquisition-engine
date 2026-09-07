@@ -47,6 +47,14 @@ export class PipelineRunner {
         console.log("[PipelineRunner] 🛑 Abort signal triggered.");
     }
 
+    reset() {
+        this.isAborted = false;
+        this.isProcessing = false;
+        this.leadQueue.clear();
+        this.activeSender = null;
+        console.log("[PipelineRunner] 🔄 State cleanly reset to original idle state.");
+    }
+
     // Process an individual lead streamed in real-time
     async processSingleLead(leadData, loadedSheet = null) {
         if (this.isAborted) return null;

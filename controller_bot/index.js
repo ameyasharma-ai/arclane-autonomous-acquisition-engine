@@ -15,13 +15,14 @@ function getMainKeyboard(isAuto = true) {
         ],
         [
             Markup.button.callback('🚀 360° Full Pipeline (1 Lead)', 'cmd_run_full_1'),
+            Markup.button.callback('⚡ Stream Scrape & Build', 'cmd_manual_stream')
+        ],
+        [
+            Markup.button.callback('🔄 Reset & Resume 24/7 Plan', 'cmd_reset_resume_plan'),
             Markup.button.callback('🛑 Abort Active Task', 'cmd_abort')
         ],
         [
-            Markup.button.callback('⚡ Stream Scrape & Build', 'cmd_manual_stream'),
-            Markup.button.callback('📲 WhatsApp Dispatch', 'cmd_manual_send')
-        ],
-        [
+            Markup.button.callback('📲 WhatsApp Dispatch', 'cmd_manual_send'),
             Markup.button.callback('🔍 Scrape Only', 'cmd_manual_scrape'),
             Markup.button.callback('⚙️ Build Only', 'cmd_manual_analyse')
         ],
@@ -187,7 +188,7 @@ async function handleRunFull(ctx) {
         `📍 *Niche:* \`${query}\`\n` +
         `🏙️ *City:* \`${city}\`\n` +
         `⚡ *Stages:* Scrape ➔ 14-Point Audit ➔ Build Website ➔ Deploy to Vercel ➔ Send WhatsApp Message\n` +
-        `🛑 _Type /abort at any time to cancel._`, { parse_mode: 'Markdown' });
+        `🛑 _Type /abort to cancel, or /reset_plan to restore 24/7 schedule._`, { parse_mode: 'Markdown' });
 
     scheduler.pipelineRunner.runFullEndToEndPipeline({
         query,
@@ -205,6 +206,37 @@ async function handleRunFull(ctx) {
 bot.command('run_full', handleRunFull);
 bot.command('trigger_full', handleRunFull);
 
+// Command: /reset_plan or /resume_plan (Cleanly abort manual tasks and restore pristine 24/7 plan state)
+async function handleResetResumePlan(ctx) {
+    if (!scheduler) scheduler = new Scheduler(bot, ctx.chat.id);
+    scheduler.setChatId(ctx.chat.id);
+
+    const wasScraperRunning = scheduler.scraperRunner.isRunning;
+    const wasPipelineRunning = scheduler.pipelineRunner.isProcessing;
+
+    scheduler.abortAndResumePlan();
+
+    const plan = scheduler.getTodayPlan();
+
+    await ctx.reply(
+        `🔄 *[Controller] SYSTEM RESET TO SCHEDULED 24/7 PLAN!*\n\n` +
+        `• Active Manual Tasks: ${wasScraperRunning || wasPipelineRunning ? 'Terminated & Flushed 🛑' : 'Already Clear ⚪'}\n` +
+        `• Pipeline State: Cleanly Reset to Idle 🔄\n` +
+        `• 24/7 Automation: 🟢 *ACTIVE & RUNNING*\n` +
+        `• Today's Target (${plan?.dayName}): *${plan?.focus}*\n\n` +
+        `📅 *Upcoming Timetable for Today:*\n` +
+        `• 09:30 AM: ⚡ Stream Scrape & Build (${plan?.tasks.scraper.targetLeads || 35} leads)\n` +
+        `• 12:00 PM: 📲 WhatsApp Wave 1 (${plan?.tasks.dispatchWave1.batchSize || 18} msgs)\n` +
+        `• 04:30 PM: 📲 WhatsApp Wave 2 (${plan?.tasks.dispatchWave2.batchSize || 17} msgs)\n` +
+        `• 06:00 PM: 📞 Follow-up Call Alert`,
+        { parse_mode: 'Markdown', ...getMainKeyboard(true) }
+    );
+}
+
+bot.command('reset_plan', handleResetResumePlan);
+bot.command('resume_plan', handleResetResumePlan);
+bot.command('abort_and_resume', handleResetResumePlan);
+
 // Command: /abort and /stop
 async function handleAbort(ctx) {
     if (!scheduler) scheduler = new Scheduler(bot, ctx.chat.id);
@@ -220,7 +252,7 @@ async function handleAbort(ctx) {
         `• Scraper Process: ${wasScraperRunning ? 'Terminated 🛑' : 'Was Idle ⚪'}\n` +
         `• Pipeline / Builder Queue: ${wasPipelineRunning ? 'Cleared & Cancelled 🛑' : 'Was Idle ⚪'}\n` +
         `• WhatsApp Dispatcher: Reset 🛑\n\n` +
-        `System is back in idle standby mode.`,
+        `💡 _To immediately resume the 24/7 automated timetable, send /reset_plan or tap the button below._`,
         { parse_mode: 'Markdown', ...getMainKeyboard(scheduler.isAutoRunning) }
     );
 }
@@ -350,7 +382,7 @@ bot.action('cmd_run_full_1', async (ctx) => {
         `📍 *Niche:* \`${query}\`\n` +
         `🏙️ *City:* \`${city}\`\n` +
         `⚡ *Stages:* Scrape ➔ 14-Point Audit ➔ Build Website ➔ Deploy to Vercel ➔ Send WhatsApp Message\n` +
-        `🛑 _Type /abort at any time to cancel._`, { parse_mode: 'Markdown' });
+        `🛑 _Type /abort to cancel, or /reset_plan to restore 24/7 schedule._`, { parse_mode: 'Markdown' });
 
     scheduler.pipelineRunner.runFullEndToEndPipeline({
         query,
@@ -363,6 +395,11 @@ bot.action('cmd_run_full_1', async (ctx) => {
             ctx.reply(`❌ 360° Pipeline error: ${e.message}`);
         }
     });
+});
+
+bot.action('cmd_reset_resume_plan', async (ctx) => {
+    try { await ctx.answerCbQuery(); } catch (e) {}
+    await handleResetResumePlan(ctx);
 });
 
 bot.action('cmd_abort', async (ctx) => {
