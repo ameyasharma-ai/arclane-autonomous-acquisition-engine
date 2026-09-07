@@ -14,7 +14,9 @@ export class PipelineRunner {
         this.bot = telegramBot;
         this.chatId = notifyChatId;
         this.isProcessing = false;
+        this.isAborted = false;
         this.leadQueue = new PQueue({ concurrency: 1 });
+        this.activeSender = null;
     }
 
     async sendTelegram(msg) {
@@ -23,7 +25,6 @@ export class PipelineRunner {
             try {
                 await this.bot.telegram.sendMessage(this.chatId, msg, { parse_mode: 'Markdown' });
             } catch (e) {
-                // Fallback without markdown
                 try {
                     await this.bot.telegram.sendMessage(this.chatId, msg);
                 } catch (err) {
@@ -33,8 +34,23 @@ export class PipelineRunner {
         }
     }
 
+    abort() {
+        this.isAborted = true;
+        this.isProcessing = false;
+        this.leadQueue.clear();
+        if (this.activeSender) {
+            try {
+                this.activeSender.close();
+            } catch (e) {}
+            this.activeSender = null;
+        }
+        console.log("[PipelineRunner] 🛑 Abort signal triggered.");
+    }
+
     // Process an individual lead streamed in real-time
     async processSingleLead(leadData, loadedSheet = null) {
+        if (this.isAborted) return null;
+
         const clientId = Number(leadData.clientId || leadData['Client ID']);
         const businessName = leadData.businessName || leadData['Business Name'] || `Client ${clientId}`;
 
@@ -66,6 +82,8 @@ export class PipelineRunner {
             const scrapedData = await scraper.scrapeLead(formattedLeadData);
             await scraper.close();
 
+            if (this.isAborted) return null;
+
             // 2. Summarize & Generate 14-Point Strategic Audit
             const summarizer = new Summarizer();
             const textReport = await summarizer.analyze(formattedLeadData, scrapedData);
@@ -88,6 +106,8 @@ export class PipelineRunner {
                 'Current Status': 'Analyzed'
             });
 
+            if (this.isAborted) return null;
+
             // 4. Generate Website & Deploy to Vercel
             const builder = new WebsiteBuilder(this.bot, this.chatId);
             const buildResult = await builder.buildClientWebsite(clientId, false);
@@ -99,7 +119,7 @@ export class PipelineRunner {
                 `📦 *Repo:* ${buildResult.githubRepoUrl}`
             );
 
-            return buildResult;
+            return { ...buildResult, clientId, businessName };
         } catch (err) {
             console.error(`[PipelineRunner] ❌ Error processing stream lead #${clientId}:`, err.message);
             await this.sendTelegram(`⚠️ *[Stream Worker] Error on Lead #${clientId} (${businessName}):* ${err.message}`);
@@ -114,13 +134,15 @@ export class PipelineRunner {
         }
 
         this.isProcessing = true;
+        this.isAborted = false;
         const startTime = new Date();
 
         await this.sendTelegram(
             `🚀 *[Controller] Launching Concurrent Streaming Pipeline...*\n\n` +
             `📍 *Target:* \`${query}\` in \`${locality || city}\`\n` +
             `🎯 *Target Leads:* \`${targetLeads}\`\n` +
-            `⚡ *Architecture:* Real-Time Concurrent Scrape & Build`
+            `⚡ *Architecture:* Real-Time Concurrent Scrape & Build\n` +
+            `💡 _Send /abort at any time to halt execution._`
         );
 
         let sheet = null;
@@ -133,6 +155,7 @@ export class PipelineRunner {
 
         let streamedCount = 0;
         let processedCount = 0;
+        const processedClientIds = [];
 
         try {
             // Run scraper while streaming leads into the processing queue
@@ -142,15 +165,25 @@ export class PipelineRunner {
                 city,
                 targetLeads,
                 onLeadScraped: (leadObj) => {
+                    if (this.isAborted) return;
                     streamedCount++;
                     console.log(`[PipelineRunner] 📥 Received streamed lead #${streamedCount}: ${leadObj.businessName} (ID: ${leadObj.clientId})`);
                     
                     this.leadQueue.add(async () => {
-                        await this.processSingleLead(leadObj, sheet);
-                        processedCount++;
+                        if (this.isAborted) return;
+                        const res = await this.processSingleLead(leadObj, sheet);
+                        if (res && res.clientId) {
+                            processedClientIds.push(res.clientId);
+                            processedCount++;
+                        }
                     });
                 }
             });
+
+            if (this.isAborted) {
+                await this.sendTelegram(`🛑 *[Controller] Pipeline was aborted by user.*`);
+                return { success: false, aborted: true };
+            }
 
             // Wait for all queued website builds to complete
             console.log(`[PipelineRunner] ⏳ Scraper finished. Waiting for remaining queued website builds to complete...`);
@@ -163,15 +196,95 @@ export class PipelineRunner {
                 `📊 *Summary:*\n` +
                 `• Total Leads Scraped: ${streamedCount}\n` +
                 `• Websites Built & Deployed: ${processedCount}\n` +
-                `⏱️ *Total Duration:* ${totalDurationMin} min\n\n` +
-                `🚀 Leads are queued for WhatsApp dispatch waves.`
+                `⏱️ *Total Duration:* ${totalDurationMin} min`
             );
 
             this.isProcessing = false;
-            return { success: true, streamedCount, processedCount, totalDurationMin };
+            return { success: true, streamedCount, processedCount, totalDurationMin, processedClientIds };
         } catch (error) {
             this.isProcessing = false;
+            if (this.isAborted) {
+                await this.sendTelegram(`🛑 *[Controller] Pipeline safely aborted.*`);
+                return { success: false, aborted: true };
+            }
             await this.sendTelegram(`❌ *[Controller] Streaming pipeline error:* ${error.message}`);
+            throw error;
+        }
+    }
+
+    // Full End-to-End Pipeline (Scrape -> Audit -> Build -> Deploy -> WhatsApp Outreach)
+    async runFullEndToEndPipeline({ query, locality, city, targetLeads = 1, scraperRunner }) {
+        if (this.isProcessing) {
+            throw new Error("A task is already in progress!");
+        }
+
+        this.isProcessing = true;
+        this.isAborted = false;
+        const startTime = new Date();
+
+        await this.sendTelegram(
+            `🚀 *[Controller] Starting Complete 360° Acquisition Pipeline!*\n\n` +
+            `📍 *Query:* \`${query}\` (${locality || city})\n` +
+            `🎯 *Target Leads:* \`${targetLeads}\`\n` +
+            `⚡ *Stages:* Scrape ➔ 14-Point Audit ➔ Build Website ➔ Deploy Vercel ➔ WhatsApp Outreach\n` +
+            `💡 _Send /abort at any time to cancel._`
+        );
+
+        try {
+            // Step 1: Run Streaming Scrape & Build
+            this.isProcessing = false; // Reset so runStreamingScrapeAndBuild can claim it
+            const buildRes = await this.runStreamingScrapeAndBuild({
+                query,
+                locality,
+                city,
+                targetLeads,
+                scraperRunner
+            });
+
+            if (this.isAborted || !buildRes || !buildRes.success) {
+                return { success: false, aborted: true };
+            }
+
+            if (!buildRes.processedClientIds || buildRes.processedClientIds.length === 0) {
+                await this.sendTelegram(`⚠️ *[Controller] No leads were processed. Skipping WhatsApp outreach.*`);
+                return { success: false, reason: "No leads processed" };
+            }
+
+            const startId = Math.min(...buildRes.processedClientIds);
+            const endId = Math.max(...buildRes.processedClientIds);
+
+            // Step 2: Automatic WhatsApp Outreach
+            await this.sendTelegram(
+                `📲 *[Controller] Website(s) Deployed! Proceeding to Immediate WhatsApp Outreach Wave...*\n` +
+                `📇 Target Range: \`[${startId}:${endId}]\``
+            );
+
+            this.activeSender = new WhatsAppSender(this.bot, this.chatId);
+            const report = await this.activeSender.sendRange(startId, endId, { skipExport: false });
+            this.activeSender = null;
+
+            const totalDurationMin = ((new Date() - startTime) / 60000).toFixed(1);
+
+            await this.sendTelegram(
+                `🎉 *[Controller] 360° Acquisition Pipeline Complete!*\n\n` +
+                `📊 *Executive Summary:*\n` +
+                `• Leads Scraped & Audited: ${buildRes.streamedCount}\n` +
+                `• Live Websites Deployed: ${buildRes.processedCount}\n` +
+                `• WhatsApp Messages Sent: ${report.sentCount}\n` +
+                `• Skipped / Failed: ${report.skippedCount + report.failedCount}\n` +
+                `⏱️ *Total Duration:* ${totalDurationMin} min\n\n` +
+                `✅ Google Sheets CRM has been updated with live URLs and outreach statuses.`
+            );
+
+            this.isProcessing = false;
+            return { success: true, buildRes, outreachReport: report, totalDurationMin };
+        } catch (error) {
+            this.isProcessing = false;
+            if (this.isAborted) {
+                await this.sendTelegram(`🛑 *[Controller] Full pipeline safely aborted.*`);
+                return { success: false, aborted: true };
+            }
+            await this.sendTelegram(`❌ *[Controller] Error in 360° pipeline:* ${error.message}`);
             throw error;
         }
     }
@@ -183,6 +296,7 @@ export class PipelineRunner {
         }
 
         this.isProcessing = true;
+        this.isAborted = false;
         try {
             await this.sendTelegram(`⚙️ *[Controller] Starting Batch Analysis & Website Builds...*`);
 
@@ -229,6 +343,7 @@ export class PipelineRunner {
         }
 
         this.isProcessing = true;
+        this.isAborted = false;
         try {
             await this.sendTelegram(`📲 *[Controller] Initializing WhatsApp Dispatch Wave (Batch size: ${count})...*`);
 
@@ -267,8 +382,9 @@ export class PipelineRunner {
                 `Safe randomized rate-limiting (30–75s delays) active...`
             );
 
-            const sender = new WhatsAppSender(this.bot, this.chatId);
-            const report = await sender.sendRange(startId, endId, { skipExport: false });
+            this.activeSender = new WhatsAppSender(this.bot, this.chatId);
+            const report = await this.activeSender.sendRange(startId, endId, { skipExport: false });
+            this.activeSender = null;
 
             await this.sendTelegram(
                 `✅ *[Controller] WhatsApp Dispatch Wave Complete!*\n\n` +

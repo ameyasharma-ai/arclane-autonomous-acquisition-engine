@@ -142,6 +142,12 @@ export class Scheduler {
         console.log(`[Scheduler] ▶️ Automation resumed.`);
     }
 
+    abort() {
+        console.log("[Scheduler] 🛑 Aborting active scraper and pipeline processes...");
+        this.scraperRunner.stop();
+        this.pipelineRunner.abort();
+    }
+
     stop() {
         for (const job of this.cronJobs) {
             try {

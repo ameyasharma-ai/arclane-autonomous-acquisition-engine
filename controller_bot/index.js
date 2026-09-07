@@ -14,6 +14,10 @@ function getMainKeyboard(isAuto = true) {
             Markup.button.callback('📅 Today\'s Plan', 'cmd_today')
         ],
         [
+            Markup.button.callback('🚀 360° Full Pipeline (1 Lead)', 'cmd_run_full_1'),
+            Markup.button.callback('🛑 Abort Active Task', 'cmd_abort')
+        ],
+        [
             Markup.button.callback('⚡ Stream Scrape & Build', 'cmd_manual_stream'),
             Markup.button.callback('📲 WhatsApp Dispatch', 'cmd_manual_send')
         ],
@@ -161,12 +165,68 @@ bot.command('pause_auto', async (ctx) => {
     });
 });
 
-// Helper for quoted argument parsing (e.g. /trigger_stream "Dental Clinics" Gurugram 20)
+// Helper for quoted argument parsing (e.g. /run_full "Gyms" "Jaipur" 1)
 function parseArgs(text) {
     const match = text.match(/[^\s"']+|"([^"]*)"|'([^']*)'/g);
     if (!match) return [];
     return match.map(arg => arg.replace(/^['"]|['"]$/g, '')).slice(1);
 }
+
+// Command: /run_full [query] [city] [count] (Scrape + Build + Deploy + WhatsApp Outreach)
+async function handleRunFull(ctx) {
+    if (!scheduler) scheduler = new Scheduler(bot, ctx.chat.id);
+    scheduler.setChatId(ctx.chat.id);
+
+    const args = parseArgs(ctx.message.text);
+    const plan = scheduler.getTodayPlan();
+    const query = args[0] || plan?.tasks.scraper.query || "Gyms";
+    const city = args[1] || plan?.tasks.scraper.city || "Pune";
+    const count = parseInt(args[2], 10) || 1;
+
+    await ctx.reply(`🚀 *Launching Complete 360° Acquisition Pipeline for ${count} lead(s)...*\n\n` +
+        `📍 *Niche:* \`${query}\`\n` +
+        `🏙️ *City:* \`${city}\`\n` +
+        `⚡ *Stages:* Scrape ➔ 14-Point Audit ➔ Build Website ➔ Deploy to Vercel ➔ Send WhatsApp Message\n` +
+        `🛑 _Type /abort at any time to cancel._`, { parse_mode: 'Markdown' });
+
+    scheduler.pipelineRunner.runFullEndToEndPipeline({
+        query,
+        locality: `in`,
+        city,
+        targetLeads: count,
+        scraperRunner: scheduler.scraperRunner
+    }).catch(e => {
+        if (!scheduler.pipelineRunner.isAborted) {
+            ctx.reply(`❌ 360° Pipeline error: ${e.message}`);
+        }
+    });
+}
+
+bot.command('run_full', handleRunFull);
+bot.command('trigger_full', handleRunFull);
+
+// Command: /abort and /stop
+async function handleAbort(ctx) {
+    if (!scheduler) scheduler = new Scheduler(bot, ctx.chat.id);
+    scheduler.setChatId(ctx.chat.id);
+
+    const wasScraperRunning = scheduler.scraperRunner.isRunning;
+    const wasPipelineRunning = scheduler.pipelineRunner.isProcessing;
+
+    scheduler.abort();
+
+    await ctx.reply(
+        `🛑 *[Controller] ABORT SIGNAL SENT!*\n\n` +
+        `• Scraper Process: ${wasScraperRunning ? 'Terminated 🛑' : 'Was Idle ⚪'}\n` +
+        `• Pipeline / Builder Queue: ${wasPipelineRunning ? 'Cleared & Cancelled 🛑' : 'Was Idle ⚪'}\n` +
+        `• WhatsApp Dispatcher: Reset 🛑\n\n` +
+        `System is back in idle standby mode.`,
+        { parse_mode: 'Markdown', ...getMainKeyboard(scheduler.isAutoRunning) }
+    );
+}
+
+bot.command('abort', handleAbort);
+bot.command('stop', handleAbort);
 
 // Command: /trigger_stream [query] [city] [count]
 bot.command('trigger_stream', async (ctx) => {
@@ -179,14 +239,18 @@ bot.command('trigger_stream', async (ctx) => {
     const city = args[1] || plan?.tasks.scraper.city || "Pune";
     const count = parseInt(args[2], 10) || plan?.tasks.scraper.targetLeads || 35;
 
-    await ctx.reply(`⚡ Launching concurrent stream scrape & build for *${query}* in *${city}* (${count} leads)...`, { parse_mode: 'Markdown' });
+    await ctx.reply(`⚡ Launching concurrent stream scrape & build for *${query}* in *${city}* (${count} leads)...\n🛑 _Send /abort to cancel._`, { parse_mode: 'Markdown' });
     scheduler.pipelineRunner.runStreamingScrapeAndBuild({
         query,
-        locality: `in ${city}`,
+        locality: `in`,
         city,
         targetLeads: count,
         scraperRunner: scheduler.scraperRunner
-    }).catch(e => ctx.reply(`❌ Stream error: ${e.message}`));
+    }).catch(e => {
+        if (!scheduler.pipelineRunner.isAborted) {
+            ctx.reply(`❌ Stream error: ${e.message}`);
+        }
+    });
 });
 
 // Command: /trigger_scrape [query] [city] [count]
@@ -199,10 +263,10 @@ bot.command('trigger_scrape', async (ctx) => {
     const city = args[1] || "Pune";
     const count = parseInt(args[2], 10) || 35;
 
-    await ctx.reply(`🚀 Manually triggering scrape for *${query}* in *${city}* (${count} leads)...`, { parse_mode: 'Markdown' });
+    await ctx.reply(`🚀 Manually triggering scrape for *${query}* in *${city}* (${count} leads)...\n🛑 _Send /abort to cancel._`, { parse_mode: 'Markdown' });
     scheduler.scraperRunner.runScrape({
         query,
-        locality: `in ${city}`,
+        locality: `in`,
         city,
         targetLeads: count
     }).catch(e => ctx.reply(`❌ Scrape error: ${e.message}`));
@@ -275,6 +339,37 @@ bot.action('cmd_today', async (ctx) => {
     );
 });
 
+bot.action('cmd_run_full_1', async (ctx) => {
+    try { await ctx.answerCbQuery(); } catch (e) {}
+    if (!scheduler) scheduler = new Scheduler(bot, ctx.chat.id);
+    const plan = scheduler.getTodayPlan();
+    const query = plan?.tasks.scraper.query || "Gyms";
+    const city = plan?.tasks.scraper.city || "Pune";
+
+    await ctx.reply(`🚀 *Launching Complete 360° Acquisition Pipeline for 1 lead...*\n\n` +
+        `📍 *Niche:* \`${query}\`\n` +
+        `🏙️ *City:* \`${city}\`\n` +
+        `⚡ *Stages:* Scrape ➔ 14-Point Audit ➔ Build Website ➔ Deploy to Vercel ➔ Send WhatsApp Message\n` +
+        `🛑 _Type /abort at any time to cancel._`, { parse_mode: 'Markdown' });
+
+    scheduler.pipelineRunner.runFullEndToEndPipeline({
+        query,
+        locality: `in`,
+        city,
+        targetLeads: 1,
+        scraperRunner: scheduler.scraperRunner
+    }).catch(e => {
+        if (!scheduler.pipelineRunner.isAborted) {
+            ctx.reply(`❌ 360° Pipeline error: ${e.message}`);
+        }
+    });
+});
+
+bot.action('cmd_abort', async (ctx) => {
+    try { await ctx.answerCbQuery(); } catch (e) {}
+    await handleAbort(ctx);
+});
+
 bot.action('cmd_pause_auto', async (ctx) => {
     try { await ctx.answerCbQuery(); } catch (e) {}
     if (!scheduler) scheduler = new Scheduler(bot, ctx.chat.id);
@@ -299,14 +394,18 @@ bot.action('cmd_manual_stream', async (ctx) => {
     const city = plan?.tasks.scraper.city || "Pune";
     const count = plan?.tasks.scraper.targetLeads || 35;
 
-    await ctx.reply(`⚡ Launching concurrent stream scrape & build for *${query}* in *${city}* (${count} leads)...`, { parse_mode: 'Markdown' });
+    await ctx.reply(`⚡ Launching concurrent stream scrape & build for *${query}* in *${city}* (${count} leads)...\n🛑 _Send /abort to cancel._`, { parse_mode: 'Markdown' });
     scheduler.pipelineRunner.runStreamingScrapeAndBuild({
         query,
-        locality: `in ${city}`,
+        locality: `in`,
         city,
         targetLeads: count,
         scraperRunner: scheduler.scraperRunner
-    }).catch(e => ctx.reply(`❌ Stream error: ${e.message}`));
+    }).catch(e => {
+        if (!scheduler.pipelineRunner.isAborted) {
+            ctx.reply(`❌ Stream error: ${e.message}`);
+        }
+    });
 });
 
 bot.action('cmd_manual_scrape', async (ctx) => {
@@ -317,10 +416,10 @@ bot.action('cmd_manual_scrape', async (ctx) => {
     const city = plan?.tasks.scraper.city || "Pune";
     const count = plan?.tasks.scraper.targetLeads || 35;
 
-    await ctx.reply(`🚀 Starting manual scrape for *${query}* in *${city}* (${count} leads)...`, { parse_mode: 'Markdown' });
+    await ctx.reply(`🚀 Starting manual scrape for *${query}* in *${city}* (${count} leads)...\n🛑 _Send /abort to cancel._`, { parse_mode: 'Markdown' });
     scheduler.scraperRunner.runScrape({
         query,
-        locality: `in ${city}`,
+        locality: `in`,
         city,
         targetLeads: count
     }).catch(e => ctx.reply(`❌ Scrape error: ${e.message}`));
