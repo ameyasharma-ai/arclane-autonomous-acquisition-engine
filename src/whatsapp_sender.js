@@ -486,12 +486,29 @@ export class WhatsAppSender {
                 } catch (sheetErr) {}
             }
 
-            if (!targetPhone) {
+            // Extract all unique phone numbers for this client (from whatsapp link, maps phone, sheet)
+            const phoneList = [];
+            const addPhoneToList = (rawStr) => {
+                if (!rawStr) return;
+                const parts = String(rawStr).split(/[\/,|]/).map(p => p.trim()).filter(Boolean);
+                for (const part of parts) {
+                    const cleaned = this.cleanPhoneNumber(part);
+                    if (cleaned && !phoneList.includes(cleaned)) {
+                        phoneList.push(cleaned);
+                    }
+                }
+            };
+
+            addPhoneToList(data.whatsapp);
+            addPhoneToList(data.phone);
+            addPhoneToList(targetPhone);
+
+            if (phoneList.length === 0) {
                 await this.sendStatus(
                     `⚠️ *[Lead #${clientId} — ${data.businessName}] No Contact Number Found*\n\n` +
                     `🏢 *Business:* ${data.businessName}\n` +
                     `🌐 *Website Concept:* ${data.deployedUrl || 'Built & Deployed'}\n` +
-                    `❌ *Reason:* No phone number was listed on their Google Maps profile.\n` +
+                    `❌ *Reason:* No phone number was listed on their Google Maps profile or socials.\n` +
                     `💡 *What happened:* WhatsApp outreach was skipped for this lead. You can still use the generated live website to pitch them manually via Instagram, DM, or walk-in!`
                 );
                 try {
@@ -516,14 +533,47 @@ export class WhatsAppSender {
                 continue;
             }
 
-            await this.sendStatus(`📲 *[Client ${clientId} - ${data.businessName}] Sending WhatsApp message to ${targetPhone}...*`);
+            let clientSentSuccess = false;
 
-            const sendResult = await this.sendSingleMessage(targetPhone, waMessage);
+            // Attempt outreach on ALL unique numbers found for this client
+            for (let pIdx = 0; pIdx < phoneList.length; pIdx++) {
+                const currentPhone = phoneList[pIdx];
+                const phoneLabel = phoneList.length > 1 ? ` (${pIdx + 1}/${phoneList.length})` : '';
 
-            if (sendResult.success) {
-                successCount++;
-                await this.sendStatus(`✅ *[Client ${clientId}] Sent Successfully to +${sendResult.phone}!*`);
-                
+                await this.sendStatus(`📲 *[Client ${clientId} - ${data.businessName}] Sending WhatsApp message to +${currentPhone}${phoneLabel}...*`);
+
+                const sendResult = await this.sendSingleMessage(currentPhone, waMessage);
+
+                if (sendResult.success) {
+                    successCount++;
+                    clientSentSuccess = true;
+                    await this.sendStatus(`✅ *[Client ${clientId}] Sent Successfully to +${sendResult.phone}!*`);
+
+                    // Anti-ban delay between multiple numbers of the same lead
+                    if (pIdx < phoneList.length - 1) {
+                        const intraDelay = Math.floor(Math.random() * 5) + 4;
+                        console.log(`[WhatsApp] Waiting ${intraDelay}s before messaging next number of same lead...`);
+                        await new Promise(r => setTimeout(r, intraDelay * 1000));
+                    }
+                } else {
+                    failCount++;
+
+                    // If number is not on WhatsApp, alert and update
+                    if (sendResult.notOnWhatsApp || sendResult.reason?.toLowerCase().includes('not registered') || sendResult.reason?.toLowerCase().includes('invalid')) {
+                        this.markContactAsPhoneOnly(clientId, currentPhone);
+
+                        await this.sendStatus(
+                            `⚠️ *[Client ${clientId}] Number Notice: Not on WhatsApp*\n\n` +
+                            `📞 *Phone Number:* \`+${currentPhone}\` is *NOT registered on WhatsApp*.\n` +
+                            `💡 *Next Step:* Call directly via phone call.`
+                        );
+                    } else {
+                        await this.sendStatus(`❌ *[Client ${clientId} - +${currentPhone}] Failed:* ${sendResult.reason || 'Unknown error'}`);
+                    }
+                }
+            }
+
+            if (clientSentSuccess) {
                 // Calculate Outreach Date & Tentative Follow-up Date (+3 days)
                 const now = new Date();
                 const pad = (n) => String(n).padStart(2, '0');
@@ -544,41 +594,22 @@ export class WhatsAppSender {
                 } catch (sheetErr) {
                     console.error("Sheet update notice:", sheetErr.message);
                 }
-
-                // Anti-ban random delay (6 to 12 seconds)
-                if (clientId < endId) {
-                    const delaySec = Math.floor(Math.random() * 7) + 6;
-                    console.log(`[WhatsApp] Waiting ${delaySec}s safety delay before next lead...`);
-                    await new Promise(r => setTimeout(r, delaySec * 1000));
-                }
             } else {
-                failCount++;
-                
-                // If number is not on WhatsApp, update report file and alert on Telegram
-                if (sendResult.notOnWhatsApp || sendResult.reason?.toLowerCase().includes('not registered') || sendResult.reason?.toLowerCase().includes('invalid')) {
-                    this.markContactAsPhoneOnly(clientId, targetPhone);
-                    
-                    await this.sendStatus(
-                        `⚠️ *[Client ${clientId}] Outreach Notice: No WhatsApp Account*\n\n` +
-                        `📞 *Phone Number:* \`${targetPhone}\` is *NOT registered on WhatsApp*.\n` +
-                        `📌 *Status:* Contact has *ONLY PHONE AVAILABLE* with no WhatsApp.\n` +
-                        `📝 *Report Updated:* Added phone-only alert in \`reports/${clientId}/outreach.json\`.\n` +
-                        `💡 *Next Step:* Outreach must be conducted via direct phone call.`
-                    );
+                // None of the numbers succeeded
+                try {
+                    const { sheet } = await loadGoogleSheet();
+                    await updateLeadFields(sheet, clientId, {
+                        'Outreach Platform': 'Phone-Only (No WhatsApp)',
+                        'Current Status': 'Requires Phone Call'
+                    });
+                } catch (sheetErr) {}
+            }
 
-                    // Update Google Sheet safely
-                    try {
-                        const { sheet } = await loadGoogleSheet();
-                        await updateLeadFields(sheet, clientId, {
-                            'Outreach Platform': 'Phone-Only (No WhatsApp)',
-                            'Current Status': 'Requires Phone Call'
-                        });
-                    } catch (sheetErr) {
-                        console.error("Sheet update notice:", sheetErr.message);
-                    }
-                } else {
-                    await this.sendStatus(`❌ *[Client ${clientId}] Failed:* ${sendResult.reason || 'Unknown error'}`);
-                }
+            // Anti-ban random delay (6 to 12 seconds) before next lead
+            if (clientId < endId) {
+                const delaySec = Math.floor(Math.random() * 7) + 6;
+                console.log(`[WhatsApp] Waiting ${delaySec}s safety delay before next lead...`);
+                await new Promise(r => setTimeout(r, delaySec * 1000));
             }
         }
 
