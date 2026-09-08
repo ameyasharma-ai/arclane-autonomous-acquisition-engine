@@ -448,8 +448,32 @@ export class WhatsAppSender {
             const targetPhone = data.phone;
             const waMessage = data.waMessage;
 
-            if (!targetPhone || !waMessage) {
-                await this.sendStatus(`⚠️ *Client ${clientId}:* No valid WhatsApp/Phone contact or message found. Skipping.`);
+            if (!targetPhone) {
+                await this.sendStatus(
+                    `⚠️ *[Lead #${clientId} — ${data.businessName}] No Contact Number Found*\n\n` +
+                    `🏢 *Business:* ${data.businessName}\n` +
+                    `🌐 *Website Concept:* ${data.deployedUrl || 'Built & Deployed'}\n` +
+                    `❌ *Reason:* No phone number was listed on their Google Maps profile.\n` +
+                    `💡 *What happened:* WhatsApp outreach was skipped for this lead. You can still use the generated live website to pitch them manually via Instagram, DM, or walk-in!`
+                );
+                try {
+                    const { sheet } = await loadGoogleSheet();
+                    await updateLeadFields(sheet, clientId, {
+                        'Outreach Platform': 'Missing Contact Number',
+                        'Current Status': 'No Phone on Maps'
+                    });
+                } catch (sheetErr) {}
+                failCount++;
+                continue;
+            }
+
+            if (!waMessage) {
+                await this.sendStatus(
+                    `⚠️ *[Lead #${clientId} — ${data.businessName}] Missing WhatsApp Pitch Copy*\n\n` +
+                    `🏢 *Business:* ${data.businessName}\n` +
+                    `❌ *Reason:* Outreach message copy was not found in the report.\n` +
+                    `💡 *What happened:* Skipped dispatch.`
+                );
                 failCount++;
                 continue;
             }
