@@ -244,8 +244,26 @@ export class WebsiteBuilder {
         // Extract Contact info
         const phoneMatch = reportContent.match(/Phone:\s*([^\n\r]+)/i);
         const waPhoneMatch = reportContent.match(/WhatsApp:\s*([^\n\r]+)/i);
-        const phone = phoneMatch && !phoneMatch[1].toLowerCase().includes('not available') ? phoneMatch[1].trim() : '';
-        const whatsappPhone = waPhoneMatch && !waPhoneMatch[1].toLowerCase().includes('not available') ? waPhoneMatch[1].trim() : phone;
+        let phone = phoneMatch && !phoneMatch[1].toLowerCase().includes('not available') ? phoneMatch[1].trim() : '';
+        let whatsappPhone = waPhoneMatch && !waPhoneMatch[1].toLowerCase().includes('not available') ? waPhoneMatch[1].trim() : phone;
+
+        // Sheet fallback for phone number if audit didn't catch it
+        if (!phone || !whatsappPhone) {
+            try {
+                const { sheet } = await loadGoogleSheet();
+                const rows = await sheet.getRows();
+                const matched = rows.find(r => r.get('Client ID') == String(clientId));
+                if (matched) {
+                    const sheetPhone = matched.get('Phone/WhatsApp') || matched.get('Phone') || matched.get('WhatsApp') || '';
+                    if (sheetPhone) {
+                        phone = phone || sheetPhone;
+                        whatsappPhone = whatsappPhone || sheetPhone;
+                    }
+                }
+            } catch (sheetErr) {
+                console.warn("[Builder] Sheet fallback notice:", sheetErr.message);
+            }
+        }
 
         // Construct structured JSON
         const outreachJson = {

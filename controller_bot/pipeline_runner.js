@@ -74,18 +74,43 @@ export class PipelineRunner {
             fs.mkdirSync(clientReportsDir, { recursive: true });
         }
 
+        let phone = leadData.phone || leadData['Phone'] || leadData['Phone/WhatsApp'] || leadData.whatsapp || leadData['WhatsApp'] || '';
+        let website = leadData.website || leadData['Website URL'] || '';
+        let address = leadData.address || leadData['Address'] || leadData['Full Address'] || '';
+        let rating = leadData.rating || leadData['Ratings'] || leadData['Rating'] || '';
+        let reviews = leadData.reviews || leadData['Number Of Reviews'] || leadData['Total Reviews'] || '';
+
+        // Fallback: If phone is not in stream payload, look up directly from Google Sheet row
+        if (!phone && loadedSheet) {
+            try {
+                const rows = await loadedSheet.getRows();
+                const matchedRow = rows.find(r => r.get('Client ID') == String(clientId));
+                if (matchedRow) {
+                    phone = matchedRow.get('Phone/WhatsApp') || matchedRow.get('Phone') || matchedRow.get('WhatsApp') || '';
+                    if (!website) website = matchedRow.get('Website URL') || '';
+                    if (!address) address = matchedRow.get('Address') || '';
+                    if (!rating) rating = matchedRow.get('Ratings') || '';
+                    if (!reviews) reviews = matchedRow.get('Number Of Reviews') || '';
+                }
+            } catch (sheetErr) {
+                console.warn(`[PipelineRunner] Sheet fallback notice for lead #${clientId}:`, sheetErr.message);
+            }
+        }
+
         try {
             // 1. Scrape web presence
             const scraper = new Scraper();
             await scraper.init();
             const formattedLeadData = {
+                'Client ID': clientId,
                 'Business Name': businessName,
-                'Website URL': leadData.website || leadData['Website URL'] || '',
-                'Phone': leadData.phone || leadData['Phone'] || '',
-                'WhatsApp': leadData.whatsapp || leadData['WhatsApp'] || '',
-                'Full Address': leadData.address || leadData['Full Address'] || '',
-                'Rating': leadData.rating || leadData['Rating'] || '',
-                'Total Reviews': leadData.reviews || leadData['Total Reviews'] || ''
+                'Website URL': website,
+                'Phone': phone,
+                'WhatsApp': phone,
+                'Phone/WhatsApp': phone,
+                'Full Address': address,
+                'Rating': rating,
+                'Total Reviews': reviews
             };
             const scrapedData = await scraper.scrapeLead(formattedLeadData);
             await scraper.close();

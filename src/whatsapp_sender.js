@@ -445,8 +445,33 @@ export class WhatsAppSender {
                 continue;
             }
 
-            const targetPhone = data.phone;
+            let targetPhone = data.phone;
             const waMessage = data.waMessage;
+
+            // Sheet fallback for phone number if local reports didn't have it
+            if (!targetPhone) {
+                try {
+                    const { sheet } = await loadGoogleSheet();
+                    const rows = await sheet.getRows();
+                    const r = rows.find(x => x.get('Client ID') == String(clientId));
+                    if (r) {
+                        const sheetPhone = r.get('Phone/WhatsApp') || r.get('Phone') || r.get('WhatsApp') || '';
+                        if (sheetPhone) {
+                            targetPhone = sheetPhone;
+                            data.phone = sheetPhone;
+                            const jsonPath = path.join(this.reportsDir, String(clientId), 'outreach.json');
+                            if (fs.existsSync(jsonPath)) {
+                                try {
+                                    const parsed = JSON.parse(fs.readFileSync(jsonPath, 'utf-8'));
+                                    parsed.phone = sheetPhone;
+                                    parsed.whatsapp = sheetPhone;
+                                    fs.writeFileSync(jsonPath, JSON.stringify(parsed, null, 2), 'utf-8');
+                                } catch (e) {}
+                            }
+                        }
+                    }
+                } catch (sheetErr) {}
+            }
 
             if (!targetPhone) {
                 await this.sendStatus(
