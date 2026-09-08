@@ -117,6 +117,21 @@ export class PipelineRunner {
 
             if (this.isAborted) return null;
 
+            // If phone was missing but discovered in social/web profile scraping, update lead & Google Sheet
+            if (!phone && scrapedData?.extractedPhones?.length > 0) {
+                phone = scrapedData.extractedPhones[0];
+                formattedLeadData['Phone'] = phone;
+                formattedLeadData['WhatsApp'] = phone;
+                formattedLeadData['Phone/WhatsApp'] = phone;
+                console.log(`[PipelineRunner] 📞 Discovered phone number from social/web scraping for Lead #${clientId}: ${phone}`);
+                try {
+                    const sObj = loadedSheet || (await loadGoogleSheet()).sheet;
+                    await updateLeadFields(sObj, clientId, {
+                        'Phone/WhatsApp': phone
+                    });
+                } catch (e) {}
+            }
+
             // 2. Summarize & Generate 14-Point Strategic Audit
             const summarizer = new Summarizer();
             const textReport = await summarizer.analyze(formattedLeadData, scrapedData);

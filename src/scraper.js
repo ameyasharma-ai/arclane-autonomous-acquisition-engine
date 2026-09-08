@@ -4,6 +4,38 @@ import pRetry from 'p-retry';
 import path from 'path';
 import { compressHtmlToText } from './parser.js';
 
+function extractPhonesFromContent(text) {
+    if (!text) return [];
+    const found = new Set();
+
+    // 1. Check wa.me / WhatsApp links
+    const waMatches = text.matchAll(/(?:wa\.me\/|whatsapp\.com\/send\?phone=|api\.whatsapp\.com\/send\?phone=)(\+?\d{10,15})/gi);
+    for (const m of waMatches) {
+        let digits = m[1].replace(/\D/g, '');
+        if (digits.length === 10) digits = '91' + digits;
+        if (digits.length >= 10) found.add('+' + digits);
+    }
+
+    // 2. Check tel: links
+    const telMatches = text.matchAll(/tel:(\+?\d{10,15})/gi);
+    for (const m of telMatches) {
+        let digits = m[1].replace(/\D/g, '');
+        if (digits.length === 10) digits = '91' + digits;
+        if (digits.length >= 10) found.add('+' + digits);
+    }
+
+    // 3. Check Indian standard numbers in text (+91 / 0 / 10 digits starting with 6-9)
+    const phoneMatches = text.matchAll(/(?:(?:\+|00)91[\s-]?)?(?:0)?[6-9]\d{4}[\s-]?\d{5}/g);
+    for (const m of phoneMatches) {
+        let digits = m[0].replace(/\D/g, '');
+        if (digits.length === 10) digits = '91' + digits;
+        else if (digits.length === 11 && digits.startsWith('0')) digits = '91' + digits.substring(1);
+        if (digits.length >= 10) found.add('+' + digits);
+    }
+
+    return Array.from(found);
+}
+
 export class Scraper {
     constructor() {
         this.context = null;
@@ -40,7 +72,8 @@ export class Scraper {
         const results = {
             website: {},
             maps: '',
-            social: {}
+            social: {},
+            extractedPhones: []
         };
 
         const queue = new PQueue({ concurrency: 2 }); // Reduced to 2 to look more human
@@ -95,6 +128,15 @@ export class Scraper {
                         console.log(`[Scraper] ✅ Successfully scraped ${type}: ${name || url} | Preview: "${preview}..."`);
                     } else {
                         console.log(`[Scraper] ⚠️ Loaded ${type} (${name || url}) but found no usable text content.`);
+                    }
+
+                    // Deep Phone Extraction from HTML & Text
+                    const phonesInPage = extractPhonesFromContent(html + '\n' + textContent);
+                    for (const p of phonesInPage) {
+                        if (!results.extractedPhones.includes(p)) {
+                            results.extractedPhones.push(p);
+                            console.log(`[Scraper] 📞 Discovered phone/WhatsApp from ${type} (${name || url}): ${p}`);
+                        }
                     }
                     
                     if (type === 'website') {
