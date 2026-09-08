@@ -137,7 +137,7 @@ bot.command('today', async (ctx) => {
         `• 04:30 PM: 📲 WhatsApp Wave 2 (${plan.tasks.dispatchWave2.batchSize} leads)\n` +
         `• 06:00 PM: 📞 Follow-up Calling Window\n\n` +
         `💡 *Phone Close Script:*\n` +
-        `_${CONFIG.loadPlan()?.phoneScriptTemplates?.courtesyOpener || 'Hi [Owner], Maine aapke business ke liye live website concept share kiya tha...'}_`;
+        `_"${CONFIG.loadPlan()?.phoneScriptTemplates?.courtesyOpener || 'Hi [Owner], Maine aapke business ke liye live website concept share kiya tha...'}"_`;
 
     await ctx.reply(msg, { parse_mode: 'Markdown' });
 });
@@ -184,11 +184,14 @@ async function handleRunFull(ctx) {
     const city = args[1] || plan?.tasks.scraper.city || "Pune";
     const count = parseInt(args[2], 10) || 1;
 
-    await ctx.reply(`🚀 *Launching Complete 360° Acquisition Pipeline for ${count} lead(s)...*\n\n` +
+    await ctx.reply(
+        `🚀 *Launching Complete 360° Acquisition Pipeline for ${count} lead(s)...*\n\n` +
         `📍 *Niche:* \`${query}\`\n` +
         `🏙️ *City:* \`${city}\`\n` +
         `⚡ *Stages:* Scrape ➔ 14-Point Audit ➔ Build Website ➔ Deploy to Vercel ➔ Send WhatsApp Message\n` +
-        `🛑 _Type /abort to cancel, or /reset_plan to restore 24/7 schedule._`, { parse_mode: 'Markdown' });
+        `🛑 Type \`/abort\` to cancel, or \`/reset_plan\` to restore 24/7 schedule.`,
+        { parse_mode: 'Markdown' }
+    );
 
     scheduler.pipelineRunner.runFullEndToEndPipeline({
         query,
@@ -252,7 +255,7 @@ async function handleAbort(ctx) {
         `• Scraper Process: ${wasScraperRunning ? 'Terminated 🛑' : 'Was Idle ⚪'}\n` +
         `• Pipeline / Builder Queue: ${wasPipelineRunning ? 'Cleared & Cancelled 🛑' : 'Was Idle ⚪'}\n` +
         `• WhatsApp Dispatcher: Reset 🛑\n\n` +
-        `💡 _To immediately resume the 24/7 automated timetable, send /reset_plan or tap the button below._`,
+        `💡 To immediately resume the 24/7 automated timetable, send \`/reset_plan\` or tap the button below.`,
         { parse_mode: 'Markdown', ...getMainKeyboard(scheduler.isAutoRunning) }
     );
 }
@@ -271,7 +274,11 @@ bot.command('trigger_stream', async (ctx) => {
     const city = args[1] || plan?.tasks.scraper.city || "Pune";
     const count = parseInt(args[2], 10) || plan?.tasks.scraper.targetLeads || 35;
 
-    await ctx.reply(`⚡ Launching concurrent stream scrape & build for *${query}* in *${city}* (${count} leads)...\n🛑 _Send /abort to cancel._`, { parse_mode: 'Markdown' });
+    await ctx.reply(
+        `⚡ Launching concurrent stream scrape & build for *${query}* in *${city}* (${count} leads)...\n🛑 Send \`/abort\` to cancel.`,
+        { parse_mode: 'Markdown' }
+    );
+
     scheduler.pipelineRunner.runStreamingScrapeAndBuild({
         query,
         locality: `in`,
@@ -295,7 +302,11 @@ bot.command('trigger_scrape', async (ctx) => {
     const city = args[1] || "Pune";
     const count = parseInt(args[2], 10) || 35;
 
-    await ctx.reply(`🚀 Manually triggering scrape for *${query}* in *${city}* (${count} leads)...\n🛑 _Send /abort to cancel._`, { parse_mode: 'Markdown' });
+    await ctx.reply(
+        `🚀 Manually triggering scrape for *${query}* in *${city}* (${count} leads)...\n🛑 Send \`/abort\` to cancel.`,
+        { parse_mode: 'Markdown' }
+    );
+
     scheduler.scraperRunner.runScrape({
         query,
         locality: `in`,
@@ -378,11 +389,14 @@ bot.action('cmd_run_full_1', async (ctx) => {
     const query = plan?.tasks.scraper.query || "Gyms";
     const city = plan?.tasks.scraper.city || "Pune";
 
-    await ctx.reply(`🚀 *Launching Complete 360° Acquisition Pipeline for 1 lead...*\n\n` +
+    await ctx.reply(
+        `🚀 *Launching Complete 360° Acquisition Pipeline for 1 lead...*\n\n` +
         `📍 *Niche:* \`${query}\`\n` +
         `🏙️ *City:* \`${city}\`\n` +
         `⚡ *Stages:* Scrape ➔ 14-Point Audit ➔ Build Website ➔ Deploy to Vercel ➔ Send WhatsApp Message\n` +
-        `🛑 _Type /abort to cancel, or /reset_plan to restore 24/7 schedule._`, { parse_mode: 'Markdown' });
+        `🛑 Type \`/abort\` to cancel, or \`/reset_plan\` to restore 24/7 schedule.`,
+        { parse_mode: 'Markdown' }
+    );
 
     scheduler.pipelineRunner.runFullEndToEndPipeline({
         query,
@@ -431,7 +445,11 @@ bot.action('cmd_manual_stream', async (ctx) => {
     const city = plan?.tasks.scraper.city || "Pune";
     const count = plan?.tasks.scraper.targetLeads || 35;
 
-    await ctx.reply(`⚡ Launching concurrent stream scrape & build for *${query}* in *${city}* (${count} leads)...\n🛑 _Send /abort to cancel._`, { parse_mode: 'Markdown' });
+    await ctx.reply(
+        `⚡ Launching concurrent stream scrape & build for *${query}* in *${city}* (${count} leads)...\n🛑 Send \`/abort\` to cancel.`,
+        { parse_mode: 'Markdown' }
+    );
+
     scheduler.pipelineRunner.runStreamingScrapeAndBuild({
         query,
         locality: `in`,
@@ -453,7 +471,11 @@ bot.action('cmd_manual_scrape', async (ctx) => {
     const city = plan?.tasks.scraper.city || "Pune";
     const count = plan?.tasks.scraper.targetLeads || 35;
 
-    await ctx.reply(`🚀 Starting manual scrape for *${query}* in *${city}* (${count} leads)...\n🛑 _Send /abort to cancel._`, { parse_mode: 'Markdown' });
+    await ctx.reply(
+        `🚀 Starting manual scrape for *${query}* in *${city}* (${count} leads)...\n🛑 Send \`/abort\` to cancel.`,
+        { parse_mode: 'Markdown' }
+    );
+
     scheduler.scraperRunner.runScrape({
         query,
         locality: `in`,
