@@ -202,7 +202,16 @@ export class WhatsAppSender {
 
     cleanPhoneNumber(phoneStr) {
         if (!phoneStr) return null;
-        let digits = phoneStr.replace(/\D/g, '');
+        // If slash or comma separated (multiple numbers listed), test parts sequentially
+        if (typeof phoneStr === 'string' && (phoneStr.includes('/') || phoneStr.includes(','))) {
+            const parts = phoneStr.split(/[\/,]/).map(p => p.trim()).filter(Boolean);
+            for (const part of parts) {
+                const cleaned = this.cleanPhoneNumber(part);
+                if (cleaned) return cleaned;
+            }
+        }
+
+        let digits = String(phoneStr).replace(/\D/g, '');
         
         // If starts with 910 and has 13 digits (e.g. +91 020 66020121 -> 912066020121)
         if (digits.startsWith('910') && digits.length === 13) {
@@ -212,9 +221,13 @@ export class WhatsAppSender {
         else if (digits.startsWith('0') && digits.length === 11) {
             digits = '91' + digits.substring(1);
         }
-        // If 10 digits (e.g. 9801503503 -> 919801503503 or 2066020121 -> 912066020121)
+        // If 10 digits (e.g. 9801503503 -> 919801503503)
         else if (digits.length === 10) {
             digits = '91' + digits;
+        }
+        // If already 12 digits starting with 91 (e.g. 918469109609)
+        else if (digits.length === 12 && digits.startsWith('91')) {
+            return digits;
         }
         return digits.length >= 10 ? digits : null;
     }
