@@ -521,6 +521,12 @@ export class WhatsAppSender {
         }
 
         await this.sendStatus(`🎉 *WhatsApp Dispatch Complete!*\n\n✅ *Sent:* ${successCount}\n❌ *Failed/Skipped/Phone-Only:* ${failCount}`);
+        return {
+            sentCount: successCount,
+            failedCount: failCount,
+            skippedCount: 0,
+            total: (endId - startId + 1)
+        };
     }
 
     async close() {

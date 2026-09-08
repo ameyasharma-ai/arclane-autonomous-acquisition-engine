@@ -272,14 +272,16 @@ export class PipelineRunner {
             this.activeSender = null;
 
             const totalDurationMin = ((new Date() - startTime) / 60000).toFixed(1);
+            const sentCount = report?.sentCount ?? 0;
+            const failedCount = (report?.skippedCount ?? 0) + (report?.failedCount ?? 0);
 
             await this.sendTelegram(
                 `🎉 *[Controller] 360° Acquisition Pipeline Complete!*\n\n` +
                 `📊 *Executive Summary:*\n` +
                 `• Leads Scraped & Audited: ${buildRes.streamedCount}\n` +
                 `• Live Websites Deployed: ${buildRes.processedCount}\n` +
-                `• WhatsApp Messages Sent: ${report.sentCount}\n` +
-                `• Skipped / Failed: ${report.skippedCount + report.failedCount}\n` +
+                `• WhatsApp Messages Sent: ${sentCount}\n` +
+                `• Skipped / Failed: ${failedCount}\n` +
                 `⏱️ *Total Duration:* ${totalDurationMin} min\n\n` +
                 `✅ Google Sheets CRM has been updated with live URLs and outreach statuses.`
             );
