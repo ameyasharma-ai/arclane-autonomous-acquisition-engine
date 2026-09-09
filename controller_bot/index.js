@@ -113,7 +113,7 @@ bot.catch((err, ctx) => {
 });
 
 // Command: /start
-bot.start(async (ctx) => {
+async function handleStart(ctx) {
     masterChatId = ctx.chat.id;
     if (!scheduler) scheduler = new Scheduler(bot, masterChatId);
     scheduler.setChatId(masterChatId);
@@ -136,6 +136,12 @@ bot.start(async (ctx) => {
             ...getMainKeyboard(status.isAutoRunning)
         }
     );
+}
+
+bot.start(handleStart);
+bot.action('cmd_start', async (ctx) => {
+    try { await ctx.answerCbQuery(); } catch (e) {}
+    await handleStart(ctx);
 });
 
 // Command: /status
