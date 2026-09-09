@@ -32,6 +32,17 @@ webUI.registerActionHandler(async (action, ctx) => {
 });
 // ---------------------------------------
 
+webUI.syncToTelegramHook = async (msg, opts) => {
+    if (masterChatId && bot) {
+        try {
+            await bot.telegram.sendMessage(masterChatId, msg, opts);
+        } catch (e) {
+            console.error("[WebUI->Telegram] Sync failed:", e.message);
+        }
+    }
+};
+
+
 
 // Helper to build main interactive keyboard
 function getMainKeyboard(isAuto = true) {
@@ -76,6 +87,20 @@ bot.use(async (ctx, next) => {
             scheduler.setChatId(masterChatId);
         }
     }
+    
+    // Bidirectional sync: anything sent to Telegram also goes to WebUI
+    if (ctx.reply) {
+        const originalReply = ctx.reply.bind(ctx);
+        ctx.reply = async (text, extra) => {
+            webUI.broadcast(text, extra);
+            try {
+                return await originalReply(text, extra);
+            } catch(e) {
+                console.error("[Telegram] Reply failed:", e.message);
+            }
+        };
+    }
+
     return next();
 });
 

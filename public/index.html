@@ -70,6 +70,13 @@
         gfm: true
     });
 
+    socket.on('history', (history) => {
+        messagesDiv.innerHTML = '';
+        history.forEach(msg => {
+            appendMessage(msg.type, msg.text, msg.opts);
+        });
+    });
+
     socket.on('message', (msg) => {
         appendMessage(msg.type, msg.text, msg.opts);
     });
