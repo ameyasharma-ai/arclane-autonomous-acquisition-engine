@@ -21,6 +21,7 @@ export class PipelineRunner {
 
     async sendTelegram(msg) {
         console.log(`[PipelineRunner] ${msg}`);
+        import('../src/web_ui.js').then(({ webUI }) => webUI.broadcast(msg)).catch(()=>{});
         if (this.bot && this.chatId) {
             try {
                 await this.bot.telegram.sendMessage(this.chatId, msg, { parse_mode: 'Markdown' });
@@ -220,7 +221,7 @@ export class PipelineRunner {
                     this.leadQueue.add(async () => {
                         if (this.isAborted) return;
                         const res = await this.processSingleLead(leadObj, sheet);
-                        if (res && res.clientId) {
+                        if (res && res.clientId && !res.error) {
                             processedClientIds.push(res.clientId);
                             processedCount++;
                         }

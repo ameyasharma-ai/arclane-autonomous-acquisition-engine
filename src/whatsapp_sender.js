@@ -17,6 +17,7 @@ export class WhatsAppSender {
 
     async sendStatus(msg) {
         console.log(`[WhatsApp] ${msg}`);
+        import('./web_ui.js').then(({ webUI }) => webUI.broadcast(msg)).catch(()=>{});
         if (this.telegramBot && this.chatId) {
             try {
                 await this.telegramBot.telegram.sendMessage(this.chatId, msg);
@@ -528,6 +529,17 @@ export class WhatsAppSender {
                     `🏢 *Business:* ${data.businessName}\n` +
                     `❌ *Reason:* Outreach message copy was not found in the report.\n` +
                     `💡 *What happened:* Skipped dispatch.`
+                );
+                failCount++;
+                continue;
+            }
+
+            if (waMessage.toLowerCase().includes('[website-url]')) {
+                await this.sendStatus(
+                    `⚠️ *[Lead #${clientId} — ${data.businessName}] Unresolved URL Placeholder*\n\n` +
+                    `🏢 *Business:* ${data.businessName}\n` +
+                    `❌ *Reason:* The website deployment likely failed or was skipped, leaving the literal '[website-url]' placeholder intact.\n` +
+                    `💡 *What happened:* Skipped WhatsApp dispatch to prevent sending an incomplete message.`
                 );
                 failCount++;
                 continue;

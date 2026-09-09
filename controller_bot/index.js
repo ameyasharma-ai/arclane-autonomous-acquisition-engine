@@ -6,6 +6,33 @@ const bot = new Telegraf(CONFIG.BOT_TOKEN);
 let scheduler = null;
 let masterChatId = null;
 
+import { webUI } from '../src/web_ui.js';
+
+// --- Web UI Integration Monkey Patch ---
+const originalCommand = bot.command.bind(bot);
+bot.command = (cmd, handler) => {
+    webUI.registerCommand(cmd, handler);
+    return originalCommand(cmd, handler);
+};
+
+const originalStart = bot.start.bind(bot);
+bot.start = (handler) => {
+    webUI.registerCommand('start', handler);
+    return originalStart(handler);
+};
+
+const actionHandlers = {};
+const originalAction = bot.action.bind(bot);
+bot.action = (action, handler) => {
+    actionHandlers[action] = handler;
+    return originalAction(action, handler);
+};
+webUI.registerActionHandler(async (action, ctx) => {
+    if (actionHandlers[action]) await actionHandlers[action](ctx);
+});
+// ---------------------------------------
+
+
 // Helper to build main interactive keyboard
 function getMainKeyboard(isAuto = true) {
     return Markup.inlineKeyboard([
@@ -516,10 +543,12 @@ console.log("==================================================");
 scheduler = new Scheduler(bot, null);
 scheduler.start();
 
+webUI.start();
 bot.launch({
     dropPendingUpdates: false
 }).catch(err => {
     console.error("[ControllerBot] ❌ Polling error:", err.message);
+    console.log("[ControllerBot] ⚠️ Telegram failed to start. Web UI is still active.");
 });
 
 console.log("[ControllerBot] ✅ Telegram Bot is actively listening for messages & commands!");
@@ -527,9 +556,9 @@ console.log("[ControllerBot] ✅ Telegram Bot is actively listening for messages
 // Enable graceful stop
 process.once('SIGINT', () => {
     if (scheduler) scheduler.stop();
-    bot.stop('SIGINT');
+    try { bot.stop('SIGINT'); } catch (e) {} process.exit(0);
 });
 process.once('SIGTERM', () => {
     if (scheduler) scheduler.stop();
-    bot.stop('SIGTERM');
+    try { bot.stop('SIGTERM'); } catch (e) {} process.exit(0);
 });

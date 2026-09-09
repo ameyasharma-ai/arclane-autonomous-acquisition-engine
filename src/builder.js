@@ -22,6 +22,7 @@ export class WebsiteBuilder {
 
     async sendStatus(msg) {
         console.log(`[Builder] ${msg}`);
+        import('./web_ui.js').then(({ webUI }) => webUI.broadcast(msg)).catch(()=>{});
         if (this.telegramBot && this.chatId) {
             try {
                 await this.telegramBot.telegram.sendMessage(this.chatId, msg, { parse_mode: 'Markdown' });
@@ -191,7 +192,7 @@ export class WebsiteBuilder {
             // Write vercel.json configuration as secondary safeguard
             fs.writeFileSync(path.join(clientSiteDir, 'vercel.json'), JSON.stringify({ name: vercelSlug }, null, 2), 'utf-8');
 
-            const vercelCmd = `npx -y vercel --prod --yes --project ${vercelSlug} ${tokenFlag}`.trim();
+            const vercelCmd = `npx -y vercel --prod --yes ${tokenFlag}`.trim();
             const { stdout, stderr } = await execAsync(vercelCmd, { cwd: clientSiteDir, timeout: 60000 });
 
             // Combine stdout and stderr (Vercel CLI prints progress & Aliased domain to stderr)
@@ -231,14 +232,14 @@ export class WebsiteBuilder {
         let waMessage = "";
         const waMatch = reportContent.match(/\[WHATSAPP_START\]([\s\S]*?)\[WHATSAPP_END\]/i);
         if (waMatch) {
-            waMessage = waMatch[1].trim().replace(/\[website-url\]|https:\/\/[a-zA-Z0-9-.]+\.vercel\.app/g, deployedUrl);
+            waMessage = waMatch[1].trim().replace(/\[website-url\]|https:\/\/[a-zA-Z0-9-.]+\.vercel\.app/gi, deployedUrl);
         }
 
         // Extract Call Script
         let callScript = "";
         const callMatch = reportContent.match(/\[CALL_SCRIPT_START\]([\s\S]*?)\[CALL_SCRIPT_END\]/i);
         if (callMatch) {
-            callScript = callMatch[1].trim().replace(/\[website-url\]|https:\/\/[a-zA-Z0-9-.]+\.vercel\.app/g, deployedUrl);
+            callScript = callMatch[1].trim().replace(/\[website-url\]|https:\/\/[a-zA-Z0-9-.]+\.vercel\.app/gi, deployedUrl);
         }
 
         // Extract Contact info
@@ -285,7 +286,7 @@ export class WebsiteBuilder {
         fs.writeFileSync(clientFinalPath, outreachTxt, 'utf-8');
 
         // Update audit.md with live deployed URL
-        const updatedReportContent = reportContent.replace(/\[website-url\]|https:\/\/[a-zA-Z0-9-.]+\.vercel\.app/g, deployedUrl);
+        const updatedReportContent = reportContent.replace(/\[website-url\]|https:\/\/[a-zA-Z0-9-.]+\.vercel\.app/gi, deployedUrl);
         fs.writeFileSync(auditMdPath, updatedReportContent, 'utf-8');
 
         // Update Google Sheet with Website URL & Status
@@ -388,5 +389,6 @@ export class WebsiteBuilder {
         return html;
     }
 }
+
 
 

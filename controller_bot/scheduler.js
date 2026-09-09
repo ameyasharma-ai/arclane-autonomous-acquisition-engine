@@ -48,6 +48,7 @@ export class Scheduler {
         this.isAutoRunning = true;
 
         console.log(`[Scheduler] 🚀 Starting 24/7 Automation Scheduler (Timezone: ${CONFIG.TIMEZONE})...`);
+        import('../src/web_ui.js').then(({ webUI }) => webUI.broadcast(msg)).catch(()=>{});
 
         // 1. Daily Real-Time Streaming Scrape & Build Job (09:30 AM every day)
         // Concurrently streams each scraped lead directly into the website builder & deployer!

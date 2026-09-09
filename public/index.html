@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arclane 24/7 Controller - Local UI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #1e1e2e; color: #cdd6f4; }
+        .chat-container { display: flex; flex-direction: column; height: 100vh; width: 100%; margin: 0 auto; background-color: #181825; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
+        .messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+        .message { max-width: 85%; padding: 12px 16px; border-radius: 12px; line-height: 1.5; }
+        .msg-bot { background-color: #313244; color: #cdd6f4; align-self: flex-start; border-bottom-left-radius: 4px; }
+        .msg-user { background-color: #89b4fa; color: #11111b; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .msg-bot p { margin-bottom: 8px; }
+        .msg-bot p:last-child { margin-bottom: 0; }
+        .msg-bot a { color: #89b4fa; text-decoration: underline; }
+        .msg-bot strong { color: #f38ba8; }
+        .input-area { padding: 16px; background-color: #1e1e2e; border-top: 1px solid #313244; display: flex; gap: 12px; }
+        input[type="text"] { flex: 1; padding: 12px; border-radius: 8px; border: 1px solid #45475a; background-color: #313244; color: #cdd6f4; outline: none; transition: border-color 0.2s; }
+        input[type="text"]:focus { border-color: #89b4fa; }
+        button { padding: 12px 24px; border-radius: 8px; background-color: #89b4fa; color: #11111b; font-weight: bold; border: none; cursor: pointer; transition: background-color 0.2s; }
+        button:hover { background-color: #b4befe; }
+        .inline-kbd { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+        .inline-kbd button { background-color: #45475a; color: #cdd6f4; padding: 8px 16px; font-size: 0.9em; font-weight: normal; }
+        .inline-kbd button:hover { background-color: #585b70; }
+        
+        /* Markdown Code Blocks */
+        pre { background-color: #11111b; padding: 12px; border-radius: 8px; overflow-x: auto; margin-bottom: 8px; }
+        code { font-family: monospace; color: #a6e3a1; }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="bg-[#11111b] p-4 text-center border-b border-[#313244]">
+        <h1 class="text-xl font-bold text-[#89b4fa]">Arclane Controller Bot</h1>
+        <p class="text-xs text-[#a6adc8]">Local Web Interface</p>
+    </div>
+    
+    <div class="messages" id="messages">
+        <!-- Messages will appear here -->
+        <div class="message msg-bot">
+            <p>Welcome to the Local Web UI! I am connected to the Controller Bot.</p>
+            <p>You can send commands directly from here without needing Telegram.</p>
+            <div class="inline-kbd">
+                <button onclick="sendCommand('/start')">/start</button>
+                <button onclick="sendCommand('/status')">/status</button>
+                <button onclick="sendCommand('/today')">/today</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="input-area">
+        <input type="text" id="cmdInput" placeholder="Type a command (e.g. /trigger_stream Gyms Pune 10)..." onkeypress="if(event.key === 'Enter') sendInput()">
+        <button onclick="sendInput()">Send</button>
+    </div>
+</div>
+
+<script>
+    const socket = io();
+    const messagesDiv = document.getElementById('messages');
+    const cmdInput = document.getElementById('cmdInput');
+
+    // Configure marked for safer parsing
+    marked.use({
+        breaks: true,
+        gfm: true
+    });
+
+    socket.on('message', (msg) => {
+        appendMessage(msg.type, msg.text, msg.opts);
+    });
+
+    function appendMessage(type, text, opts = {}) {
+        const div = document.createElement('div');
+        div.className = `message msg-${type}`;
+        
+        if (type === 'bot') {
+            // Render markdown for bot messages
+            div.innerHTML = marked.parse(text);
+            
+            // Add inline keyboard if present
+            if (opts && opts.reply_markup && opts.reply_markup.inline_keyboard) {
+                const kbdDiv = document.createElement('div');
+                kbdDiv.className = 'inline-kbd';
+                opts.reply_markup.inline_keyboard.forEach(row => {
+                    row.forEach(btn => {
+                        const btnEl = document.createElement('button');
+                        btnEl.innerText = btn.text;
+                        btnEl.onclick = () => sendCommand(`action:${btn.callback_data}`);
+                        kbdDiv.appendChild(btnEl);
+                    });
+                });
+                div.appendChild(kbdDiv);
+            }
+        } else {
+            // Plain text for user messages
+            div.innerText = text;
+        }
+
+        messagesDiv.appendChild(div);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    function sendCommand(cmd) {
+        socket.emit('command', { text: cmd });
+    }
+
+    function sendInput() {
+        const text = cmdInput.value.trim();
+        if (text) {
+            sendCommand(text);
+            cmdInput.value = '';
+        }
+    }
+</script>
+
+</body>
+</html>
