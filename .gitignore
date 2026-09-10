@@ -15,12 +15,15 @@ build_*.txt
 *.txt
 !requirements.txt
 !src/system_prompt.txt
+!scraper/instructions.txt
+!scraper/blacklisted_urls.txt
 
 # Generated Sites & Exports
 generated_sites/
 exports/
 scratch/
 sheet_dump.json
+web_ui_history.json
 
 # WhatsApp Sessions & Profiles
 whatsapp_session/

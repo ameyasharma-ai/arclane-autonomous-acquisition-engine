@@ -1,0 +1,44 @@
+{
+    "scraper": {
+        "max_review_scrolls": 50,
+        "max_reviews_extracted": 300,
+        "llm_api_timeout_seconds": 180,
+        "page_load_timeout_ms": 90000,
+        "element_wait_timeout_ms": 15000,
+        "gspread_max_retries": 5,
+        "feed_scroll_limit": 300
+    },
+    "runner": {
+        "default_chunk_size": 50,
+        "default_target_leads": 1500,
+        "crash_cooldown_seconds": 10,
+        "ram_reclaim_sleep_seconds": 3
+    },
+    "telegram_bot": {
+        "agent_smith_history_limit": 5,
+        "agent_smith_timeout_seconds": 180
+    },
+    "llm": {
+        "primary_provider": "gemini",
+        "primary_model": "gemini-flash-lite-latest",
+        "gemini_keys_env": [
+            "GEMINI_REVIEWS_API_KEY",
+            "GEMINI_REVIEWS_CLEANER_KEY"
+        ],
+        "openrouter_keys_env": [
+            "OPENROUTER_API_KEY",
+            "OPENROUTER_API_KEY_AGENT_SMITH",
+            "OPENROUTER_API_KEY_CLEANER"
+        ],
+        "fallback_models": [
+            "openrouter/free",
+            "nvidia/nemotron-nano-9b-v2:free",
+            "openai/gpt-oss-120b:free",
+            "tencent/hy3-preview:free",
+            "cognitivecomputations/dolphin-mistral-24b-venice-edition:free",
+            "nousresearch/hermes-3-llama-3.1-405b:free",
+            "liquid/lfm-2.5-1.2b-instruct:free",
+            "qwen/qwen3-coder:free"
+        ]
+    }
+}

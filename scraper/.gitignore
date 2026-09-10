@@ -1,0 +1,11 @@
+.env
+service_account.json
+google_maps_leads.xlsx
+playwright_auth/
+__pycache__/
+
+scraped_places.txt
+scraper.log
+status.json
+*.flag
+*.log
