@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arclane 24/7 Autonomous Acquisition Engine - Full Documentation</title>
+    <title>Arclane 24/7 Autonomous Acquisition Engine - Full Technical Reference</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #0f172a; color: #e2e8f0; line-height: 1.6; }
-        .sidebar { position: fixed; top: 0; left: 0; height: 100vh; width: 280px; background-color: #1e293b; overflow-y: auto; padding: 2rem 1rem; border-right: 1px solid #334155; }
-        .main-content { margin-left: 280px; padding: 3rem 4rem; max-width: 1200px; }
+        .sidebar { position: fixed; top: 0; left: 0; height: 100vh; width: 300px; background-color: #1e293b; overflow-y: auto; padding: 2rem 1.25rem; border-right: 1px solid #334155; }
+        .main-content { margin-left: 300px; padding: 3rem 4rem; max-width: 1250px; }
         h1 { font-size: 2.5rem; color: #38bdf8; font-weight: bold; margin-bottom: 1.5rem; border-bottom: 2px solid #334155; padding-bottom: 0.5rem; }
         h2 { font-size: 1.8rem; color: #818cf8; font-weight: bold; margin-top: 3rem; margin-bottom: 1rem; }
-        h3 { font-size: 1.4rem; color: #cbd5e1; font-weight: 600; margin-top: 2rem; margin-bottom: 0.5rem; }
+        h3 { font-size: 1.35rem; color: #cbd5e1; font-weight: 600; margin-top: 2rem; margin-bottom: 0.5rem; }
         p { margin-bottom: 1rem; }
         ul { list-style-type: disc; margin-left: 1.5rem; margin-bottom: 1.5rem; }
         li { margin-bottom: 0.5rem; }
@@ -25,6 +25,7 @@
         .badge { display: inline-block; padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
         .badge-green { background-color: rgba(16, 185, 129, 0.2); color: #34d399; }
         .badge-blue { background-color: rgba(56, 189, 248, 0.2); color: #7dd3fc; }
+        .badge-purple { background-color: rgba(168, 85, 247, 0.2); color: #c084fc; }
         .badge-red { background-color: rgba(244, 63, 94, 0.2); color: #fb7185; }
         .badge-yellow { background-color: rgba(251, 191, 36, 0.2); color: #fcd34d; }
     </style>
@@ -32,114 +33,164 @@
 <body>
 
     <div class="sidebar">
-        <h2 class="text-xl font-bold text-white mb-6 border-b border-slate-600 pb-2">Documentation</h2>
+        <h2 class="text-xl font-bold text-white mb-6 border-b border-slate-600 pb-2">Arclane Book</h2>
         <ul class="text-slate-300 space-y-2 text-sm">
-            <li><a href="#overview" class="hover:text-white">1. System Overview</a></li>
-            <li><a href="#commands" class="hover:text-white">2. Full Command Reference</a></li>
-            <li><a href="#architecture" class="hover:text-white">3. Architecture & Code Walkthrough</a></li>
-            <li><a href="#scraper" class="hover:text-white ml-4">3.1 Scraper (Google Maps)</a></li>
-            <li><a href="#pipeline" class="hover:text-white ml-4">3.2 Pipeline Runner & Scheduler</a></li>
-            <li><a href="#ai" class="hover:text-white ml-4">3.3 Summarizer (Gemini AI)</a></li>
-            <li><a href="#builder" class="hover:text-white ml-4">3.4 Website Builder (Vercel)</a></li>
-            <li><a href="#whatsapp" class="hover:text-white ml-4">3.5 WhatsApp Dispatcher</a></li>
-            <li><a href="#webui" class="hover:text-white ml-4">3.6 Local Web UI</a></li>
-            <li><a href="#config" class="hover:text-white">4. JSON Configuration (Strategy)</a></li>
+            <li><a href="#overview" class="hover:text-white">1. Executive Overview</a></li>
+            <li><a href="#commands" class="hover:text-white">2. Exhaustive Command Reference</a></li>
+            <li><a href="#controller-commands" class="hover:text-white ml-4">2.1 Controller Bot & Web UI</a></li>
+            <li><a href="#scraper-commands" class="hover:text-white ml-4">2.2 Scraper Command Center</a></li>
+            <li><a href="#analyzer-commands" class="hover:text-white ml-4">2.3 Core Analyzer & Outreach</a></li>
+            <li><a href="#architecture" class="hover:text-white">3. Unified Architecture & Codebase</a></li>
+            <li><a href="#scraper" class="hover:text-white ml-4">3.1 Internal Scraper Engine (scraper/)</a></li>
+            <li><a href="#pipeline" class="hover:text-white ml-4">3.2 Real-Time Stream Pipeline Runner</a></li>
+            <li><a href="#scheduler" class="hover:text-white ml-4">3.3 24/7 Scheduler & Race Protection</a></li>
+            <li><a href="#ai" class="hover:text-white ml-4">3.4 14-Point Strategic AI Summarizer</a></li>
+            <li><a href="#builder" class="hover:text-white ml-4">3.5 Tailwind Website Builder & Vercel</a></li>
+            <li><a href="#whatsapp" class="hover:text-white ml-4">3.6 WhatsApp Engine & Human Emulation</a></li>
+            <li><a href="#webui" class="hover:text-white ml-4">3.7 Dual Sync Web UI & Local Persistence</a></li>
+            <li><a href="#config" class="hover:text-white">4. Strategy Configuration (JSON)</a></li>
+            <li><a href="#deployment" class="hover:text-white">5. 24/7 Server Operations & Autostart</a></li>
         </ul>
     </div>
 
     <div class="main-content">
         <h1>Arclane 24/7 Autonomous Acquisition Engine</h1>
-        <p class="text-lg text-slate-400">The complete technical manual and codebase reference for the end-to-end automated client acquisition system.</p>
+        <p class="text-lg text-slate-400">The authoritative, book-length technical reference for the unified client acquisition pipeline, integrated scraper, and 24/7 autonomous scheduling engine.</p>
 
         <section id="overview">
-            <h2>1. System Overview</h2>
-            <p>This repository is a completely autonomous pipeline designed to acquire clients for web design, marketing, and B2B services. It replaces an entire sales team by running continuously 24/7. It scrapes leads from Google Maps, deep-crawls their digital footprint, generates AI-powered audits, automatically writes and deploys a custom website for them, and drops a highly personalized pitch into their WhatsApp inbox—all entirely unsupervised.</p>
+            <h2>1. Executive Overview</h2>
+            <p>The Arclane Engine is an autonomous multi-agent software suite built to replace an entire outbound sales and delivery agency. Working around the clock, it scrapes under-optimized local businesses from Google Maps, performs deep intelligence audits, automatically generates and deploys responsive websites to Vercel, and dispatches curiosity-driven outreach messages directly into prospects' WhatsApp and email inboxes.</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-4">
+                <div class="card">
+                    <span class="badge badge-green">Pillar 1: Ingestion</span>
+                    <h3 class="mt-2 text-white">Google Maps Playwright Scraper</h3>
+                    <p class="text-sm text-slate-400">Deep DOM regex extraction, multi-source phone discovery, streaming events via IPC.</p>
+                </div>
+                <div class="card">
+                    <span class="badge badge-purple">Pillar 2: Intelligence & Build</span>
+                    <h3 class="mt-2 text-white">Gemini AI & Vercel Deployer</h3>
+                    <p class="text-sm text-slate-400">14-point SWOT & revenue audits, custom Tailwind site code generation, instant live production deployments.</p>
+                </div>
+                <div class="card">
+                    <span class="badge badge-blue">Pillar 3: Conversion</span>
+                    <h3 class="mt-2 text-white">WhatsApp & Sales Outreach</h3>
+                    <p class="text-sm text-slate-400">Persistent browser sessions, anti-ban rate limiting, non-sales curiosity pitches, and phone scripts.</p>
+                </div>
+            </div>
         </section>
 
         <section id="commands">
-            <h2>2. Full Command Reference</h2>
-            <p>The system can be controlled interchangeably via the <strong>Telegram Bot</strong> or the <strong>Local Web UI</strong> (<code>http://localhost:3000</code>). Below is an exhaustive list of every command the Controller Bot accepts.</p>
+            <h2>2. Exhaustive Command Reference</h2>
+            <p>The system is controlled via two synchronized control channels: <strong>Telegram</strong> and the <strong>Local Web UI</strong> (<code>http://localhost:3000</code>). Any command typed into either channel executes the same internal routines.</p>
             
-            <div class="card">
-                <h3>Global Controls</h3>
+            <div class="card" id="controller-commands">
+                <h3>2.1 Controller Bot & Local Web UI Commands (<code>controller_bot/index.js</code>)</h3>
                 <table>
-                    <thead><tr><th>Command</th><th>Description</th></tr></thead>
+                    <thead><tr><th>Command</th><th>Parameters</th><th>Functionality & Internal Flow</th></tr></thead>
                     <tbody>
-                        <tr><td><code>/start</code></td><td>Initializes the bot, loads the daily scheduler, and prints the main interactive keyboard.</td></tr>
-                        <tr><td><code>/status</code></td><td>Displays real-time system state, active processes (idle/running), current target niche, and the timeline for today's cron jobs.</td></tr>
-                        <tr><td><code>/today</code></td><td>Reads <code>week_1_plan.json</code> and outputs today's explicit blueprint (Scrape Query, Target Leads, Batch Sizes, Phone Close scripts).</td></tr>
-                        <tr><td><code>/start_auto</code></td><td>Resumes the automated cron scheduler if paused. Enables 24/7 background mode.</td></tr>
-                        <tr><td><code>/pause_auto</code></td><td>Suspends all scheduled cron jobs (e.g. 9:30 AM scrapes, 12:00 PM dispatches). Manual commands will still work.</td></tr>
-                        <tr><td><code>/reset_plan</code></td><td>Aborts all currently running manual pipelines, flushes queues, and completely resets the state back to the scheduled 24/7 timetable. (Aliases: <code>/resume_plan</code>, <code>/abort_and_resume</code>).</td></tr>
-                        <tr><td><code>/abort</code> or <code>/stop</code></td><td>Sends an immediate kill signal to all active Scraper, Builder, and WhatsApp threads. Halts the pipeline in its tracks.</td></tr>
+                        <tr><td><code>/start</code></td><td>None</td><td>Boots the controller session, initializes the interactive keyboard, syncs the chat ID, and outputs welcome status.</td></tr>
+                        <tr><td><code>/status</code></td><td>None</td><td>Queries active child processes, memory state, current weekly timetable, and next scheduled cron executions.</td></tr>
+                        <tr><td><code>/today</code></td><td>None</td><td>Reads <code>plan/week_1_plan.json</code> and prints today's target query, target locality, lead volume, and deal-closing phone scripts.</td></tr>
+                        <tr><td><code>/start_auto</code></td><td>None</td><td>Activates the 24/7 background scheduler in <code>Asia/Kolkata</code> timezone.</td></tr>
+                        <tr><td><code>/pause_auto</code></td><td>None</td><td>Suspends all background crons without stopping active manual jobs.</td></tr>
+                        <tr><td><code>/run_full</code><br><span class="text-xs text-slate-400">or /trigger_full</span></td><td><code>"Query" "City" [Count]</code></td><td><strong>Full 360° Acquisition Pipeline:</strong> Immediately runs the stream scraper, analyzes leads with AI, builds and deploys websites to Vercel, and dispatches personalized WhatsApp outreach messages.</td></tr>
+                        <tr><td><code>/trigger_stream</code></td><td><code>"Query" "City" [Count]</code></td><td>Starts the concurrent stream scraper. Emits <code>[STREAM_LEAD]</code> events to compile websites in real-time as leads are found.</td></tr>
+                        <tr><td><code>/trigger_scrape</code></td><td><code>"Query" "City" [Count]</code></td><td>Scrapes Google Maps leads and writes them strictly to Google Sheets without triggering site builds.</td></tr>
+                        <tr><td><code>/trigger_analyse</code></td><td><code>[MaxLeads]</code></td><td>Processes pending Google Sheet rows through the 14-point audit and deploys demo sites.</td></tr>
+                        <tr><td><code>/trigger_send</code></td><td><code>[BatchSize]</code></td><td>Initiates a WhatsApp dispatch wave to prospects with ready websites.</td></tr>
+                        <tr><td><code>/abort</code> or <code>/stop</code></td><td>None</td><td>Sends immediate <code>SIGTERM</code> signals to terminate all active child processes (scrapers, builders, and senders).</td></tr>
+                        <tr><td><code>/reset_plan</code></td><td>None</td><td>Aborts running manual tasks, flushes async queues, and restores the 24/7 scheduled plan.</td></tr>
                     </tbody>
                 </table>
             </div>
 
-            <div class="card">
-                <h3>Pipeline Execution Triggers</h3>
+            <div class="card" id="scraper-commands">
+                <h3>2.2 Google Maps Scraper Command Center (<code>scraper/telegram_bot.py</code>)</h3>
                 <table>
-                    <thead><tr><th>Command</th><th>Arguments</th><th>Description</th></tr></thead>
+                    <thead><tr><th>Command</th><th>Parameters</th><th>Functionality</th></tr></thead>
                     <tbody>
-                        <tr><td><code>/run_full</code><br><span class="text-xs text-slate-400">(or /trigger_full)</span></td><td><code>"Query" "City" [Count]</code></td><td>Launches the <strong>360° Acquisition Pipeline</strong>. Bypasses cron schedule. Scrapes, builds, and immediately sends WhatsApp messages to the prospects in one single continuous execution.</td></tr>
-                        <tr><td><code>/trigger_stream</code></td><td><code>"Query" "City" [Count]</code></td><td>Starts the Stream Scraper. As soon as 1 lead is found, it is pushed to the Builder queue immediately. (This is what runs automatically at 09:30 AM).</td></tr>
-                        <tr><td><code>/trigger_scrape</code></td><td><code>"Query" "City" [Count]</code></td><td>Manual bypass. Boots up Puppeteer and strictly scrapes Google Maps leads to the Google Sheet. Does NOT build or dispatch.</td></tr>
-                        <tr><td><code>/trigger_analyse</code></td><td><code>[MaxLeads]</code></td><td>Manual bypass. Scans the Google Sheet for any un-processed leads and feeds them through the AI Summarizer and Website Builder.</td></tr>
-                        <tr><td><code>/trigger_send</code></td><td><code>[BatchSize]</code></td><td>Manual bypass. Triggers the WhatsApp Dispatcher to send the outreach sequence to the next X pending leads.</td></tr>
+                        <tr><td><code>/scrape</code></td><td><code>--query, --locality, --city, --leads, --no_website</code></td><td>Launches Playwright Chromium session to extract business listings into Google Sheets and local Excel.</td></tr>
+                        <tr><td><code>/stop</code></td><td>None</td><td>Terminates scraping session cleanly, reclaims RAM, and compiles <code>google_maps_leads.xlsx</code>.</td></tr>
+                        <tr><td><code>/status</code></td><td>None</td><td>Displays active job status, lead counts, and process memory utilization.</td></tr>
+                        <tr><td><code>/logs</code></td><td>None</td><td>Streams the latest 50 lines of stdout from the scraper process directly to Telegram.</td></tr>
+                        <tr><td><code>/pause [min]</code></td><td><code>[minutes]</code></td><td>Pauses page navigation for specified minutes while maintaining browser session.</td></tr>
+                        <tr><td><code>/resume</code></td><td>None</td><td>Resumes paused scraper run.</td></tr>
                     </tbody>
                 </table>
-                <p class="text-sm text-slate-400 mt-2"><strong>Syntax Example:</strong> <code>/trigger_stream "Dental Clinics" "Mumbai" 15</code></p>
+            </div>
+
+            <div class="card" id="analyzer-commands">
+                <h3>2.3 Core Analyzer & Outreach Engine (<code>src/index.js</code>)</h3>
+                <table>
+                    <thead><tr><th>Command</th><th>Parameters</th><th>Functionality</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>/analyse --range</code></td><td><code>[start:end]</code></td><td>Runs batch website audits and builds for a designated Client ID range in Google Sheets.</td></tr>
+                        <tr><td><code>/send</code></td><td><code>[start:end]</code></td><td>Dispatches scheduled WhatsApp messages to the specified range.</td></tr>
+                        <tr><td><code>/build &lt;id&gt;</code></td><td><code>&lt;clientId&gt; [--force]</code></td><td>Forces individual website build and Vercel deployment for a single prospect.</td></tr>
+                        <tr><td><code>/login</code></td><td>None</td><td>Launches headful Chrome to scan WhatsApp Web QR code for session persistence.</td></tr>
+                        <tr><td><code>/contacts</code></td><td><code>[start:end]</code></td><td>Generates and exports ready-to-import <code>.vcf</code> vCard files.</td></tr>
+                    </tbody>
+                </table>
             </div>
         </section>
 
         <section id="architecture">
-            <h2>3. Architecture & Code Walkthrough</h2>
-            <p>The system is highly modularized under the <code>src/</code> and <code>controller_bot/</code> directories. Here is how every piece works.</p>
+            <h2>3. Unified Architecture & Codebase Walkthrough</h2>
+            <p>The codebase is organized into clean, decoupled layers located under <code>scraper/</code>, <code>controller_bot/</code>, and <code>src/</code>.</p>
 
-            <h3 id="scraper">3.1 Scraper (Google Maps) <code>src/scraper.js</code></h3>
-            <p>A sophisticated Puppeteer crawler that navigates Google Maps. It accepts a search query (e.g., "Gyms in Pune") and scrolls through the listings panel.</p>
+            <h3 id="scraper">3.1 Internal Scraper Engine (<code>scraper/</code>)</h3>
+            <p>Directly integrated into the repository root. Built on Python Playwright with asynchronous multi-page navigation.</p>
             <ul>
-                <li><strong>Stream Architecture:</strong> Unlike traditional scrapers that run to completion, this scraper emits a <code>onLeadFound</code> callback the microsecond a lead is extracted. This allows the Pipeline to start building the website while the scraper continues searching.</li>
-                <li><strong>Deep Profile Scanning:</strong> If a lead does not have a phone number listed on Google Maps, the scraper opens their linked website, bypasses GDPR modals, and scans the DOM tree using Regex to aggressively hunt down hidden phone numbers and WhatsApp <code>wa.me</code> links.</li>
+                <li><strong>Multi-Source Phone Extraction:</strong> In Indian markets, phone numbers are frequently placed inside WhatsApp click-to-chat links (<code>wa.me/91...</code>) or page body text rather than official Google Maps phone fields. The scraper executes a 3-tier regex scan:
+                    <ol class="list-decimal ml-6 mt-1 text-slate-300">
+                        <li>Official Google Maps phone buttons and metadata.</li>
+                        <li>Anchor tags scanning for <code>wa.me/</code>, <code>whatsapp.com/send?phone=</code>, and <code>tel:</code> protocols.</li>
+                        <li>Full DOM regex scanning targeting Indian 10-digit mobile patterns (<code>+91</code>, <code>0</code>, starting with 6-9).</li>
+                    </ol>
+                </li>
+                <li><strong>Stream Architecture:</strong> When executed by <code>scraper_runner.js</code>, the script emits real-time events over stdout: <code>[STREAM_LEAD]: {"clientId": 105, "businessName": "...", "phone": "..."}</code>.</li>
+                <li><strong>Memory Safeguard (<code>run_forever.py</code>):</strong> Periodically cycles Chromium instances in 50-lead chunks to prevent browser memory leaks during 24-hour operations.</li>
             </ul>
 
-            <h3 id="pipeline">3.2 Pipeline Runner & Scheduler <code>controller_bot/pipeline_runner.js & scheduler.js</code></h3>
-            <p>The "Brain" of the operation. The <code>Scheduler</code> loads the timetable from JSON and uses <code>node-cron</code> to fire off tasks. The <code>PipelineRunner</code> manages the complex async queues using <code>p-queue</code>.</p>
+            <h3 id="pipeline">3.2 Real-Time Stream Pipeline Runner (<code>controller_bot/pipeline_runner.js</code>)</h3>
+            <p>Coordinates the producer-consumer workflow using <code>p-queue</code> with a strict concurrency setting of 1 to ensure system stability.</p>
+            <pre><code>// Stream Scraper Event Listener:
+onLeadScraped: (leadObj) => {
+    this.leadQueue.add(async () => {
+        await this.processSingleLead(leadObj, sheet);
+    });
+}</code></pre>
+            <p>As soon as a lead is extracted from Google Maps, its website is being analyzed, generated, and deployed to Vercel while the scraper moves to the next business.</p>
+
+            <h3 id="scheduler">3.3 24/7 Scheduler & Race Protection (<code>controller_bot/scheduler.js</code>)</h3>
+            <p>Employs <code>node-cron</code> mapped to the <code>Asia/Kolkata</code> timezone. Integrates mutex flags (<code>isProcessing</code>) to prevent scheduled cron jobs from colliding with manually triggered runs.</p>
+
+            <h3 id="ai">3.4 14-Point Strategic AI Summarizer (<code>src/summarizer.js</code>)</h3>
+            <p>Connects to Google Gemini Flash Lite or OpenRouter models using structured prompt engineering (<code>src/system_prompt.txt</code>). Analyzes SWOT, competitor gaps, review velocity, and produces tailored curiosity hooks.</p>
+
+            <h3 id="builder">3.5 Tailwind Website Builder & Vercel Deployer (<code>src/builder.js</code>)</h3>
+            <p>Transforms AI prompt specifications into fully functional, high-conversion landing pages:</p>
             <ul>
-                <li><strong>Race Condition Prevention:</strong> The runner checks for existing processes and manages a strict state machine (<code>this.isProcessing</code>) to prevent two cron jobs from overlapping.</li>
-                <li><strong>Real-Time Broadcasting:</strong> Injects dynamic <code>import()</code> calls to stream live log updates to BOTH Telegram and the Local Web UI simultaneously.</li>
+                <li>Enforces 100% solid, opaque headers to prevent overlap defects.</li>
+                <li>Implements backdrop blur drawers with generous spacing for mobile UX.</li>
+                <li>Automatically pushes code to GitHub via <code>gh repo create</code> and deploys live production domains via <code>npx vercel --prod --yes</code>.</li>
             </ul>
 
-            <h3 id="ai">3.3 Summarizer (Gemini AI) <code>src/summarizer.js</code></h3>
-            <p>Connects to the Google Gemini API. It takes the raw scraped JSON (ratings, review count, business name) and produces a structural Markdown response.</p>
+            <h3 id="whatsapp">3.6 WhatsApp Engine & Human Emulation (<code>src/whatsapp_sender.js</code>)</h3>
+            <p>Uses Puppeteer with a persistent user data directory (<code>whatsapp_user_session/</code>) to maintain continuous authentication:</p>
             <ul>
-                <li><strong>14-Point Audit:</strong> Analyzes the business profile to generate credibility scores and identifies "leaking revenue" (e.g., "Only 40 reviews? Your competitors have 200.").</li>
-                <li><strong>Copywriting:</strong> Generates the exact personalized WhatsApp hook to be sent to the owner, dynamically injecting their actual business name.</li>
+                <li>Randomizes dispatch intervals between 30 and 75 seconds.</li>
+                <li>Emulates natural typing cadence and pre-send pauses.</li>
+                <li>Validates that live website URLs are present before sending to eliminate placeholder errors.</li>
             </ul>
 
-            <h3 id="builder">3.4 Website Builder (Vercel) <code>src/builder.js</code></h3>
-            <p>The most complex component. This takes the AI audit and turns it into a live React/HTML page.</p>
-            <ul>
-                <li><strong>Local Generation:</strong> Writes HTML files to the <code>generated_sites/</code> directory, embedding TailwindCSS and dynamic business data.</li>
-                <li><strong>GitHub Commits:</strong> Uses <code>simple-git</code> to commit and push the new site to your remote repository.</li>
-                <li><strong>Vercel Deployment:</strong> Executes <code>npx vercel --prod --yes</code> via Node's <code>child_process.execAsync</code>. It automatically creates the Vercel project, links the GitHub repo, and captures the live production URL output (e.g., <code>https://business-name.vercel.app</code>).</li>
-            </ul>
-
-            <h3 id="whatsapp">3.5 WhatsApp Dispatcher <code>src/whatsapp_sender.js</code></h3>
-            <p>A headless (or visible) Puppeteer instance that connects to <code>web.whatsapp.com</code> using an injected persistent profile session (<code>whatsapp_user_session</code>) to avoid scanning QR codes repeatedly.</p>
-            <ul>
-                <li><strong>Navigation:</strong> Uses the <code>wa.me/PHONE</code> URL scheme to open direct chats with prospects without saving them as contacts.</li>
-                <li><strong>Safety Sweeps:</strong> Validates if the Vercel URL placeholder was properly replaced before hitting send. If it spots a placeholder, it skips the lead to avoid looking like a broken bot.</li>
-                <li><strong>Human Emulation:</strong> Types characters with random delays, uses human-like pauses before sending, and spaces out bulk dispatches to prevent account bans.</li>
-            </ul>
-
-            <h3 id="webui">3.6 Local Web UI <code>src/web_ui.js</code></h3>
-            <p>An Express.js + Socket.IO server running on port 3000. It provides an offline, self-hosted chat interface that completely bypasses Telegram API restrictions. It monkey-patches the Telegraf router so that any command sent via Web UI seamlessly triggers the exact same backend logic as Telegram.</p>
+            <h3 id="webui">3.7 Dual Sync Web UI & Local Persistence (<code>src/web_ui.js</code>)</h3>
+            <p>Express.js + Socket.IO server running on port 3000. Features bidirectional chat synchronization with Telegram and JSON-backed history persistence in <code>web_ui_history.json</code>.</p>
         </section>
 
         <section id="config">
-            <h2>4. Strategy JSON Configuration <code>plan/week_1_plan.json</code></h2>
-            <p>The entire intelligence of the bot is externalized into this JSON file. You don't need to write code to change the bot's behavior.</p>
+            <h2>4. Strategy JSON Configuration (<code>plan/week_1_plan.json</code>)</h2>
+            <p>The entire autonomous campaign logic is configured in JSON. Sample entry:</p>
             <pre><code>{
   "dayIndex": 3,
   "dayName": "Wednesday",
@@ -148,14 +199,30 @@
     "scraper": {
       "cronTime": "09:30",
       "query": "Unisex Salons",
+      "locality": "in Gurugram",
       "city": "Gurugram",
       "targetLeads": 35
     },
     "dispatchWave1": { "cronTime": "12:00", "batchSize": 18 },
-    "dispatchWave2": { "cronTime": "16:30", "batchSize": 17 }
+    "dispatchWave2": { "cronTime": "16:30", "batchSize": 17 },
+    "followUpReview": { "cronTime": "18:00", "targetCalls": 15, "targetCloses": 2 }
   }
 }</code></pre>
-            <p>By simply altering this JSON file, you dictate exactly who the bot targets, when it wakes up, and how many messages it is allowed to send per day.</p>
+        </section>
+
+        <section id="deployment">
+            <h2>5. 24/7 Server Operations & Autostart</h2>
+            <p>To run continuously on a Linux server (Ubuntu 24.04 LTS):</p>
+            <pre><code># 1. Install Node.js, Python, and PM2
+sudo apt update && sudo apt install -y nodejs npm python3 python3-pip
+sudo npm install -g pm2
+
+# 2. Start Master Controller with Memory Guard
+pm2 start controller_bot/index.js --name "arclane-controller" --max-memory-restart 1G
+
+# 3. Configure PM2 Autostart on Server Boot
+pm2 save
+pm2 startup</code></pre>
         </section>
     </div>
 </body>
