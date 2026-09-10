@@ -63,6 +63,7 @@
         <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-text-muted">
             <a href="#flywheel" class="hover:text-white transition-colors">Flywheel</a>
             <a href="#commands" class="hover:text-white transition-colors">Bot Commands</a>
+            <a href="#daily-targets" class="hover:text-white transition-colors text-primary font-semibold">Day-by-Day Targets</a>
             <a href="#daily-routine" class="hover:text-white transition-colors">Daily Schedule</a>
             <a href="#scripts" class="hover:text-white transition-colors">Call Scripts</a>
             <a href="#objections" class="hover:text-white transition-colors">Objections</a>
@@ -200,13 +201,149 @@
             </div>
         </section>
 
-        <!-- Section 3: Daily Time-Block Routine -->
+        <!-- Section 3: Day-by-Day Scrape & Acquisition Targets -->
+        <section id="daily-targets" class="space-y-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 rounded-xl bg-primary/10 text-primary border border-primary/20">
+                        <i data-lucide="compass" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl sm:text-3xl font-bold font-heading">3. Day-by-Day Scrape & Acquisition Targets</h2>
+                        <p class="text-xs text-text-muted mt-0.5">Programmed in <code>plan/week_1_plan.json</code> — Autonomously executed by Controller Bot at 09:30 AM daily.</p>
+                    </div>
+                </div>
+                <span class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-mono text-xs font-semibold">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                    230 Verified Leads / Week
+                </span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+                <!-- Monday -->
+                <div class="glass-card p-5 rounded-2xl relative overflow-hidden border border-zinc-800/80 hover:border-primary/50 transition-all group">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="px-2.5 py-1 rounded-lg bg-primary/10 text-primary font-mono text-xs font-bold">MON · DAY 1</span>
+                        <span class="text-xs text-emerald-400 font-mono font-semibold flex items-center gap-1"><i data-lucide="target" class="w-3.5 h-3.5"></i> 35 Leads</span>
+                    </div>
+                    <h3 class="text-base font-bold text-white mb-1 group-hover:text-primary transition-colors">Gyms & Fitness Centers</h3>
+                    <p class="text-xs text-text-muted mb-3 flex items-center gap-1.5"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-zinc-400"></i> Pune, Maharashtra</p>
+                    <div class="bg-zinc-950 p-3 rounded-xl border border-zinc-900 text-xs font-mono space-y-1.5 text-zinc-300">
+                        <div><span class="text-zinc-500">Query:</span> <span class="text-emerald-400">"Gyms"</span> in Pune</div>
+                        <div><span class="text-zinc-500">09:30 AM:</span> Scrape 35 leads</div>
+                        <div><span class="text-zinc-500">Waves:</span> 12:00 PM (18) & 04:30 PM (17)</div>
+                        <div><span class="text-zinc-500">06:00 PM:</span> Day 1 Kickoff & WhatsApp monitor</div>
+                    </div>
+                </div>
+
+                <!-- Tuesday -->
+                <div class="glass-card p-5 rounded-2xl relative overflow-hidden border border-zinc-800/80 hover:border-primary/50 transition-all group">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="px-2.5 py-1 rounded-lg bg-primary/10 text-primary font-mono text-xs font-bold">TUE · DAY 2</span>
+                        <span class="text-xs text-emerald-400 font-mono font-semibold flex items-center gap-1"><i data-lucide="target" class="w-3.5 h-3.5"></i> 35 Leads</span>
+                    </div>
+                    <h3 class="text-base font-bold text-white mb-1 group-hover:text-primary transition-colors">Fitness Studios & Gyms</h3>
+                    <p class="text-xs text-text-muted mb-3 flex items-center gap-1.5"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-zinc-400"></i> Surat, Gujarat</p>
+                    <div class="bg-zinc-950 p-3 rounded-xl border border-zinc-900 text-xs font-mono space-y-1.5 text-zinc-300">
+                        <div><span class="text-zinc-500">Query:</span> <span class="text-emerald-400">"Gyms"</span> in Surat</div>
+                        <div><span class="text-zinc-500">09:30 AM:</span> Scrape 35 leads</div>
+                        <div><span class="text-zinc-500">Waves:</span> 12:00 PM (18) & 04:30 PM (17)</div>
+                        <div><span class="text-zinc-500">06:00 PM:</span> 15 Calls (Mon leads) → <span class="text-emerald-400">1 Deal</span></div>
+                    </div>
+                </div>
+
+                <!-- Wednesday -->
+                <div class="glass-card p-5 rounded-2xl relative overflow-hidden border border-zinc-800/80 hover:border-primary/50 transition-all group">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="px-2.5 py-1 rounded-lg bg-primary/10 text-primary font-mono text-xs font-bold">WED · DAY 3</span>
+                        <span class="text-xs text-emerald-400 font-mono font-semibold flex items-center gap-1"><i data-lucide="target" class="w-3.5 h-3.5"></i> 35 Leads</span>
+                    </div>
+                    <h3 class="text-base font-bold text-white mb-1 group-hover:text-primary transition-colors">Premium Unisex Salons</h3>
+                    <p class="text-xs text-text-muted mb-3 flex items-center gap-1.5"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-zinc-400"></i> Gurugram, Haryana</p>
+                    <div class="bg-zinc-950 p-3 rounded-xl border border-zinc-900 text-xs font-mono space-y-1.5 text-zinc-300">
+                        <div><span class="text-zinc-500">Query:</span> <span class="text-emerald-400">"Unisex Salons"</span> in Gurugram</div>
+                        <div><span class="text-zinc-500">09:30 AM:</span> Scrape 35 leads</div>
+                        <div><span class="text-zinc-500">Waves:</span> 12:00 PM (18) & 04:30 PM (17)</div>
+                        <div><span class="text-zinc-500">06:00 PM:</span> 15 Calls (Tue leads) → <span class="text-emerald-400">2 Deals</span></div>
+                    </div>
+                </div>
+
+                <!-- Thursday -->
+                <div class="glass-card p-5 rounded-2xl relative overflow-hidden border border-zinc-800/80 hover:border-primary/50 transition-all group">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="px-2.5 py-1 rounded-lg bg-primary/10 text-primary font-mono text-xs font-bold">THU · DAY 4</span>
+                        <span class="text-xs text-emerald-400 font-mono font-semibold flex items-center gap-1"><i data-lucide="target" class="w-3.5 h-3.5"></i> 35 Leads</span>
+                    </div>
+                    <h3 class="text-base font-bold text-white mb-1 group-hover:text-primary transition-colors">Dental & Care Clinics</h3>
+                    <p class="text-xs text-text-muted mb-3 flex items-center gap-1.5"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-zinc-400"></i> Ahmedabad, Gujarat</p>
+                    <div class="bg-zinc-950 p-3 rounded-xl border border-zinc-900 text-xs font-mono space-y-1.5 text-zinc-300">
+                        <div><span class="text-zinc-500">Query:</span> <span class="text-emerald-400">"Dental Clinics"</span> in Ahmedabad</div>
+                        <div><span class="text-zinc-500">09:30 AM:</span> Scrape 35 leads</div>
+                        <div><span class="text-zinc-500">Waves:</span> 12:00 PM (18) & 04:30 PM (17)</div>
+                        <div><span class="text-zinc-500">06:00 PM:</span> 15 Calls (Wed leads) → <span class="text-emerald-400">2 Deals</span></div>
+                    </div>
+                </div>
+
+                <!-- Friday -->
+                <div class="glass-card p-5 rounded-2xl relative overflow-hidden border border-zinc-800/80 hover:border-primary/50 transition-all group">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="px-2.5 py-1 rounded-lg bg-primary/10 text-primary font-mono text-xs font-bold">FRI · DAY 5</span>
+                        <span class="text-xs text-emerald-400 font-mono font-semibold flex items-center gap-1"><i data-lucide="target" class="w-3.5 h-3.5"></i> 35 Leads</span>
+                    </div>
+                    <h3 class="text-base font-bold text-white mb-1 group-hover:text-primary transition-colors">CrossFit & Fitness Gyms</h3>
+                    <p class="text-xs text-text-muted mb-3 flex items-center gap-1.5"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-zinc-400"></i> Jaipur, Rajasthan</p>
+                    <div class="bg-zinc-950 p-3 rounded-xl border border-zinc-900 text-xs font-mono space-y-1.5 text-zinc-300">
+                        <div><span class="text-zinc-500">Query:</span> <span class="text-emerald-400">"Gyms"</span> in Jaipur</div>
+                        <div><span class="text-zinc-500">09:30 AM:</span> Scrape 35 leads</div>
+                        <div><span class="text-zinc-500">Waves:</span> 12:00 PM (18) & 04:30 PM (17)</div>
+                        <div><span class="text-zinc-500">06:00 PM:</span> Friday Power Close → <span class="text-emerald-400">2 Deals</span></div>
+                    </div>
+                </div>
+
+                <!-- Saturday -->
+                <div class="glass-card p-5 rounded-2xl relative overflow-hidden border border-zinc-800/80 hover:border-primary/50 transition-all group">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="px-2.5 py-1 rounded-lg bg-primary/10 text-primary font-mono text-xs font-bold">SAT · DAY 6</span>
+                        <span class="text-xs text-emerald-400 font-mono font-semibold flex items-center gap-1"><i data-lucide="target" class="w-3.5 h-3.5"></i> 35 Leads</span>
+                    </div>
+                    <h3 class="text-base font-bold text-white mb-1 group-hover:text-primary transition-colors">Spas, Hair & Wellness</h3>
+                    <p class="text-xs text-text-muted mb-3 flex items-center gap-1.5"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-zinc-400"></i> Chandigarh (Tricity)</p>
+                    <div class="bg-zinc-950 p-3 rounded-xl border border-zinc-900 text-xs font-mono space-y-1.5 text-zinc-300">
+                        <div><span class="text-zinc-500">Query:</span> <span class="text-emerald-400">"Spas and Salons"</span> in Chandigarh</div>
+                        <div><span class="text-zinc-500">09:30 AM:</span> Scrape 35 leads</div>
+                        <div><span class="text-zinc-500">Waves:</span> 12:00 PM (18) & 04:30 PM (17)</div>
+                        <div><span class="text-zinc-500">06:00 PM:</span> 20 Weekend Calls → <span class="text-emerald-400">2 Deals</span></div>
+                    </div>
+                </div>
+
+                <!-- Sunday -->
+                <div class="glass-card p-5 rounded-2xl relative overflow-hidden border border-zinc-800/80 hover:border-primary/50 transition-all group md:col-span-2 lg:col-span-3">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-400 font-mono text-xs font-bold">SUN · DAY 7</span>
+                            <h3 class="text-base font-bold text-white">Pipeline Review, Domain Mapping & Balance Payments</h3>
+                        </div>
+                        <span class="text-xs text-emerald-400 font-mono font-semibold flex items-center gap-1"><i data-lucide="target" class="w-3.5 h-3.5"></i> 20 Leads (Lucknow) + Pipeline Closing</span>
+                    </div>
+                    <p class="text-xs text-text-muted mb-3 flex items-center gap-1.5"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-zinc-400"></i> Lucknow, Uttar Pradesh (Scrape only) · Target 10 Closing Calls for Active Pipeline</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-zinc-950 p-3 rounded-xl border border-zinc-900 text-xs font-mono text-zinc-300">
+                        <div><span class="text-zinc-500">09:30 AM:</span> Scrape 20 leads (<span class="text-emerald-400">"Gyms"</span> in Lucknow) for Monday buffer</div>
+                        <div><span class="text-zinc-500">Afternoon:</span> Map custom domains on Vercel for closed clients</div>
+                        <div><span class="text-zinc-500">06:00 PM:</span> Collect remaining 50% UPI balances → <span class="text-emerald-400">2 Final Deals</span></div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Section 4: Daily Time-Block Routine -->
         <section id="daily-routine" class="space-y-6">
             <div class="flex items-center gap-3">
                 <div class="p-2 rounded-xl bg-primary/10 text-primary border border-primary/20">
                     <i data-lucide="clock" class="w-5 h-5"></i>
                 </div>
-                <h2 class="text-2xl sm:text-3xl font-bold font-heading">3. Daily Time-Block Routine (Mon – Sun)</h2>
+                <h2 class="text-2xl sm:text-3xl font-bold font-heading">4. Daily Time-Block Routine (Mon – Sun)</h2>
             </div>
 
             <div class="space-y-3">
@@ -292,13 +429,13 @@
             </div>
         </section>
 
-        <!-- Section 4: Follow-up Phone Call Scripts -->
+        <!-- Section 5: Follow-up Phone Call Scripts -->
         <section id="scripts" class="space-y-6">
             <div class="flex items-center gap-3">
                 <div class="p-2 rounded-xl bg-primary/10 text-primary border border-primary/20">
                     <i data-lucide="phone" class="w-5 h-5"></i>
                 </div>
-                <h2 class="text-2xl sm:text-3xl font-bold font-heading">4. Follow-Up Phone Call Script</h2>
+                <h2 class="text-2xl sm:text-3xl font-bold font-heading">5. Follow-Up Phone Call Script</h2>
             </div>
 
             <!-- Call Script Card -->
@@ -326,13 +463,13 @@
             </div>
         </section>
 
-        <!-- Section 5: Objection Handling Playbook -->
+        <!-- Section 6: Objection Handling Playbook -->
         <section id="objections" class="space-y-6">
             <div class="flex items-center gap-3">
                 <div class="p-2 rounded-xl bg-primary/10 text-primary border border-primary/20">
                     <i data-lucide="shield-alert" class="w-5 h-5"></i>
                 </div>
-                <h2 class="text-2xl sm:text-3xl font-bold font-heading">5. Objection Handling Playbook</h2>
+                <h2 class="text-2xl sm:text-3xl font-bold font-heading">6. Objection Handling Playbook</h2>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -370,13 +507,13 @@
             </div>
         </section>
 
-        <!-- Section 6: KPI Tracker & Revenue Milestones -->
+        <!-- Section 7: KPI Tracker & Revenue Milestones -->
         <section id="kpi" class="space-y-6">
             <div class="flex items-center gap-3">
                 <div class="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                     <i data-lucide="trending-up" class="w-5 h-5"></i>
                 </div>
-                <h2 class="text-2xl sm:text-3xl font-bold font-heading">6. 7-Day Target & KPI Dashboard</h2>
+                <h2 class="text-2xl sm:text-3xl font-bold font-heading">7. 7-Day Target & KPI Dashboard</h2>
             </div>
 
             <div class="glass-card rounded-2xl overflow-x-auto border border-zinc-800">
@@ -384,6 +521,7 @@
                     <thead>
                         <tr class="border-b border-zinc-800 bg-zinc-900/50 text-text-muted font-mono">
                             <th class="p-3 sm:p-4">Day</th>
+                            <th class="p-3 sm:p-4">Target Industry & City</th>
                             <th class="p-3 sm:p-4">Scraped & Built</th>
                             <th class="p-3 sm:p-4">WhatsApp Sent</th>
                             <th class="p-3 sm:p-4">Follow-Up Calls</th>
@@ -394,6 +532,7 @@
                     <tbody class="divide-y divide-zinc-800 text-zinc-200 font-mono">
                         <tr class="hover:bg-zinc-900/30 transition-colors">
                             <td class="p-3 sm:p-4 font-bold text-white">Mon (Day 1)</td>
+                            <td class="p-3 sm:p-4 text-zinc-300"><span class="text-primary font-semibold">"Gyms"</span> in Pune</td>
                             <td class="p-3 sm:p-4 text-emerald-400">35 Leads</td>
                             <td class="p-3 sm:p-4 text-primary">35 Demos</td>
                             <td class="p-3 sm:p-4 text-zinc-500">—</td>
@@ -402,6 +541,7 @@
                         </tr>
                         <tr class="hover:bg-zinc-900/30 transition-colors">
                             <td class="p-3 sm:p-4 font-bold text-white">Tue (Day 2)</td>
+                            <td class="p-3 sm:p-4 text-zinc-300"><span class="text-primary font-semibold">"Gyms"</span> in Surat</td>
                             <td class="p-3 sm:p-4 text-emerald-400">35 Leads</td>
                             <td class="p-3 sm:p-4 text-primary">35 Demos</td>
                             <td class="p-3 sm:p-4 text-amber-400">15 Calls</td>
@@ -410,6 +550,7 @@
                         </tr>
                         <tr class="hover:bg-zinc-900/30 transition-colors">
                             <td class="p-3 sm:p-4 font-bold text-white">Wed (Day 3)</td>
+                            <td class="p-3 sm:p-4 text-zinc-300"><span class="text-primary font-semibold">"Unisex Salons"</span> in Gurugram</td>
                             <td class="p-3 sm:p-4 text-emerald-400">35 Leads</td>
                             <td class="p-3 sm:p-4 text-primary">35 Demos</td>
                             <td class="p-3 sm:p-4 text-amber-400">15 Calls</td>
@@ -418,6 +559,7 @@
                         </tr>
                         <tr class="hover:bg-zinc-900/30 transition-colors">
                             <td class="p-3 sm:p-4 font-bold text-white">Thu (Day 4)</td>
+                            <td class="p-3 sm:p-4 text-zinc-300"><span class="text-primary font-semibold">"Dental Clinics"</span> in Ahmedabad</td>
                             <td class="p-3 sm:p-4 text-emerald-400">35 Leads</td>
                             <td class="p-3 sm:p-4 text-primary">35 Demos</td>
                             <td class="p-3 sm:p-4 text-amber-400">15 Calls</td>
@@ -426,6 +568,7 @@
                         </tr>
                         <tr class="hover:bg-zinc-900/30 transition-colors">
                             <td class="p-3 sm:p-4 font-bold text-white">Fri (Day 5)</td>
+                            <td class="p-3 sm:p-4 text-zinc-300"><span class="text-primary font-semibold">"Gyms"</span> in Jaipur</td>
                             <td class="p-3 sm:p-4 text-emerald-400">35 Leads</td>
                             <td class="p-3 sm:p-4 text-primary">35 Demos</td>
                             <td class="p-3 sm:p-4 text-amber-400">15 Calls</td>
@@ -434,6 +577,7 @@
                         </tr>
                         <tr class="hover:bg-zinc-900/30 transition-colors">
                             <td class="p-3 sm:p-4 font-bold text-white">Sat (Day 6)</td>
+                            <td class="p-3 sm:p-4 text-zinc-300"><span class="text-primary font-semibold">"Spas and Salons"</span> in Chandigarh</td>
                             <td class="p-3 sm:p-4 text-emerald-400">35 Leads</td>
                             <td class="p-3 sm:p-4 text-primary">35 Demos</td>
                             <td class="p-3 sm:p-4 text-amber-400">20 Calls</td>
@@ -442,6 +586,7 @@
                         </tr>
                         <tr class="hover:bg-zinc-900/30 transition-colors">
                             <td class="p-3 sm:p-4 font-bold text-white">Sun (Day 7)</td>
+                            <td class="p-3 sm:p-4 text-zinc-300"><span class="text-primary font-semibold">"Gyms"</span> in Lucknow</td>
                             <td class="p-3 sm:p-4 text-emerald-400">20 Leads</td>
                             <td class="p-3 sm:p-4 text-zinc-500">—</td>
                             <td class="p-3 sm:p-4 text-amber-400">10 Calls</td>
@@ -451,7 +596,7 @@
                     </tbody>
                     <tfoot>
                         <tr class="bg-primary/10 border-t-2 border-primary text-white font-bold font-mono">
-                            <td class="p-3 sm:p-4">TOTALS</td>
+                            <td class="p-3 sm:p-4" colspan="2">TOTALS</td>
                             <td class="p-3 sm:p-4 text-emerald-400">230 Leads</td>
                             <td class="p-3 sm:p-4 text-primary">210 Demos</td>
                             <td class="p-3 sm:p-4 text-amber-400">90 Calls</td>
