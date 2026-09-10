@@ -33,11 +33,15 @@ webUI.registerActionHandler(async (action, ctx) => {
 // ---------------------------------------
 
 webUI.syncToTelegramHook = async (msg, opts) => {
-    if (masterChatId && bot) {
+    // Only attempt Telegram sync if a real user has interacted with the Telegram bot (valid chat ID)
+    if (masterChatId && masterChatId !== 'web_ui_user' && bot) {
         try {
             await bot.telegram.sendMessage(masterChatId, msg, opts);
         } catch (e) {
-            console.error("[WebUI->Telegram] Sync failed:", e.message);
+            // Silently log or ignore if chat is not found or user hasn't initiated chat on Telegram
+            if (!e.message.includes('chat not found')) {
+                console.warn("[WebUI->Telegram] Sync notice:", e.message);
+            }
         }
     }
 };
