@@ -8,7 +8,7 @@
 
 An enterprise-grade, multi-agent autonomous system built specifically to capture, enrich, convert, and onboard Indian local businesses (Gyms, Salons, Spas, Clinics, Cafes) on 100% autopilot.
 
-This comprehensive manual covers **the entire unified system**: from Google Maps scraping mechanics (now directly housed under `scraper/`) and real-time streaming architectures to website generation, Vercel deployments, WhatsApp automation, dual Telegram + Web UI control channels, and 24/7 server operations.
+This comprehensive manual covers **the entire unified system:** from Google Maps scraping mechanics (now directly housed under `scraper/`) and real-time streaming architectures to website generation, Vercel deployments, WhatsApp automation, dual Telegram + Web UI control channels, and 24/7 server operations.
 
 ---
 
@@ -31,7 +31,7 @@ This comprehensive manual covers **the entire unified system**: from Google Maps
 
 ## 1. System Architecture & Lifecycle
 
-The entire ecosystem is unified in this repository, linking the internal scraper (`scraper/`) and pipeline controller (`controller_bot/`) into a seamless **Producer-Consumer Streaming Architecture**:
+The entire ecosystem is unified in this repository, linking the internal scraper (`scraper/`) and pipeline controller (`controller_bot/`) into a seamless **Producer-Consumer Streaming Architecture:** 
 
 ```mermaid
 flowchart TD
@@ -191,22 +191,23 @@ A stateless Python Telegram bot for email-based outreach:
 
 ## 8. Complete Command & CLI Reference
 
-### 🤖 A. Master Controller Bot & Web UI Commands
+### 🤖 A. Master Controller Bot & Web UI Interactive Buttons Reference
 
-| Command / Action | Description | Example Usage |
+The interactive dashboard (available both in Telegram and at `http://localhost:3000`) provides 1-tap execution buttons:
+
+| Button / UI Control | Underlying Command / Action | Detailed Operational Function |
 | :--- | :--- | :--- |
-| `/start` or `/menu` | Opens interactive dashboard with quick-action buttons | `/start` |
-| `/status` | Shows real-time task state, running processes, and timetable | `/status` |
-| `/today` | Displays today's schedule, query, city, target count, and phone script | `/today` |
-| `/start_auto` | Activates 24/7 autonomous cron schedule | `/start_auto` |
-| `/pause_auto` | Suspends scheduled cron jobs (manual triggers still work) | `/pause_auto` |
-| `/run_full [query] [city] [count]` | **360° Acquisition Pipeline: Scrape ➔ Audit ➔ Build ➔ Vercel ➔ WhatsApp** | `/run_full "Gyms" "Jaipur" 1` |
-| `/trigger_stream [query] [city] [count]` | **Launches concurrent real-time scrape & website build** | `/trigger_stream "Gyms" "Pune" 35` |
-| `/trigger_scrape [query] [city] [count]` | Runs scraping only into Google Sheets | `/trigger_scrape "Dental Clinics" "Ahmedabad" 20` |
-| `/trigger_analyse [maxLeads]` | Runs batch audit & website builds on unanalyzed leads | `/trigger_analyse 35` |
-| `/trigger_send [count]` | Triggers an immediate WhatsApp dispatch wave | `/trigger_send 18` |
-| `/abort` or `/stop` | Immediately terminates all active scrapers, builders, and senders | `/abort` |
-| `/reset_plan` | Halts any active manual pipelines and restores 24/7 schedule | `/reset_plan` |
+| **Live Status** | `/status` | **Health & Schedule Monitor:** Queries operational state, reporting whether Scraper or Pipeline Builder processes are active/idle, displays current IST time, and outlines today's cron executions. |
+| **Today's Plan** | `/today` | **Daily Strategic Brief:** Reads `plan/week_1_plan.json`. Displays targeted niche (e.g. Dental Clinics in Ahmedabad), target lead quota (35), batch wave dispatches, and deal-closing phone scripts. |
+| **360° Full Pipeline (1 Lead)** | `/run_full "Query" "City" 1` | **End-to-End Instant Demo:** Extracts exactly **1 qualified lead** from Google Maps, conducts 14-point AI audit, generates custom Tailwind CSS website, deploys live to Vercel, and immediately sends a curiosity WhatsApp pitch. |
+| **Stream Scrape & Build** | `/trigger_stream [query] [city] [count]` | **Concurrent Streaming Pipeline:** Launches Playwright scraper for today's niche. As soon as 1 lead is extracted, it streams into builder queue to deploy the site while scraper continues searching in parallel. |
+| **Reset & Resume 24/7 Plan** | `/reset_plan` | **State Reset:** Aborts active manual pipeline, flushes task queues, and restores autonomous 24/7 timetable. |
+| **Abort Active Task** | `/abort` or `/stop` | **Emergency Halt:** Immediately transmits `SIGTERM` kill signal to all active Playwright, Puppeteer, and website builder child processes. |
+| **WhatsApp Dispatch** | `/trigger_send [count]` | **Outreach Wave:** Connects to WhatsApp Web via persistent session (`whatsapp_user_session/`), retrieves next pending batch of leads with built sites, and messages them with 30-75s safe delays. |
+| **Scrape Only** | `/trigger_scrape [query] [city] [count]` | **Lead Extraction Only:** Scrapes Google Maps listings and writes them into Google Sheets (`Sheet1`). Does not trigger website builds or messaging. |
+| **Build Only** | `/trigger_analyse [maxLeads]` | **Batch Site Generation:** Scans Google Sheets for unprocessed leads, executes 14-point AI SWOT audit, generates mobile-first sites, and deploys to Vercel. |
+| **Pause / Resume Automation** | `/pause_auto` / `/start_auto` | **Cron Master Switch:** Toggles 24/7 autonomous cron schedule on or off without halting manual command triggers. |
+| **View Schedule JSON** | `/view_plan` | **Configuration Inspector:** Shows file path (`plan/week_1_plan.json`) and instructions for reconfiguring daily niches, locations, and batch sizes. |
 
 ---
 
