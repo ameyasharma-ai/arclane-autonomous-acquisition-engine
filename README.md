@@ -35,38 +35,37 @@ The entire ecosystem is unified in this repository, linking the internal scraper
 
 ```mermaid
 flowchart TD
-    subgraph LeadGen ["1. Internal Lead Extraction (scraper/)"]
-        WATCHDOG["Self-Healing Watchdog (telegram_bot.py)"] --> GMAPS["Playwright Scraper Engine (scraper_no_website.py)"]
+    subgraph LeadGen ["1. Internal Lead Extraction (scraper)"]
+        WATCHDOG["Self-Healing Watchdog"] --> GMAPS["Playwright Scraper Engine"]
         GMAPS -->|IPC Event: STREAM_LEAD| STREAM["stdout IPC Stream"]
-        GMAPS -->|Appends Live Row| GS["Google Sheets CRM (Sheet1)"]
+        GMAPS -->|Appends Live Row| GS["Google Sheets CRM"]
     end
 
     subgraph ControlChannels ["2. Master Controller & UI Channels"]
-        CRON["Scheduler Engine (plan/week_1_plan.json)"]
-        TG_CTRL["Controller Bot Telegram UI (index.js)"]
-        WEB_UI["Local Web UI :3000 (web_ui.js)"]
-        SYNC["Bidirectional Chat & History Sync"]
-        TG_CTRL <--> SYNC <--> WEB_UI
-        CRON --> STREAM_RUNNER["Stream Pipeline Runner (pipeline_runner.js)"]
-        STREAM -->|P-Queue Worker (Concurrency: 1)| STREAM_RUNNER
+        CRON["Scheduler Engine"]
+        TG_CTRL["Controller Bot Telegram UI"]
+        WEB_UI["Local Web UI :3000"]
+        TG_CTRL --- WEB_UI
+        CRON --> STREAM_RUNNER["Stream Pipeline Runner"]
+        STREAM --> STREAM_RUNNER
     end
 
-    subgraph Intelligence ["3. Deep BI & Website Builder (src/)"]
-        STREAM_RUNNER --> WEB_CRAWL["Deep Web & Social Crawler (scraper.js)"]
-        WEB_CRAWL --> LLM["14-Point Strategic Audit (summarizer.js)"]
-        LLM --> BUILD["Tailwind CSS Builder (builder.js)"]
-        BUILD --> GH["GitHub Repo Creator (gh CLI)"]
-        BUILD --> VERCEL["Vercel Production Deployer (vercel CLI)"]
+    subgraph Intelligence ["3. Deep BI & Website Builder (src)"]
+        STREAM_RUNNER --> WEB_CRAWL["Deep Web & Social Crawler"]
+        WEB_CRAWL --> LLM["14-Point Strategic Audit"]
+        LLM --> BUILD["Tailwind CSS Builder"]
+        BUILD --> GH["GitHub Repo Creator"]
+        BUILD --> VERCEL["Vercel Production Deployer"]
         VERCEL -->|Writes Live URL & Status| GS
-        BUILD --> REPORT["Saved Reports (audit.md, outreach.json, index.html)"]
+        BUILD --> REPORT["Saved Reports & Output"]
     end
 
     subgraph Outreach ["4. Multi-Channel Outreach Dispatch"]
-        REPORT --> WA["WhatsApp Web Engine (Persistent Session & Scheduled Waves)"]
-        REPORT --> EMAIL["Sales Dispatcher (sales_bot.py & HTML Audits)"]
+        REPORT --> WA["WhatsApp Web Engine"]
+        REPORT --> EMAIL["Sales Dispatcher"]
         WA --> CLIENT["Business Owner"]
         EMAIL --> CLIENT
-        CRON -->|06:00 PM Window| CALLS["Telegram Phone Closing Scripts (Hindi/English)"]
+        CRON --> CALLS["Telegram Phone Closing Scripts"]
     end
 ```
 
