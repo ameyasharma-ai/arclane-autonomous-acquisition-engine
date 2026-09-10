@@ -453,4 +453,129 @@ export class PipelineRunner {
             throw error;
         }
     }
+
+    // Prepare WhatsApp wave: export vCard and send approval gate
+    async prepareDispatchWave(count = 18) {
+        if (this.isProcessing) {
+            console.log('[PipelineRunner] Task already processing, skipping wave prep.');
+            return null;
+        }
+
+        try {
+            const { sheet } = await loadGoogleSheet();
+            const rows = await sheet.getRows();
+
+            const readyToSend = [];
+            for (const row of rows) {
+                const d = row.toObject();
+                const cid = parseInt(d['Client ID'], 10);
+                const status = (d['Current Status'] || '').toLowerCase();
+                const websiteUrl = d['Website URL'] || '';
+
+                if (cid && websiteUrl && !status.includes('contacted') && !status.includes('sent')) {
+                    const reportDir = path.join(CONFIG.REPORTS_DIR, String(cid));
+                    const outreachJson = path.join(reportDir, 'outreach.json');
+                    if (fs.existsSync(outreachJson)) {
+                        readyToSend.push(cid);
+                    }
+                }
+            }
+
+            if (readyToSend.length === 0) {
+                await this.sendTelegram('ℹ️ *[Controller] No pending clients ready for WhatsApp dispatch.*');
+                return null;
+            }
+
+            const batchIds = readyToSend.slice(0, count);
+            const startId = batchIds[0];
+            const endId = batchIds[batchIds.length - 1];
+
+            // 1. Export/Send vCard first
+            const sender = new WhatsAppSender(this.bot, this.chatId);
+            await sender.exportContacts(startId, endId);
+
+            // 2. Save pending dispatch metadata
+            this.pendingDispatch = {
+                startId,
+                endId,
+                count: batchIds.length,
+                timestamp: new Date()
+            };
+
+            // 3. Send approval gate message
+            const approvalMsg = `📇 *WhatsApp Outreach Batch Ready (${batchIds.length} Leads: [${startId}:${endId}])*\n\n` +
+                `1️⃣ Tap the vCard (.vcf) file above to save all leads into your phone contacts.\n` +
+                `2️⃣ Give the **Green Signal** below when you are ready to begin sending messages.`;
+
+            const replyMarkup = {
+                inline_keyboard: [
+                    [
+                        { text: `🟢 Approve & Launch Wave (${batchIds.length} msgs)`, callback_data: 'cmd_approve_dispatch' },
+                        { text: '❌ Skip / Postpone', callback_data: 'cmd_dismiss_dispatch' }
+                    ]
+                ]
+            };
+
+            if (this.bot && this.chatId) {
+                try {
+                    await this.bot.telegram.sendMessage(this.chatId, approvalMsg, {
+                        parse_mode: 'Markdown',
+                        reply_markup: replyMarkup
+                    });
+                } catch (e) {}
+            }
+
+            import('../src/web_ui.js').then(({ webUI }) => {
+                webUI.broadcast(approvalMsg, { reply_markup: replyMarkup });
+            }).catch(() => {});
+
+            return this.pendingDispatch;
+        } catch (error) {
+            console.error('[PipelineRunner] Error preparing wave approval:', error.message);
+            await this.sendTelegram('❌ *[Controller] Error preparing outreach batch:* ' + error.message);
+            return null;
+        }
+    }
+
+    async executeApprovedDispatch() {
+        if (!this.pendingDispatch) {
+            throw new Error('No pending outreach batch awaiting approval!');
+        }
+        if (this.isProcessing) {
+            throw new Error('Another pipeline task is currently running!');
+        }
+
+        const { startId, endId, count } = this.pendingDispatch;
+        this.pendingDispatch = null;
+
+        this.isProcessing = true;
+        this.isAborted = false;
+
+        try {
+            await this.sendTelegram(
+                `🟢 *[Controller] Green Signal Received! Dispatching WhatsApp messages to ${count} clients:* \`[${startId}:${endId}]\`\n` +
+                `Safe randomized rate-limiting (30–75s delays) active...`
+            );
+
+            this.activeSender = new WhatsAppSender(this.bot, this.chatId);
+            const report = await this.activeSender.sendRange(startId, endId, { skipExport: true });
+            this.activeSender = null;
+
+            await this.sendTelegram(
+                '🏁 *[Controller] WhatsApp Dispatch Wave Complete!*\n\n' +
+                '📊 *Summary:*\n' +
+                '• Sent Successfully: ' + (report?.sentCount ?? 0) + '\n' +
+                '• Skipped: ' + (report?.skippedCount ?? 0) + '\n' +
+                '• Failed: ' + (report?.failedCount ?? 0)
+            );
+
+            this.isProcessing = false;
+            return report;
+        } catch (error) {
+            this.isProcessing = false;
+            await this.sendTelegram('❌ *[Controller] Error during WhatsApp dispatch:* ' + error.message);
+            throw error;
+        }
+    }
+
 }

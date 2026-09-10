@@ -560,6 +560,28 @@ bot.action('cmd_manual_send', async (ctx) => {
     scheduler.pipelineRunner.runDispatchWave(18).catch(e => ctx.reply(`❌ Dispatch error: ${e.message}`));
 });
 
+
+bot.action('cmd_approve_dispatch', async (ctx) => {
+    try { await ctx.answerCbQuery('⚡ Launching WhatsApp Dispatch...'); } catch (e) {}
+    if (!scheduler) scheduler = new Scheduler(bot, ctx.chat.id);
+    scheduler.setChatId(ctx.chat.id);
+
+    try {
+        await ctx.reply('🟢 *Green signal confirmed!* Initializing WhatsApp Web dispatch wave...', { parse_mode: 'Markdown' });
+        scheduler.pipelineRunner.executeApprovedDispatch().catch(e => ctx.reply(`❌ Dispatch error: ${e.message}`));
+    } catch (err) {
+        await ctx.reply(`⚠️ ${err.message}`);
+    }
+});
+
+bot.action('cmd_dismiss_dispatch', async (ctx) => {
+    try { await ctx.answerCbQuery('Wave postponed.'); } catch (e) {}
+    if (scheduler && scheduler.pipelineRunner) {
+        scheduler.pipelineRunner.pendingDispatch = null;
+    }
+    await ctx.reply('⏸️ *WhatsApp dispatch wave postponed.* You can manually trigger it anytime with `/trigger_send`.', { parse_mode: 'Markdown' });
+});
+
 bot.action('cmd_view_plan', async (ctx) => {
     try { await ctx.answerCbQuery(); } catch (e) {}
     await ctx.reply(

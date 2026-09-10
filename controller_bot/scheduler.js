@@ -91,7 +91,7 @@ export class Scheduler {
             const today = this.getTodayPlan();
             if (today && today.tasks.dispatchWave1.enabled) {
                 try {
-                    await this.pipelineRunner.runDispatchWave(today.tasks.dispatchWave1.batchSize || 18);
+                    await this.pipelineRunner.prepareDispatchWave(today.tasks.dispatchWave1.batchSize || 18);
                 } catch (e) {
                     console.error("[Scheduler] Scheduled wave 1 error:", e);
                 }
@@ -105,7 +105,7 @@ export class Scheduler {
             const today = this.getTodayPlan();
             if (today && today.tasks.dispatchWave2.enabled) {
                 try {
-                    await this.pipelineRunner.runDispatchWave(today.tasks.dispatchWave2.batchSize || 17);
+                    await this.pipelineRunner.prepareDispatchWave(today.tasks.dispatchWave2.batchSize || 17);
                 } catch (e) {
                     console.error("[Scheduler] Scheduled wave 2 error:", e);
                 }
