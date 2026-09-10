@@ -112,9 +112,9 @@ Create a dedicated deployment directory on the server:
 
 Clone your repositories into separate folders:
 
-1. Indian BI Reporting & Controller Bot:
-   git clone https://github.com/ameyasharma-ai/business_intelligence_reporting_agent.git ./bi-agent-indian
-   cd bi-agent-indian
+1. Indian Acquisition Engine & Controller Bot:
+   git clone https://github.com/ameyasharma-ai/arclane-autonomous-acquisition-engine.git ./arclane-engine
+   cd arclane-engine
    npm install
    cd ..
 

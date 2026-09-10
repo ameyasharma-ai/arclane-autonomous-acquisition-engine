@@ -14,7 +14,7 @@ export const CONFIG = {
     ROOT_DIR: rootDir,
     SCRAPER_DIR: fs.existsSync(path.resolve(rootDir, 'scraper')) 
         ? path.resolve(rootDir, 'scraper') 
-        : path.resolve(rootDir, '..', 'gmaps-scraper-Indian'),
+        : path.resolve(rootDir, '..', 'scraper'),
     PLAN_JSON_PATH: path.join(rootDir, 'plan', 'week_1_plan.json'),
     REPORTS_DIR: path.join(rootDir, 'reports'),
     SITES_DIR: path.join(rootDir, 'generated_sites'),

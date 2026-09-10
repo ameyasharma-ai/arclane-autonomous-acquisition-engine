@@ -7,7 +7,7 @@ This bot operates in the `controller_bot/` subfolder and serves as the master au
 ## 🎯 What It Does
 
 1. **Reads Machine Schedule:** Reads `plan/week_1_plan.json` for daily target queries, lead counts, and timed automation waves.
-2. **Automates Scraper:** Programmatically invokes `gmaps-scraper-Indian` every morning at 09:30 AM.
+2. **Automates Scraper:** Programmatically invokes the internal scraper (`scraper/`) every morning at 09:30 AM.
 3. **Automates Website Builder & Vercel Deployer:** Auto-generates 14-point audits, builds responsive mobile-first sites, and deploys to Vercel with clean business slugs at 10:30 AM.
 4. **Automates WhatsApp Waves:** Dispatches rate-limited WhatsApp curiosity messages with live Vercel links at 12:00 PM and 04:30 PM.
 5. **Evening Call Check-in:** Sends structured reminders and follow-up call scripts at 06:00 PM.
@@ -55,5 +55,5 @@ Bot Token: configured via `CONTROLLER_BOT_TOKEN` in `.env`
 
 ## 🛡️ Decoupled Architecture
 
-* **The human-based Telegram bot (`node src/index.js`) and scraper bot (`gmaps-scraper-Indian/telegram_bot.py`) remain completely independent.**
+* **The human-based Telegram bot (`node src/index.js`) and scraper bot (`scraper/telegram_bot.py`) remain completely independent.**
 * If the controller bot is stopped, you can still operate all scraper and reporting tools manually as originally designed.
