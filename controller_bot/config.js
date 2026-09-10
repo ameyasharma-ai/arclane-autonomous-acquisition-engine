@@ -8,7 +8,7 @@ const rootDir = process.cwd();
 
 export const CONFIG = {
     // Dedicated Telegram Bot Token for Controller Bot
-    BOT_TOKEN: process.env.CONTROLLER_BOT_TOKEN || "[REDACTED_TELEGRAM_TOKEN]",
+    BOT_TOKEN: process.env.CONTROLLER_BOT_TOKEN,
     
     // Paths
     ROOT_DIR: rootDir,

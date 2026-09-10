@@ -1,11 +1,24 @@
 import asyncio
+import os
 import pandas as pd
 from playwright.async_api import async_playwright
 import gspread
+from dotenv import load_dotenv
 
-SPREADSHEET_NAME = "Google Maps Leads"
-WORKSHEET_NAME = "Sheet1"
-SERVICE_ACCOUNT_FILE = "service_account.json"
+load_dotenv()
+if not os.getenv("SPREADSHEET_NAME"):
+    parent_env = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.env'))
+    if os.path.exists(parent_env):
+        load_dotenv(parent_env)
+
+SPREADSHEET_NAME = os.getenv("SPREADSHEET_NAME", "Google Maps Leads")
+WORKSHEET_NAME = os.getenv("WORKSHEET_NAME", "Sheet1")
+_sa_env = os.getenv("SERVICE_ACCOUNT_FILE", "service_account.json")
+if os.path.exists(_sa_env):
+    SERVICE_ACCOUNT_FILE = _sa_env
+else:
+    _parent_sa = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', _sa_env))
+    SERVICE_ACCOUNT_FILE = _parent_sa if os.path.exists(_parent_sa) else _sa_env
 
 async def fix_websites():
     print("\n=======================================================")

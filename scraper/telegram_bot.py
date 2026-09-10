@@ -7,6 +7,10 @@ from telegram.ext import Application, CommandHandler, ContextTypes
 from dotenv import load_dotenv
 
 load_dotenv()
+if not os.getenv("SPREADSHEET_NAME"):
+    parent_env = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.env'))
+    if os.path.exists(parent_env):
+        load_dotenv(parent_env)
 BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 # State flags to prevent overlapping executions
 is_scraping_running = False
@@ -313,9 +317,14 @@ async def missing_websites(update: Update, context: ContextTypes.DEFAULT_TYPE):
         df = pd.read_excel('google_maps_leads.xlsx')
         
         # --- SYNC LOGIC ---
-        gc = gspread.service_account(filename="service_account.json")
-        sh = gc.open("Google Maps Leads")
-        gs_worksheet = sh.worksheet("Sheet1")
+        sa_file = os.getenv("SERVICE_ACCOUNT_FILE", "service_account.json")
+        if not os.path.exists(sa_file):
+            parent_sa = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', sa_file))
+            if os.path.exists(parent_sa):
+                sa_file = parent_sa
+        gc = gspread.service_account(filename=sa_file)
+        sh = gc.open(os.getenv("SPREADSHEET_NAME", "Google Maps Leads"))
+        gs_worksheet = sh.worksheet(os.getenv("WORKSHEET_NAME", "Sheet1"))
         
         gs_data = gs_worksheet.get_all_values()
         headers = gs_data[0]

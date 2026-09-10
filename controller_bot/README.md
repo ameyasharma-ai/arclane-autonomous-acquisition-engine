@@ -38,7 +38,7 @@ pm2 logs arclane-controller-bot
 
 ## 📱 Telegram Bot Commands
 
-Bot Token: `[REDACTED_TELEGRAM_TOKEN]`
+Bot Token: configured via `CONTROLLER_BOT_TOKEN` in `.env`
 
 | Command | Action |
 | :--- | :--- |

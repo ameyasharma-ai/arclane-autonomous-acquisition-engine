@@ -286,9 +286,9 @@ cp .env.example .env
 ### Environment Configuration (`.env`):
 ```env
 # Telegram Bot Tokens (from @BotFather)
-TELEGRAM_BOT_TOKEN="[REDACTED_TELEGRAM_TOKEN]"
-CONTROLLER_BOT_TOKEN="[REDACTED_TELEGRAM_TOKEN]"
-TELEGRAM_SALES_BOT_TOKEN="[REDACTED_TELEGRAM_TOKEN]"
+TELEGRAM_BOT_TOKEN="your_nodejs_scraper_bot_token"
+CONTROLLER_BOT_TOKEN="your_controller_bot_token"
+TELEGRAM_SALES_BOT_TOKEN="your_python_sales_bot_token"
 
 # AI & LLM Keys
 OPENROUTER_API_KEY="sk-or-v1-..."
