@@ -4,6 +4,10 @@ import { Server } from 'socket.io';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
+import { AuditLogger } from './engine/audit_logger.js';
+import { ApprovalQueue } from './engine/approval_queue.js';
+import { DeduplicationEngine } from './engine/deduplication.js';
+import { FollowUpEngine } from './engine/follow_up.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -19,24 +23,33 @@ class WebUIServer {
         this.history = [];
         this.syncToTelegramHook = null;
 
+        // Analytics & State instances
+        this.auditLogger = new AuditLogger();
+        this.approvalQueue = new ApprovalQueue();
+        this.dedup = new DeduplicationEngine();
+        this.followUp = new FollowUpEngine();
+
+        this.app.use(express.json());
         this.loadHistory();
 
-        // Serve static files from 'public' directory
+        // Serve static dashboard files from 'public' directory
         this.app.use(express.static(path.join(__dirname, '../public')));
+
+        // REST API endpoints for the Real-Time Sales & Pipeline Analytics Dashboard
+        this.setupApiRoutes();
 
         this.io.on('connection', (socket) => {
             console.log(`[WebUI] Client connected: ${socket.id}`);
             
-            // Send existing history to the newly connected client
+            // Send existing history & live metrics to the newly connected client
             socket.emit('history', this.history);
+            socket.emit('metrics_update', this.auditLogger.getAnalytics());
 
             socket.on('command', async (data) => {
                 const text = data.text;
                 if (!text) return;
                 
                 console.log(`[WebUI] Command received: ${text}`);
-                
-                // Echo the command back as the user
                 this.emitAndSave({ type: 'user', text });
 
                 const fakeCtx = {
@@ -95,6 +108,57 @@ class WebUIServer {
         });
     }
 
+    setupApiRoutes() {
+        // 1. Live Funnel & Sales Metrics API
+        this.app.get('/api/analytics', (req, res) => {
+            const metrics = this.auditLogger.getAnalytics();
+            res.json({ success: true, metrics });
+        });
+
+        // 2. Human Approval Queue API
+        this.app.get('/api/approval-queue', (req, res) => {
+            const queue = this.approvalQueue.loadQueue();
+            res.json({ success: true, queue });
+        });
+
+        // 3. Approve a queued message
+        this.app.post('/api/approve', (req, res) => {
+            const { leadId, editedMessage } = req.body;
+            const approved = this.approvalQueue.approve(leadId, 'Dashboard User', editedMessage);
+            if (approved) {
+                res.json({ success: true, item: approved });
+            } else {
+                res.status(404).json({ success: false, error: 'Lead not found in queue' });
+            }
+        });
+
+        // 4. Reject a queued message
+        this.app.post('/api/reject', (req, res) => {
+            const { leadId, reason } = req.body;
+            const rejected = this.approvalQueue.reject(leadId, reason);
+            res.json({ success: true, item: rejected });
+        });
+
+        // 5. Active Follow-Up Schedules API
+        this.app.get('/api/followups', (req, res) => {
+            const schedules = this.followUp.loadSchedules();
+            res.json({ success: true, schedules });
+        });
+
+        // 6. Recent Audit Events API
+        this.app.get('/api/audit-logs', (req, res) => {
+            try {
+                const logPath = this.auditLogger.auditLogPath;
+                if (!fs.existsSync(logPath)) return res.json({ success: true, events: [] });
+                const lines = fs.readFileSync(logPath, 'utf-8').trim().split('\n').filter(Boolean);
+                const events = lines.slice(-50).map(l => JSON.parse(l)).reverse();
+                res.json({ success: true, events });
+            } catch (e) {
+                res.json({ success: false, error: e.message, events: [] });
+            }
+        });
+    }
+
     loadHistory() {
         try {
             if (fs.existsSync(HISTORY_FILE)) {
@@ -133,6 +197,7 @@ class WebUIServer {
         this.history.push(msgObj);
         this.saveHistory();
         this.io.emit('message', msgObj);
+        this.io.emit('metrics_update', this.auditLogger.getAnalytics());
     }
 
     registerCommand(cmd, handler) {
@@ -146,7 +211,7 @@ class WebUIServer {
     start() {
         this.server.listen(this.port, () => {
             console.log(`==================================================`);
-            console.log(`[WebUI] 🌐 Local Chat Interface running at: http://localhost:${this.port}`);
+            console.log(`[WebUI] 🌐 Sales OS & Controller running at: http://localhost:${this.port}`);
             console.log(`==================================================`);
         });
     }
