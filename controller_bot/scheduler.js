@@ -1,4 +1,6 @@
 import cron from 'node-cron';
+import path from 'path';
+import fs from 'fs';
 import { CONFIG } from './config.js';
 import { ScraperRunner } from './scraper_runner.js';
 import { PipelineRunner } from './pipeline_runner.js';
@@ -34,10 +36,33 @@ export class Scheduler {
         if (!this.plan) this.plan = CONFIG.loadPlan();
         if (!this.plan || !this.plan.dailySchedule) return null;
 
-        // Current day in Indian timezone
+        const statePath = path.join(CONFIG.ROOT_DIR, 'plan', 'engine_state.json');
+        let currentDayNum = 1;
+        try {
+            if (fs.existsSync(statePath)) {
+                const state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
+                if (state.startDate) {
+                    const start = new Date(state.startDate);
+                    const now = new Date();
+                    const diffDays = Math.floor((now - start) / (1000 * 60 * 60 * 24));
+                    // Rotate over 70 days for 100 days continuous execution
+                    currentDayNum = (diffDays % 70) + 1;
+                } else if (state.currentCycleDay) {
+                    currentDayNum = state.currentCycleDay;
+                }
+            } else {
+                fs.writeFileSync(statePath, JSON.stringify({ startDate: new Date().toISOString().split('T')[0], currentCycleDay: 1 }, null, 2));
+            }
+        } catch (e) {
+            console.warn('[Scheduler] Engine state read notice:', e.message);
+        }
+
+        // Match by dayNumber (1 to 70), fallback to weekday matching
+        const dayPlan = this.plan.dailySchedule.find(d => d.dayNumber === currentDayNum);
+        if (dayPlan) return dayPlan;
+
         const now = new Date();
         const indianDayIndex = new Date(now.toLocaleString("en-US", { timeZone: CONFIG.TIMEZONE })).getDay();
-        // JavaScript getDay(): 0 is Sunday, 1 is Monday...
         const planIndex = indianDayIndex === 0 ? 7 : indianDayIndex;
 
         return this.plan.dailySchedule.find(d => d.dayIndex === planIndex) || this.plan.dailySchedule[0];
