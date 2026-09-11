@@ -35,6 +35,9 @@ class WebUIServer {
         // Serve static dashboard files from 'public' directory
         this.app.use(express.static(path.join(__dirname, '../public')));
 
+        // Serve plan documents & HTML roadmaps from 'plan' directory
+        this.app.use('/plan', express.static(path.join(__dirname, '../plan')));
+
         // REST API endpoints for the Real-Time Sales & Pipeline Analytics Dashboard
         this.setupApiRoutes();
 
