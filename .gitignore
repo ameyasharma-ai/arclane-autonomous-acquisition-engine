@@ -37,3 +37,6 @@ __pycache__/
 *.pyc
 
 
+
+public/contacts.vcf
+public/qr.png

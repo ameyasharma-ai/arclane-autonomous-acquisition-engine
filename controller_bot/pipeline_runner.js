@@ -302,33 +302,55 @@ export class PipelineRunner {
             const startId = Math.min(...buildRes.processedClientIds);
             const endId = Math.max(...buildRes.processedClientIds);
 
-            // Step 2: Automatic WhatsApp Outreach
+            // Step 2: Queue WhatsApp Outreach
             await this.sendTelegram(
-                `📲 *[Controller] Website(s) Deployed! Proceeding to Immediate WhatsApp Outreach Wave...*\n` +
+                `📲 *[Controller] Website(s) Deployed! Preparing WhatsApp Outreach Wave...*\n` +
                 `📇 Target Range: \`[${startId}:${endId}]\``
             );
 
-            this.activeSender = new WhatsAppSender(this.bot, this.chatId);
-            const report = await this.activeSender.sendRange(startId, endId, { skipExport: false });
-            this.activeSender = null;
+            this.pendingDispatch = {
+                startId,
+                endId,
+                count: buildRes.processedClientIds.length,
+                timestamp: new Date()
+            };
+
+            const sender = new WhatsAppSender(this.bot, this.chatId);
+            await sender.exportContacts(startId, endId);
 
             const totalDurationMin = ((new Date() - startTime) / 60000).toFixed(1);
-            const sentCount = report?.sentCount ?? 0;
-            const failedCount = (report?.skippedCount ?? 0) + (report?.failedCount ?? 0);
 
             await this.sendTelegram(
-                `🎉 *[Controller] 360° Acquisition Pipeline Complete!*\n\n` +
+                `🎉 *[Controller] 360° Acquisition Pipeline Scrape & Build Complete!*\n\n` +
                 `📊 *Executive Summary:*\n` +
                 `• Leads Scraped & Audited: ${buildRes.streamedCount}\n` +
                 `• Live Websites Deployed: ${buildRes.processedCount}\n` +
-                `• WhatsApp Messages Sent: ${sentCount}\n` +
-                `• Skipped / Failed: ${failedCount}\n` +
                 `⏱️ *Total Duration:* ${totalDurationMin} min\n\n` +
                 `✅ Google Sheets CRM has been updated with live URLs and outreach statuses.`
             );
 
+            const approvalMsg = `📇 *WhatsApp Outreach Batch Ready (${buildRes.processedClientIds.length} Leads: [${startId}:${endId}])*\n\n` +
+                `1️⃣ Tap the vCard (.vcf) file above to save all leads into your phone contacts.\n` +
+                `2️⃣ Give the **Green Signal** below when you are ready to begin sending messages.`;
+
+            const replyMarkup = {
+                inline_keyboard: [
+                    [
+                        { text: `🟢 Approve & Launch Wave`, callback_data: 'cmd_approve_dispatch' },
+                        { text: '❌ Skip / Postpone', callback_data: 'cmd_dismiss_dispatch' }
+                    ]
+                ]
+            };
+
+            if (this.bot && this.chatId) {
+                try {
+                    // Send directly to Telegram API, but fall back to the Web UI wrapper
+                    await this.sendTelegram(approvalMsg, replyMarkup);
+                } catch (e) {}
+            }
+
             this.isProcessing = false;
-            return { success: true, buildRes, outreachReport: report, totalDurationMin };
+            return { success: true, buildRes, totalDurationMin, awaitingDispatchApproval: true };
         } catch (error) {
             this.isProcessing = false;
             if (this.isAborted) {

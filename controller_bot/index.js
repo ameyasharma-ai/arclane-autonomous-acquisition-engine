@@ -228,6 +228,26 @@ bot.command('pause_auto', async (ctx) => {
     });
 });
 
+import { WhatsAppSender } from '../src/whatsapp_sender.js';
+
+// Command: /login
+bot.command('login', async (ctx) => {
+    masterChatId = ctx.chat.id;
+    if (!scheduler) scheduler = new Scheduler(bot, masterChatId);
+    scheduler.setChatId(masterChatId);
+    
+    await ctx.reply(`🔄 *Starting WhatsApp Authentication Sequence...*\nPlease wait while Playwright launches and generates the QR code...`, { parse_mode: 'Markdown' });
+    
+    try {
+        const sender = new WhatsAppSender(bot, masterChatId);
+        await sender.init(false); 
+        await ctx.reply(`✅ *WhatsApp Login sequence completed.*`, { parse_mode: 'Markdown' });
+        await sender.close();
+    } catch (e) {
+        await ctx.reply(`❌ *Failed to login to WhatsApp:* ${e.message}`, { parse_mode: 'Markdown' });
+    }
+});
+
 // Helper for quoted argument parsing (e.g. /run_full "Gyms" "Jaipur" 1)
 function parseArgs(text) {
     const match = text.match(/[^\s"']+|"([^"]*)"|'([^']*)'/g);

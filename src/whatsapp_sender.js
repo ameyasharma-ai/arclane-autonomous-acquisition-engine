@@ -102,7 +102,7 @@ export class WhatsAppSender {
         return { businessName, phone, waMessage, content };
     }
 
-    async exportContacts(startId, endId) {
+    async exportContacts(startId, endId, options = {}) {
         const contactList = [];
         for (let clientId = startId; clientId <= endId; clientId++) {
             const data = this.getClientOutreachData(clientId);
@@ -116,18 +116,24 @@ export class WhatsAppSender {
             }
         }
 
-        if (contactList.length > 0) {
+        if (contactList.length > 0 && !options.skipExport) {
             const vcfPath = this.contactManager.generateVCF(contactList);
             const csvPath = this.contactManager.generateCSV(contactList);
+            const vcfFilename = path.basename(vcfPath);
+            
+            // Copy to public directory for Web UI download
+            const publicVcfPath = path.join(process.cwd(), 'public', vcfFilename);
+            fs.copyFileSync(vcfPath, publicVcfPath);
+            
+            import('./web_ui.js').then(({ webUI }) => webUI.broadcast(`📇 *vCard Ready!*\n\n[Download ${vcfFilename}](/${vcfFilename})\n\n_Tap the link above to save these leads to your phone contacts._`)).catch(()=>{});
 
-            if (this.telegramBot && this.chatId) {
+            if (this.telegramBot && this.chatId && this.chatId !== 'web_ui_user') {
                 try {
                     await this.telegramBot.telegram.sendDocument(
                         this.chatId, 
                         { source: vcfPath, filename: `contacts_${startId}_${endId}.vcf` },
                         { 
-                            caption: `📇 *Saved ${contactList.length} Contacts with Business Names!*\n\n` +
-                                     `💡 *Anti-Ban Protection:* Tap this file on your phone to add all leads into your phone contacts before sending messages!`,
+                            caption: "📇 *Batch vCard Export*\n\nTap to save all these leads to your phone contacts before sending messages.",
                             parse_mode: 'Markdown'
                         }
                     );
@@ -175,7 +181,11 @@ export class WhatsAppSender {
                 console.log("[WhatsApp] QR Code detected. Capturing screenshot for Telegram...");
                 try {
                     const qrBuffer = await isQrPresent.screenshot();
-                    if (this.telegramBot && this.chatId) {
+                    // Save to public dir so WebUI can display it
+                    fs.writeFileSync(path.join(process.cwd(), 'public', 'qr.png'), qrBuffer);
+                    import('./web_ui.js').then(({ webUI }) => webUI.broadcast("📱 *WhatsApp Login QR Code*\n\n![QR Code](/qr.png?t=" + Date.now() + ")\n\n1. Open WhatsApp on your phone\n2. Go to **Settings -> Linked Devices -> Link a Device**\n3. Scan this QR code to log in!")).catch(()=>{});
+
+                    if (this.telegramBot && this.chatId && this.chatId !== 'web_ui_user') {
                         await this.telegramBot.telegram.sendPhoto(
                             this.chatId, 
                             { source: qrBuffer },
