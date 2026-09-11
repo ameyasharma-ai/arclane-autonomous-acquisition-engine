@@ -1,0 +1,325 @@
+{
+  "blueprintVersion": "Week 6 of 10-Week / 100-Day INR 1L+ Engine",
+  "weekNumber": 6,
+  "agency": {
+    "name": "Arclane Studios",
+    "founder": "Ameya Sharma",
+    "targetMarket": "Indian SMBs (Gyms, Salons, Spas, Clinics, Cafes, Designers, Institutes)",
+    "targetGoal": {
+      "durationDays": 100,
+      "targetClients": "15 - 20 Indian Clients",
+      "averageDealSizeINR": 7999,
+      "projectedRevenueINR": "1,20,000 - 1,60,000"
+    }
+  },
+  "automationSettings": {
+    "autoStartCron": true,
+    "timezone": "Asia/Kolkata",
+    "leadQualificationFilter": {
+      "minRating": 4.5,
+      "minReviews": 30,
+      "websiteRequired": false
+    },
+    "whatsappSafeLimits": {
+      "maxPerBatch": 20,
+      "maxPerDay": 40,
+      "minDelaySeconds": 30,
+      "maxDelaySeconds": 75,
+      "requireVcfImport": true
+    }
+  },
+  "dailySchedule": [
+    {
+      "dayNumber": 36,
+      "weekNumber": 6,
+      "dayIndex": 1,
+      "dayName": "Monday",
+      "focus": "MMA, Boxing & Karate Academies in Pune",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Martial Arts Academies",
+          "locality": "in Pune",
+          "city": "Pune",
+          "targetLeads": 35
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "23:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 35
+        },
+        "dispatchWave1": {
+          "enabled": true,
+          "cronTime": "12:00",
+          "batchSize": 18
+        },
+        "dispatchWave2": {
+          "enabled": true,
+          "cronTime": "16:30",
+          "batchSize": 17
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 15,
+          "targetCloses": 1,
+          "notes": "Pitch trial class registration button."
+        }
+      }
+    },
+    {
+      "dayNumber": 37,
+      "weekNumber": 6,
+      "dayIndex": 2,
+      "dayName": "Tuesday",
+      "focus": "Dance & Performing Arts Studios in Gurugram",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Dance Academies",
+          "locality": "in Gurugram",
+          "city": "Gurugram",
+          "targetLeads": 35
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "23:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 35
+        },
+        "dispatchWave1": {
+          "enabled": true,
+          "cronTime": "12:00",
+          "batchSize": 18
+        },
+        "dispatchWave2": {
+          "enabled": true,
+          "cronTime": "16:30",
+          "batchSize": 17
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 15,
+          "targetCloses": 2,
+          "notes": "Emphasize student batch timings and video embeds."
+        }
+      }
+    },
+    {
+      "dayNumber": 38,
+      "weekNumber": 6,
+      "dayIndex": 3,
+      "dayName": "Wednesday",
+      "focus": "Yoga & Pilates Studios in Jaipur",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Yoga Studios",
+          "locality": "in Jaipur",
+          "city": "Jaipur",
+          "targetLeads": 35
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "23:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 35
+        },
+        "dispatchWave1": {
+          "enabled": true,
+          "cronTime": "12:00",
+          "batchSize": 18
+        },
+        "dispatchWave2": {
+          "enabled": true,
+          "cronTime": "16:30",
+          "batchSize": 17
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 15,
+          "targetCloses": 2,
+          "notes": "High NRI & wellness seeker traffic."
+        }
+      }
+    },
+    {
+      "dayNumber": 39,
+      "weekNumber": 6,
+      "dayIndex": 4,
+      "dayName": "Thursday",
+      "focus": "Cricket & Badminton Academies in Ahmedabad",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Sports Academies",
+          "locality": "in Ahmedabad",
+          "city": "Ahmedabad",
+          "targetLeads": 35
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "23:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 35
+        },
+        "dispatchWave1": {
+          "enabled": true,
+          "cronTime": "12:00",
+          "batchSize": 18
+        },
+        "dispatchWave2": {
+          "enabled": true,
+          "cronTime": "16:30",
+          "batchSize": 17
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 15,
+          "targetCloses": 2,
+          "notes": "Parents looking for coach profiles and admission forms."
+        }
+      }
+    },
+    {
+      "dayNumber": 40,
+      "weekNumber": 6,
+      "dayIndex": 5,
+      "dayName": "Friday",
+      "focus": "CrossFit & Functional Training in Chandigarh",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "CrossFit Gyms",
+          "locality": "in Chandigarh",
+          "city": "Chandigarh",
+          "targetLeads": 35
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "23:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 35
+        },
+        "dispatchWave1": {
+          "enabled": true,
+          "cronTime": "12:00",
+          "batchSize": 18
+        },
+        "dispatchWave2": {
+          "enabled": true,
+          "cronTime": "16:30",
+          "batchSize": 17
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 15,
+          "targetCloses": 2,
+          "notes": "Close deals for fitness coaches."
+        }
+      }
+    },
+    {
+      "dayNumber": 41,
+      "weekNumber": 6,
+      "dayIndex": 6,
+      "dayName": "Saturday",
+      "focus": "Swimming & Sports Clubs in Coimbatore",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Sports Clubs",
+          "locality": "in Coimbatore",
+          "city": "Coimbatore",
+          "targetLeads": 35
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "23:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 35
+        },
+        "dispatchWave1": {
+          "enabled": true,
+          "cronTime": "12:00",
+          "batchSize": 18
+        },
+        "dispatchWave2": {
+          "enabled": true,
+          "cronTime": "16:30",
+          "batchSize": 17
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 20,
+          "targetCloses": 2,
+          "notes": "Membership packages showcase."
+        }
+      }
+    },
+    {
+      "dayNumber": 42,
+      "weekNumber": 6,
+      "dayIndex": 7,
+      "dayName": "Sunday",
+      "focus": "System Health Check & WhatsApp Warmup",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Yoga Studios",
+          "locality": "in Dehradun",
+          "city": "Dehradun",
+          "targetLeads": 20
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "23:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 20
+        },
+        "dispatchWave1": {
+          "enabled": false,
+          "cronTime": "12:00",
+          "batchSize": 20
+        },
+        "dispatchWave2": {
+          "enabled": false,
+          "cronTime": "16:30",
+          "batchSize": 0
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 10,
+          "targetCloses": 1,
+          "notes": "Mid-point check. Validate zero-ban rate on WhatsApp."
+        }
+      }
+    }
+  ],
+  "phoneScriptTemplates": {
+    "courtesyOpener": "Hi [Owner Name], Ameya here from Arclane Studios. Maine aapke business ([Business Name]) ke liye ek custom live website concept banakar WhatsApp par share kiya tha. Bas ek minute check karna tha ki kya aapko link mila aur aapne glance kiya?",
+    "pricingOffer": "Humne aapka base design ready kar liya hai, isliye flat partner launch price ₹7,999 one-time me custom .com domain, lifetime hosting, WhatsApp booking aur Google Maps setup ke sath 24 hours me live kar denge.",
+    "referralScript": "Hi [Owner Name], aapki website live ho chuki hai! Agar aapke circle me kisi aur business owner ko website chahiye, share my contact—I will give them the same ₹7,999 partner discount."
+  }
+}

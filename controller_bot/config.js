@@ -25,13 +25,34 @@ export const CONFIG = {
     // Timezone
     TIMEZONE: "Asia/Kolkata",
     
-    // Load Plan JSON
-    loadPlan: () => {
+    // Load Plan JSON (supports week_1_plan.json or specific week number)
+    loadPlan: (weekNum = null) => {
         try {
-            const content = fs.readFileSync(path.join(rootDir, 'plan', 'week_1_plan.json'), 'utf8');
-            return JSON.parse(content);
+            if (!weekNum) {
+                // Determine week from engine_state.json if available
+                const statePath = path.join(rootDir, 'plan', 'engine_state.json');
+                if (fs.existsSync(statePath)) {
+                    const state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
+                    if (state.startDate) {
+                        const start = new Date(state.startDate);
+                        const now = new Date();
+                        const diffDays = Math.floor((now - start) / (1000 * 60 * 60 * 24));
+                        const cycleDay = (diffDays % 70) + 1;
+                        weekNum = Math.ceil(cycleDay / 7);
+                    } else if (state.currentCycleDay) {
+                        weekNum = Math.ceil(state.currentCycleDay / 7);
+                    }
+                }
+            }
+            const targetWeek = weekNum ? Math.min(Math.max(weekNum, 1), 10) : 1;
+            const weekPath = path.join(rootDir, 'plan', `week_${targetWeek}_plan.json`);
+            if (fs.existsSync(weekPath)) {
+                return JSON.parse(fs.readFileSync(weekPath, 'utf8'));
+            }
+            // Fallback to week_1_plan.json
+            return JSON.parse(fs.readFileSync(path.join(rootDir, 'plan', 'week_1_plan.json'), 'utf8'));
         } catch (e) {
-            console.error("[Config] Error loading week_1_plan.json:", e.message);
+            console.error("[Config] Error loading plan json:", e.message);
             return null;
         }
     }

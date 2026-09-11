@@ -1,0 +1,325 @@
+{
+  "blueprintVersion": "Week 2 of 10-Week / 100-Day INR 1L+ Engine",
+  "weekNumber": 2,
+  "agency": {
+    "name": "Arclane Studios",
+    "founder": "Ameya Sharma",
+    "targetMarket": "Indian SMBs (Gyms, Salons, Spas, Clinics, Cafes, Designers, Institutes)",
+    "targetGoal": {
+      "durationDays": 100,
+      "targetClients": "15 - 20 Indian Clients",
+      "averageDealSizeINR": 7999,
+      "projectedRevenueINR": "1,20,000 - 1,60,000"
+    }
+  },
+  "automationSettings": {
+    "autoStartCron": true,
+    "timezone": "Asia/Kolkata",
+    "leadQualificationFilter": {
+      "minRating": 4.5,
+      "minReviews": 30,
+      "websiteRequired": false
+    },
+    "whatsappSafeLimits": {
+      "maxPerBatch": 20,
+      "maxPerDay": 40,
+      "minDelaySeconds": 30,
+      "maxDelaySeconds": 75,
+      "requireVcfImport": true
+    }
+  },
+  "dailySchedule": [
+    {
+      "dayNumber": 8,
+      "weekNumber": 2,
+      "dayIndex": 1,
+      "dayName": "Monday",
+      "focus": "Luxury Unisex Salons in Indore",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Unisex Salons",
+          "locality": "in Indore",
+          "city": "Indore",
+          "targetLeads": 35
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "23:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 35
+        },
+        "dispatchWave1": {
+          "enabled": true,
+          "cronTime": "12:00",
+          "batchSize": 18
+        },
+        "dispatchWave2": {
+          "enabled": true,
+          "cronTime": "16:30",
+          "batchSize": 17
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 15,
+          "targetCloses": 1,
+          "notes": "Call Sunday leads. Focus on booking appointment widgets."
+        }
+      }
+    },
+    {
+      "dayNumber": 9,
+      "weekNumber": 2,
+      "dayIndex": 2,
+      "dayName": "Tuesday",
+      "focus": "Hair & Beauty Salons in Bhopal",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Beauty Salons",
+          "locality": "in Bhopal",
+          "city": "Bhopal",
+          "targetLeads": 35
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "23:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 35
+        },
+        "dispatchWave1": {
+          "enabled": true,
+          "cronTime": "12:00",
+          "batchSize": 18
+        },
+        "dispatchWave2": {
+          "enabled": true,
+          "cronTime": "16:30",
+          "batchSize": 17
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 15,
+          "targetCloses": 1,
+          "notes": "Follow up on Indore salons."
+        }
+      }
+    },
+    {
+      "dayNumber": 10,
+      "weekNumber": 2,
+      "dayIndex": 3,
+      "dayName": "Wednesday",
+      "focus": "Aesthetic & Skin Clinics in Nagpur",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Skin Clinics",
+          "locality": "in Nagpur",
+          "city": "Nagpur",
+          "targetLeads": 35
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "23:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 35
+        },
+        "dispatchWave1": {
+          "enabled": true,
+          "cronTime": "12:00",
+          "batchSize": 18
+        },
+        "dispatchWave2": {
+          "enabled": true,
+          "cronTime": "16:30",
+          "batchSize": 17
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 15,
+          "targetCloses": 2,
+          "notes": "High willingness to pay for modern aesthetic clinic sites."
+        }
+      }
+    },
+    {
+      "dayNumber": 11,
+      "weekNumber": 2,
+      "dayIndex": 4,
+      "dayName": "Thursday",
+      "focus": "Unisex Salons & Spas in Vadodara",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Unisex Salons",
+          "locality": "in Vadodara",
+          "city": "Vadodara",
+          "targetLeads": 35
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "23:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 35
+        },
+        "dispatchWave1": {
+          "enabled": true,
+          "cronTime": "12:00",
+          "batchSize": 18
+        },
+        "dispatchWave2": {
+          "enabled": true,
+          "cronTime": "16:30",
+          "batchSize": 17
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 15,
+          "targetCloses": 2,
+          "notes": "Push WhatsApp consultation booking."
+        }
+      }
+    },
+    {
+      "dayNumber": 12,
+      "weekNumber": 2,
+      "dayIndex": 5,
+      "dayName": "Friday",
+      "focus": "Luxury Hair Salons in Ludhiana",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Hair Salons",
+          "locality": "in Ludhiana",
+          "city": "Ludhiana",
+          "targetLeads": 35
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "23:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 35
+        },
+        "dispatchWave1": {
+          "enabled": true,
+          "cronTime": "12:00",
+          "batchSize": 18
+        },
+        "dispatchWave2": {
+          "enabled": true,
+          "cronTime": "16:30",
+          "batchSize": 17
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 15,
+          "targetCloses": 2,
+          "notes": "High disposable income market. Offer VIP launch package."
+        }
+      }
+    },
+    {
+      "dayNumber": 13,
+      "weekNumber": 2,
+      "dayIndex": 6,
+      "dayName": "Saturday",
+      "focus": "Day Spas & Wellness Retreats in Dehradun",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Day Spas",
+          "locality": "in Dehradun",
+          "city": "Dehradun",
+          "targetLeads": 35
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "23:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 35
+        },
+        "dispatchWave1": {
+          "enabled": true,
+          "cronTime": "12:00",
+          "batchSize": 18
+        },
+        "dispatchWave2": {
+          "enabled": true,
+          "cronTime": "16:30",
+          "batchSize": 17
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 20,
+          "targetCloses": 2,
+          "notes": "Weekend surge in wellness inquiries."
+        }
+      }
+    },
+    {
+      "dayNumber": 14,
+      "weekNumber": 2,
+      "dayIndex": 7,
+      "dayName": "Sunday",
+      "focus": "Weekly Review, UPI Collection & Delivery",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Gyms",
+          "locality": "in Nashik",
+          "city": "Nashik",
+          "targetLeads": 20
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "23:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 20
+        },
+        "dispatchWave1": {
+          "enabled": false,
+          "cronTime": "12:00",
+          "batchSize": 20
+        },
+        "dispatchWave2": {
+          "enabled": false,
+          "cronTime": "16:30",
+          "batchSize": 0
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 10,
+          "targetCloses": 1,
+          "notes": "Wrap Week 2 milestone. Aim for cumulative 5+ clients."
+        }
+      }
+    }
+  ],
+  "phoneScriptTemplates": {
+    "courtesyOpener": "Hi [Owner Name], Ameya here from Arclane Studios. Maine aapke business ([Business Name]) ke liye ek custom live website concept banakar WhatsApp par share kiya tha. Bas ek minute check karna tha ki kya aapko link mila aur aapne glance kiya?",
+    "pricingOffer": "Humne aapka base design ready kar liya hai, isliye flat partner launch price ₹7,999 one-time me custom .com domain, lifetime hosting, WhatsApp booking aur Google Maps setup ke sath 24 hours me live kar denge.",
+    "referralScript": "Hi [Owner Name], aapki website live ho chuki hai! Agar aapke circle me kisi aur business owner ko website chahiye, share my contact—I will give them the same ₹7,999 partner discount."
+  }
+}

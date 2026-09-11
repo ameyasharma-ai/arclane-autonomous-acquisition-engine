@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 8: Ceramic Coating, PPF & Auto Detailing Studios | ArcLane 100-Day INR 1L+ Engine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #090d16;
+      --card-bg: #111827;
+      --card-border: #1f293d;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --accent-cyan: #06b6d4;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --grad-cyan: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      min-height: 100vh;
+      padding: 32px 24px 60px 24px;
+    }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    header {
+      background: linear-gradient(180deg, rgba(17, 24, 39, 0.8) 0%, rgba(9, 13, 22, 0.95) 100%);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 32px 40px;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    header::after {
+      content: '';
+      position: absolute;
+      top: 0; right: 0;
+      width: 400px; height: 100%;
+      background: radial-gradient(circle, rgba(6, 182, 212, 0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .tagline {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--accent-cyan);
+      background: rgba(6, 182, 212, 0.12);
+      padding: 6px 14px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+      border: 1px solid rgba(6, 182, 212, 0.3);
+    }
+    h1 {
+      font-size: 2.1rem;
+      font-weight: 800;
+      line-height: 1.2;
+      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+    .subtext {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      max-width: 780px;
+      line-height: 1.5;
+    }
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+    .kpi-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 14px;
+      padding: 18px 22px;
+    }
+    .kpi-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+    .kpi-value {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .kpi-value.cyan { color: var(--accent-cyan); }
+    .kpi-value.emerald { color: var(--accent-emerald); }
+    .kpi-value.amber { color: var(--accent-amber); }
+
+    /* Nav bar between weeks */
+    .week-nav-bar {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 14px;
+      margin-bottom: 24px;
+    }
+    .tab-link {
+      display: inline-block;
+      text-decoration: none;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+    .tab-link:hover {
+      border-color: var(--accent-cyan);
+      color: #fff;
+    }
+    .tab-link.active {
+      background: var(--grad-cyan);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+    }
+
+    .automation-bar {
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      border-radius: 14px;
+      padding: 14px 20px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .automation-bar-title {
+      font-weight: 700;
+      color: #10b981;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .automation-times {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .time-chip {
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-family: 'JetBrains Mono', monospace;
+      color: #e2e8f0;
+    }
+
+    .days-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 20px;
+    }
+    .day-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .day-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(6, 182, 212, 0.4);
+    }
+    .day-card.rest-day {
+      background: rgba(17, 24, 39, 0.5);
+      border: 1px dashed rgba(255, 255, 255, 0.15);
+    }
+    .day-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    .day-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      padding: 5px 12px;
+      border-radius: 8px;
+      background: rgba(6, 182, 212, 0.12);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(6, 182, 212, 0.25);
+    }
+    .day-card.rest-day .day-badge {
+      background: rgba(245, 158, 11, 0.12);
+      color: var(--accent-amber);
+      border-color: rgba(245, 158, 11, 0.25);
+    }
+    .target-quota {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--accent-emerald);
+    }
+    .day-niche {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+    .day-meta {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+    .day-query {
+      background: rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      color: #38bdf8;
+      margin-bottom: 14px;
+      word-break: break-all;
+    }
+    .day-objectives strong {
+      display: block;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .day-objectives ul {
+      list-style-type: none;
+      font-size: 0.82rem;
+      color: #cbd5e1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+    .day-footer-meta {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .cron-tag {
+      background: rgba(255,255,255,0.04);
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      color: #94a3b8;
+      font-family: 'JetBrains Mono', monospace;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <span class="tagline">ArcLane Autonomous Growth Engine • Week 8</span>
+    <h1>Week 8: Ceramic Coating, PPF & Auto Detailing Studios</h1>
+    <p class="subtext">
+      Focus Niche: <strong>Car Detailing & PPF Studios</strong> | Weekly Target: <strong>2 Clients (₹15,998)</strong>
+    </p>
+
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-label">Weekly Client Target</div>
+        <div class="kpi-value cyan">2 Clients</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Weekly Target Revenue</div>
+        <div class="kpi-value emerald">₹15,998</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Expected Leads Scraped</div>
+        <div class="kpi-value amber">210 Verified</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Overall 100-Day Target</div>
+        <div class="kpi-value">₹1,00,000+</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="week-nav-bar">
+    <a href="week_1_plan.html" class="tab-link ">Week 1</a>
+<a href="week_2_plan.html" class="tab-link ">Week 2</a>
+<a href="week_3_plan.html" class="tab-link ">Week 3</a>
+<a href="week_4_plan.html" class="tab-link ">Week 4</a>
+<a href="week_5_plan.html" class="tab-link ">Week 5</a>
+<a href="week_6_plan.html" class="tab-link ">Week 6</a>
+<a href="week_7_plan.html" class="tab-link ">Week 7</a>
+<a href="week_8_plan.html" class="tab-link active">Week 8</a>
+<a href="week_9_plan.html" class="tab-link ">Week 9</a>
+<a href="week_10_plan.html" class="tab-link ">Week 10</a>
+  </div>
+
+  <div class="automation-bar">
+    <div class="automation-bar-title">
+      <span>⚙️ Automated Daily Schedule:</span>
+    </div>
+    <div class="automation-times">
+      <span class="time-chip">🌙 10:15 PM IST: Night Scrape</span>
+      <span class="time-chip">🛡️ 11:15 PM IST: Build & Audit</span>
+      <span class="time-chip">📱 12:00 PM IST: WhatsApp Wave 1</span>
+      <span class="time-chip">⚡ 04:30 PM IST: WhatsApp Wave 2</span>
+      <span class="time-chip">📞 06:00 PM IST: Phone Follow-ups</span>
+    </div>
+  </div>
+
+  <div class="days-grid">
+    
+      <div class="day-card ">
+        <div class="day-header">
+          <span class="day-badge">Day 50 • Monday</span>
+          <span class="target-quota">35 Target Leads</span>
+        </div>
+        <div class="day-body">
+          <h4 class="day-niche">Car Detailing & Ceramic Coating in Pune</h4>
+          <p class="day-meta"><strong>Target City:</strong> Pune</p>
+          <div class="day-query"><code>Car Detailing in Pune</code></div>
+          <div class="day-objectives">
+            <strong>Daily Protocol:</strong>
+            <ul>
+              <li><strong>🌙 10:15 PM:</strong> Google Maps Scraper (35 leads quota)</li>
+              <li><strong>⚙️ 23:15 PM:</strong> Automated Business Audit & Intelligence Dossier build</li>
+              <li><strong>📱 12:00 PM:</strong> Wave 1 WhatsApp Dispatch (18 personalized demos)</li>
+              <li><strong>⚡ 16:30 PM:</strong> Wave 2 WhatsApp Dispatch (17 personalized demos)</li>
+              <li><strong>📞 18:00 PM:</strong> Very high ticket (₹20k - ₹80k services). They happily pay ₹8k for site.</li>
+            </ul>
+          </div>
+          <div class="day-footer-meta">
+            <span class="cron-tag">Target Closes: 1</span>
+            <span class="cron-tag">Review Calls: 15</span>
+            <span class="cron-tag">Quota: 35</span>
+          </div>
+        </div>
+      </div>
+    
+      <div class="day-card ">
+        <div class="day-header">
+          <span class="day-badge">Day 51 • Tuesday</span>
+          <span class="target-quota">35 Target Leads</span>
+        </div>
+        <div class="day-body">
+          <h4 class="day-niche">Auto Spas & PPF Studios in Surat</h4>
+          <p class="day-meta"><strong>Target City:</strong> Surat</p>
+          <div class="day-query"><code>Car Detailing in Surat</code></div>
+          <div class="day-objectives">
+            <strong>Daily Protocol:</strong>
+            <ul>
+              <li><strong>🌙 10:15 PM:</strong> Google Maps Scraper (35 leads quota)</li>
+              <li><strong>⚙️ 23:15 PM:</strong> Automated Business Audit & Intelligence Dossier build</li>
+              <li><strong>📱 12:00 PM:</strong> Wave 1 WhatsApp Dispatch (18 personalized demos)</li>
+              <li><strong>⚡ 16:30 PM:</strong> Wave 2 WhatsApp Dispatch (17 personalized demos)</li>
+              <li><strong>📞 18:00 PM:</strong> Surat is full of luxury car enthusiasts.</li>
+            </ul>
+          </div>
+          <div class="day-footer-meta">
+            <span class="cron-tag">Target Closes: 2</span>
+            <span class="cron-tag">Review Calls: 15</span>
+            <span class="cron-tag">Quota: 35</span>
+          </div>
+        </div>
+      </div>
+    
+      <div class="day-card ">
+        <div class="day-header">
+          <span class="day-badge">Day 52 • Wednesday</span>
+          <span class="target-quota">35 Target Leads</span>
+        </div>
+        <div class="day-body">
+          <h4 class="day-niche">Car Customization & PPF in Gurugram</h4>
+          <p class="day-meta"><strong>Target City:</strong> Gurugram</p>
+          <div class="day-query"><code>Car Detailing and PPF in Gurugram</code></div>
+          <div class="day-objectives">
+            <strong>Daily Protocol:</strong>
+            <ul>
+              <li><strong>🌙 10:15 PM:</strong> Google Maps Scraper (35 leads quota)</li>
+              <li><strong>⚙️ 23:15 PM:</strong> Automated Business Audit & Intelligence Dossier build</li>
+              <li><strong>📱 12:00 PM:</strong> Wave 1 WhatsApp Dispatch (18 personalized demos)</li>
+              <li><strong>⚡ 16:30 PM:</strong> Wave 2 WhatsApp Dispatch (17 personalized demos)</li>
+              <li><strong>📞 18:00 PM:</strong> High margin industry. Show them before/after gallery.</li>
+            </ul>
+          </div>
+          <div class="day-footer-meta">
+            <span class="cron-tag">Target Closes: 2</span>
+            <span class="cron-tag">Review Calls: 15</span>
+            <span class="cron-tag">Quota: 35</span>
+          </div>
+        </div>
+      </div>
+    
+      <div class="day-card ">
+        <div class="day-header">
+          <span class="day-badge">Day 53 • Thursday</span>
+          <span class="target-quota">35 Target Leads</span>
+        </div>
+        <div class="day-body">
+          <h4 class="day-niche">Ceramic Coating & Detailing in Ahmedabad</h4>
+          <p class="day-meta"><strong>Target City:</strong> Ahmedabad</p>
+          <div class="day-query"><code>Ceramic Coating in Ahmedabad</code></div>
+          <div class="day-objectives">
+            <strong>Daily Protocol:</strong>
+            <ul>
+              <li><strong>🌙 10:15 PM:</strong> Google Maps Scraper (35 leads quota)</li>
+              <li><strong>⚙️ 23:15 PM:</strong> Automated Business Audit & Intelligence Dossier build</li>
+              <li><strong>📱 12:00 PM:</strong> Wave 1 WhatsApp Dispatch (18 personalized demos)</li>
+              <li><strong>⚡ 16:30 PM:</strong> Wave 2 WhatsApp Dispatch (17 personalized demos)</li>
+              <li><strong>📞 18:00 PM:</strong> Show pricing calculator and warranty tiers.</li>
+            </ul>
+          </div>
+          <div class="day-footer-meta">
+            <span class="cron-tag">Target Closes: 2</span>
+            <span class="cron-tag">Review Calls: 15</span>
+            <span class="cron-tag">Quota: 35</span>
+          </div>
+        </div>
+      </div>
+    
+      <div class="day-card ">
+        <div class="day-header">
+          <span class="day-badge">Day 54 • Friday</span>
+          <span class="target-quota">35 Target Leads</span>
+        </div>
+        <div class="day-body">
+          <h4 class="day-niche">Premium Auto Care in Jaipur</h4>
+          <p class="day-meta"><strong>Target City:</strong> Jaipur</p>
+          <div class="day-query"><code>Car Detailing in Jaipur</code></div>
+          <div class="day-objectives">
+            <strong>Daily Protocol:</strong>
+            <ul>
+              <li><strong>🌙 10:15 PM:</strong> Google Maps Scraper (35 leads quota)</li>
+              <li><strong>⚙️ 23:15 PM:</strong> Automated Business Audit & Intelligence Dossier build</li>
+              <li><strong>📱 12:00 PM:</strong> Wave 1 WhatsApp Dispatch (18 personalized demos)</li>
+              <li><strong>⚡ 16:30 PM:</strong> Wave 2 WhatsApp Dispatch (17 personalized demos)</li>
+              <li><strong>📞 18:00 PM:</strong> Close on Friday.</li>
+            </ul>
+          </div>
+          <div class="day-footer-meta">
+            <span class="cron-tag">Target Closes: 2</span>
+            <span class="cron-tag">Review Calls: 15</span>
+            <span class="cron-tag">Quota: 35</span>
+          </div>
+        </div>
+      </div>
+    
+      <div class="day-card ">
+        <div class="day-header">
+          <span class="day-badge">Day 55 • Saturday</span>
+          <span class="target-quota">35 Target Leads</span>
+        </div>
+        <div class="day-body">
+          <h4 class="day-niche">Car Detailing Studios in Ludhiana</h4>
+          <p class="day-meta"><strong>Target City:</strong> Ludhiana</p>
+          <div class="day-query"><code>Car Detailing in Ludhiana</code></div>
+          <div class="day-objectives">
+            <strong>Daily Protocol:</strong>
+            <ul>
+              <li><strong>🌙 10:15 PM:</strong> Google Maps Scraper (35 leads quota)</li>
+              <li><strong>⚙️ 23:15 PM:</strong> Automated Business Audit & Intelligence Dossier build</li>
+              <li><strong>📱 12:00 PM:</strong> Wave 1 WhatsApp Dispatch (18 personalized demos)</li>
+              <li><strong>⚡ 16:30 PM:</strong> Wave 2 WhatsApp Dispatch (17 personalized demos)</li>
+              <li><strong>📞 18:00 PM:</strong> Ludhiana has massive luxury SUV count.</li>
+            </ul>
+          </div>
+          <div class="day-footer-meta">
+            <span class="cron-tag">Target Closes: 2</span>
+            <span class="cron-tag">Review Calls: 20</span>
+            <span class="cron-tag">Quota: 35</span>
+          </div>
+        </div>
+      </div>
+    
+      <div class="day-card rest-day">
+        <div class="day-header">
+          <span class="day-badge">Day 56 • Sunday</span>
+          <span class="target-quota">Weekly Audit & Sweep</span>
+        </div>
+        <div class="day-body">
+          <h4 class="day-niche">Revenue Reconciliation & UPI Advance Audit</h4>
+          <p class="day-meta"><strong>Target City:</strong> Indore</p>
+          <div class="day-query"><code>Car Detailing in Indore</code></div>
+          <div class="day-objectives">
+            <strong>Daily Protocol:</strong>
+            <ul>
+              <li><strong>🌙 10:15 PM:</strong> Google Maps Scraper (20 leads quota)</li>
+              <li><strong>⚙️ 23:15 PM:</strong> Automated Business Audit & Intelligence Dossier build</li>
+              <li><strong>📱 12:00 PM:</strong> Wave 1 WhatsApp Dispatch (20 personalized demos)</li>
+              <li><strong>⚡ 16:30 PM:</strong> Wave 2 WhatsApp Dispatch (0 personalized demos)</li>
+              <li><strong>📞 18:00 PM:</strong> Auditing total booked revenue. Cross ₹80,000 mark.</li>
+            </ul>
+          </div>
+          <div class="day-footer-meta">
+            <span class="cron-tag">Target Closes: 1</span>
+            <span class="cron-tag">Review Calls: 10</span>
+            <span class="cron-tag">Quota: 20</span>
+          </div>
+        </div>
+      </div>
+    
+  </div>
+</div>
+
+</body>
+</html>

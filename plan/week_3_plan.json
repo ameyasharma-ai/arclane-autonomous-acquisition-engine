@@ -1,0 +1,325 @@
+{
+  "blueprintVersion": "Week 3 of 10-Week / 100-Day INR 1L+ Engine",
+  "weekNumber": 3,
+  "agency": {
+    "name": "Arclane Studios",
+    "founder": "Ameya Sharma",
+    "targetMarket": "Indian SMBs (Gyms, Salons, Spas, Clinics, Cafes, Designers, Institutes)",
+    "targetGoal": {
+      "durationDays": 100,
+      "targetClients": "15 - 20 Indian Clients",
+      "averageDealSizeINR": 7999,
+      "projectedRevenueINR": "1,20,000 - 1,60,000"
+    }
+  },
+  "automationSettings": {
+    "autoStartCron": true,
+    "timezone": "Asia/Kolkata",
+    "leadQualificationFilter": {
+      "minRating": 4.5,
+      "minReviews": 30,
+      "websiteRequired": false
+    },
+    "whatsappSafeLimits": {
+      "maxPerBatch": 20,
+      "maxPerDay": 40,
+      "minDelaySeconds": 30,
+      "maxDelaySeconds": 75,
+      "requireVcfImport": true
+    }
+  },
+  "dailySchedule": [
+    {
+      "dayNumber": 15,
+      "weekNumber": 3,
+      "dayIndex": 1,
+      "dayName": "Monday",
+      "focus": "Dental Implants & Clinics in Pune",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Dental Clinics",
+          "locality": "in Pune",
+          "city": "Pune",
+          "targetLeads": 35
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "23:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 35
+        },
+        "dispatchWave1": {
+          "enabled": true,
+          "cronTime": "12:00",
+          "batchSize": 18
+        },
+        "dispatchWave2": {
+          "enabled": true,
+          "cronTime": "16:30",
+          "batchSize": 17
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 15,
+          "targetCloses": 1,
+          "notes": "Emphasize trust, Google reviews, and patient appointment flow."
+        }
+      }
+    },
+    {
+      "dayNumber": 16,
+      "weekNumber": 3,
+      "dayIndex": 2,
+      "dayName": "Tuesday",
+      "focus": "Physiotherapy & Spine Centers in Coimbatore",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Physiotherapy Clinics",
+          "locality": "in Coimbatore",
+          "city": "Coimbatore",
+          "targetLeads": 35
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "23:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 35
+        },
+        "dispatchWave1": {
+          "enabled": true,
+          "cronTime": "12:00",
+          "batchSize": 18
+        },
+        "dispatchWave2": {
+          "enabled": true,
+          "cronTime": "16:30",
+          "batchSize": 17
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 15,
+          "targetCloses": 2,
+          "notes": "Direct WhatsApp consultation booking is a huge hook."
+        }
+      }
+    },
+    {
+      "dayNumber": 17,
+      "weekNumber": 3,
+      "dayIndex": 3,
+      "dayName": "Wednesday",
+      "focus": "Dental Specialists in Visakhapatnam",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Dental Clinics",
+          "locality": "in Visakhapatnam",
+          "city": "Visakhapatnam",
+          "targetLeads": 35
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "23:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 35
+        },
+        "dispatchWave1": {
+          "enabled": true,
+          "cronTime": "12:00",
+          "batchSize": 18
+        },
+        "dispatchWave2": {
+          "enabled": true,
+          "cronTime": "16:30",
+          "batchSize": 17
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 15,
+          "targetCloses": 2,
+          "notes": "Coastal hub with modern dental practices."
+        }
+      }
+    },
+    {
+      "dayNumber": 18,
+      "weekNumber": 3,
+      "dayIndex": 4,
+      "dayName": "Thursday",
+      "focus": "Eye Care & Ortho Clinics in Bhubaneswar",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Eye Clinics",
+          "locality": "in Bhubaneswar",
+          "city": "Bhubaneswar",
+          "targetLeads": 35
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "23:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 35
+        },
+        "dispatchWave1": {
+          "enabled": true,
+          "cronTime": "12:00",
+          "batchSize": 18
+        },
+        "dispatchWave2": {
+          "enabled": true,
+          "cronTime": "16:30",
+          "batchSize": 17
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 15,
+          "targetCloses": 1,
+          "notes": "Specialty medical centers seek clean digital presence."
+        }
+      }
+    },
+    {
+      "dayNumber": 19,
+      "weekNumber": 3,
+      "dayIndex": 5,
+      "dayName": "Friday",
+      "focus": "Dental Care & Braces in Jaipur",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Dental Clinics",
+          "locality": "in Jaipur",
+          "city": "Jaipur",
+          "targetLeads": 35
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "23:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 35
+        },
+        "dispatchWave1": {
+          "enabled": true,
+          "cronTime": "12:00",
+          "batchSize": 18
+        },
+        "dispatchWave2": {
+          "enabled": true,
+          "cronTime": "16:30",
+          "batchSize": 17
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 15,
+          "targetCloses": 2,
+          "notes": "Friday follow-up close. Close token payments."
+        }
+      }
+    },
+    {
+      "dayNumber": 20,
+      "weekNumber": 3,
+      "dayIndex": 6,
+      "dayName": "Saturday",
+      "focus": "Ayurvedic Wellness & Therapy in Kochi",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Ayurvedic Clinics",
+          "locality": "in Kochi",
+          "city": "Kochi",
+          "targetLeads": 35
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "23:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 35
+        },
+        "dispatchWave1": {
+          "enabled": true,
+          "cronTime": "12:00",
+          "batchSize": 18
+        },
+        "dispatchWave2": {
+          "enabled": true,
+          "cronTime": "16:30",
+          "batchSize": 17
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 20,
+          "targetCloses": 2,
+          "notes": "Tourism and local wellness. Emphasize package pricing."
+        }
+      }
+    },
+    {
+      "dayNumber": 21,
+      "weekNumber": 3,
+      "dayIndex": 7,
+      "dayName": "Sunday",
+      "focus": "Pipeline Audit & Vercel Production Sync",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Dental Clinics",
+          "locality": "in Mysore",
+          "city": "Mysore",
+          "targetLeads": 20
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "23:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 20
+        },
+        "dispatchWave1": {
+          "enabled": false,
+          "cronTime": "12:00",
+          "batchSize": 20
+        },
+        "dispatchWave2": {
+          "enabled": false,
+          "cronTime": "16:30",
+          "batchSize": 0
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 10,
+          "targetCloses": 1,
+          "notes": "Verify domain setups and collect second milestone payments."
+        }
+      }
+    }
+  ],
+  "phoneScriptTemplates": {
+    "courtesyOpener": "Hi [Owner Name], Ameya here from Arclane Studios. Maine aapke business ([Business Name]) ke liye ek custom live website concept banakar WhatsApp par share kiya tha. Bas ek minute check karna tha ki kya aapko link mila aur aapne glance kiya?",
+    "pricingOffer": "Humne aapka base design ready kar liya hai, isliye flat partner launch price ₹7,999 one-time me custom .com domain, lifetime hosting, WhatsApp booking aur Google Maps setup ke sath 24 hours me live kar denge.",
+    "referralScript": "Hi [Owner Name], aapki website live ho chuki hai! Agar aapke circle me kisi aur business owner ko website chahiye, share my contact—I will give them the same ₹7,999 partner discount."
+  }
+}

@@ -1,0 +1,325 @@
+{
+  "blueprintVersion": "Week 5 of 10-Week / 100-Day INR 1L+ Engine",
+  "weekNumber": 5,
+  "agency": {
+    "name": "Arclane Studios",
+    "founder": "Ameya Sharma",
+    "targetMarket": "Indian SMBs (Gyms, Salons, Spas, Clinics, Cafes, Designers, Institutes)",
+    "targetGoal": {
+      "durationDays": 100,
+      "targetClients": "15 - 20 Indian Clients",
+      "averageDealSizeINR": 7999,
+      "projectedRevenueINR": "1,20,000 - 1,60,000"
+    }
+  },
+  "automationSettings": {
+    "autoStartCron": true,
+    "timezone": "Asia/Kolkata",
+    "leadQualificationFilter": {
+      "minRating": 4.5,
+      "minReviews": 30,
+      "websiteRequired": false
+    },
+    "whatsappSafeLimits": {
+      "maxPerBatch": 20,
+      "maxPerDay": 40,
+      "minDelaySeconds": 30,
+      "maxDelaySeconds": 75,
+      "requireVcfImport": true
+    }
+  },
+  "dailySchedule": [
+    {
+      "dayNumber": 29,
+      "weekNumber": 5,
+      "dayIndex": 1,
+      "dayName": "Monday",
+      "focus": "Interior Designers in Noida",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Interior Designers",
+          "locality": "in Noida",
+          "city": "Noida",
+          "targetLeads": 35
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "23:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 35
+        },
+        "dispatchWave1": {
+          "enabled": true,
+          "cronTime": "12:00",
+          "batchSize": 18
+        },
+        "dispatchWave2": {
+          "enabled": true,
+          "cronTime": "16:30",
+          "batchSize": 17
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 15,
+          "targetCloses": 1,
+          "notes": "High ticket services. Pitch visual portfolio showcase."
+        }
+      }
+    },
+    {
+      "dayNumber": 30,
+      "weekNumber": 5,
+      "dayIndex": 2,
+      "dayName": "Tuesday",
+      "focus": "Architects & Modular Kitchens in Thane",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Architects and Interior Designers",
+          "locality": "in Thane",
+          "city": "Thane",
+          "targetLeads": 35
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "23:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 35
+        },
+        "dispatchWave1": {
+          "enabled": true,
+          "cronTime": "12:00",
+          "batchSize": 18
+        },
+        "dispatchWave2": {
+          "enabled": true,
+          "cronTime": "16:30",
+          "batchSize": 17
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 15,
+          "targetCloses": 2,
+          "notes": "Offer 3D project gallery integration."
+        }
+      }
+    },
+    {
+      "dayNumber": 31,
+      "weekNumber": 5,
+      "dayIndex": 3,
+      "dayName": "Wednesday",
+      "focus": "Interior Design Studios in Navi Mumbai",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Interior Designers",
+          "locality": "in Navi Mumbai",
+          "city": "Navi Mumbai",
+          "targetLeads": 35
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "23:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 35
+        },
+        "dispatchWave1": {
+          "enabled": true,
+          "cronTime": "12:00",
+          "batchSize": 18
+        },
+        "dispatchWave2": {
+          "enabled": true,
+          "cronTime": "16:30",
+          "batchSize": 17
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 15,
+          "targetCloses": 2,
+          "notes": "Rapidly developing suburbs with new homeowners."
+        }
+      }
+    },
+    {
+      "dayNumber": 32,
+      "weekNumber": 5,
+      "dayIndex": 4,
+      "dayName": "Thursday",
+      "focus": "Modular Interior Decorators in Surat",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Interior Designers",
+          "locality": "in Surat",
+          "city": "Surat",
+          "targetLeads": 35
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "23:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 35
+        },
+        "dispatchWave1": {
+          "enabled": true,
+          "cronTime": "12:00",
+          "batchSize": 18
+        },
+        "dispatchWave2": {
+          "enabled": true,
+          "cronTime": "16:30",
+          "batchSize": 17
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 15,
+          "targetCloses": 2,
+          "notes": "Business owners love direct WhatsApp quotation request."
+        }
+      }
+    },
+    {
+      "dayNumber": 33,
+      "weekNumber": 5,
+      "dayIndex": 5,
+      "dayName": "Friday",
+      "focus": "Architects & Home Renovators in Indore",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Architects",
+          "locality": "in Indore",
+          "city": "Indore",
+          "targetLeads": 35
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "23:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 35
+        },
+        "dispatchWave1": {
+          "enabled": true,
+          "cronTime": "12:00",
+          "batchSize": 18
+        },
+        "dispatchWave2": {
+          "enabled": true,
+          "cronTime": "16:30",
+          "batchSize": 17
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 15,
+          "targetCloses": 2,
+          "notes": "Close on Friday before weekend home-owner meetings."
+        }
+      }
+    },
+    {
+      "dayNumber": 34,
+      "weekNumber": 5,
+      "dayIndex": 6,
+      "dayName": "Saturday",
+      "focus": "Interior Consultants in Lucknow",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Interior Designers",
+          "locality": "in Lucknow",
+          "city": "Lucknow",
+          "targetLeads": 35
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "23:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 35
+        },
+        "dispatchWave1": {
+          "enabled": true,
+          "cronTime": "12:00",
+          "batchSize": 18
+        },
+        "dispatchWave2": {
+          "enabled": true,
+          "cronTime": "16:30",
+          "batchSize": 17
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 20,
+          "targetCloses": 2,
+          "notes": "Active commercial expansion in Gomti Nagar."
+        }
+      }
+    },
+    {
+      "dayNumber": 35,
+      "weekNumber": 5,
+      "dayIndex": 7,
+      "dayName": "Sunday",
+      "focus": "Portfolio Delivery & Custom Domain Linking",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Interior Designers",
+          "locality": "in Bhopal",
+          "city": "Bhopal",
+          "targetLeads": 20
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "23:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 20
+        },
+        "dispatchWave1": {
+          "enabled": false,
+          "cronTime": "12:00",
+          "batchSize": 20
+        },
+        "dispatchWave2": {
+          "enabled": false,
+          "cronTime": "16:30",
+          "batchSize": 0
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 10,
+          "targetCloses": 1,
+          "notes": "Domain linking for interior leads."
+        }
+      }
+    }
+  ],
+  "phoneScriptTemplates": {
+    "courtesyOpener": "Hi [Owner Name], Ameya here from Arclane Studios. Maine aapke business ([Business Name]) ke liye ek custom live website concept banakar WhatsApp par share kiya tha. Bas ek minute check karna tha ki kya aapko link mila aur aapne glance kiya?",
+    "pricingOffer": "Humne aapka base design ready kar liya hai, isliye flat partner launch price ₹7,999 one-time me custom .com domain, lifetime hosting, WhatsApp booking aur Google Maps setup ke sath 24 hours me live kar denge.",
+    "referralScript": "Hi [Owner Name], aapki website live ho chuki hai! Agar aapke circle me kisi aur business owner ko website chahiye, share my contact—I will give them the same ₹7,999 partner discount."
+  }
+}

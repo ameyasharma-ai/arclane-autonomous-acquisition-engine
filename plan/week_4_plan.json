@@ -1,0 +1,325 @@
+{
+  "blueprintVersion": "Week 4 of 10-Week / 100-Day INR 1L+ Engine",
+  "weekNumber": 4,
+  "agency": {
+    "name": "Arclane Studios",
+    "founder": "Ameya Sharma",
+    "targetMarket": "Indian SMBs (Gyms, Salons, Spas, Clinics, Cafes, Designers, Institutes)",
+    "targetGoal": {
+      "durationDays": 100,
+      "targetClients": "15 - 20 Indian Clients",
+      "averageDealSizeINR": 7999,
+      "projectedRevenueINR": "1,20,000 - 1,60,000"
+    }
+  },
+  "automationSettings": {
+    "autoStartCron": true,
+    "timezone": "Asia/Kolkata",
+    "leadQualificationFilter": {
+      "minRating": 4.5,
+      "minReviews": 30,
+      "websiteRequired": false
+    },
+    "whatsappSafeLimits": {
+      "maxPerBatch": 20,
+      "maxPerDay": 40,
+      "minDelaySeconds": 30,
+      "maxDelaySeconds": 75,
+      "requireVcfImport": true
+    }
+  },
+  "dailySchedule": [
+    {
+      "dayNumber": 22,
+      "weekNumber": 4,
+      "dayIndex": 1,
+      "dayName": "Monday",
+      "focus": "Specialty Coffee Cafes in Gurugram",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Cafes",
+          "locality": "in Gurugram",
+          "city": "Gurugram",
+          "targetLeads": 35
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "23:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 35
+        },
+        "dispatchWave1": {
+          "enabled": true,
+          "cronTime": "12:00",
+          "batchSize": 18
+        },
+        "dispatchWave2": {
+          "enabled": true,
+          "cronTime": "16:30",
+          "batchSize": 17
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 15,
+          "targetCloses": 1,
+          "notes": "Highlight QR digital menu & party booking CTA."
+        }
+      }
+    },
+    {
+      "dayNumber": 23,
+      "weekNumber": 4,
+      "dayIndex": 2,
+      "dayName": "Tuesday",
+      "focus": "Artisan Bakeries & Cafes in Pune",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Bakeries and Cafes",
+          "locality": "in Pune",
+          "city": "Pune",
+          "targetLeads": 35
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "23:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 35
+        },
+        "dispatchWave1": {
+          "enabled": true,
+          "cronTime": "12:00",
+          "batchSize": 18
+        },
+        "dispatchWave2": {
+          "enabled": true,
+          "cronTime": "16:30",
+          "batchSize": 17
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 15,
+          "targetCloses": 2,
+          "notes": "Focus on direct order booking over WhatsApp."
+        }
+      }
+    },
+    {
+      "dayNumber": 24,
+      "weekNumber": 4,
+      "dayIndex": 3,
+      "dayName": "Wednesday",
+      "focus": "Rooftop Cafes & Lounges in Jaipur",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Cafes and Lounges",
+          "locality": "in Jaipur",
+          "city": "Jaipur",
+          "targetLeads": 35
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "23:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 35
+        },
+        "dispatchWave1": {
+          "enabled": true,
+          "cronTime": "12:00",
+          "batchSize": 18
+        },
+        "dispatchWave2": {
+          "enabled": true,
+          "cronTime": "16:30",
+          "batchSize": 17
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 15,
+          "targetCloses": 2,
+          "notes": "Table reservation flow converts aggressively."
+        }
+      }
+    },
+    {
+      "dayNumber": 25,
+      "weekNumber": 4,
+      "dayIndex": 4,
+      "dayName": "Thursday",
+      "focus": "Family Restaurants & Cafes in Udaipur",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Cafes",
+          "locality": "in Udaipur",
+          "city": "Udaipur",
+          "targetLeads": 35
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "23:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 35
+        },
+        "dispatchWave1": {
+          "enabled": true,
+          "cronTime": "12:00",
+          "batchSize": 18
+        },
+        "dispatchWave2": {
+          "enabled": true,
+          "cronTime": "16:30",
+          "batchSize": 17
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 15,
+          "targetCloses": 2,
+          "notes": "Tourist and student hotspot."
+        }
+      }
+    },
+    {
+      "dayNumber": 26,
+      "weekNumber": 4,
+      "dayIndex": 5,
+      "dayName": "Friday",
+      "focus": "Boutique Cafes in Chandigarh",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Cafes",
+          "locality": "in Chandigarh",
+          "city": "Chandigarh",
+          "targetLeads": 35
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "23:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 35
+        },
+        "dispatchWave1": {
+          "enabled": true,
+          "cronTime": "12:00",
+          "batchSize": 18
+        },
+        "dispatchWave2": {
+          "enabled": true,
+          "cronTime": "16:30",
+          "batchSize": 17
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 15,
+          "targetCloses": 2,
+          "notes": "Friday weekend buzz. Connect with young cafe founders."
+        }
+      }
+    },
+    {
+      "dayNumber": 27,
+      "weekNumber": 4,
+      "dayIndex": 6,
+      "dayName": "Saturday",
+      "focus": "Heritage Cafes & Dining in Amritsar",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Cafes and Restaurants",
+          "locality": "in Amritsar",
+          "city": "Amritsar",
+          "targetLeads": 35
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "23:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 35
+        },
+        "dispatchWave1": {
+          "enabled": true,
+          "cronTime": "12:00",
+          "batchSize": 18
+        },
+        "dispatchWave2": {
+          "enabled": true,
+          "cronTime": "16:30",
+          "batchSize": 17
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 20,
+          "targetCloses": 2,
+          "notes": "Weekend calls."
+        }
+      }
+    },
+    {
+      "dayNumber": 28,
+      "weekNumber": 4,
+      "dayIndex": 7,
+      "dayName": "Sunday",
+      "focus": "Monthly Milestone 1 Celebration & Domain Launch",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Cafes",
+          "locality": "in Agra",
+          "city": "Agra",
+          "targetLeads": 20
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "23:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 20
+        },
+        "dispatchWave1": {
+          "enabled": false,
+          "cronTime": "12:00",
+          "batchSize": 20
+        },
+        "dispatchWave2": {
+          "enabled": false,
+          "cronTime": "16:30",
+          "batchSize": 0
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 10,
+          "targetCloses": 1,
+          "notes": "Month 1 Milestone Check: Cumulative 8-12 clients onboarded."
+        }
+      }
+    }
+  ],
+  "phoneScriptTemplates": {
+    "courtesyOpener": "Hi [Owner Name], Ameya here from Arclane Studios. Maine aapke business ([Business Name]) ke liye ek custom live website concept banakar WhatsApp par share kiya tha. Bas ek minute check karna tha ki kya aapko link mila aur aapne glance kiya?",
+    "pricingOffer": "Humne aapka base design ready kar liya hai, isliye flat partner launch price ₹7,999 one-time me custom .com domain, lifetime hosting, WhatsApp booking aur Google Maps setup ke sath 24 hours me live kar denge.",
+    "referralScript": "Hi [Owner Name], aapki website live ho chuki hai! Agar aapke circle me kisi aur business owner ko website chahiye, share my contact—I will give them the same ₹7,999 partner discount."
+  }
+}
