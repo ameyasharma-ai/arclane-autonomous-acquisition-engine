@@ -286,16 +286,21 @@ cp .env.example .env
 
 ### Environment Configuration (`.env`):
 ```env
-# Telegram Bot Tokens (from @BotFather)
+# Master Pipeline Safety & Governance Controls
+DRY_RUN=false                     # Set to true for safe local simulation
+HUMAN_APPROVAL_REQUIRED=true     # Enforces human sign-off before outbound dispatch
+EMERGENCY_STOP=false             # Set to true to instantly halt all outbound sending
+
+# Telegram Bot Tokens
 TELEGRAM_BOT_TOKEN="your_nodejs_scraper_bot_token"
 CONTROLLER_BOT_TOKEN="your_controller_bot_token"
 TELEGRAM_SALES_BOT_TOKEN="your_python_sales_bot_token"
 
-# AI & LLM Keys
-OPENROUTER_API_KEY="sk-or-v1-..."
-API="gemini-api-key-here"
+# AI Inference (Gemini & OpenRouter Fallback)
+API="your_gemini_api_key"
+OPENROUTER_API_KEY="your_openrouter_api_key"
 
-# Google Sheets Configuration
+# Google Sheets CRM
 SPREADSHEET_NAME="Google Maps Leads"
 WORKSHEET_NAME="Sheet1"
 SERVICE_ACCOUNT_FILE="service_account.json"
@@ -306,11 +311,33 @@ GMAIL_APP_PASSWORD="xxxx xxxx xxxx xxxx"
 
 # Vercel Token (Optional if logged into Vercel CLI)
 VERCEL_TOKEN="your_vercel_token"
+
+# Server & Timezone Settings
+PORT=3000
+TIMEZONE="Asia/Kolkata"
 ```
 
 ---
 
-## 11. 24/7 Production Deployment & Autostart (PM2 & Systemd)
+## 11. Docker & Containerized Operations
+
+The engine includes a production-grade multi-stage Dockerfile and Docker Compose configuration:
+
+```bash
+# 1. Build and start containers in the background
+docker compose build
+docker compose up -d
+
+# 2. View real-time logs
+docker compose logs -f
+
+# 3. Stop containers
+docker compose down
+```
+
+---
+
+## 12. 24/7 Production Deployment & Autostart (PM2 & Systemd)
 
 For 24/7 unattended execution on Ubuntu VPS (DigitalOcean, AWS, Oracle Cloud):
 
