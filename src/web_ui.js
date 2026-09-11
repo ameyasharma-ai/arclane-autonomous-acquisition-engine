@@ -44,12 +44,15 @@ class WebUIServer {
         // REST API endpoints for the Real-Time Sales & Pipeline Analytics Dashboard
         this.setupApiRoutes();
 
-        this.io.on('connection', (socket) => {
+        this.io.on('connection', async (socket) => {
             console.log(`[WebUI] Client connected: ${socket.id}`);
             
             // Send existing history & live metrics to the newly connected client
             socket.emit('history', this.history);
-            socket.emit('metrics_update', this.auditLogger.getAnalytics());
+            try {
+                const liveMetrics = await this.auditLogger.getAnalytics();
+                socket.emit('metrics_update', liveMetrics);
+            } catch (e) {}
 
             socket.on('command', async (data) => {
                 const text = data.text;
@@ -211,11 +214,14 @@ class WebUIServer {
         }
     }
 
-    emitAndSave(msgObj) {
+    async emitAndSave(msgObj) {
         this.history.push(msgObj);
         this.saveHistory();
         this.io.emit('message', msgObj);
-        this.io.emit('metrics_update', this.auditLogger.getAnalytics());
+        try {
+            const m = await this.auditLogger.getAnalytics();
+            this.io.emit('metrics_update', m);
+        } catch (e) {}
     }
 
     registerCommand(cmd, handler) {
