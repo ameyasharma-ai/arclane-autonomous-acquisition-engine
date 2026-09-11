@@ -97,6 +97,21 @@ export class ApprovalQueue {
         return count;
     }
 
+    reject(leadId, reason = 'Rejected by operator', reviewer = 'Operator') {
+        const queue = this.loadQueue();
+        const item = queue.find(q => q.lead_id === leadId || String(q.client_id) === String(leadId));
+        if (!item) return null;
+
+        item.status = 'REJECTED';
+        item.rejection_reason = reason;
+        item.reviewed_by = reviewer;
+        item.reviewed_at = new Date().toISOString();
+
+        this.saveQueue(queue);
+        console.log(`[ApprovalQueue] ❌ Rejected message for: ${item.business_name} (${item.lead_id}) - ${reason}`);
+        return item;
+    }
+
     purgeDummyLeads() {
         const queue = this.loadQueue();
         const filtered = queue.filter(q => q.lead_id !== 'lead_c9999' && !q.business_name.includes('Test Demo'));

@@ -414,7 +414,7 @@
                                     <h4 class="text-base font-bold text-white">${q.business_name}</h4>
                                     <span class="text-xs text-slate-400">Phone: ${q.phone || 'N/A'} • ID: ${q.lead_id}</span>
                                 </div>
-                                <span class="text-xs px-2.5 py-1 rounded font-bold ${q.status === 'AWAITING_APPROVAL' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'}">${q.status}</span>
+                                <span class="text-xs px-2.5 py-1 rounded font-bold ${q.status === 'AWAITING_APPROVAL' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : q.status === 'REJECTED' ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'}">${q.status}</span>
                             </div>
                             ${q.demo_url ? `<div class="text-xs text-cyan-400">🔗 Live Demo: <a href="${q.demo_url}" target="_blank" class="underline">${q.demo_url}</a></div>` : ''}
                             <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 font-mono text-xs text-slate-300 whitespace-pre-wrap">${q.message_content}</div>
@@ -423,7 +423,7 @@
                                     <button onclick="approveLead('${q.lead_id}')" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-xl transition">✅ Approve & Dispatch</button>
                                     <button onclick="rejectLead('${q.lead_id}')" class="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 font-bold text-xs rounded-xl transition">❌ Reject</button>
                                 </div>
-                            ` : `<div class="text-xs text-slate-500">Approved by ${q.approved_by || 'Operator'} at ${q.approved_at || ''}</div>`}
+                            ` : q.status === 'REJECTED' ? `<div class="text-xs text-red-400/80">❌ Rejected by ${q.reviewed_by || 'Operator'} (${q.rejection_reason || 'Outreach skipped'})</div>` : `<div class="text-xs text-emerald-400/80">✅ Approved by ${q.approved_by || 'Operator'} at ${q.approved_at ? new Date(q.approved_at).toLocaleTimeString() : ''}</div>`}
                         </div>
                     `).join('');
                 });
