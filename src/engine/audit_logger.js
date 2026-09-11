@@ -104,11 +104,59 @@ export class AuditLogger {
         }
     }
 
-    getAnalytics() {
+    async getAnalytics() {
         try {
-            return JSON.parse(fs.readFileSync(this.metricsPath, 'utf-8'));
-        } catch {
-            return {};
+            // Read base local metrics
+            let metrics = fs.existsSync(this.metricsPath) 
+                ? JSON.parse(fs.readFileSync(this.metricsPath, 'utf-8'))
+                : {};
+
+            // Asynchronously sync with live Google Sheet CRM if credentials exist
+            const { loadGoogleSheet } = await import('../sheets.js');
+            const { sheet } = await loadGoogleSheet();
+            const rows = await sheet.getRows();
+
+            let discovered = 0;
+            let withWebsite = 0;
+            let contacted = 0;
+            let qualified = 0;
+
+            // Also count actual generated sites in generated_sites/
+            const sitesDir = path.join(process.cwd(), 'generated_sites');
+            let actualSiteCount = 0;
+            if (fs.existsSync(sitesDir)) {
+                actualSiteCount = fs.readdirSync(sitesDir).filter(f => fs.statSync(path.join(sitesDir, f)).isDirectory()).length;
+            }
+
+            rows.forEach(r => {
+                const d = r.toObject();
+                if (d['Business Name']) discovered++;
+                if (d['Website URL'] && String(d['Website URL']).trim().length > 3) withWebsite++;
+                const status = (d['Current Status'] || '').toLowerCase();
+                if (status.includes('contacted') || status.includes('sent')) {
+                    contacted++;
+                }
+                if (status.includes('built') || status.includes('analyzed') || status.includes('approval')) {
+                    qualified++;
+                }
+            });
+
+            metrics.leads_discovered = Math.max(discovered, metrics.leads_discovered || 0);
+            metrics.leads_qualified = Math.max(qualified, actualSiteCount, metrics.leads_qualified || 0);
+            metrics.demos_deployed = Math.max(withWebsite, actualSiteCount, metrics.demos_deployed || 0);
+            metrics.messages_sent = Math.max(contacted, metrics.messages_sent || 0);
+            metrics.updated_at = new Date().toISOString();
+
+            // Persist synced metrics
+            fs.writeFileSync(this.metricsPath, JSON.stringify(metrics, null, 2), 'utf-8');
+            return metrics;
+        } catch (e) {
+            // Fallback to local cache if Google Sheets query errors
+            try {
+                return JSON.parse(fs.readFileSync(this.metricsPath, 'utf-8'));
+            } catch {
+                return {};
+            }
         }
     }
 }

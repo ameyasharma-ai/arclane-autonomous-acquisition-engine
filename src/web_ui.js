@@ -116,8 +116,8 @@ class WebUIServer {
 
     setupApiRoutes() {
         // 1. Live Funnel & Sales Metrics API
-        this.app.get('/api/analytics', (req, res) => {
-            const metrics = this.auditLogger.getAnalytics();
+        this.app.get('/api/analytics', async (req, res) => {
+            const metrics = await this.auditLogger.getAnalytics();
             res.json({ success: true, metrics });
         });
 
