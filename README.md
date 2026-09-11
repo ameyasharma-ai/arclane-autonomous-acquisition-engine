@@ -101,16 +101,16 @@ Located directly inside `scraper/`. A military-grade Playwright scraper with mul
 Located in `controller_bot/`. The central autonomous coordinator that schedules and runs your daily timetable on 100% autopilot.
 
 ### Daily Automated Schedule (`Asia/Kolkata` Timezone):
-* **09:30 AM — ⚡ Real-Time Streaming Scrape & Build:**
-  Spawns `scraper/scraper_no_website.py` for today's designated city and query. As each lead is extracted from Google Maps, it immediately triggers the deep crawl, 14-point audit, and Vercel website deployment for that lead in parallel while scraping continues.
-* **10:30 AM — ⚙️ Safety Sweep Analysis:**
-  Checks Google Sheets for any unprocessed or manually inserted leads and builds websites for them.
 * **12:00 PM — 📲 Morning WhatsApp Dispatch Wave:**
   Pulls the first batch of 18 ready websites and dispatches curiosity messages via WhatsApp Web (30–75s human delays).
 * **04:30 PM — 📲 Afternoon WhatsApp Dispatch Wave:**
   Dispatches the remaining 17 leads during the late-afternoon engagement window.
 * **06:00 PM — 📞 Deal-Closing Phone Alert:**
   Pushes follow-up reminders and Hindi/English phone scripts to Telegram/Web UI to close ₹7,999 deals over 2-minute calls.
+* **10:15 PM — ⚡ Night Real-Time Streaming Scrape & Build:**
+  Spawns `scraper/scraper_no_website.py` overnight for today's designated city and query. As each lead is extracted from Google Maps, it immediately triggers the deep crawl, 14-point audit, and Vercel website deployment for that lead in parallel while scraping continues.
+* **11:15 PM — ⚙️ Night Safety Sweep Analysis:**
+  Checks Google Sheets for any unprocessed or manually inserted leads and builds websites for them so that tomorrow's batch is 100% ready.
 
 ### Weekly Strategic Plan (`plan/week_1_plan.json`):
 * **Monday:** Gyms & Fitness Centers in Pune (Target: 35 Leads)

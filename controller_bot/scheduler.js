@@ -50,9 +50,9 @@ export class Scheduler {
         console.log(`[Scheduler] 🚀 Starting 24/7 Automation Scheduler (Timezone: ${CONFIG.TIMEZONE})...`);
         import('../src/web_ui.js').then(({ webUI }) => webUI.broadcast(msg)).catch(()=>{});
 
-        // 1. Daily Real-Time Streaming Scrape & Build Job (09:30 AM every day)
+        // 1. Daily Real-Time Streaming Scrape & Build Job (10:15 PM every night)
         // Concurrently streams each scraped lead directly into the website builder & deployer!
-        const streamCron = cron.schedule('30 9 * * *', async () => {
+        const streamCron = cron.schedule('15 22 * * *', async () => {
             if (!this.isAutoRunning) return;
             const today = this.getTodayPlan();
             if (today && today.tasks.scraper.enabled) {
@@ -71,8 +71,8 @@ export class Scheduler {
         }, { timezone: CONFIG.TIMEZONE });
         this.cronJobs.push(streamCron);
 
-        // 2. Safety Sweep Analysis Job (10:30 AM every day) - Catches any manually added leads
-        const analyseCron = cron.schedule('30 10 * * *', async () => {
+        // 2. Safety Sweep Analysis Job (11:15 PM every night) - Catches any manually added leads
+        const analyseCron = cron.schedule('15 23 * * *', async () => {
             if (!this.isAutoRunning) return;
             const today = this.getTodayPlan();
             if (today && today.tasks.analyseAndBuild.enabled) {

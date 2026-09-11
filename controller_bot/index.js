@@ -167,11 +167,11 @@ bot.command('status', async (ctx) => {
         `• 🔍 Scraper: ${s.isScraperRunning ? '🟡 Scraping Active' : '⚪ Idle'}\n` +
         `• ⚙️ Pipeline/Builder: ${s.isPipelineRunning ? '🟡 Building / Dispatching Active' : '⚪ Idle'}\n\n` +
         `*Daily Cron Schedule (Asia/Kolkata):*\n` +
-        `• 09:30 AM: ⚡ Real-time Stream Scrape & Build (35 Leads)\n` +
-        `• 10:30 AM: ⚙️ Safety Sweep Analysis\n` +
         `• 12:00 PM: 📲 Morning WhatsApp Dispatch Wave (${plan?.tasks.dispatchWave1.batchSize || 18} msgs)\n` +
         `• 04:30 PM: 📲 Afternoon WhatsApp Dispatch Wave (${plan?.tasks.dispatchWave2.batchSize || 17} msgs)\n` +
-        `• 06:00 PM: 📞 Evening Follow-Up Phone Calls & Scripts`;
+        `• 06:00 PM: 📞 Evening Follow-Up Phone Calls & Scripts\n` +
+        `• 10:15 PM: ⚡ Night Stream Scrape & Build (35 Leads)\n` +
+        `• 11:15 PM: ⚙️ Safety Sweep Analysis`;
 
     await ctx.reply(msg, {
         parse_mode: 'Markdown',
@@ -194,10 +194,10 @@ bot.command('today', async (ctx) => {
         `🔍 *Search Query:* \`${plan.tasks.scraper.query}\` (${plan.tasks.scraper.locality})\n` +
         `🎯 *Target Volume:* ${plan.tasks.scraper.targetLeads} leads\n\n` +
         `*Scheduled Timetable:*\n` +
-        `• 09:30 AM: ⚡ Stream Scrape & Build\n` +
         `• 12:00 PM: 📲 WhatsApp Wave 1 (${plan.tasks.dispatchWave1.batchSize} leads)\n` +
         `• 04:30 PM: 📲 WhatsApp Wave 2 (${plan.tasks.dispatchWave2.batchSize} leads)\n` +
-        `• 06:00 PM: 📞 Follow-up Calling Window\n\n` +
+        `• 06:00 PM: 📞 Follow-up Calling Window\n` +
+        `• 10:15 PM: ⚡ Night Stream Scrape & Build (${plan.tasks.scraper.targetLeads} leads)\n\n` +
         `💡 *Phone Close Script:*\n` +
         `_"${CONFIG.loadPlan()?.phoneScriptTemplates?.courtesyOpener || 'Hi [Owner], Maine aapke business ke liye live website concept share kiya tha...'}"_`;
 
@@ -290,10 +290,10 @@ async function handleResetResumePlan(ctx) {
         `• 24/7 Automation: 🟢 *ACTIVE & RUNNING*\n` +
         `• Today's Target (${plan?.dayName}): *${plan?.focus}*\n\n` +
         `📅 *Upcoming Timetable for Today:*\n` +
-        `• 09:30 AM: ⚡ Stream Scrape & Build (${plan?.tasks.scraper.targetLeads || 35} leads)\n` +
         `• 12:00 PM: 📲 WhatsApp Wave 1 (${plan?.tasks.dispatchWave1.batchSize || 18} msgs)\n` +
         `• 04:30 PM: 📲 WhatsApp Wave 2 (${plan?.tasks.dispatchWave2.batchSize || 17} msgs)\n` +
-        `• 06:00 PM: 📞 Follow-up Call Alert`,
+        `• 06:00 PM: 📞 Follow-up Call Alert\n` +
+        `• 10:15 PM: ⚡ Night Stream Scrape & Build (${plan?.tasks.scraper.targetLeads || 35} leads)`,
         { parse_mode: 'Markdown', ...getMainKeyboard(true) }
     );
 }
@@ -417,11 +417,11 @@ bot.action('cmd_status', async (ctx) => {
         `• 🔍 Scraper: ${s.isScraperRunning ? '🟡 Scraping Active' : '⚪ Idle'}\n` +
         `• ⚙️ Pipeline/Builder: ${s.isPipelineRunning ? '🟡 Building / Dispatching Active' : '⚪ Idle'}\n\n` +
         `*Daily Cron Schedule:*\n` +
-        `• 09:30 AM: ⚡ Real-Time Stream Scrape & Build (35 Leads)\n` +
-        `• 10:30 AM: ⚙️ Safety Sweep Analysis\n` +
         `• 12:00 PM: 📲 Morning WhatsApp Dispatch (${plan?.tasks.dispatchWave1.batchSize || 18} msgs)\n` +
         `• 04:30 PM: 📲 Afternoon WhatsApp Dispatch (${plan?.tasks.dispatchWave2.batchSize || 17} msgs)\n` +
-        `• 06:00 PM: 📞 Evening Follow-up Call Reminder`,
+        `• 06:00 PM: 📞 Evening Follow-up Call Reminder\n` +
+        `• 10:15 PM: ⚡ Night Stream Scrape & Build (35 Leads)\n` +
+        `• 11:15 PM: ⚙️ Safety Sweep Analysis`,
         {
             parse_mode: 'Markdown',
             ...getMainKeyboard(s.isAutoRunning)

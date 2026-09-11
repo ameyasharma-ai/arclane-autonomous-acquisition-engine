@@ -34,7 +34,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "09:30",
+          "cronTime": "22:15",
           "query": "Gyms",
           "locality": "in Pune",
           "city": "Pune",
@@ -42,7 +42,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "10:30",
+          "cronTime": "23:15",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 35
         },
@@ -71,7 +71,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "09:30",
+          "cronTime": "22:15",
           "query": "Gyms",
           "locality": "in Surat",
           "city": "Surat",
@@ -79,7 +79,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "10:30",
+          "cronTime": "23:15",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 35
         },
@@ -110,7 +110,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "09:30",
+          "cronTime": "22:15",
           "query": "Unisex Salons",
           "locality": "in Gurugram",
           "city": "Gurugram",
@@ -118,7 +118,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "10:30",
+          "cronTime": "23:15",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 35
         },
@@ -149,7 +149,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "09:30",
+          "cronTime": "22:15",
           "query": "Dental Clinics",
           "locality": "in Ahmedabad",
           "city": "Ahmedabad",
@@ -157,7 +157,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "10:30",
+          "cronTime": "23:15",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 35
         },
@@ -188,7 +188,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "09:30",
+          "cronTime": "22:15",
           "query": "Gyms",
           "locality": "in Jaipur",
           "city": "Jaipur",
@@ -196,7 +196,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "10:30",
+          "cronTime": "23:15",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 35
         },
@@ -227,7 +227,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "09:30",
+          "cronTime": "22:15",
           "query": "Spas and Salons",
           "locality": "in Chandigarh",
           "city": "Chandigarh",
@@ -235,7 +235,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "10:30",
+          "cronTime": "23:15",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 35
         },
@@ -266,7 +266,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "09:30",
+          "cronTime": "22:15",
           "query": "Gyms",
           "locality": "in Lucknow",
           "city": "Lucknow",
@@ -274,7 +274,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "10:30",
+          "cronTime": "23:15",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 20
         },
