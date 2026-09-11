@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  arclane-engine:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: arclane-sales-engine
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - TIMEZONE=Asia/Kolkata
+      # Master Safety Controls (Defaults to safest parameters)
+      - DRY_RUN=${DRY_RUN:-true}
+      - HUMAN_APPROVAL_REQUIRED=${HUMAN_APPROVAL_REQUIRED:-true}
+      - EMERGENCY_STOP=${EMERGENCY_STOP:-false}
+      # API Keys & Credentials
+      - CONTROLLER_BOT_TOKEN=${CONTROLLER_BOT_TOKEN}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - API=${API}
+      - SPREADSHEET_NAME=${SPREADSHEET_NAME}
+      - WORKSHEET_NAME=${WORKSHEET_NAME}
+      - SERVICE_ACCOUNT_FILE=service_account.json
+      - VERCEL_TOKEN=${VERCEL_TOKEN}
+      - GMAIL_ADDRESS=${GMAIL_ADDRESS}
+      - GMAIL_APP_PASSWORD=${GMAIL_APP_PASSWORD}
+    volumes:
+      # Persistent state directories
+      - ./reports:/usr/src/app/reports
+      - ./generated_sites:/usr/src/app/generated_sites
+      - ./whatsapp_user_session:/usr/src/app/whatsapp_user_session
+      - ./service_account.json:/usr/src/app/service_account.json:ro
+      - ./plan:/usr/src/app/plan
+    ipc: host # Playwright browser shared memory requirement
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"
