@@ -20,7 +20,7 @@ This comprehensive manual covers **the entire unified system:** from Google Maps
 4. [Pillar 3: Dual Control Channel (Telegram Bot & Local Web UI)](#4-pillar-3-dual-control-channel-telegram-bot--local-web-ui)
 5. [Pillar 4: Deep Business Intelligence & Website Builder (`src/`)](#5-pillar-4-deep-business-intelligence--website-builder-src)
 6. [Pillar 5: WhatsApp Web Curiosity Engine (`src/whatsapp_sender.js`)](#6-pillar-5-whatsapp-web-curiosity-engine-srcwhatsapp_senderjs)
-7. [Pillar 6: Sales Email Dispatcher Bot (`sales_bot.py`)](#7-pillar-6-sales-email-dispatcher-bot-sales_botpy)
+7. [Pillar 6: Sales Email Dispatcher Bot (`scripts/sales_bot.py`)](#7-pillar-6-sales-email-dispatcher-bot-sales_botpy)
 8. [Complete Command & CLI Reference](#8-complete-command--cli-reference)
 9. [Google Sheets CRM Schema & Status Lifecycle](#9-google-sheets-crm-schema--status-lifecycle)
 10. [Installation, Prerequisites & Environment Variables](#10-installation-prerequisites--environment-variables)
@@ -179,7 +179,7 @@ The ecosystem provides **redundant, zero-downtime management** through two synch
 
 ---
 
-## 7. Pillar 6: Sales Email Dispatcher Bot (`sales_bot.py`)
+## 7. Pillar 6: Sales Email Dispatcher Bot (`scripts/sales_bot.py`)
 
 A stateless Python Telegram bot for email-based outreach:
 * **Inline Button Navigation:** Sends `/scan` to browse all generated leads with pagination.
@@ -270,7 +270,7 @@ The interactive dashboard (available both in Telegram and at `http://localhost:3
 * **Google Chrome / Chromium:** Installed on host machine
 * **GitHub CLI:** Authenticated via `gh auth login`
 * **Vercel CLI:** Authenticated via `npx vercel login` (or `VERCEL_TOKEN`)
-* **Google Service Account:** JSON credentials (`service_account.json`) invited as **Editor** to your Google Sheet.
+* **Google Service Account:** JSON credentials (`config/service_account.json`) invited as **Editor** to your Google Sheet.
 
 ### Installation:
 ```bash
@@ -303,9 +303,9 @@ OPENROUTER_API_KEY="your_openrouter_api_key"
 # Google Sheets CRM
 SPREADSHEET_NAME="Google Maps Leads"
 WORKSHEET_NAME="Sheet1"
-SERVICE_ACCOUNT_FILE="service_account.json"
+SERVICE_ACCOUNT_FILE="config/service_account.json"
 
-# Email Configuration (Optional for sales_bot.py)
+# Email Configuration (Optional for scripts/sales_bot.py)
 GMAIL_ADDRESS="your_email@gmail.com"
 GMAIL_APP_PASSWORD="xxxx xxxx xxxx xxxx"
 
@@ -386,7 +386,7 @@ pm2 stop all        # Stop all bots
 | Issue | Root Cause | Solution |
 | :--- | :--- | :--- |
 | **WhatsApp Web asks for QR code** | Session expired or first-time setup | Run `/login` to open the browser window and scan the QR code once. |
-| **Google Sheets 403 / Permission Denied** | Service account not invited | Share your Google Sheet with the `client_email` in `service_account.json` as **Editor**. |
+| **Google Sheets 403 / Permission Denied** | Service account not invited | Share your Google Sheet with the `client_email` in `config/service_account.json` as **Editor**. |
 | **Vercel deploy fails: `project add`** | Vercel token missing or expired | Run `npx vercel login` or set `VERCEL_TOKEN` in `.env`. |
 | **Scraper hangs or stalls** | Chromium memory deadlock | Watchdog auto-restarts within 3 min. To force restart, send `/abort` and re-run. |
 | **Telegram Polling Error / Disconnect** | Network TLS glitch or proxy issue | The bot logs the error and gracefully falls back to the Local Web UI at `http://localhost:3000`. |

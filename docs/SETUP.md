@@ -35,7 +35,7 @@ OPENROUTER_API_KEY="your_openrouter_key" # Resilient fallback
 # Google Sheets CRM
 SPREADSHEET_NAME="Google Maps Leads"
 WORKSHEET_NAME="Sheet1"
-SERVICE_ACCOUNT_FILE="service_account.json"
+SERVICE_ACCOUNT_FILE="config/service_account.json"
 
 # Deployment
 VERCEL_TOKEN="your_vercel_api_token"

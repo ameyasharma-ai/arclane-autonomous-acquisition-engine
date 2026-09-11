@@ -11,7 +11,7 @@ import { FollowUpEngine } from './engine/follow_up.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const HISTORY_FILE = path.join(__dirname, '../web_ui_history.json');
+const HISTORY_FILE = path.join(__dirname, '../data/web_ui_history.json');
 
 class WebUIServer {
     constructor() {

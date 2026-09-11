@@ -17,8 +17,8 @@ The Arclane Autonomous Acquisition Engine is an end-to-end sales prospecting, bu
    - `src/web_ui.js`: Express & Socket.io server (port 3000) serving local dashboard (`public/`) and bi-directionally syncing messages with Telegram.
    - `controller_bot/scheduler.js`: Cron-based task scheduler (`node-cron`) configured for 10:15 PM scraping, 11:15 PM audit sweep, 12:00 PM wave 1 dispatch, 4:30 PM wave 2 dispatch, and 6:00 PM phone follow-ups.
    - `scraper/telegram_bot.py`: Python Playwright scraper extracting Google Maps business details, reviews, and phone numbers.
-   - `sales_bot.py`: Python SMTP/Telegram email dispatcher reading `reports/` and sending PDF audit attachments.
-   - `whatsapp_bot.js`: Standalone WhatsApp Web CLI dispatcher using Playwright persistent browser context (`whatsapp_user_session/`).
+   - `scripts/sales_bot.py`: Python SMTP/Telegram email dispatcher reading `reports/` and sending PDF audit attachments.
+   - `scripts/whatsapp_bot.js`: Standalone WhatsApp Web CLI dispatcher using Playwright persistent browser context (`whatsapp_user_session/`).
 
 2. **Current Pipeline & Flow:**
    ```
@@ -26,7 +26,7 @@ The Arclane Autonomous Acquisition Engine is an end-to-end sales prospecting, bu
         ↓
    Playwright Google Maps Scraper (Python / Node)
         ↓
-   Google Sheets CRM ('Sheet1' via service_account.json)
+   Google Sheets CRM ('Sheet1' via config/service_account.json)
         ↓
    Orchestrator / ScraperRunner: Website & Social Media Scraper
         ↓
@@ -45,10 +45,10 @@ The Arclane Autonomous Acquisition Engine is an end-to-end sales prospecting, bu
 
 3. **Existing Integrations & Dependencies:**
    - **AI/LLM:** Google Gemini (`gemini-flash-lite-latest` via Google generative language OpenAI-compatible API) with fallback to OpenRouter (`openai/gpt-oss-120b`).
-   - **CRM:** Google Sheets API (`googleapis`, `google-spreadsheet`, `gspread`) with service account credentials (`service_account.json`).
+   - **CRM:** Google Sheets API (`googleapis`, `google-spreadsheet`, `gspread`) with service account credentials (`config/service_account.json`).
    - **Browser Automation:** Playwright Chromium (used for Google Maps scraping, web scraping, and WhatsApp Web automation).
    - **Deployment:** Vercel CLI (`npx -y vercel --prod --yes`).
-   - **Outreach Channels:** WhatsApp Web (browser automation), Gmail SMTP (in `sales_bot.py`).
+   - **Outreach Channels:** WhatsApp Web (browser automation), Gmail SMTP (in `scripts/sales_bot.py`).
    - **Real-Time UI:** Express, Socket.io, Tailwind/Vanilla frontend in `public/`.
 
 4. **Identified Known Weaknesses in Current Implementation:**

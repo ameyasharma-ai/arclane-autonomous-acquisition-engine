@@ -1,6 +1,6 @@
 import { Telegraf } from 'telegraf';
 import dotenv from 'dotenv';
-import { WhatsAppSender } from './src/whatsapp_sender.js';
+import { WhatsAppSender } from '../src/whatsapp_sender.js';
 
 dotenv.config();
 

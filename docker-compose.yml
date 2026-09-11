@@ -24,7 +24,7 @@ services:
       - API=${API}
       - SPREADSHEET_NAME=${SPREADSHEET_NAME}
       - WORKSHEET_NAME=${WORKSHEET_NAME}
-      - SERVICE_ACCOUNT_FILE=service_account.json
+      - SERVICE_ACCOUNT_FILE=config/service_account.json
       - VERCEL_TOKEN=${VERCEL_TOKEN}
       - GMAIL_ADDRESS=${GMAIL_ADDRESS}
       - GMAIL_APP_PASSWORD=${GMAIL_APP_PASSWORD}
@@ -33,7 +33,7 @@ services:
       - ./reports:/usr/src/app/reports
       - ./generated_sites:/usr/src/app/generated_sites
       - ./whatsapp_user_session:/usr/src/app/whatsapp_user_session
-      - ./service_account.json:/usr/src/app/service_account.json:ro
+      - ./config/service_account.json:/usr/src/app/config/service_account.json:ro
       - ./plan:/usr/src/app/plan
     ipc: host # Playwright browser shared memory requirement
     logging:
