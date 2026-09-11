@@ -112,11 +112,46 @@ export class ApprovalQueue {
         return item;
     }
 
+    restore(leadId) {
+        const queue = this.loadQueue();
+        const item = queue.find(q => q.lead_id === leadId || String(q.client_id) === String(leadId));
+        if (!item) return null;
+
+        item.status = 'AWAITING_APPROVAL';
+        item.rejection_reason = null;
+        item.reviewed_at = null;
+
+        this.saveQueue(queue);
+        console.log(`[ApprovalQueue] 🔄 Restored lead back to pending queue: ${item.business_name} (${item.lead_id})`);
+        return item;
+    }
+
+    updateMessage(leadId, newMessage) {
+        const queue = this.loadQueue();
+        const item = queue.find(q => q.lead_id === leadId || String(q.client_id) === String(leadId));
+        if (!item) return null;
+
+        item.message_content = newMessage;
+        item.edited_at = new Date().toISOString();
+
+        this.saveQueue(queue);
+        console.log(`[ApprovalQueue] ✏️ Edited pitch copy for: ${item.business_name} (${item.lead_id})`);
+        return item;
+    }
+
     purgeDummyLeads() {
         const queue = this.loadQueue();
         const filtered = queue.filter(q => q.lead_id !== 'lead_c9999' && !q.business_name.includes('Test Demo'));
         this.saveQueue(filtered);
         console.log(`[ApprovalQueue] 🧹 Purged local test dummy leads from queue.`);
+        return filtered;
+    }
+
+    purgeRejected() {
+        const queue = this.loadQueue();
+        const filtered = queue.filter(q => q.status !== 'REJECTED');
+        this.saveQueue(filtered);
+        console.log(`[ApprovalQueue] 🗑️ Cleared all rejected leads.`);
         return filtered;
     }
 

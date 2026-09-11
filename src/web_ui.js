@@ -160,6 +160,26 @@ class WebUIServer {
             res.json({ success: true, item: rejected });
         });
 
+        // 4b. Restore rejected or archived lead back to pending
+        this.app.post('/api/restore', (req, res) => {
+            const { leadId } = req.body;
+            const restored = this.approvalQueue.restore(leadId);
+            res.json({ success: true, item: restored });
+        });
+
+        // 4c. Update/Customize pitch copy manually
+        this.app.post('/api/update-message', (req, res) => {
+            const { leadId, message } = req.body;
+            const updated = this.approvalQueue.updateMessage(leadId, message);
+            res.json({ success: true, item: updated });
+        });
+
+        // 4d. Clear all rejected items permanently
+        this.app.post('/api/purge-rejected', (req, res) => {
+            const remaining = this.approvalQueue.purgeRejected();
+            res.json({ success: true, remaining });
+        });
+
         // 5. Active Follow-Up Schedules API
         this.app.get('/api/followups', (req, res) => {
             const schedules = this.followUp.loadSchedules();

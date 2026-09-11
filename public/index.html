@@ -250,14 +250,14 @@
         <section id="view-approval" class="space-y-4 hidden">
             <div class="flex flex-wrap items-center justify-between gap-4 p-4 bg-slate-900 border border-slate-800 rounded-2xl">
                 <div>
-                    <h2 class="text-lg font-bold text-white">Outbound Human Review Queue</h2>
-                    <p class="text-xs text-slate-400">Inspect, personalize, or approve first-contact sales pitches before sending to Indian SMBs.</p>
+                    <h2 class="text-lg font-bold text-white">Outbound Review & Manual Desk</h2>
+                    <p class="text-xs text-slate-400">Inspect, edit copy manually, or approve before outreach. Rejected leads are filed into an archive folder.</p>
                 </div>
                 <div class="flex items-center gap-2">
                     <button onclick="purgeDummyLeads()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-xl text-slate-400 border border-slate-700 transition">
-                        🧹 Clear Test Dummies
+                        🧹 Clear Dummies
                     </button>
-                    <button onclick="approveAllLeads()" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-extrabold rounded-xl shadow-lg shadow-emerald-500/20 transition">
+                    <button id="btn-approve-all-top" onclick="approveAllLeads()" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-extrabold rounded-xl shadow-lg shadow-emerald-500/20 transition">
                         ⚡ Approve All Pending (<span id="btn-approve-all-count">0</span>)
                     </button>
                     <button onclick="fetchApprovalQueue()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-xl text-slate-300">
@@ -265,6 +265,27 @@
                     </button>
                 </div>
             </div>
+
+            <!-- SUB-TABS: PENDING vs ARCHIVE/REJECTED vs APPROVED -->
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                <div class="flex gap-2">
+                    <button id="qfilter-pending" onclick="setQueueFilter('pending')" class="px-4 py-2 rounded-xl text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 transition flex items-center gap-1.5">
+                        ⏳ Pending Review (<span id="qcount-pending">0</span>)
+                    </button>
+                    <button id="qfilter-rejected" onclick="setQueueFilter('rejected')" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800 transition flex items-center gap-1.5">
+                        📁 Rejected Archive (<span id="qcount-rejected">0</span>)
+                    </button>
+                    <button id="qfilter-approved" onclick="setQueueFilter('approved')" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800 transition flex items-center gap-1.5">
+                        ✅ Approved History (<span id="qcount-approved">0</span>)
+                    </button>
+                </div>
+                <div id="rejected-actions-bar" class="hidden">
+                    <button onclick="purgeAllRejected()" class="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 text-xs font-bold rounded-xl transition">
+                        🗑️ Empty Rejected Folder
+                    </button>
+                </div>
+            </div>
+
             <div id="queue-container" class="space-y-4">
                 <div class="p-8 text-center text-slate-500 bg-slate-900 border border-slate-800 rounded-2xl">
                     Loading approval queue...
@@ -390,43 +411,167 @@
             .then(d => { if (d.success) updateMetricsDisplay(d.metrics); })
             .catch(()=>{});
 
-        // Human Approval Queue Fetcher
+        // Approval Queue Management & Folders
+        let currentQueueFilter = 'pending'; // 'pending' | 'rejected' | 'approved'
+        let cachedQueue = [];
+
+        function setQueueFilter(filter) {
+            currentQueueFilter = filter;
+            ['pending', 'rejected', 'approved'].forEach(f => {
+                const btn = document.getElementById(`qfilter-${f}`);
+                if (f === filter) {
+                    btn.className = f === 'pending' 
+                        ? 'px-4 py-2 rounded-xl text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 transition flex items-center gap-1.5'
+                        : f === 'rejected'
+                        ? 'px-4 py-2 rounded-xl text-xs font-bold bg-red-500/20 text-red-300 border border-red-500/30 transition flex items-center gap-1.5'
+                        : 'px-4 py-2 rounded-xl text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 transition flex items-center gap-1.5';
+                } else {
+                    btn.className = 'px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800 transition flex items-center gap-1.5';
+                }
+            });
+
+            const rejActions = document.getElementById('rejected-actions-bar');
+            if (rejActions) {
+                if (filter === 'rejected') rejActions.classList.remove('hidden');
+                else rejActions.classList.add('hidden');
+            }
+
+            renderQueueItems();
+        }
+
         function fetchApprovalQueue() {
             fetch('/api/approval-queue')
                 .then(r => r.json())
                 .then(d => {
-                    const c = document.getElementById('queue-container');
-                    const badge = document.getElementById('queue-badge');
-                    if (!d.success || !d.queue || d.queue.length === 0) {
-                        c.innerHTML = `<div class="p-8 text-center text-slate-500 bg-slate-900 border border-slate-800 rounded-2xl">✨ No pending messages in queue. All clear!</div>`;
-                        badge.innerText = '0';
-                        return;
-                    }
-                    const pending = d.queue.filter(q => q.status === 'AWAITING_APPROVAL');
-                    badge.innerText = pending.length;
-                    const btnCount = document.getElementById('btn-approve-all-count');
-                    if (btnCount) btnCount.innerText = pending.length;
-                    
-                    c.innerHTML = d.queue.map(q => `
-                        <div class="p-5 bg-slate-900 border border-slate-800 rounded-2xl space-y-3">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <h4 class="text-base font-bold text-white">${q.business_name}</h4>
-                                    <span class="text-xs text-slate-400">Phone: ${q.phone || 'N/A'} • ID: ${q.lead_id}</span>
-                                </div>
-                                <span class="text-xs px-2.5 py-1 rounded font-bold ${q.status === 'AWAITING_APPROVAL' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : q.status === 'REJECTED' ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'}">${q.status}</span>
-                            </div>
-                            ${q.demo_url ? `<div class="text-xs text-cyan-400">🔗 Live Demo: <a href="${q.demo_url}" target="_blank" class="underline">${q.demo_url}</a></div>` : ''}
-                            <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 font-mono text-xs text-slate-300 whitespace-pre-wrap">${q.message_content}</div>
-                            ${q.status === 'AWAITING_APPROVAL' ? `
-                                <div class="flex gap-2">
-                                    <button onclick="approveLead('${q.lead_id}')" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-xl transition">✅ Approve & Dispatch</button>
-                                    <button onclick="rejectLead('${q.lead_id}')" class="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 font-bold text-xs rounded-xl transition">❌ Reject</button>
-                                </div>
-                            ` : q.status === 'REJECTED' ? `<div class="text-xs text-red-400/80">❌ Rejected by ${q.reviewed_by || 'Operator'} (${q.rejection_reason || 'Outreach skipped'})</div>` : `<div class="text-xs text-emerald-400/80">✅ Approved by ${q.approved_by || 'Operator'} at ${q.approved_at ? new Date(q.approved_at).toLocaleTimeString() : ''}</div>`}
-                        </div>
-                    `).join('');
+                    cachedQueue = (d && d.queue) ? d.queue : [];
+                    updateQueueBadges();
+                    renderQueueItems();
                 });
+        }
+
+        function updateQueueBadges() {
+            const pending = cachedQueue.filter(q => q.status === 'AWAITING_APPROVAL');
+            const rejected = cachedQueue.filter(q => q.status === 'REJECTED');
+            const approved = cachedQueue.filter(q => q.status === 'APPROVED' || q.status === 'EDITED');
+
+            document.getElementById('queue-badge').innerText = pending.length;
+            const btnCount = document.getElementById('btn-approve-all-count');
+            if (btnCount) btnCount.innerText = pending.length;
+
+            const qp = document.getElementById('qcount-pending');
+            if (qp) qp.innerText = pending.length;
+            const qr = document.getElementById('qcount-rejected');
+            if (qr) qr.innerText = rejected.length;
+            const qa = document.getElementById('qcount-approved');
+            if (qa) qa.innerText = approved.length;
+        }
+
+        function renderQueueItems() {
+            const c = document.getElementById('queue-container');
+            if (!c) return;
+
+            let filtered = [];
+            if (currentQueueFilter === 'pending') {
+                filtered = cachedQueue.filter(q => q.status === 'AWAITING_APPROVAL');
+            } else if (currentQueueFilter === 'rejected') {
+                filtered = cachedQueue.filter(q => q.status === 'REJECTED');
+            } else if (currentQueueFilter === 'approved') {
+                filtered = cachedQueue.filter(q => q.status === 'APPROVED' || q.status === 'EDITED');
+            }
+
+            if (filtered.length === 0) {
+                const emptyMsg = currentQueueFilter === 'pending' 
+                    ? '✨ No pending messages in queue. All clear!'
+                    : currentQueueFilter === 'rejected'
+                    ? '📁 Rejected archive folder is empty.'
+                    : '✅ No outbound pitches dispatched yet.';
+                c.innerHTML = `<div class="p-8 text-center text-slate-500 bg-slate-900 border border-slate-800 rounded-2xl">${emptyMsg}</div>`;
+                return;
+            }
+
+            c.innerHTML = filtered.map(q => `
+                <div class="p-5 bg-slate-900 border border-slate-800 rounded-2xl space-y-3">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h4 class="text-base font-bold text-white">${q.business_name}</h4>
+                            <span class="text-xs text-slate-400">Phone: ${q.phone || 'N/A'} • ID: ${q.lead_id}</span>
+                        </div>
+                        <span class="text-xs px-2.5 py-1 rounded font-bold ${
+                            q.status === 'AWAITING_APPROVAL' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' 
+                            : q.status === 'REJECTED' ? 'bg-red-500/10 text-red-400 border border-red-500/20' 
+                            : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                        }">${q.status}</span>
+                    </div>
+
+                    ${q.demo_url ? `<div class="text-xs text-cyan-400">🔗 Live Demo: <a href="${q.demo_url}" target="_blank" class="underline font-semibold">${q.demo_url}</a></div>` : ''}
+
+                    <!-- Message View or Edit Mode -->
+                    <div id="msg-view-${q.lead_id}" class="p-3 bg-slate-950 rounded-xl border border-slate-800 font-mono text-xs text-slate-300 whitespace-pre-wrap">${q.message_content}</div>
+                    
+                    <div id="msg-edit-${q.lead_id}" class="hidden space-y-2">
+                        <textarea id="textarea-${q.lead_id}" rows="5" class="w-full bg-slate-950 border border-cyan-500/50 rounded-xl p-3 font-mono text-xs text-slate-100 focus:outline-none">${q.message_content}</textarea>
+                        <div class="flex gap-2">
+                            <button onclick="saveEditedMessage('${q.lead_id}')" class="px-3 py-1.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold rounded-lg transition">💾 Save Changes</button>
+                            <button onclick="toggleEdit('${q.lead_id}', false)" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg transition">Cancel</button>
+                        </div>
+                    </div>
+
+                    <!-- Action Controls based on Status -->
+                    <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+                        ${q.status === 'AWAITING_APPROVAL' ? `
+                            <div class="flex gap-2">
+                                <button onclick="approveLead('${q.lead_id}')" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-xl transition">
+                                    ✅ Approve & Dispatch
+                                </button>
+                                <button onclick="toggleEdit('${q.lead_id}', true)" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 font-bold text-xs rounded-xl transition">
+                                    ✏️ Edit Copy
+                                </button>
+                                <button onclick="rejectLead('${q.lead_id}')" class="px-3.5 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 font-bold text-xs rounded-xl transition">
+                                    ❌ Reject (File to Archive)
+                                </button>
+                            </div>
+                        ` : q.status === 'REJECTED' ? `
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs text-red-400/90 font-medium">Archived: ${q.rejection_reason || 'Outreach skipped'}</span>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="restoreLead('${q.lead_id}')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 font-bold text-xs rounded-xl transition">
+                                    🔄 Restore to Pending
+                                </button>
+                                <button onclick="toggleEdit('${q.lead_id}', true)" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 font-bold text-xs rounded-lg transition">
+                                    ✏️ Edit & Re-Evaluate
+                                </button>
+                            </div>
+                        ` : `
+                            <div class="text-xs text-emerald-400/80">✅ Approved by ${q.approved_by || 'Operator'} ${q.approved_at ? 'at ' + new Date(q.approved_at).toLocaleTimeString() : ''}</div>
+                        `}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleEdit(leadId, isEditing) {
+            const v = document.getElementById(`msg-view-${leadId}`);
+            const e = document.getElementById(`msg-edit-${leadId}`);
+            if (isEditing) {
+                v.classList.add('hidden');
+                e.classList.remove('hidden');
+            } else {
+                v.classList.remove('hidden');
+                e.classList.add('hidden');
+            }
+        }
+
+        function saveEditedMessage(leadId) {
+            const txt = document.getElementById(`textarea-${leadId}`).value;
+            fetch('/api/update-message', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ leadId, message: txt })
+            }).then(() => {
+                showToast('💾 Saved personalized pitch copy');
+                fetchApprovalQueue();
+            });
         }
 
         function approveLead(leadId) {
@@ -434,29 +579,63 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ leadId })
-            }).then(() => fetchApprovalQueue());
+            }).then(() => {
+                showToast('✅ Approved & queued for outbound dispatch');
+                fetchApprovalQueue();
+            });
         }
 
         function approveAllLeads() {
             fetch('/api/approve-all', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' }
-            }).then(() => fetchApprovalQueue());
+            }).then(() => {
+                showToast('⚡ All pending leads approved!');
+                fetchApprovalQueue();
+            });
         }
 
         function purgeDummyLeads() {
             fetch('/api/purge-dummies', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' }
-            }).then(() => fetchApprovalQueue());
+            }).then(() => {
+                showToast('🧹 Purged test mock leads');
+                fetchApprovalQueue();
+            });
         }
 
         function rejectLead(leadId) {
             fetch('/api/reject', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ leadId, reason: 'Rejected from dashboard' })
-            }).then(() => fetchApprovalQueue());
+                body: JSON.stringify({ leadId, reason: 'Rejected & moved to folder' })
+            }).then(() => {
+                showToast('📁 Moved lead to Rejected Archive folder');
+                fetchApprovalQueue();
+            });
+        }
+
+        function restoreLead(leadId) {
+            fetch('/api/restore', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ leadId })
+            }).then(() => {
+                showToast('🔄 Restored lead back to Pending review');
+                fetchApprovalQueue();
+            });
+        }
+
+        function purgeAllRejected() {
+            if (!confirm('Permanently delete all rejected leads from the archive folder?')) return;
+            fetch('/api/purge-rejected', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            }).then(() => {
+                showToast('🗑️ Cleared rejected folder');
+                fetchApprovalQueue();
+            });
         }
 
         // Follow-Up Fetcher
