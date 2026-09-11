@@ -33,7 +33,7 @@ API="your_gemini_api_key"         # Primary Gemini Flash Lite model
 OPENROUTER_API_KEY="your_openrouter_key" # Resilient fallback
 
 # Google Sheets CRM
-SPREADSHEET_NAME="ArcLane Outbound CRM"
+SPREADSHEET_NAME="Google Maps Leads"
 WORKSHEET_NAME="Sheet1"
 SERVICE_ACCOUNT_FILE="service_account.json"
 
