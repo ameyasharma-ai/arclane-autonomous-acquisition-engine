@@ -38,6 +38,9 @@ class WebUIServer {
         // Serve plan documents & HTML roadmaps from 'plan' directory
         this.app.use('/plan', express.static(path.join(__dirname, '../plan')));
 
+        // Serve local generated client demo websites
+        this.app.use('/sites', express.static(path.join(__dirname, '../generated_sites')));
+
         // REST API endpoints for the Real-Time Sales & Pipeline Analytics Dashboard
         this.setupApiRoutes();
 
@@ -133,6 +136,18 @@ class WebUIServer {
             } else {
                 res.status(404).json({ success: false, error: 'Lead not found in queue' });
             }
+        });
+
+        // 3b. Approve ALL pending messages in 1 click
+        this.app.post('/api/approve-all', (req, res) => {
+            const count = this.approvalQueue.approveAll('Dashboard Operator');
+            res.json({ success: true, count });
+        });
+
+        // 3c. Purge test mock leads
+        this.app.post('/api/purge-dummies', (req, res) => {
+            const remaining = this.approvalQueue.purgeDummyLeads();
+            res.json({ success: true, remaining });
         });
 
         // 4. Reject a queued message

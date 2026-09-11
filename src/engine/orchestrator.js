@@ -113,7 +113,7 @@ export class EngineOrchestrator {
 </body>
 </html>`;
                 fs.writeFileSync(path.join(clientSiteDir, 'index.html'), mockHtml, 'utf-8');
-                deployedUrl = `https://dryrun-preview.vercel.app/${lead.lead_id}`;
+                deployedUrl = `http://localhost:${process.env.PORT || 3000}/sites/${clientId}/index.html`;
             } else {
                 const builder = new WebsiteBuilder(null, null);
                 const buildRes = await builder.buildClientWebsite(clientId, false);

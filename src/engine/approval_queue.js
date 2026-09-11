@@ -80,16 +80,29 @@ export class ApprovalQueue {
         return item;
     }
 
-    reject(leadId, reason = 'Operator rejected') {
+    approveAll(approver = 'Operator') {
         const queue = this.loadQueue();
-        const item = queue.find(q => q.lead_id === leadId || String(q.client_id) === String(leadId));
-        if (!item) return null;
-
-        item.status = 'REJECTED';
-        item.rejection_reason = reason;
+        let count = 0;
+        const now = new Date().toISOString();
+        queue.forEach(item => {
+            if (item.status === 'AWAITING_APPROVAL') {
+                item.status = 'APPROVED';
+                item.approved_by = approver;
+                item.approved_at = now;
+                count++;
+            }
+        });
         this.saveQueue(queue);
-        console.log(`[ApprovalQueue] ❌ Rejected message for: ${item.business_name}`);
-        return item;
+        console.log(`[ApprovalQueue] ✅ Approved ALL pending leads (${count} leads).`);
+        return count;
+    }
+
+    purgeDummyLeads() {
+        const queue = this.loadQueue();
+        const filtered = queue.filter(q => q.lead_id !== 'lead_c9999' && !q.business_name.includes('Test Demo'));
+        this.saveQueue(filtered);
+        console.log(`[ApprovalQueue] 🧹 Purged local test dummy leads from queue.`);
+        return filtered;
     }
 
     getPending() {

@@ -248,14 +248,22 @@
 
         <!-- VIEW 2: HUMAN APPROVAL QUEUE -->
         <section id="view-approval" class="space-y-4 hidden">
-            <div class="flex items-center justify-between">
+            <div class="flex flex-wrap items-center justify-between gap-4 p-4 bg-slate-900 border border-slate-800 rounded-2xl">
                 <div>
                     <h2 class="text-lg font-bold text-white">Outbound Human Review Queue</h2>
-                    <p class="text-xs text-slate-400">Inspect, personalize, or approve first-contact sales pitches before sending.</p>
+                    <p class="text-xs text-slate-400">Inspect, personalize, or approve first-contact sales pitches before sending to Indian SMBs.</p>
                 </div>
-                <button onclick="fetchApprovalQueue()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-lg text-slate-300">
-                    🔄 Refresh Queue
-                </button>
+                <div class="flex items-center gap-2">
+                    <button onclick="purgeDummyLeads()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-xl text-slate-400 border border-slate-700 transition">
+                        🧹 Clear Test Dummies
+                    </button>
+                    <button onclick="approveAllLeads()" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-extrabold rounded-xl shadow-lg shadow-emerald-500/20 transition">
+                        ⚡ Approve All Pending (<span id="btn-approve-all-count">0</span>)
+                    </button>
+                    <button onclick="fetchApprovalQueue()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-xl text-slate-300">
+                        🔄 Refresh
+                    </button>
+                </div>
             </div>
             <div id="queue-container" class="space-y-4">
                 <div class="p-8 text-center text-slate-500 bg-slate-900 border border-slate-800 rounded-2xl">
@@ -396,6 +404,8 @@
                     }
                     const pending = d.queue.filter(q => q.status === 'AWAITING_APPROVAL');
                     badge.innerText = pending.length;
+                    const btnCount = document.getElementById('btn-approve-all-count');
+                    if (btnCount) btnCount.innerText = pending.length;
                     
                     c.innerHTML = d.queue.map(q => `
                         <div class="p-5 bg-slate-900 border border-slate-800 rounded-2xl space-y-3">
@@ -424,6 +434,20 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ leadId })
+            }).then(() => fetchApprovalQueue());
+        }
+
+        function approveAllLeads() {
+            fetch('/api/approve-all', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            }).then(() => fetchApprovalQueue());
+        }
+
+        function purgeDummyLeads() {
+            fetch('/api/purge-dummies', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
             }).then(() => fetchApprovalQueue());
         }
 
