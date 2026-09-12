@@ -512,30 +512,16 @@ export class WhatsAppSender {
                 } catch (sheetErr) {}
             }
 
-            // Extract all unique phone numbers for this client (from whatsapp link, maps phone, sheet)
-            const phoneList = [];
-            const addPhoneToList = (rawStr) => {
-                if (!rawStr) return;
-                const parts = String(rawStr).split(/[\/,|]/).map(p => p.trim()).filter(Boolean);
-                for (const part of parts) {
-                    const cleaned = this.cleanPhoneNumber(part);
-                    if (cleaned && !phoneList.includes(cleaned)) {
-                        phoneList.push(cleaned);
-                    }
-                }
-            };
+            // Single official phone number for this business (strictly no fallback loops)
+            const officialPhone = this.cleanPhoneNumber(targetPhone || data.phone || data.whatsapp);
 
-            addPhoneToList(data.whatsapp);
-            addPhoneToList(data.phone);
-            addPhoneToList(targetPhone);
-
-            if (phoneList.length === 0) {
+            if (!officialPhone) {
                 await this.sendStatus(
                     `⚠️ *[Lead #${clientId} — ${data.businessName}] No Contact Number Found*\n\n` +
                     `🏢 *Business:* ${data.businessName}\n` +
                     `🌐 *Website Concept:* ${data.deployedUrl || 'Built & Deployed'}\n` +
-                    `❌ *Reason:* No phone number was listed on their Google Maps profile or socials.\n` +
-                    `💡 *What happened:* WhatsApp outreach was skipped for this lead. You can still use the generated live website to pitch them manually via Instagram, DM, or walk-in!`
+                    `❌ *Reason:* No phone number was listed on their Google Maps profile.\n` +
+                    `💡 *Status:* Marked as 'Missing Contact Number' / 'No Phone on Maps'.`
                 );
                 try {
                     const { sheet } = await loadGoogleSheet();
@@ -570,52 +556,15 @@ export class WhatsAppSender {
                 continue;
             }
 
-            let clientSentSuccess = false;
-            let hadNetworkError = false;
-            let hadConfirmedNotOnWhatsApp = false;
-            let successfulPhone = null;
-            const notOnWhatsAppNumbers = [];
+            await this.sendStatus(`📲 *[Client ${clientId} - ${data.businessName}] Sending WhatsApp message to +${officialPhone}...*`);
 
-            // Attempt outreach on phone numbers found for this client until one succeeds
-            for (let pIdx = 0; pIdx < phoneList.length; pIdx++) {
-                const currentPhone = phoneList[pIdx];
-                const phoneLabel = phoneList.length > 1 ? ` (${pIdx + 1}/${phoneList.length})` : '';
+            const sendResult = await this.sendSingleMessage(officialPhone, waMessage);
 
-                await this.sendStatus(`📲 *[Client ${clientId} - ${data.businessName}] Sending WhatsApp message to +${currentPhone}${phoneLabel}...*`);
+            if (sendResult.success) {
+                successCount++;
+                const successfulPhone = sendResult.phone || officialPhone;
+                await this.sendStatus(`✅ *[Client ${clientId}] Sent Successfully to +${successfulPhone}!*`);
 
-                const sendResult = await this.sendSingleMessage(currentPhone, waMessage);
-
-                if (sendResult.success) {
-                    successCount++;
-                    clientSentSuccess = true;
-                    successfulPhone = sendResult.phone || currentPhone;
-                    await this.sendStatus(`✅ *[Client ${clientId}] Sent Successfully to +${successfulPhone}!*`);
-                    // Stop trying additional numbers for this client once outreach succeeds!
-                    break;
-                } else {
-                    failCount++;
-
-                    if (sendResult.isNetworkError) {
-                        hadNetworkError = true;
-                        await this.sendStatus(`⚠️ *[Client ${clientId} - +${currentPhone}] Network/ISP Error:* ${sendResult.reason || 'Connection failed'}. Retrying later recommended.`);
-                    } else if (sendResult.notOnWhatsApp || sendResult.reason?.toLowerCase().includes('not registered') || sendResult.reason?.toLowerCase().includes('invalid')) {
-                        hadConfirmedNotOnWhatsApp = true;
-                        if (!notOnWhatsAppNumbers.includes(currentPhone)) {
-                            notOnWhatsAppNumbers.push(currentPhone);
-                        }
-
-                        await this.sendStatus(
-                            `⚠️ *[Client ${clientId}] Number Notice: Not on WhatsApp*\n\n` +
-                            `📞 *Phone Number:* \`+${currentPhone}\` is *NOT registered on WhatsApp*.\n` +
-                            `💡 *Next Step:* ${pIdx < phoneList.length - 1 ? 'Attempting next number...' : 'Call directly via phone call.'}`
-                        );
-                    } else {
-                        await this.sendStatus(`❌ *[Client ${clientId} - +${currentPhone}] Failed:* ${sendResult.reason || 'Unknown error'}`);
-                    }
-                }
-            }
-
-            if (clientSentSuccess) {
                 // Calculate Outreach Date & Tentative Follow-up Date (+3 days)
                 const now = new Date();
                 const pad = (n) => String(n).padStart(2, '0');
@@ -627,48 +576,55 @@ export class WhatsAppSender {
                 // Update Google Sheet safely (Outreach Platform, Outreach Date, Follow-Up Date, Current Status)
                 try {
                     const { sheet } = await loadGoogleSheet();
-                    const updates = {
+                    await updateLeadFields(sheet, clientId, {
                         'Outreach Platform': `WhatsApp-Sent (+${successfulPhone})`,
                         'Outreach Date': outreachDate,
                         'Follow-Up Date': followUpDate,
                         'Current Status': 'Contacted'
-                    };
-                    if (notOnWhatsAppNumbers.length > 0) {
-                        updates['Notes'] = `Active WhatsApp: +${successfulPhone}. (Not on WA: ${notOnWhatsAppNumbers.map(n => '+' + n).join(', ')})`;
-                    }
-                    await updateLeadFields(sheet, clientId, updates);
+                    });
                 } catch (sheetErr) {
                     console.error("Sheet update notice:", sheetErr.message);
                 }
-            } else if (hadNetworkError) {
-                // Network or ISP connection dropped — DO NOT mark as Phone-Only
-                try {
-                    const { sheet } = await loadGoogleSheet();
-                    await updateLeadFields(sheet, clientId, {
-                        'Outreach Platform': 'WhatsApp-Pending (Network Error)',
-                        'Current Status': 'Dispatch Retry Needed'
-                    });
-                    console.log(`[WhatsApp] 🌐 Marked Lead #${clientId} as 'Dispatch Retry Needed' due to network drop.`);
-                } catch (sheetErr) {}
-            } else if (hadConfirmedNotOnWhatsApp) {
-                // Verified via WhatsApp modal that all tested numbers are genuinely not on WhatsApp
-                this.markContactAsPhoneOnly(clientId, notOnWhatsAppNumbers.join(', '));
-                try {
-                    const { sheet } = await loadGoogleSheet();
-                    await updateLeadFields(sheet, clientId, {
-                        'Outreach Platform': 'Phone-Only (No WhatsApp)',
-                        'Current Status': 'Requires Phone Call',
-                        'Notes': `All tested numbers not on WhatsApp: ${notOnWhatsAppNumbers.map(n => '+' + n).join(', ')}`
-                    });
-                } catch (sheetErr) {}
             } else {
-                try {
-                    const { sheet } = await loadGoogleSheet();
-                    await updateLeadFields(sheet, clientId, {
-                        'Outreach Platform': 'Failed / Unknown',
-                        'Current Status': 'Pending Re-dispatch'
-                    });
-                } catch (sheetErr) {}
+                failCount++;
+
+                if (sendResult.isNetworkError) {
+                    await this.sendStatus(`⚠️ *[Client ${clientId} - +${officialPhone}] Network/ISP Error:* ${sendResult.reason || 'Connection failed'}. Retrying later recommended.`);
+                    try {
+                        const { sheet } = await loadGoogleSheet();
+                        await updateLeadFields(sheet, clientId, {
+                            'Outreach Platform': 'WhatsApp-Pending (Network Error)',
+                            'Current Status': 'Dispatch Retry Needed'
+                        });
+                        console.log(`[WhatsApp] 🌐 Marked Lead #${clientId} as 'Dispatch Retry Needed' due to network drop.`);
+                    } catch (sheetErr) {}
+                } else if (sendResult.notOnWhatsApp || sendResult.reason?.toLowerCase().includes('not registered') || sendResult.reason?.toLowerCase().includes('invalid')) {
+                    await this.sendStatus(
+                        `⚠️ *[Client ${clientId}] Number Notice: Not on WhatsApp*\n\n` +
+                        `📞 *Phone Number:* \`+${officialPhone}\` is *NOT registered on WhatsApp*.\n` +
+                        `💡 *Status:* Marked as 'Phone-Only (No WhatsApp)' / 'Requires Phone Call'.`
+                    );
+
+                    this.markContactAsPhoneOnly(clientId, officialPhone);
+
+                    try {
+                        const { sheet } = await loadGoogleSheet();
+                        await updateLeadFields(sheet, clientId, {
+                            'Outreach Platform': 'Phone-Only (No WhatsApp)',
+                            'Current Status': 'Requires Phone Call',
+                            'Notes': `Phone +${officialPhone} not registered on WhatsApp. Requires phone call.`
+                        });
+                    } catch (sheetErr) {}
+                } else {
+                    await this.sendStatus(`❌ *[Client ${clientId} - +${officialPhone}] Failed:* ${sendResult.reason || 'Unknown error'}`);
+                    try {
+                        const { sheet } = await loadGoogleSheet();
+                        await updateLeadFields(sheet, clientId, {
+                            'Outreach Platform': 'Failed / Unknown',
+                            'Current Status': 'Pending Re-dispatch'
+                        });
+                    } catch (sheetErr) {}
+                }
             }
 
             // Anti-ban random delay (6 to 12 seconds) before next lead
