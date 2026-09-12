@@ -2,6 +2,9 @@ import { google } from 'googleapis';
 import { GoogleSpreadsheet } from 'google-spreadsheet';
 import { JWT } from 'google-auth-library';
 import fs from 'fs';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export async function getSpreadsheetId(authClient, name) {
     const drive = google.drive({ version: 'v3', auth: authClient });
