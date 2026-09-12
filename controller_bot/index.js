@@ -190,9 +190,9 @@ bot.command('today', async (ctx) => {
 
     const msg = 
         `📅 *Today's Strategy Blueprint (${plan.dayName})*\n\n` +
-        `🎯 *Target Niche & City:* ${plan.focus}\n\n` +
-        `🔍 *Search Query:* \`${plan.tasks.scraper.query}\` (${plan.tasks.scraper.locality})\n` +
-        `🎯 *Target Volume:* ${plan.tasks.scraper.targetLeads} leads\n\n` +
+        `• *Target Niche & City:* ${plan.focus}\n` +
+        `• *Search Query:* \`${plan.tasks.scraper.query}\` (${plan.tasks.scraper.locality})\n` +
+        `• *Target Volume:* ${plan.tasks.scraper.targetLeads} leads\n\n` +
         `*Scheduled Timetable:*\n` +
         `• 12:00 PM: 📲 WhatsApp Wave 1 (${plan.tasks.dispatchWave1.batchSize} leads)\n` +
         `• 04:30 PM: 📲 WhatsApp Wave 2 (${plan.tasks.dispatchWave2.batchSize} leads)\n` +
@@ -455,11 +455,12 @@ bot.action('cmd_today', async (ctx) => {
     const plan = scheduler.getTodayPlan();
     await ctx.reply(
         `📅 *Today's Schedule: ${plan?.dayName}*\n\n` +
-        `🎯 *Target:* ${plan?.focus}\n` +
-        `🔍 *Scrape Query:* \`${plan?.tasks.scraper.query}\` (${plan?.tasks.scraper.locality})\n` +
-        `📊 *Target Leads:* ${plan?.tasks.scraper.targetLeads}\n` +
-        `📲 *WhatsApp Waves:* 12:00 PM (${plan?.tasks.dispatchWave1.batchSize}) & 04:30 PM (${plan?.tasks.dispatchWave2.batchSize})\n` +
-        `📞 *Follow-Up Window:* 06:00 PM (Target: ${plan?.tasks.followUpReview.targetCloses || 1} deal)`,
+        `• *Target Focus:* ${plan?.focus}\n` +
+        `• *Scrape Query:* \`${plan?.tasks.scraper.query}\` (${plan?.tasks.scraper.locality})\n` +
+        `• *Target Leads:* ${plan?.tasks.scraper.targetLeads} leads\n` +
+        `• *WhatsApp Wave 1:* 12:00 PM (${plan?.tasks.dispatchWave1.batchSize} msgs)\n` +
+        `• *WhatsApp Wave 2:* 04:30 PM (${plan?.tasks.dispatchWave2.batchSize} msgs)\n` +
+        `• *Follow-Up Window:* 06:00 PM (Target: ${plan?.tasks.followUpReview.targetCloses || 1} deal)`,
         { parse_mode: 'Markdown' }
     );
 });
@@ -580,9 +581,7 @@ bot.action('cmd_manual_send', async (ctx) => {
     scheduler.pipelineRunner.runDispatchWave(18).catch(e => ctx.reply(`❌ Dispatch error: ${e.message}`));
 });
 
-
-bot.action('cmd_approve_dispatch', async (ctx) => {
-    try { await ctx.answerCbQuery('⚡ Launching WhatsApp Dispatch...'); } catch (e) {}
+const handleApproveLaunch = async (ctx) => {
     if (!scheduler) scheduler = new Scheduler(bot, ctx.chat.id);
     scheduler.setChatId(ctx.chat.id);
 
@@ -592,6 +591,14 @@ bot.action('cmd_approve_dispatch', async (ctx) => {
     } catch (err) {
         await ctx.reply(`⚠️ ${err.message}`);
     }
+};
+
+bot.command('approve', handleApproveLaunch);
+bot.command('launch', handleApproveLaunch);
+
+bot.action('cmd_approve_dispatch', async (ctx) => {
+    try { await ctx.answerCbQuery('⚡ Launching WhatsApp Dispatch...'); } catch (e) {}
+    await handleApproveLaunch(ctx);
 });
 
 bot.action('cmd_dismiss_dispatch', async (ctx) => {
@@ -602,14 +609,48 @@ bot.action('cmd_dismiss_dispatch', async (ctx) => {
     await ctx.reply('⏸️ *WhatsApp dispatch wave postponed.* You can manually trigger it anytime with `/trigger_send`.', { parse_mode: 'Markdown' });
 });
 
+const handleViewPlan = async (ctx) => {
+    if (!scheduler) scheduler = new Scheduler(bot, ctx.chat.id);
+    scheduler.setChatId(ctx.chat.id);
+
+    const activePlan = CONFIG.loadPlan();
+    const todayPlan = scheduler.getTodayPlan();
+
+    if (!activePlan) {
+        return ctx.reply('⚠️ *Could not load schedule blueprint JSON.* Please check `plan/week_1_plan.json`.', { parse_mode: 'Markdown' });
+    }
+
+    const agency = activePlan.agency || {};
+    const autoSettings = activePlan.automationSettings || {};
+    const days = activePlan.dailySchedule || [];
+
+    let scheduleSummary = days.map(d => {
+        const isCurrent = todayPlan && d.dayNumber === todayPlan.dayNumber ? ' 👈 (Today)' : '';
+        return `• *${d.dayName}* (Day ${d.dayNumber})${isCurrent}: \`${d.focus}\` [Target: ${d.tasks?.scraper?.targetLeads || 35} leads]`;
+    }).join('\n');
+
+    const message = 
+        `📜 *Acquisition Blueprint Inspector*\n\n` +
+        `🏢 *Agency:* ${agency.name || 'Arclane Studios'} (${agency.founder || 'Founder'})\n` +
+        `🎯 *Target Market:* ${agency.targetMarket || 'Indian SMBs'}\n` +
+        `💰 *Goal:* ${agency.targetGoal?.targetClients || '15-20 Clients'} @ ₹${agency.targetGoal?.averageDealSizeINR || 7999} (Est. ${agency.targetGoal?.projectedRevenueINR || '₹1.2L - 1.6L'})\n\n` +
+        `⚙️ *Automation Guardrails:*\n` +
+        `• Timezone: \`${autoSettings.timezone || 'Asia/Kolkata'}\`\n` +
+        `• WhatsApp Safe Limits: Max ${autoSettings.whatsappSafeLimits?.maxPerBatch || 20}/batch, ${autoSettings.whatsappSafeLimits?.maxPerDay || 40}/day (${autoSettings.whatsappSafeLimits?.minDelaySeconds || 30}-${autoSettings.whatsappSafeLimits?.maxDelaySeconds || 75}s delay)\n` +
+        `• Lead Qualification: Min ${autoSettings.leadQualificationFilter?.minRating || 4.5}★ (${autoSettings.leadQualificationFilter?.minReviews || 30}+ reviews)\n\n` +
+        `📅 *Weekly Plan Roadmap:*\n` +
+        `${scheduleSummary}\n\n` +
+        `📄 *Raw JSON Configuration File:* \`plan/week_1_plan.json\``;
+
+    await ctx.reply(message, { parse_mode: 'Markdown' });
+};
+
+bot.command('view_plan', handleViewPlan);
+bot.command('plan', handleViewPlan);
+
 bot.action('cmd_view_plan', async (ctx) => {
-    try { await ctx.answerCbQuery(); } catch (e) {}
-    await ctx.reply(
-        `📜 *Weekly Acquisition Blueprint JSON*\n\n` +
-        `File Path: \`plan/week_1_plan.json\`\n\n` +
-        `To modify daily search targets or timings, edit \`plan/week_1_plan.json\` and send \`/start\` to reload.`,
-        { parse_mode: 'Markdown' }
-    );
+    try { await ctx.answerCbQuery('📜 Loading Blueprint Details...'); } catch (e) {}
+    await handleViewPlan(ctx);
 });
 
 // Launch Bot

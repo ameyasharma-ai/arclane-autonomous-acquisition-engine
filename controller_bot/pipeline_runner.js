@@ -331,7 +331,7 @@ export class PipelineRunner {
 
             const approvalMsg = `📇 *WhatsApp Outreach Batch Ready (${buildRes.processedClientIds.length} Leads: [${startId}:${endId}])*\n\n` +
                 `1️⃣ Tap the vCard (.vcf) file above to save all leads into your phone contacts.\n` +
-                `2️⃣ Give the **Green Signal** below when you are ready to begin sending messages.`;
+                `2️⃣ Give the **Green Signal** (type \`/launch\`) below when you are ready to begin sending messages.`;
 
             const replyMarkup = {
                 inline_keyboard: [
@@ -527,7 +527,7 @@ export class PipelineRunner {
             // 3. Send approval gate message
             const approvalMsg = `📇 *WhatsApp Outreach Batch Ready (${batchIds.length} Leads: [${startId}:${endId}])*\n\n` +
                 `1️⃣ Tap the vCard (.vcf) file above to save all leads into your phone contacts.\n` +
-                `2️⃣ Give the **Green Signal** below when you are ready to begin sending messages.`;
+                `2️⃣ Give the **Green Signal** (type \`/launch\`) below when you are ready to begin sending messages.`;
 
             const replyMarkup = {
                 inline_keyboard: [

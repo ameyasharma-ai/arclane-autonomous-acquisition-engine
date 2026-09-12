@@ -28,7 +28,7 @@ RUN pip3 install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Create required persistent storage directories
-RUN mkdir -p reports/.crm_state generated_sites whatsapp_user_session chrome_profile raw_prompts \
+RUN mkdir -p reports/.crm_state generated_sites whatsapp_user_session chrome_profile raw_prompts data config \
     && chown -R pwuser:pwuser /usr/src/app
 
 # Switch to standard Playwright non-root user
