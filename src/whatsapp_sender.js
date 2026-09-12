@@ -573,8 +573,10 @@ export class WhatsAppSender {
             let clientSentSuccess = false;
             let hadNetworkError = false;
             let hadConfirmedNotOnWhatsApp = false;
+            let successfulPhone = null;
+            const notOnWhatsAppNumbers = [];
 
-            // Attempt outreach on ALL unique numbers found for this client
+            // Attempt outreach on phone numbers found for this client until one succeeds
             for (let pIdx = 0; pIdx < phoneList.length; pIdx++) {
                 const currentPhone = phoneList[pIdx];
                 const phoneLabel = phoneList.length > 1 ? ` (${pIdx + 1}/${phoneList.length})` : '';
@@ -586,14 +588,10 @@ export class WhatsAppSender {
                 if (sendResult.success) {
                     successCount++;
                     clientSentSuccess = true;
-                    await this.sendStatus(`✅ *[Client ${clientId}] Sent Successfully to +${sendResult.phone}!*`);
-
-                    // Anti-ban delay between multiple numbers of the same lead
-                    if (pIdx < phoneList.length - 1) {
-                        const intraDelay = Math.floor(Math.random() * 5) + 4;
-                        console.log(`[WhatsApp] Waiting ${intraDelay}s before messaging next number of same lead...`);
-                        await new Promise(r => setTimeout(r, intraDelay * 1000));
-                    }
+                    successfulPhone = sendResult.phone || currentPhone;
+                    await this.sendStatus(`✅ *[Client ${clientId}] Sent Successfully to +${successfulPhone}!*`);
+                    // Stop trying additional numbers for this client once outreach succeeds!
+                    break;
                 } else {
                     failCount++;
 
@@ -602,12 +600,14 @@ export class WhatsAppSender {
                         await this.sendStatus(`⚠️ *[Client ${clientId} - +${currentPhone}] Network/ISP Error:* ${sendResult.reason || 'Connection failed'}. Retrying later recommended.`);
                     } else if (sendResult.notOnWhatsApp || sendResult.reason?.toLowerCase().includes('not registered') || sendResult.reason?.toLowerCase().includes('invalid')) {
                         hadConfirmedNotOnWhatsApp = true;
-                        this.markContactAsPhoneOnly(clientId, currentPhone);
+                        if (!notOnWhatsAppNumbers.includes(currentPhone)) {
+                            notOnWhatsAppNumbers.push(currentPhone);
+                        }
 
                         await this.sendStatus(
                             `⚠️ *[Client ${clientId}] Number Notice: Not on WhatsApp*\n\n` +
                             `📞 *Phone Number:* \`+${currentPhone}\` is *NOT registered on WhatsApp*.\n` +
-                            `💡 *Next Step:* Call directly via phone call.`
+                            `💡 *Next Step:* ${pIdx < phoneList.length - 1 ? 'Attempting next number...' : 'Call directly via phone call.'}`
                         );
                     } else {
                         await this.sendStatus(`❌ *[Client ${clientId} - +${currentPhone}] Failed:* ${sendResult.reason || 'Unknown error'}`);
@@ -627,12 +627,16 @@ export class WhatsAppSender {
                 // Update Google Sheet safely (Outreach Platform, Outreach Date, Follow-Up Date, Current Status)
                 try {
                     const { sheet } = await loadGoogleSheet();
-                    await updateLeadFields(sheet, clientId, {
-                        'Outreach Platform': 'WhatsApp-Sent',
+                    const updates = {
+                        'Outreach Platform': `WhatsApp-Sent (+${successfulPhone})`,
                         'Outreach Date': outreachDate,
                         'Follow-Up Date': followUpDate,
                         'Current Status': 'Contacted'
-                    });
+                    };
+                    if (notOnWhatsAppNumbers.length > 0) {
+                        updates['Notes'] = `Active WhatsApp: +${successfulPhone}. (Not on WA: ${notOnWhatsAppNumbers.map(n => '+' + n).join(', ')})`;
+                    }
+                    await updateLeadFields(sheet, clientId, updates);
                 } catch (sheetErr) {
                     console.error("Sheet update notice:", sheetErr.message);
                 }
@@ -647,12 +651,14 @@ export class WhatsAppSender {
                     console.log(`[WhatsApp] 🌐 Marked Lead #${clientId} as 'Dispatch Retry Needed' due to network drop.`);
                 } catch (sheetErr) {}
             } else if (hadConfirmedNotOnWhatsApp) {
-                // Verified via WhatsApp modal that number is genuinely not on WhatsApp
+                // Verified via WhatsApp modal that all tested numbers are genuinely not on WhatsApp
+                this.markContactAsPhoneOnly(clientId, notOnWhatsAppNumbers.join(', '));
                 try {
                     const { sheet } = await loadGoogleSheet();
                     await updateLeadFields(sheet, clientId, {
                         'Outreach Platform': 'Phone-Only (No WhatsApp)',
-                        'Current Status': 'Requires Phone Call'
+                        'Current Status': 'Requires Phone Call',
+                        'Notes': `All tested numbers not on WhatsApp: ${notOnWhatsAppNumbers.map(n => '+' + n).join(', ')}`
                     });
                 } catch (sheetErr) {}
             } else {
