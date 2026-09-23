@@ -59,21 +59,29 @@ def extract_phone_from_url_or_text(text):
     return ""
 
 
-BLACKLISTED_URLS = []
+BLACKLISTED_URLS = ["google.co.in", "google.com", "google.", "facebook.com", "instagram.com", "justdial.com"]
 INTEREST_URLS = []
-try:
-    with open("blacklisted_urls.txt", "r") as f:
-        for line in f:
-            line = line.strip().lower()
-            if not line:
-                continue
-            parts = line.split(",")
-            domain = parts[0].strip()
-            BLACKLISTED_URLS.append(domain)
-            if len(parts) > 1 and parts[1].strip() == "website_of_interest":
-                INTEREST_URLS.append(domain)
-except Exception:
-    pass
+_blacklist_paths = [
+    "blacklisted_urls.txt",
+    os.path.join(os.path.dirname(__file__), "blacklisted_urls.txt"),
+    os.path.join(os.getcwd(), "scraper", "blacklisted_urls.txt")
+]
+for _bp in _blacklist_paths:
+    if os.path.exists(_bp):
+        try:
+            with open(_bp, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip().lower()
+                    if not line:
+                        continue
+                    parts = line.split(",")
+                    domain = parts[0].strip()
+                    BLACKLISTED_URLS.append(domain)
+                    if len(parts) > 1 and parts[1].strip() == "website_of_interest":
+                        INTEREST_URLS.append(domain)
+            break
+        except Exception:
+            pass
 
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
 
@@ -663,9 +671,16 @@ async def clean_lead_with_llm(lead_dict):
     return cleaned_lead
 
 # --- CONFIGURATION VARIABLES ---
-SPREADSHEET_NAME = "Google Maps Leads"
-WORKSHEET_NAME = "Sheet1"
-SERVICE_ACCOUNT_FILE = "service_account.json"
+SPREADSHEET_NAME = os.getenv("SPREADSHEET_NAME", "Google Maps Leads")
+WORKSHEET_NAME = os.getenv("WORKSHEET_NAME", "Sheet1")
+_sa_env = os.getenv("SERVICE_ACCOUNT_FILE", "config/service_account.json")
+if os.path.exists(_sa_env):
+    SERVICE_ACCOUNT_FILE = _sa_env
+elif os.path.exists("service_account.json"):
+    SERVICE_ACCOUNT_FILE = "service_account.json"
+else:
+    _parent_sa = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', _sa_env))
+    SERVICE_ACCOUNT_FILE = _parent_sa if os.path.exists(_parent_sa) else _sa_env
 
 # --- SCRIPT ---
 COLUMNS = [
@@ -1006,6 +1021,9 @@ async def main(search_query, locality, city, num_of_leads, end_date="", end_time
     
     # --- GOOGLE SHEETS SETUP ---
     gs_enabled = False
+    client_id_start = 1
+    target_row = 2
+    seen_leads = set()
     try:
         import gspread
 
@@ -1423,7 +1441,7 @@ async def main(search_query, locality, city, num_of_leads, end_date="", end_time
                                         w_elem = await detail_page.wait_for_selector('a[data-item-id="authority"]', timeout=1500)
                                         if w_elem:
                                             href = await w_elem.get_attribute('href')
-                                            if href and "google.com" not in href:
+                                            if href and "google." not in href:
                                                 website = href
                                                 break
                                     except Exception:
@@ -1434,16 +1452,16 @@ async def main(search_query, locality, city, num_of_leads, end_date="", end_time
                                         website = await detail_page.evaluate('''() => {
                                             let anchors = Array.from(document.querySelectorAll("a"));
                                             let exact = anchors.find(a => a.getAttribute("data-item-id") === "authority");
-                                            if (exact && exact.href && !exact.href.includes("google.com")) return exact.href;
+                                            if (exact && exact.href && !exact.href.includes("google.")) return exact.href;
                                             let fuzzy = anchors.find(a => {
                                                 let aria = a.getAttribute("aria-label") || "";
                                                 let did = a.getAttribute("data-item-id") || "";
-                                                return (aria.toLowerCase().includes("website") || did.includes("authority")) && a.href && !a.href.includes("google.com");
+                                                return (aria.toLowerCase().includes("website") || did.includes("authority")) && a.href && !a.href.includes("google.");
                                             });
                                             if (fuzzy) return fuzzy.href;
                                             let fallback = anchors.find(a => {
                                                 let did = a.getAttribute("data-item-id") || "";
-                                                return (did.includes("menu") || did.includes("action:")) && a.href && !a.href.includes("google.com");
+                                                return (did.includes("menu") || did.includes("action:")) && a.href && !a.href.includes("google.");
                                             });
                                             if (fallback) return fallback.href;
                                             return "";
@@ -1453,10 +1471,10 @@ async def main(search_query, locality, city, num_of_leads, end_date="", end_time
                                     # Trick 3: Brute Force Text Regex Locator
                                     if not website:
                                         try:
-                                            w_text = await detail_page.query_selector('a:has-text("Website"), a:has-text("website.com"), a[href^="http"]:not([href*="google.com"])')
+                                            w_text = await detail_page.query_selector('a:has-text("Website"), a:has-text("website.com"), a[href^="http"]:not([href*="google."])')
                                             if w_text:
                                                 href = await w_text.get_attribute('href')
-                                                if href and "google.com" not in href:
+                                                if href and "google." not in href:
                                                     website = href
                                                     break
                                         except Exception:
@@ -1862,6 +1880,8 @@ async def main(search_query, locality, city, num_of_leads, end_date="", end_time
             await context.close()
             
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         print(f"\n[FATAL ERROR] Playwright/Scraper encountered a critical crash: {e}")
         print("[RECOVERY] Bypassing crash to forcefully save extracted data to local Excel...")
     # Save to Excel

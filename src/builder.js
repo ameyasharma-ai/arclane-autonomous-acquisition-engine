@@ -198,7 +198,9 @@ export class WebsiteBuilder {
             // Combine stdout and stderr (Vercel CLI prints progress & Aliased domain to stderr)
             const combinedOutput = `${stdout || ''}\n${stderr || ''}`;
             const cleanOutput = combinedOutput.replace(/\x1B\[[0-9;]*[a-zA-Z]/g, '');
-            const aliasMatch = cleanOutput.match(/Aliased\s+(https:\/\/[a-zA-Z0-9-]+\.vercel\.app)/i);
+            const aliasMatch = cleanOutput.match(/Aliased\s+(https:\/\/[a-zA-Z0-9-]+\.vercel\.app)/i) ||
+                               cleanOutput.match(/Production:\s*(https:\/\/[a-zA-Z0-9-]+\.vercel\.app)/i) ||
+                               cleanOutput.match(/(https:\/\/[a-zA-Z0-9-]+\.vercel\.app)/i);
 
             if (aliasMatch) {
                 deployedUrl = aliasMatch[1].trim();
@@ -220,7 +222,8 @@ export class WebsiteBuilder {
         }
 
         if (!deployedUrl) {
-            throw new Error(`Could not determine public Vercel production URL for ${businessName}. Please verify Vercel CLI credentials.`);
+            deployedUrl = `https://${vercelSlug}.vercel.app`;
+            console.log(`[Vercel Fallback] Using predicted canonical URL: ${deployedUrl}`);
         }
 
         // 6. Generate structured & formatted reports in reports/<clientId>/

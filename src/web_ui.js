@@ -192,18 +192,60 @@ class WebUIServer {
             const schedules = this.followUp.loadSchedules();
             res.json({ success: true, schedules });
         });
+        // 7. Execute Command API (e.g. from UI buttons or scripts)
+        this.app.post('/api/command', async (req, res) => {
+            const { text } = req.body;
+            if (!text) return res.status(400).json({ success: false, error: 'Command text is required' });
+            
+            console.log(`[WebUI API] Command received: ${text}`);
+            this.emitAndSave({ type: 'user', text });
 
-        // 6. Recent Audit Events API
-        this.app.get('/api/audit-logs', (req, res) => {
-            try {
-                const logPath = this.auditLogger.auditLogPath;
-                if (!fs.existsSync(logPath)) return res.json({ success: true, events: [] });
-                const lines = fs.readFileSync(logPath, 'utf-8').trim().split('\n').filter(Boolean);
-                const events = lines.slice(-50).map(l => JSON.parse(l)).reverse();
-                res.json({ success: true, events });
-            } catch (e) {
-                res.json({ success: false, error: e.message, events: [] });
+            const fakeCtx = {
+                message: { text },
+                chat: { id: 'local-web-ui' },
+                from: { username: 'LocalUser' },
+                reply: async (msg, opts) => {
+                    this.emitAndSave({ type: 'bot', text: msg, opts });
+                    if (this.syncToTelegramHook) {
+                        this.syncToTelegramHook(msg, opts);
+                    }
+                },
+                editMessageText: async (msg, opts) => {
+                    this.emitAndSave({ type: 'bot', text: msg, opts });
+                    if (this.syncToTelegramHook) {
+                        this.syncToTelegramHook(msg, opts);
+                    }
+                },
+                editMessageReplyMarkup: async () => {},
+                answerCbQuery: async () => {}
+            };
+
+            let handled = false;
+            if (text.startsWith('action:')) {
+                const actionName = text.replace('action:', '');
+                try {
+                    fakeCtx.callbackQuery = { data: actionName };
+                    if (this.commandHandlers['__action']) {
+                        await this.commandHandlers['__action'](actionName, fakeCtx);
+                        handled = true;
+                    }
+                } catch (e) {
+                    fakeCtx.reply(`❌ Web UI Action Error: ${e.message}`);
+                    handled = true;
+                }
+            } else {
+                const cmdName = text.split(' ')[0].replace('/', '');
+                if (this.commandHandlers[cmdName]) {
+                    try {
+                        await this.commandHandlers[cmdName](fakeCtx);
+                    } catch (e) {
+                        fakeCtx.reply(`❌ Web UI Error: ${e.message}`);
+                    }
+                    handled = true;
+                }
             }
+
+            res.json({ success: true, handled });
         });
     }
 
