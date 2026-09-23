@@ -3,42 +3,58 @@ node_modules/
 
 # Environment & Credentials
 .env
+*.env
 service_account.json
+*/service_account.json
+config/service_account.json
+config/vercel/
+
+# Excel, Data & State Dumps
+*.xlsx
+*.xls
+*.csv
+sheet_dump.json
+status.json
+*/status.json
+web_ui_history.json
+data/
+exports/
+scratch/
 
 # Reports, Prompts & Text Files
 reports/
-reports/*.txt
 raw_prompts/
-raw_prompts/*.txt
 final_*.txt
 build_*.txt
+scraped_places.txt
 *.txt
 !requirements.txt
 !src/system_prompt.txt
 !scraper/instructions.txt
 !scraper/blacklisted_urls.txt
 
-# Generated Sites & Exports
+# Generated Sites & Deployments
 generated_sites/
-exports/
-scratch/
-sheet_dump.json
-web_ui_history.json
+.vercel/
 
-# WhatsApp Sessions & Profiles
+# Browser Profiles, Auth Sessions & Automation Caches
+playwright_auth/
+*/playwright_auth/
+chrome_profile/
+*/chrome_profile/
 whatsapp_session/
 whatsapp_user_session/
-chrome_profile/
+
+# Flags & Runtime State
+*.flag
 
 # OS & Logs
 .DS_Store
+Thumbs.db
 *.log
 __pycache__/
 *.pyc
 
-
-
+# Public Dynamic Assets
 public/contacts.vcf
 public/qr.png
-config/vercel/
-node_modules
