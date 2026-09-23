@@ -15,7 +15,8 @@ export class PipelineRunner {
         this.chatId = notifyChatId;
         this.isProcessing = false;
         this.isAborted = false;
-        this.leadQueue = new PQueue({ concurrency: 1 });
+        // Concurrent background workers (2 parallel builds while scraper streams ahead)
+        this.leadQueue = new PQueue({ concurrency: 2 });
         this.activeSender = null;
     }
 

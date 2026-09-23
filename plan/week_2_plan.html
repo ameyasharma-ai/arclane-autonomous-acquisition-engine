@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Week 2: Luxury Salons, Spas & Skin Aesthetics | ArcLane 100-Day INR 1L+ Engine</title>
+  <title>Week 2: Restaurants, Rooftops & Specialty Cafes in Patna | ArcLane Patna 5-Niche Engine</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -17,7 +17,7 @@
       --accent-cyan: #06b6d4;
       --accent-emerald: #10b981;
       --accent-amber: #f59e0b;
-      --grad-cyan: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+      --accent-purple: #a855f7;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -33,7 +33,7 @@
       margin: 0 auto;
     }
     header {
-      background: linear-gradient(180deg, rgba(17, 24, 39, 0.8) 0%, rgba(9, 13, 22, 0.95) 100%);
+      background: linear-gradient(180deg, rgba(17, 24, 39, 0.85) 0%, rgba(9, 13, 22, 0.95) 100%);
       border: 1px solid var(--card-border);
       border-radius: 20px;
       padding: 32px 40px;
@@ -41,238 +41,228 @@
       position: relative;
       overflow: hidden;
     }
-    header::after {
-      content: '';
-      position: absolute;
-      top: 0; right: 0;
-      width: 400px; height: 100%;
-      background: radial-gradient(circle, rgba(6, 182, 212, 0.15) 0%, transparent 70%);
-      pointer-events: none;
-    }
-    .tagline {
-      display: inline-block;
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      color: var(--accent-cyan);
-      background: rgba(6, 182, 212, 0.12);
+    .header-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
       padding: 6px 14px;
-      border-radius: 999px;
-      margin-bottom: 12px;
-      border: 1px solid rgba(6, 182, 212, 0.3);
+      border-radius: 9999px;
+      background: rgba(6, 182, 212, 0.1);
+      border: 1px solid rgba(6, 182, 212, 0.25);
+      color: var(--accent-cyan);
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 16px;
     }
     h1 {
-      font-size: 2.1rem;
+      font-size: 30px;
       font-weight: 800;
-      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
       background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      margin-bottom: 8px;
     }
-    .subtext {
+    .subtitle {
+      font-size: 14.5px;
       color: var(--text-muted);
-      font-size: 0.95rem;
-      max-width: 780px;
-      line-height: 1.5;
+      max-width: 900px;
+      line-height: 1.6;
     }
+
     .kpi-row {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 16px;
       margin-top: 24px;
     }
     .kpi-card {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: rgba(17, 24, 39, 0.6);
+      border: 1px solid var(--card-border);
       border-radius: 14px;
-      padding: 18px 22px;
+      padding: 16px 20px;
     }
     .kpi-label {
-      font-size: 0.8rem;
+      font-size: 12px;
       color: var(--text-muted);
-      font-weight: 500;
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.05em;
       margin-bottom: 4px;
     }
     .kpi-value {
-      font-size: 1.4rem;
+      font-size: 22px;
       font-weight: 800;
-      color: #fff;
     }
     .kpi-value.cyan { color: var(--accent-cyan); }
     .kpi-value.emerald { color: var(--accent-emerald); }
     .kpi-value.amber { color: var(--accent-amber); }
+    .kpi-value.purple { color: var(--accent-purple); }
 
-    /* Nav bar between weeks */
+    .offer-box {
+      margin-top: 20px;
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 12px;
+      padding: 16px 20px;
+      font-size: 13.5px;
+      color: #e2e8f0;
+      line-height: 1.6;
+    }
+    .offer-box strong { color: var(--accent-emerald); }
+
     .week-nav-bar {
       display: flex;
+      flex-wrap: wrap;
       gap: 8px;
-      overflow-x: auto;
-      padding-bottom: 14px;
+      background: #111827;
+      padding: 12px 16px;
+      border-radius: 16px;
+      border: 1px solid var(--card-border);
       margin-bottom: 24px;
     }
     .tab-link {
-      display: inline-block;
-      text-decoration: none;
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      color: var(--text-muted);
-      padding: 8px 16px;
+      padding: 8px 14px;
       border-radius: 10px;
-      font-size: 0.85rem;
+      font-size: 12.5px;
       font-weight: 600;
-      transition: all 0.2s ease;
-      white-space: nowrap;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: all 0.2s;
     }
     .tab-link:hover {
-      border-color: var(--accent-cyan);
       color: #fff;
+      background: rgba(255, 255, 255, 0.05);
     }
     .tab-link.active {
-      background: var(--grad-cyan);
-      color: #fff;
-      border-color: transparent;
+      background: var(--accent-cyan);
+      color: #090d16;
       box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
     }
 
     .automation-bar {
-      background: rgba(16, 185, 129, 0.08);
-      border: 1px solid rgba(16, 185, 129, 0.25);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      background: rgba(6, 182, 212, 0.05);
+      border: 1px solid rgba(6, 182, 212, 0.2);
       border-radius: 14px;
       padding: 14px 20px;
       margin-bottom: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 12px;
     }
     .automation-bar-title {
+      font-size: 14px;
       font-weight: 700;
-      color: #10b981;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      color: var(--accent-cyan);
     }
     .automation-times {
       display: flex;
-      gap: 10px;
       flex-wrap: wrap;
+      gap: 10px;
     }
     .time-chip {
-      background: rgba(0,0,0,0.4);
-      border: 1px solid rgba(255,255,255,0.1);
-      padding: 5px 10px;
-      border-radius: 6px;
-      font-size: 0.78rem;
-      font-family: 'JetBrains Mono', monospace;
+      background: rgba(17, 24, 39, 0.8);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-size: 12px;
       color: #e2e8f0;
+      font-family: 'JetBrains Mono', monospace;
     }
 
     .days-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
       gap: 20px;
     }
     .day-card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: 16px;
-      padding: 22px;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
-      transition: transform 0.2s ease, border-color 0.2s ease;
+      transition: transform 0.2s, border-color 0.2s;
     }
     .day-card:hover {
       transform: translateY(-2px);
       border-color: rgba(6, 182, 212, 0.4);
     }
-    .day-card.rest-day {
-      background: rgba(17, 24, 39, 0.5);
-      border: 1px dashed rgba(255, 255, 255, 0.15);
-    }
     .day-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 14px;
+      padding: 16px 20px;
+      background: rgba(0, 0, 0, 0.2);
+      border-bottom: 1px solid var(--card-border);
     }
     .day-badge {
-      font-size: 0.75rem;
+      font-size: 13px;
       font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      padding: 5px 12px;
-      border-radius: 8px;
-      background: rgba(6, 182, 212, 0.12);
       color: var(--accent-cyan);
-      border: 1px solid rgba(6, 182, 212, 0.25);
-    }
-    .day-card.rest-day .day-badge {
-      background: rgba(245, 158, 11, 0.12);
-      color: var(--accent-amber);
-      border-color: rgba(245, 158, 11, 0.25);
     }
     .target-quota {
-      font-size: 0.85rem;
-      font-weight: 600;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(16, 185, 129, 0.1);
       color: var(--accent-emerald);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+    }
+    .day-body {
+      padding: 20px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
     }
     .day-niche {
-      font-size: 1.1rem;
+      font-size: 16px;
       font-weight: 700;
       color: #fff;
-      margin-bottom: 6px;
     }
     .day-meta {
-      font-size: 0.85rem;
+      font-size: 12.5px;
       color: var(--text-muted);
-      margin-bottom: 12px;
     }
     .day-query {
-      background: rgba(0,0,0,0.5);
-      border: 1px solid rgba(255,255,255,0.08);
+      background: #030712;
+      border: 1px solid #1f2937;
       border-radius: 8px;
       padding: 8px 12px;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.78rem;
+      font-size: 12px;
       color: #38bdf8;
-      margin-bottom: 14px;
-      word-break: break-all;
     }
-    .day-objectives strong {
-      display: block;
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      color: var(--text-muted);
-      margin-bottom: 6px;
+    .day-objectives {
+      font-size: 12px;
+      color: #cbd5e1;
+      margin-top: 4px;
     }
     .day-objectives ul {
-      list-style-type: none;
-      font-size: 0.82rem;
-      color: #cbd5e1;
+      margin-top: 6px;
+      margin-left: 18px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
-      margin-bottom: 16px;
+      gap: 5px;
     }
     .day-footer-meta {
-      border-top: 1px solid rgba(255,255,255,0.06);
-      padding-top: 12px;
+      margin-top: auto;
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 6px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
     }
     .cron-tag {
-      background: rgba(255,255,255,0.04);
-      padding: 4px 8px;
+      font-size: 11px;
+      padding: 2px 8px;
       border-radius: 6px;
-      font-size: 0.72rem;
-      color: #94a3b8;
-      font-family: 'JetBrains Mono', monospace;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-muted);
     }
   </style>
 </head>
@@ -280,245 +270,250 @@
 
 <div class="container">
   <header>
-    <span class="tagline">ArcLane Autonomous Growth Engine • Week 2</span>
-    <h1>Week 2: Luxury Salons, Spas & Skin Aesthetics</h1>
-    <p class="subtext">
-      Focus Niche: <strong>Luxury Salons & Cosmetology</strong> | Weekly Target: <strong>2 Clients (₹15,998)</strong>
+    <div class="header-badge">
+      ⚡ ArcLane Sales OS • Patna 5-Niche Engine
+    </div>
+    <h1>Week 2: Restaurants, Rooftops & Specialty Cafes in Patna</h1>
+    <p class="subtitle">
+      Scrapes, generates, and deploys high-speed responsive web prototypes for 33 local businesses in Patna automatically at 10:15 PM every night.
     </p>
+
+    <div class="offer-box">
+      <strong>🎁 Your No-Risk Offer:</strong> Call the owner, present the live site on WhatsApp as a 100% FREE gift with no strings attached. If they like it, discuss full setup & domain hosting; if they don't, they keep the concept for free.
+    </div>
 
     <div class="kpi-row">
       <div class="kpi-card">
-        <div class="kpi-label">Weekly Client Target</div>
-        <div class="kpi-value cyan">2 Clients</div>
+        <div class="kpi-label">Daily Scrape & Build</div>
+        <div class="kpi-value cyan">33 Leads @ 10:15 PM</div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-label">Weekly Target Revenue</div>
-        <div class="kpi-value emerald">₹15,998</div>
+        <div class="kpi-label">Weekly Production</div>
+        <div class="kpi-value emerald">231 Hosted Demos</div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-label">Expected Leads Scraped</div>
-        <div class="kpi-value amber">210 Verified</div>
+        <div class="kpi-label">Auto WhatsApp</div>
+        <div class="kpi-value amber">Paused (Manual Calls)</div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-label">Overall 100-Day Target</div>
-        <div class="kpi-value">₹1,00,000+</div>
+        <div class="kpi-label">CRM Logging</div>
+        <div class="kpi-value purple">Automatic Live Sync</div>
       </div>
     </div>
   </header>
 
   <div class="week-nav-bar">
-    <a href="week_1_plan.html" class="tab-link ">Week 1</a>
-<a href="week_2_plan.html" class="tab-link active">Week 2</a>
-<a href="week_3_plan.html" class="tab-link ">Week 3</a>
-<a href="week_4_plan.html" class="tab-link ">Week 4</a>
-<a href="week_5_plan.html" class="tab-link ">Week 5</a>
-<a href="week_6_plan.html" class="tab-link ">Week 6</a>
-<a href="week_7_plan.html" class="tab-link ">Week 7</a>
-<a href="week_8_plan.html" class="tab-link ">Week 8</a>
-<a href="week_9_plan.html" class="tab-link ">Week 9</a>
-<a href="week_10_plan.html" class="tab-link ">Week 10</a>
+    <a href="week_1_plan.html" class="tab-link ">Week 1: Gyms</a>
+<a href="week_2_plan.html" class="tab-link active">Week 2: Restaurants</a>
+<a href="week_3_plan.html" class="tab-link ">Week 3: Clinics</a>
+<a href="week_4_plan.html" class="tab-link ">Week 4: Salons</a>
+<a href="week_5_plan.html" class="tab-link ">Week 5: Auto Detailing & Services</a>
+<a href="week_6_plan.html" class="tab-link ">Week 6: Gyms (Boring Rd & Bailey Rd)</a>
+<a href="week_7_plan.html" class="tab-link ">Week 7: Restaurants (Kankarbagh & Patliputra)</a>
+<a href="week_8_plan.html" class="tab-link ">Week 8: Clinics (Raja Bazar & Kankarbagh)</a>
+<a href="week_9_plan.html" class="tab-link ">Week 9: Salons (Fraser Rd & Boring Rd)</a>
+<a href="week_10_plan.html" class="tab-link ">Week 10: Car Detailing (Bypass & Saguna More)</a>
   </div>
 
   <div class="automation-bar">
     <div class="automation-bar-title">
-      <span>⚙️ Automated Daily Schedule:</span>
+      <span>⚙️ Automated Daily Timetable:</span>
     </div>
     <div class="automation-times">
-      <span class="time-chip">🌙 10:15 PM IST: Night Scrape</span>
-      <span class="time-chip">🛡️ 11:15 PM IST: Build & Audit</span>
-      <span class="time-chip">📱 12:00 PM IST: WhatsApp Wave 1</span>
-      <span class="time-chip">⚡ 04:30 PM IST: WhatsApp Wave 2</span>
-      <span class="time-chip">📞 06:00 PM IST: Phone Follow-ups</span>
+      <span class="time-chip">🌙 10:15 PM IST: Stream Scrape & Build 33 Leads</span>
+      <span class="time-chip">🚀 10:45 PM IST: Vercel Deploy & CRM Sync</span>
+      <span class="time-chip">📞 06:00 PM IST: Manual Phone Calls (Free Gift Pitch)</span>
+      <span class="time-chip">📲 Daytime: Manual WhatsApp Link Sharing</span>
     </div>
   </div>
 
   <div class="days-grid">
     
-      <div class="day-card ">
+      <div class="day-card">
         <div class="day-header">
           <span class="day-badge">Day 8 • Monday</span>
-          <span class="target-quota">35 Target Leads</span>
+          <span class="target-quota">33 Target Leads</span>
         </div>
         <div class="day-body">
-          <h4 class="day-niche">Luxury Unisex Salons in Indore</h4>
-          <p class="day-meta"><strong>Target City:</strong> Indore</p>
-          <div class="day-query"><code>Unisex Salons in Indore</code></div>
+          <h4 class="day-niche">Family & Fine Dining Restaurants in Patna</h4>
+          <p class="day-meta"><strong>Target City:</strong> Patna • <strong>Niche:</strong> Restaurants & Cafes</p>
+          <div class="day-query"><code>Restaurants in Patna</code></div>
           <div class="day-objectives">
             <strong>Daily Protocol:</strong>
             <ul>
-              <li><strong>🌙 10:15 PM:</strong> Google Maps Scraper (35 leads quota)</li>
-              <li><strong>⚙️ 23:15 PM:</strong> Automated Business Audit & Intelligence Dossier build</li>
-              <li><strong>📱 12:00 PM:</strong> Wave 1 WhatsApp Dispatch (18 personalized demos)</li>
-              <li><strong>⚡ 16:30 PM:</strong> Wave 2 WhatsApp Dispatch (17 personalized demos)</li>
-              <li><strong>📞 18:00 PM:</strong> Call Sunday leads. Focus on booking appointment widgets.</li>
+              <li><strong>🌙 10:15 PM IST:</strong> Automated Google Maps Scraper, 14-Point Audit & Website Builder (33 leads quota)</li>
+              <li><strong>🚀 10:45 PM IST:</strong> Auto-Deploy to Vercel + Auto-Append to Google Sheet CRM</li>
+              <li><strong>⏸️ Automated WhatsApp:</strong> Paused (Controlled Manual Outreach)</li>
+              <li><strong>📞 06:00 PM IST:</strong> Manual Phone Call: Offer 100% Free Website Gift + Send WhatsApp link</li>
+              <li><strong>✍️ Live CRM Tracking:</strong> Manually update "Outreach Date", "Current Status", & Notes</li>
             </ul>
           </div>
           <div class="day-footer-meta">
-            <span class="cron-tag">Target Closes: 1</span>
-            <span class="cron-tag">Review Calls: 15</span>
-            <span class="cron-tag">Quota: 35</span>
+            <span class="cron-tag">Daily Quota: 33</span>
+            <span class="cron-tag">Call Window: 6:00 PM</span>
+            <span class="cron-tag">Offer: Free Gift</span>
           </div>
         </div>
       </div>
     
-      <div class="day-card ">
+      <div class="day-card">
         <div class="day-header">
           <span class="day-badge">Day 9 • Tuesday</span>
-          <span class="target-quota">35 Target Leads</span>
+          <span class="target-quota">33 Target Leads</span>
         </div>
         <div class="day-body">
-          <h4 class="day-niche">Hair & Beauty Salons in Bhopal</h4>
-          <p class="day-meta"><strong>Target City:</strong> Bhopal</p>
-          <div class="day-query"><code>Beauty Salons in Bhopal</code></div>
+          <h4 class="day-niche">Rooftop Restaurants & Lounges in Patna</h4>
+          <p class="day-meta"><strong>Target City:</strong> Patna • <strong>Niche:</strong> Restaurants & Cafes</p>
+          <div class="day-query"><code>Rooftop Restaurants in Patna</code></div>
           <div class="day-objectives">
             <strong>Daily Protocol:</strong>
             <ul>
-              <li><strong>🌙 10:15 PM:</strong> Google Maps Scraper (35 leads quota)</li>
-              <li><strong>⚙️ 23:15 PM:</strong> Automated Business Audit & Intelligence Dossier build</li>
-              <li><strong>📱 12:00 PM:</strong> Wave 1 WhatsApp Dispatch (18 personalized demos)</li>
-              <li><strong>⚡ 16:30 PM:</strong> Wave 2 WhatsApp Dispatch (17 personalized demos)</li>
-              <li><strong>📞 18:00 PM:</strong> Follow up on Indore salons.</li>
+              <li><strong>🌙 10:15 PM IST:</strong> Automated Google Maps Scraper, 14-Point Audit & Website Builder (33 leads quota)</li>
+              <li><strong>🚀 10:45 PM IST:</strong> Auto-Deploy to Vercel + Auto-Append to Google Sheet CRM</li>
+              <li><strong>⏸️ Automated WhatsApp:</strong> Paused (Controlled Manual Outreach)</li>
+              <li><strong>📞 06:00 PM IST:</strong> Manual Phone Call: Offer 100% Free Website Gift + Send WhatsApp link</li>
+              <li><strong>✍️ Live CRM Tracking:</strong> Manually update "Outreach Date", "Current Status", & Notes</li>
             </ul>
           </div>
           <div class="day-footer-meta">
-            <span class="cron-tag">Target Closes: 1</span>
-            <span class="cron-tag">Review Calls: 15</span>
-            <span class="cron-tag">Quota: 35</span>
+            <span class="cron-tag">Daily Quota: 33</span>
+            <span class="cron-tag">Call Window: 6:00 PM</span>
+            <span class="cron-tag">Offer: Free Gift</span>
           </div>
         </div>
       </div>
     
-      <div class="day-card ">
+      <div class="day-card">
         <div class="day-header">
           <span class="day-badge">Day 10 • Wednesday</span>
-          <span class="target-quota">35 Target Leads</span>
+          <span class="target-quota">33 Target Leads</span>
         </div>
         <div class="day-body">
-          <h4 class="day-niche">Aesthetic & Skin Clinics in Nagpur</h4>
-          <p class="day-meta"><strong>Target City:</strong> Nagpur</p>
-          <div class="day-query"><code>Skin Clinics in Nagpur</code></div>
+          <h4 class="day-niche">Specialty Coffee Cafes & Hangouts in Patna</h4>
+          <p class="day-meta"><strong>Target City:</strong> Patna • <strong>Niche:</strong> Restaurants & Cafes</p>
+          <div class="day-query"><code>Cafes in Patna</code></div>
           <div class="day-objectives">
             <strong>Daily Protocol:</strong>
             <ul>
-              <li><strong>🌙 10:15 PM:</strong> Google Maps Scraper (35 leads quota)</li>
-              <li><strong>⚙️ 23:15 PM:</strong> Automated Business Audit & Intelligence Dossier build</li>
-              <li><strong>📱 12:00 PM:</strong> Wave 1 WhatsApp Dispatch (18 personalized demos)</li>
-              <li><strong>⚡ 16:30 PM:</strong> Wave 2 WhatsApp Dispatch (17 personalized demos)</li>
-              <li><strong>📞 18:00 PM:</strong> High willingness to pay for modern aesthetic clinic sites.</li>
+              <li><strong>🌙 10:15 PM IST:</strong> Automated Google Maps Scraper, 14-Point Audit & Website Builder (33 leads quota)</li>
+              <li><strong>🚀 10:45 PM IST:</strong> Auto-Deploy to Vercel + Auto-Append to Google Sheet CRM</li>
+              <li><strong>⏸️ Automated WhatsApp:</strong> Paused (Controlled Manual Outreach)</li>
+              <li><strong>📞 06:00 PM IST:</strong> Manual Phone Call: Offer 100% Free Website Gift + Send WhatsApp link</li>
+              <li><strong>✍️ Live CRM Tracking:</strong> Manually update "Outreach Date", "Current Status", & Notes</li>
             </ul>
           </div>
           <div class="day-footer-meta">
-            <span class="cron-tag">Target Closes: 2</span>
-            <span class="cron-tag">Review Calls: 15</span>
-            <span class="cron-tag">Quota: 35</span>
+            <span class="cron-tag">Daily Quota: 33</span>
+            <span class="cron-tag">Call Window: 6:00 PM</span>
+            <span class="cron-tag">Offer: Free Gift</span>
           </div>
         </div>
       </div>
     
-      <div class="day-card ">
+      <div class="day-card">
         <div class="day-header">
           <span class="day-badge">Day 11 • Thursday</span>
-          <span class="target-quota">35 Target Leads</span>
+          <span class="target-quota">33 Target Leads</span>
         </div>
         <div class="day-body">
-          <h4 class="day-niche">Unisex Salons & Spas in Vadodara</h4>
-          <p class="day-meta"><strong>Target City:</strong> Vadodara</p>
-          <div class="day-query"><code>Unisex Salons in Vadodara</code></div>
+          <h4 class="day-niche">Multi-Cuisine & Biryani Dine-in Restaurants in Patna</h4>
+          <p class="day-meta"><strong>Target City:</strong> Patna • <strong>Niche:</strong> Restaurants & Cafes</p>
+          <div class="day-query"><code>Multi Cuisine Restaurants in Patna</code></div>
           <div class="day-objectives">
             <strong>Daily Protocol:</strong>
             <ul>
-              <li><strong>🌙 10:15 PM:</strong> Google Maps Scraper (35 leads quota)</li>
-              <li><strong>⚙️ 23:15 PM:</strong> Automated Business Audit & Intelligence Dossier build</li>
-              <li><strong>📱 12:00 PM:</strong> Wave 1 WhatsApp Dispatch (18 personalized demos)</li>
-              <li><strong>⚡ 16:30 PM:</strong> Wave 2 WhatsApp Dispatch (17 personalized demos)</li>
-              <li><strong>📞 18:00 PM:</strong> Push WhatsApp consultation booking.</li>
+              <li><strong>🌙 10:15 PM IST:</strong> Automated Google Maps Scraper, 14-Point Audit & Website Builder (33 leads quota)</li>
+              <li><strong>🚀 10:45 PM IST:</strong> Auto-Deploy to Vercel + Auto-Append to Google Sheet CRM</li>
+              <li><strong>⏸️ Automated WhatsApp:</strong> Paused (Controlled Manual Outreach)</li>
+              <li><strong>📞 06:00 PM IST:</strong> Manual Phone Call: Offer 100% Free Website Gift + Send WhatsApp link</li>
+              <li><strong>✍️ Live CRM Tracking:</strong> Manually update "Outreach Date", "Current Status", & Notes</li>
             </ul>
           </div>
           <div class="day-footer-meta">
-            <span class="cron-tag">Target Closes: 2</span>
-            <span class="cron-tag">Review Calls: 15</span>
-            <span class="cron-tag">Quota: 35</span>
+            <span class="cron-tag">Daily Quota: 33</span>
+            <span class="cron-tag">Call Window: 6:00 PM</span>
+            <span class="cron-tag">Offer: Free Gift</span>
           </div>
         </div>
       </div>
     
-      <div class="day-card ">
+      <div class="day-card">
         <div class="day-header">
           <span class="day-badge">Day 12 • Friday</span>
-          <span class="target-quota">35 Target Leads</span>
+          <span class="target-quota">33 Target Leads</span>
         </div>
         <div class="day-body">
-          <h4 class="day-niche">Luxury Hair Salons in Ludhiana</h4>
-          <p class="day-meta"><strong>Target City:</strong> Ludhiana</p>
-          <div class="day-query"><code>Hair Salons in Ludhiana</code></div>
+          <h4 class="day-niche">Artisan Bakeries & Dessert Cafes in Patna</h4>
+          <p class="day-meta"><strong>Target City:</strong> Patna • <strong>Niche:</strong> Restaurants & Cafes</p>
+          <div class="day-query"><code>Bakeries and Cafes in Patna</code></div>
           <div class="day-objectives">
             <strong>Daily Protocol:</strong>
             <ul>
-              <li><strong>🌙 10:15 PM:</strong> Google Maps Scraper (35 leads quota)</li>
-              <li><strong>⚙️ 23:15 PM:</strong> Automated Business Audit & Intelligence Dossier build</li>
-              <li><strong>📱 12:00 PM:</strong> Wave 1 WhatsApp Dispatch (18 personalized demos)</li>
-              <li><strong>⚡ 16:30 PM:</strong> Wave 2 WhatsApp Dispatch (17 personalized demos)</li>
-              <li><strong>📞 18:00 PM:</strong> High disposable income market. Offer VIP launch package.</li>
+              <li><strong>🌙 10:15 PM IST:</strong> Automated Google Maps Scraper, 14-Point Audit & Website Builder (33 leads quota)</li>
+              <li><strong>🚀 10:45 PM IST:</strong> Auto-Deploy to Vercel + Auto-Append to Google Sheet CRM</li>
+              <li><strong>⏸️ Automated WhatsApp:</strong> Paused (Controlled Manual Outreach)</li>
+              <li><strong>📞 06:00 PM IST:</strong> Manual Phone Call: Offer 100% Free Website Gift + Send WhatsApp link</li>
+              <li><strong>✍️ Live CRM Tracking:</strong> Manually update "Outreach Date", "Current Status", & Notes</li>
             </ul>
           </div>
           <div class="day-footer-meta">
-            <span class="cron-tag">Target Closes: 2</span>
-            <span class="cron-tag">Review Calls: 15</span>
-            <span class="cron-tag">Quota: 35</span>
+            <span class="cron-tag">Daily Quota: 33</span>
+            <span class="cron-tag">Call Window: 6:00 PM</span>
+            <span class="cron-tag">Offer: Free Gift</span>
           </div>
         </div>
       </div>
     
-      <div class="day-card ">
+      <div class="day-card">
         <div class="day-header">
           <span class="day-badge">Day 13 • Saturday</span>
-          <span class="target-quota">35 Target Leads</span>
+          <span class="target-quota">33 Target Leads</span>
         </div>
         <div class="day-body">
-          <h4 class="day-niche">Day Spas & Wellness Retreats in Dehradun</h4>
-          <p class="day-meta"><strong>Target City:</strong> Dehradun</p>
-          <div class="day-query"><code>Day Spas in Dehradun</code></div>
+          <h4 class="day-niche">Banquet & Highway Theme Restaurants in Patna</h4>
+          <p class="day-meta"><strong>Target City:</strong> Patna • <strong>Niche:</strong> Restaurants & Cafes</p>
+          <div class="day-query"><code>Dine In Restaurants in Patna</code></div>
           <div class="day-objectives">
             <strong>Daily Protocol:</strong>
             <ul>
-              <li><strong>🌙 10:15 PM:</strong> Google Maps Scraper (35 leads quota)</li>
-              <li><strong>⚙️ 23:15 PM:</strong> Automated Business Audit & Intelligence Dossier build</li>
-              <li><strong>📱 12:00 PM:</strong> Wave 1 WhatsApp Dispatch (18 personalized demos)</li>
-              <li><strong>⚡ 16:30 PM:</strong> Wave 2 WhatsApp Dispatch (17 personalized demos)</li>
-              <li><strong>📞 18:00 PM:</strong> Weekend surge in wellness inquiries.</li>
+              <li><strong>🌙 10:15 PM IST:</strong> Automated Google Maps Scraper, 14-Point Audit & Website Builder (33 leads quota)</li>
+              <li><strong>🚀 10:45 PM IST:</strong> Auto-Deploy to Vercel + Auto-Append to Google Sheet CRM</li>
+              <li><strong>⏸️ Automated WhatsApp:</strong> Paused (Controlled Manual Outreach)</li>
+              <li><strong>📞 06:00 PM IST:</strong> Manual Phone Call: Offer 100% Free Website Gift + Send WhatsApp link</li>
+              <li><strong>✍️ Live CRM Tracking:</strong> Manually update "Outreach Date", "Current Status", & Notes</li>
             </ul>
           </div>
           <div class="day-footer-meta">
-            <span class="cron-tag">Target Closes: 2</span>
-            <span class="cron-tag">Review Calls: 20</span>
-            <span class="cron-tag">Quota: 35</span>
+            <span class="cron-tag">Daily Quota: 33</span>
+            <span class="cron-tag">Call Window: 6:00 PM</span>
+            <span class="cron-tag">Offer: Free Gift</span>
           </div>
         </div>
       </div>
     
-      <div class="day-card rest-day">
+      <div class="day-card">
         <div class="day-header">
           <span class="day-badge">Day 14 • Sunday</span>
-          <span class="target-quota">Weekly Audit & Sweep</span>
+          <span class="target-quota">33 Target Leads</span>
         </div>
         <div class="day-body">
-          <h4 class="day-niche">Weekly Review, UPI Collection & Delivery</h4>
-          <p class="day-meta"><strong>Target City:</strong> Nashik</p>
-          <div class="day-query"><code>Gyms in Nashik</code></div>
+          <h4 class="day-niche">Digital QR Menu Demos & Weekend Closer Waves</h4>
+          <p class="day-meta"><strong>Target City:</strong> Patna • <strong>Niche:</strong> Restaurants & Cafes</p>
+          <div class="day-query"><code>Restaurants in Patna</code></div>
           <div class="day-objectives">
             <strong>Daily Protocol:</strong>
             <ul>
-              <li><strong>🌙 10:15 PM:</strong> Google Maps Scraper (20 leads quota)</li>
-              <li><strong>⚙️ 23:15 PM:</strong> Automated Business Audit & Intelligence Dossier build</li>
-              <li><strong>📱 12:00 PM:</strong> Wave 1 WhatsApp Dispatch (20 personalized demos)</li>
-              <li><strong>⚡ 16:30 PM:</strong> Wave 2 WhatsApp Dispatch (0 personalized demos)</li>
-              <li><strong>📞 18:00 PM:</strong> Wrap Week 2 milestone. Aim for cumulative 5+ clients.</li>
+              <li><strong>🌙 10:15 PM IST:</strong> Automated Google Maps Scraper, 14-Point Audit & Website Builder (33 leads quota)</li>
+              <li><strong>🚀 10:45 PM IST:</strong> Auto-Deploy to Vercel + Auto-Append to Google Sheet CRM</li>
+              <li><strong>⏸️ Automated WhatsApp:</strong> Paused (Controlled Manual Outreach)</li>
+              <li><strong>📞 06:00 PM IST:</strong> Manual Phone Call: Offer 100% Free Website Gift + Send WhatsApp link</li>
+              <li><strong>✍️ Live CRM Tracking:</strong> Manually update "Outreach Date", "Current Status", & Notes</li>
             </ul>
           </div>
           <div class="day-footer-meta">
-            <span class="cron-tag">Target Closes: 1</span>
-            <span class="cron-tag">Review Calls: 10</span>
-            <span class="cron-tag">Quota: 20</span>
+            <span class="cron-tag">Daily Quota: 33</span>
+            <span class="cron-tag">Call Window: 6:00 PM</span>
+            <span class="cron-tag">Offer: Free Gift</span>
           </div>
         </div>
       </div>

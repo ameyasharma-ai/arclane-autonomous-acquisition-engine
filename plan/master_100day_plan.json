@@ -1,36 +1,45 @@
 {
-  "blueprintVersion": "2.0.0",
+  "blueprintVersion": "3.0.0 (Patna 5-Niche Free-Gift Engine)",
   "agency": {
     "name": "Arclane Studios",
     "founder": "Ameya Sharma",
-    "targetMarket": "Indian SMBs (Gyms, Salons, Spas, Clinics, Cafes, Designers, Institutes)",
+    "targetMarket": "Verified SMBs in Patna across 5 High-Value Niches: Gyms, Restaurants, Clinics, Salons, Car/Bike Detailing & Services",
+    "coreOffer": {
+      "type": "Free Website Gift",
+      "description": "Direct courtesy call offering a custom, mobile-optimized live website concept hosted on Vercel as a 100% FREE gift. Link sent directly on WhatsApp. If they love it, discuss maintenance/expansion; if not, they keep it for free forever with zero risk."
+    },
     "targetGoal": {
-      "durationDays": 100,
-      "targetClients": "15 - 20 Indian Clients",
+      "durationDays": 70,
+      "dailyBuildTarget": 33,
+      "totalBuildsProjected": 2310,
+      "targetClients": "10 - 20 Patna Clients",
       "averageDealSizeINR": 7999,
-      "projectedRevenueINR": "1,20,000 - 1,60,000"
+      "projectedRevenueINR": "80,000 - 1,60,000"
     }
   },
   "automationSettings": {
     "autoStartCron": true,
     "timezone": "Asia/Kolkata",
+    "dailyScrapeTime": "22:15",
+    "dailyLeadsQuota": 33,
     "leadQualificationFilter": {
-      "minRating": 4.5,
-      "minReviews": 30,
+      "minRating": 4,
+      "minReviews": 10,
       "websiteRequired": false
     },
-    "whatsappSafeLimits": {
-      "maxPerBatch": 20,
-      "maxPerDay": 40,
-      "minDelaySeconds": 30,
-      "maxDelaySeconds": 75,
-      "requireVcfImport": true
-    }
+    "autoWhatsAppDispatched": false,
+    "crmFieldsToUpdateManually": [
+      "Phone/WhatsApp",
+      "Current Status",
+      "Outreach Date",
+      "Negotiation Status",
+      "Notes"
+    ]
   },
   "scheduleRotation": {
     "totalDays": 70,
     "repeatsFor100Days": true,
-    "description": "10 Weeks of curated niches and Tier-1/2 Indian growth cities. Automatically cycles through 100 days."
+    "description": "10 Weeks focusing exclusively on 5 core niches in Patna: Gyms, Restaurants, Clinics, Salons, and Car/Bike Detailing & Service Workshops."
   },
   "dailySchedule": [
     {
@@ -38,39 +47,39 @@
       "weekNumber": 1,
       "dayIndex": 1,
       "dayName": "Monday",
-      "focus": "Gyms & Fitness Centers in Pune",
+      "focus": "Premium Unisex Gyms & Health Clubs in Patna",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
           "query": "Gyms",
-          "locality": "in Pune",
-          "city": "Pune",
-          "targetLeads": 35
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": false,
-          "targetCalls": 0,
-          "targetCloses": 0,
-          "notes": "Day 1 kickoff. Monitor initial delivery on WhatsApp Web."
+          "targetCalls": 15,
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -79,31 +88,31 @@
       "weekNumber": 1,
       "dayIndex": 2,
       "dayName": "Tuesday",
-      "focus": "Fitness Studios & Gyms in Surat",
+      "focus": "CrossFit & Functional Training Centers in Patna",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Gyms",
-          "locality": "in Surat",
-          "city": "Surat",
-          "targetLeads": 35
+          "query": "CrossFit Gyms",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
@@ -111,7 +120,7 @@
           "callYesterdayLeads": true,
           "targetCalls": 15,
           "targetCloses": 1,
-          "notes": "Call Monday leads (sent 24h ago). Target: 1 Closed Deal."
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -120,39 +129,39 @@
       "weekNumber": 1,
       "dayIndex": 3,
       "dayName": "Wednesday",
-      "focus": "Premium Unisex Salons in Gurugram",
+      "focus": "Bodybuilding & Powerlifting Gyms in Patna",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Unisex Salons",
-          "locality": "in Gurugram",
-          "city": "Gurugram",
-          "targetLeads": 35
+          "query": "Fitness Centers",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
           "targetCalls": 15,
-          "targetCloses": 2,
-          "notes": "Call Tuesday leads + Monday warm follow-ups. Target: 2 Closed Deals."
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -161,39 +170,39 @@
       "weekNumber": 1,
       "dayIndex": 4,
       "dayName": "Thursday",
-      "focus": "Dental & Specialty Care Clinics in Ahmedabad",
+      "focus": "Zumba, Aerobics & Cardio Fitness Studios in Patna",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Dental Clinics",
-          "locality": "in Ahmedabad",
-          "city": "Ahmedabad",
-          "targetLeads": 35
+          "query": "Fitness Studios",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
           "targetCalls": 15,
-          "targetCloses": 2,
-          "notes": "Call Wednesday leads + ongoing pipeline. Target: 2 Closed Deals."
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -202,39 +211,39 @@
       "weekNumber": 1,
       "dayIndex": 5,
       "dayName": "Friday",
-      "focus": "Fitness Gyms & CrossFit in Jaipur",
+      "focus": "Strength Training & Personal Training Gyms in Patna",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Gyms",
-          "locality": "in Jaipur",
-          "city": "Jaipur",
-          "targetLeads": 35
+          "query": "Gyms and Fitness",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
           "targetCalls": 15,
-          "targetCloses": 2,
-          "notes": "Friday power close. Collect 50% advance tokens on closed deals."
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -243,39 +252,39 @@
       "weekNumber": 1,
       "dayIndex": 6,
       "dayName": "Saturday",
-      "focus": "Spas, Hair & Wellness Studios in Chandigarh",
+      "focus": "Combat, MMA & Martial Arts Gyms in Patna",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Spas and Salons",
-          "locality": "in Chandigarh",
-          "city": "Chandigarh",
-          "targetLeads": 35
+          "query": "MMA Gyms",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
-          "targetCalls": 20,
-          "targetCloses": 2,
-          "notes": "Weekend follow-ups. Collect assets from onboarded clients."
+          "targetCalls": 15,
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -284,26 +293,26 @@
       "weekNumber": 1,
       "dayIndex": 7,
       "dayName": "Sunday",
-      "focus": "Pipeline Review & Domain Mapping",
+      "focus": "Weekend Lead Sweep & High-Intent Calling Review",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
           "query": "Gyms",
-          "locality": "in Lucknow",
-          "city": "Lucknow",
-          "targetLeads": 20
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 20
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
           "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 20
+          "batchSize": 0
         },
         "dispatchWave2": {
           "enabled": false,
@@ -314,9 +323,9 @@
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
-          "targetCalls": 10,
-          "targetCloses": 2,
-          "notes": "Domain mapping in Vercel, collect remaining 50% balance."
+          "targetCalls": 15,
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -325,31 +334,31 @@
       "weekNumber": 2,
       "dayIndex": 1,
       "dayName": "Monday",
-      "focus": "Luxury Unisex Salons in Indore",
+      "focus": "Family & Fine Dining Restaurants in Patna",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Unisex Salons",
-          "locality": "in Indore",
-          "city": "Indore",
-          "targetLeads": 35
+          "query": "Restaurants",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
@@ -357,7 +366,7 @@
           "callYesterdayLeads": true,
           "targetCalls": 15,
           "targetCloses": 1,
-          "notes": "Call Sunday leads. Focus on booking appointment widgets."
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -366,31 +375,31 @@
       "weekNumber": 2,
       "dayIndex": 2,
       "dayName": "Tuesday",
-      "focus": "Hair & Beauty Salons in Bhopal",
+      "focus": "Rooftop Restaurants & Lounges in Patna",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Beauty Salons",
-          "locality": "in Bhopal",
-          "city": "Bhopal",
-          "targetLeads": 35
+          "query": "Rooftop Restaurants",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
@@ -398,7 +407,7 @@
           "callYesterdayLeads": true,
           "targetCalls": 15,
           "targetCloses": 1,
-          "notes": "Follow up on Indore salons."
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -407,39 +416,39 @@
       "weekNumber": 2,
       "dayIndex": 3,
       "dayName": "Wednesday",
-      "focus": "Aesthetic & Skin Clinics in Nagpur",
+      "focus": "Specialty Coffee Cafes & Hangouts in Patna",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Skin Clinics",
-          "locality": "in Nagpur",
-          "city": "Nagpur",
-          "targetLeads": 35
+          "query": "Cafes",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
           "targetCalls": 15,
-          "targetCloses": 2,
-          "notes": "High willingness to pay for modern aesthetic clinic sites."
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -448,39 +457,39 @@
       "weekNumber": 2,
       "dayIndex": 4,
       "dayName": "Thursday",
-      "focus": "Unisex Salons & Spas in Vadodara",
+      "focus": "Multi-Cuisine & Biryani Dine-in Restaurants in Patna",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Unisex Salons",
-          "locality": "in Vadodara",
-          "city": "Vadodara",
-          "targetLeads": 35
+          "query": "Multi Cuisine Restaurants",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
           "targetCalls": 15,
-          "targetCloses": 2,
-          "notes": "Push WhatsApp consultation booking."
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -489,39 +498,39 @@
       "weekNumber": 2,
       "dayIndex": 5,
       "dayName": "Friday",
-      "focus": "Luxury Hair Salons in Ludhiana",
+      "focus": "Artisan Bakeries & Dessert Cafes in Patna",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Hair Salons",
-          "locality": "in Ludhiana",
-          "city": "Ludhiana",
-          "targetLeads": 35
+          "query": "Bakeries and Cafes",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
           "targetCalls": 15,
-          "targetCloses": 2,
-          "notes": "High disposable income market. Offer VIP launch package."
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -530,39 +539,39 @@
       "weekNumber": 2,
       "dayIndex": 6,
       "dayName": "Saturday",
-      "focus": "Day Spas & Wellness Retreats in Dehradun",
+      "focus": "Banquet & Highway Theme Restaurants in Patna",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Day Spas",
-          "locality": "in Dehradun",
-          "city": "Dehradun",
-          "targetLeads": 35
+          "query": "Dine In Restaurants",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
-          "targetCalls": 20,
-          "targetCloses": 2,
-          "notes": "Weekend surge in wellness inquiries."
+          "targetCalls": 15,
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -571,26 +580,26 @@
       "weekNumber": 2,
       "dayIndex": 7,
       "dayName": "Sunday",
-      "focus": "Weekly Review, UPI Collection & Delivery",
+      "focus": "Digital QR Menu Demos & Weekend Closer Waves",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Gyms",
-          "locality": "in Nashik",
-          "city": "Nashik",
-          "targetLeads": 20
+          "query": "Restaurants",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 20
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
           "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 20
+          "batchSize": 0
         },
         "dispatchWave2": {
           "enabled": false,
@@ -601,9 +610,9 @@
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
-          "targetCalls": 10,
+          "targetCalls": 15,
           "targetCloses": 1,
-          "notes": "Wrap Week 2 milestone. Aim for cumulative 5+ clients."
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -612,31 +621,31 @@
       "weekNumber": 3,
       "dayIndex": 1,
       "dayName": "Monday",
-      "focus": "Dental Implants & Clinics in Pune",
+      "focus": "Dental Clinics & Implant Centers in Patna",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
           "query": "Dental Clinics",
-          "locality": "in Pune",
-          "city": "Pune",
-          "targetLeads": 35
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
@@ -644,7 +653,7 @@
           "callYesterdayLeads": true,
           "targetCalls": 15,
           "targetCloses": 1,
-          "notes": "Emphasize trust, Google reviews, and patient appointment flow."
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -653,39 +662,39 @@
       "weekNumber": 3,
       "dayIndex": 2,
       "dayName": "Tuesday",
-      "focus": "Physiotherapy & Spine Centers in Coimbatore",
+      "focus": "Eye Care & Ophthalmology Clinics in Patna",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Physiotherapy Clinics",
-          "locality": "in Coimbatore",
-          "city": "Coimbatore",
-          "targetLeads": 35
+          "query": "Eye Clinics",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
           "targetCalls": 15,
-          "targetCloses": 2,
-          "notes": "Direct WhatsApp consultation booking is a huge hook."
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -694,39 +703,39 @@
       "weekNumber": 3,
       "dayIndex": 3,
       "dayName": "Wednesday",
-      "focus": "Dental Specialists in Visakhapatnam",
+      "focus": "Physiotherapy & Spine Care Clinics in Patna",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Dental Clinics",
-          "locality": "in Visakhapatnam",
-          "city": "Visakhapatnam",
-          "targetLeads": 35
+          "query": "Physiotherapy Clinics",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
           "targetCalls": 15,
-          "targetCloses": 2,
-          "notes": "Coastal hub with modern dental practices."
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -735,31 +744,31 @@
       "weekNumber": 3,
       "dayIndex": 4,
       "dayName": "Thursday",
-      "focus": "Eye Care & Ortho Clinics in Bhubaneswar",
+      "focus": "Skin Clinics & Aesthetic Cosmetology Centers in Patna",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Eye Clinics",
-          "locality": "in Bhubaneswar",
-          "city": "Bhubaneswar",
-          "targetLeads": 35
+          "query": "Skin Clinics",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
@@ -767,7 +776,7 @@
           "callYesterdayLeads": true,
           "targetCalls": 15,
           "targetCloses": 1,
-          "notes": "Specialty medical centers seek clean digital presence."
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -776,39 +785,39 @@
       "weekNumber": 3,
       "dayIndex": 5,
       "dayName": "Friday",
-      "focus": "Dental Care & Braces in Jaipur",
+      "focus": "Pediatric & Maternity Specialty Clinics in Patna",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Dental Clinics",
-          "locality": "in Jaipur",
-          "city": "Jaipur",
-          "targetLeads": 35
+          "query": "Pediatric Clinics",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
           "targetCalls": 15,
-          "targetCloses": 2,
-          "notes": "Friday follow-up close. Close token payments."
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -817,39 +826,39 @@
       "weekNumber": 3,
       "dayIndex": 6,
       "dayName": "Saturday",
-      "focus": "Ayurvedic Wellness & Therapy in Kochi",
+      "focus": "Diagnostic Centers & Pathology Labs in Patna",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Ayurvedic Clinics",
-          "locality": "in Kochi",
-          "city": "Kochi",
-          "targetLeads": 35
+          "query": "Diagnostic Centers",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
-          "targetCalls": 20,
-          "targetCloses": 2,
-          "notes": "Tourism and local wellness. Emphasize package pricing."
+          "targetCalls": 15,
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -858,26 +867,26 @@
       "weekNumber": 3,
       "dayIndex": 7,
       "dayName": "Sunday",
-      "focus": "Pipeline Audit & Vercel Production Sync",
+      "focus": "Doctor Consultation Script Follow-ups & Reviews",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
           "query": "Dental Clinics",
-          "locality": "in Mysore",
-          "city": "Mysore",
-          "targetLeads": 20
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 20
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
           "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 20
+          "batchSize": 0
         },
         "dispatchWave2": {
           "enabled": false,
@@ -888,9 +897,9 @@
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
-          "targetCalls": 10,
+          "targetCalls": 15,
           "targetCloses": 1,
-          "notes": "Verify domain setups and collect second milestone payments."
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -899,31 +908,31 @@
       "weekNumber": 4,
       "dayIndex": 1,
       "dayName": "Monday",
-      "focus": "Specialty Coffee Cafes in Gurugram",
+      "focus": "Luxury Unisex Salons in Patna",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Cafes",
-          "locality": "in Gurugram",
-          "city": "Gurugram",
-          "targetLeads": 35
+          "query": "Unisex Salons",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
@@ -931,7 +940,7 @@
           "callYesterdayLeads": true,
           "targetCalls": 15,
           "targetCloses": 1,
-          "notes": "Highlight QR digital menu & party booking CTA."
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -940,39 +949,39 @@
       "weekNumber": 4,
       "dayIndex": 2,
       "dayName": "Tuesday",
-      "focus": "Artisan Bakeries & Cafes in Pune",
+      "focus": "Bridal Makeup Studios & Beauty Parlours in Patna",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Bakeries and Cafes",
-          "locality": "in Pune",
-          "city": "Pune",
-          "targetLeads": 35
+          "query": "Beauty Parlours",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
           "targetCalls": 15,
-          "targetCloses": 2,
-          "notes": "Focus on direct order booking over WhatsApp."
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -981,39 +990,39 @@
       "weekNumber": 4,
       "dayIndex": 3,
       "dayName": "Wednesday",
-      "focus": "Rooftop Cafes & Lounges in Jaipur",
+      "focus": "Day Spas & Wellness Centers in Patna",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Cafes and Lounges",
-          "locality": "in Jaipur",
-          "city": "Jaipur",
-          "targetLeads": 35
+          "query": "Day Spas",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
           "targetCalls": 15,
-          "targetCloses": 2,
-          "notes": "Table reservation flow converts aggressively."
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -1022,39 +1031,39 @@
       "weekNumber": 4,
       "dayIndex": 4,
       "dayName": "Thursday",
-      "focus": "Family Restaurants & Cafes in Udaipur",
+      "focus": "Hair Styling & Keratin Treatment Salons in Patna",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Cafes",
-          "locality": "in Udaipur",
-          "city": "Udaipur",
-          "targetLeads": 35
+          "query": "Hair Salons",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
           "targetCalls": 15,
-          "targetCloses": 2,
-          "notes": "Tourist and student hotspot."
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -1063,39 +1072,39 @@
       "weekNumber": 4,
       "dayIndex": 5,
       "dayName": "Friday",
-      "focus": "Boutique Cafes in Chandigarh",
+      "focus": "Nail Art Studios & Lash Extensions in Patna",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Cafes",
-          "locality": "in Chandigarh",
-          "city": "Chandigarh",
-          "targetLeads": 35
+          "query": "Nail Spas",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
           "targetCalls": 15,
-          "targetCloses": 2,
-          "notes": "Friday weekend buzz. Connect with young cafe founders."
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -1104,39 +1113,39 @@
       "weekNumber": 4,
       "dayIndex": 6,
       "dayName": "Saturday",
-      "focus": "Heritage Cafes & Dining in Amritsar",
+      "focus": "Men Grooming & Beard Styling Lounges in Patna",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Cafes and Restaurants",
-          "locality": "in Amritsar",
-          "city": "Amritsar",
-          "targetLeads": 35
+          "query": "Men Salons",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
-          "targetCalls": 20,
-          "targetCloses": 2,
-          "notes": "Weekend calls."
+          "targetCalls": 15,
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -1145,26 +1154,26 @@
       "weekNumber": 4,
       "dayIndex": 7,
       "dayName": "Sunday",
-      "focus": "Monthly Milestone 1 Celebration & Domain Launch",
+      "focus": "Salon Portfolio Demos & Direct Call Reviews",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Cafes",
-          "locality": "in Agra",
-          "city": "Agra",
-          "targetLeads": 20
+          "query": "Unisex Salons",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 20
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
           "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 20
+          "batchSize": 0
         },
         "dispatchWave2": {
           "enabled": false,
@@ -1175,9 +1184,9 @@
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
-          "targetCalls": 10,
+          "targetCalls": 15,
           "targetCloses": 1,
-          "notes": "Month 1 Milestone Check: Cumulative 8-12 clients onboarded."
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -1186,31 +1195,31 @@
       "weekNumber": 5,
       "dayIndex": 1,
       "dayName": "Monday",
-      "focus": "Interior Designers in Noida",
+      "focus": "Car Detailing & Ceramic Coating Studios in Patna",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Interior Designers",
-          "locality": "in Noida",
-          "city": "Noida",
-          "targetLeads": 35
+          "query": "Car Detailing",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
@@ -1218,7 +1227,7 @@
           "callYesterdayLeads": true,
           "targetCalls": 15,
           "targetCloses": 1,
-          "notes": "High ticket services. Pitch visual portfolio showcase."
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -1227,39 +1236,39 @@
       "weekNumber": 5,
       "dayIndex": 2,
       "dayName": "Tuesday",
-      "focus": "Architects & Modular Kitchens in Thane",
+      "focus": "PPF (Paint Protection Film) Installers in Patna",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Architects and Interior Designers",
-          "locality": "in Thane",
-          "city": "Thane",
-          "targetLeads": 35
+          "query": "Paint Protection Film PPF",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
           "targetCalls": 15,
-          "targetCloses": 2,
-          "notes": "Offer 3D project gallery integration."
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -1268,39 +1277,39 @@
       "weekNumber": 5,
       "dayIndex": 3,
       "dayName": "Wednesday",
-      "focus": "Interior Design Studios in Navi Mumbai",
+      "focus": "Premium Car Wash & Auto Spa Centers in Patna",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Interior Designers",
-          "locality": "in Navi Mumbai",
-          "city": "Navi Mumbai",
-          "targetLeads": 35
+          "query": "Car Spa and Wash",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
           "targetCalls": 15,
-          "targetCloses": 2,
-          "notes": "Rapidly developing suburbs with new homeowners."
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -1309,39 +1318,39 @@
       "weekNumber": 5,
       "dayIndex": 4,
       "dayName": "Thursday",
-      "focus": "Modular Interior Decorators in Surat",
+      "focus": "Superbike & Premium Two-Wheeler Service Centers in Patna",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Interior Designers",
-          "locality": "in Surat",
-          "city": "Surat",
-          "targetLeads": 35
+          "query": "Bike Service Centers",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
           "targetCalls": 15,
-          "targetCloses": 2,
-          "notes": "Business owners love direct WhatsApp quotation request."
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -1350,39 +1359,39 @@
       "weekNumber": 5,
       "dayIndex": 5,
       "dayName": "Friday",
-      "focus": "Architects & Home Renovators in Indore",
+      "focus": "Multi-brand Car Repair Garages & Mechanics in Patna",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Architects",
-          "locality": "in Indore",
-          "city": "Indore",
-          "targetLeads": 35
+          "query": "Car Repair Garages",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
           "targetCalls": 15,
-          "targetCloses": 2,
-          "notes": "Close on Friday before weekend home-owner meetings."
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -1391,39 +1400,39 @@
       "weekNumber": 5,
       "dayIndex": 6,
       "dayName": "Saturday",
-      "focus": "Interior Consultants in Lucknow",
+      "focus": "Car Accessories, Sound & Custom Modification Shops in Patna",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Interior Designers",
-          "locality": "in Lucknow",
-          "city": "Lucknow",
-          "targetLeads": 35
+          "query": "Car Accessories",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
-          "targetCalls": 20,
-          "targetCloses": 2,
-          "notes": "Active commercial expansion in Gomti Nagar."
+          "targetCalls": 15,
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -1432,26 +1441,26 @@
       "weekNumber": 5,
       "dayIndex": 7,
       "dayName": "Sunday",
-      "focus": "Portfolio Delivery & Custom Domain Linking",
+      "focus": "Auto Workshop Pitch Demos & CRM Status Review",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Interior Designers",
-          "locality": "in Bhopal",
-          "city": "Bhopal",
-          "targetLeads": 20
+          "query": "Car Detailing",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 20
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
           "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 20
+          "batchSize": 0
         },
         "dispatchWave2": {
           "enabled": false,
@@ -1462,9 +1471,9 @@
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
-          "targetCalls": 10,
+          "targetCalls": 15,
           "targetCloses": 1,
-          "notes": "Domain linking for interior leads."
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -1473,31 +1482,31 @@
       "weekNumber": 6,
       "dayIndex": 1,
       "dayName": "Monday",
-      "focus": "MMA, Boxing & Karate Academies in Pune",
+      "focus": "Premium Unisex Gyms & Health Clubs (Round 2 Deep Penetration)",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Martial Arts Academies",
-          "locality": "in Pune",
-          "city": "Pune",
-          "targetLeads": 35
+          "query": "Gyms",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
@@ -1505,7 +1514,7 @@
           "callYesterdayLeads": true,
           "targetCalls": 15,
           "targetCloses": 1,
-          "notes": "Pitch trial class registration button."
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -1514,39 +1523,39 @@
       "weekNumber": 6,
       "dayIndex": 2,
       "dayName": "Tuesday",
-      "focus": "Dance & Performing Arts Studios in Gurugram",
+      "focus": "CrossFit & Functional Training Centers (Round 2 Deep Penetration)",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Dance Academies",
-          "locality": "in Gurugram",
-          "city": "Gurugram",
-          "targetLeads": 35
+          "query": "CrossFit Gyms",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
           "targetCalls": 15,
-          "targetCloses": 2,
-          "notes": "Emphasize student batch timings and video embeds."
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -1555,39 +1564,39 @@
       "weekNumber": 6,
       "dayIndex": 3,
       "dayName": "Wednesday",
-      "focus": "Yoga & Pilates Studios in Jaipur",
+      "focus": "Bodybuilding & Powerlifting Gyms (Round 2 Deep Penetration)",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Yoga Studios",
-          "locality": "in Jaipur",
-          "city": "Jaipur",
-          "targetLeads": 35
+          "query": "Fitness Centers",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
           "targetCalls": 15,
-          "targetCloses": 2,
-          "notes": "High NRI & wellness seeker traffic."
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -1596,39 +1605,39 @@
       "weekNumber": 6,
       "dayIndex": 4,
       "dayName": "Thursday",
-      "focus": "Cricket & Badminton Academies in Ahmedabad",
+      "focus": "Zumba, Aerobics & Cardio Fitness Studios (Round 2 Deep Penetration)",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Sports Academies",
-          "locality": "in Ahmedabad",
-          "city": "Ahmedabad",
-          "targetLeads": 35
+          "query": "Fitness Studios",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
           "targetCalls": 15,
-          "targetCloses": 2,
-          "notes": "Parents looking for coach profiles and admission forms."
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -1637,39 +1646,39 @@
       "weekNumber": 6,
       "dayIndex": 5,
       "dayName": "Friday",
-      "focus": "CrossFit & Functional Training in Chandigarh",
+      "focus": "Strength Training & Personal Training Gyms (Round 2 Deep Penetration)",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "CrossFit Gyms",
-          "locality": "in Chandigarh",
-          "city": "Chandigarh",
-          "targetLeads": 35
+          "query": "Gyms and Fitness",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
           "targetCalls": 15,
-          "targetCloses": 2,
-          "notes": "Close deals for fitness coaches."
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -1678,39 +1687,39 @@
       "weekNumber": 6,
       "dayIndex": 6,
       "dayName": "Saturday",
-      "focus": "Swimming & Sports Clubs in Coimbatore",
+      "focus": "Combat, MMA & Martial Arts Gyms (Round 2 Deep Penetration)",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Sports Clubs",
-          "locality": "in Coimbatore",
-          "city": "Coimbatore",
-          "targetLeads": 35
+          "query": "MMA Gyms",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
-          "targetCalls": 20,
-          "targetCloses": 2,
-          "notes": "Membership packages showcase."
+          "targetCalls": 15,
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -1719,26 +1728,26 @@
       "weekNumber": 6,
       "dayIndex": 7,
       "dayName": "Sunday",
-      "focus": "System Health Check & WhatsApp Warmup",
+      "focus": "Weekend Lead Sweep & High-Intent Calling Review (Round 2 Deep Penetration)",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Yoga Studios",
-          "locality": "in Dehradun",
-          "city": "Dehradun",
-          "targetLeads": 20
+          "query": "Gyms",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 20
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
           "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 20
+          "batchSize": 0
         },
         "dispatchWave2": {
           "enabled": false,
@@ -1749,9 +1758,9 @@
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
-          "targetCalls": 10,
+          "targetCalls": 15,
           "targetCloses": 1,
-          "notes": "Mid-point check. Validate zero-ban rate on WhatsApp."
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -1760,31 +1769,31 @@
       "weekNumber": 7,
       "dayIndex": 1,
       "dayName": "Monday",
-      "focus": "Pet Clinics & Vet Hospitals in Pune",
+      "focus": "Family & Fine Dining Restaurants (Round 2 Deep Penetration)",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Veterinary Clinics",
-          "locality": "in Pune",
-          "city": "Pune",
-          "targetLeads": 35
+          "query": "Restaurants",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
@@ -1792,7 +1801,7 @@
           "callYesterdayLeads": true,
           "targetCalls": 15,
           "targetCloses": 1,
-          "notes": "24/7 emergency hotline & vaccination appointment button."
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -1801,39 +1810,39 @@
       "weekNumber": 7,
       "dayIndex": 2,
       "dayName": "Tuesday",
-      "focus": "Pet Grooming & Boarding in Gurugram",
+      "focus": "Rooftop Restaurants & Lounges (Round 2 Deep Penetration)",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Pet Grooming",
-          "locality": "in Gurugram",
-          "city": "Gurugram",
-          "targetLeads": 35
+          "query": "Rooftop Restaurants",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
           "targetCalls": 15,
-          "targetCloses": 2,
-          "notes": "Affluent pet owners. High conversion on groom packages."
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -1842,39 +1851,39 @@
       "weekNumber": 7,
       "dayIndex": 3,
       "dayName": "Wednesday",
-      "focus": "Vet Clinics & Pet Shops in Surat",
+      "focus": "Specialty Coffee Cafes & Hangouts (Round 2 Deep Penetration)",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Pet Clinics",
-          "locality": "in Surat",
-          "city": "Surat",
-          "targetLeads": 35
+          "query": "Cafes",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
           "targetCalls": 15,
-          "targetCloses": 2,
-          "notes": "Appointment scheduler and clinic timings."
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -1883,39 +1892,39 @@
       "weekNumber": 7,
       "dayIndex": 4,
       "dayName": "Thursday",
-      "focus": "Pet Spas & Dog Care in Ahmedabad",
+      "focus": "Multi-Cuisine & Biryani Dine-in Restaurants (Round 2 Deep Penetration)",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Pet Spas",
-          "locality": "in Ahmedabad",
-          "city": "Ahmedabad",
-          "targetLeads": 35
+          "query": "Multi Cuisine Restaurants",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
           "targetCalls": 15,
-          "targetCloses": 2,
-          "notes": "Pet owners love instant WhatsApp consultation."
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -1924,39 +1933,39 @@
       "weekNumber": 7,
       "dayIndex": 5,
       "dayName": "Friday",
-      "focus": "Veterinary Doctors in Jaipur",
+      "focus": "Artisan Bakeries & Dessert Cafes (Round 2 Deep Penetration)",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Veterinary Clinics",
-          "locality": "in Jaipur",
-          "city": "Jaipur",
-          "targetLeads": 35
+          "query": "Bakeries and Cafes",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
           "targetCalls": 15,
-          "targetCloses": 2,
-          "notes": "Fast decision makers."
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -1965,39 +1974,39 @@
       "weekNumber": 7,
       "dayIndex": 6,
       "dayName": "Saturday",
-      "focus": "Pet Boutiques & Boarding in Chandigarh",
+      "focus": "Banquet & Highway Theme Restaurants (Round 2 Deep Penetration)",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Pet Grooming and Spas",
-          "locality": "in Chandigarh",
-          "city": "Chandigarh",
-          "targetLeads": 35
+          "query": "Dine In Restaurants",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
-          "targetCalls": 20,
-          "targetCloses": 2,
-          "notes": "Weekend appointment bookings."
+          "targetCalls": 15,
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -2006,26 +2015,26 @@
       "weekNumber": 7,
       "dayIndex": 7,
       "dayName": "Sunday",
-      "focus": "Client Success Interviews & Testimonials",
+      "focus": "Digital QR Menu Demos & Weekend Closer Waves (Round 2 Deep Penetration)",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Pet Clinics",
-          "locality": "in Lucknow",
-          "city": "Lucknow",
-          "targetLeads": 20
+          "query": "Restaurants",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 20
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
           "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 20
+          "batchSize": 0
         },
         "dispatchWave2": {
           "enabled": false,
@@ -2036,9 +2045,9 @@
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
-          "targetCalls": 10,
+          "targetCalls": 15,
           "targetCloses": 1,
-          "notes": "Gather testimonials from Week 1-6 clients."
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -2047,31 +2056,31 @@
       "weekNumber": 8,
       "dayIndex": 1,
       "dayName": "Monday",
-      "focus": "Car Detailing & Ceramic Coating in Pune",
+      "focus": "Dental Clinics & Implant Centers (Round 2 Deep Penetration)",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Car Detailing",
-          "locality": "in Pune",
-          "city": "Pune",
-          "targetLeads": 35
+          "query": "Dental Clinics",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
@@ -2079,7 +2088,7 @@
           "callYesterdayLeads": true,
           "targetCalls": 15,
           "targetCloses": 1,
-          "notes": "Very high ticket (₹20k - ₹80k services). They happily pay ₹8k for site."
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -2088,39 +2097,39 @@
       "weekNumber": 8,
       "dayIndex": 2,
       "dayName": "Tuesday",
-      "focus": "Auto Spas & PPF Studios in Surat",
+      "focus": "Eye Care & Ophthalmology Clinics (Round 2 Deep Penetration)",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Car Detailing",
-          "locality": "in Surat",
-          "city": "Surat",
-          "targetLeads": 35
+          "query": "Eye Clinics",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
           "targetCalls": 15,
-          "targetCloses": 2,
-          "notes": "Surat is full of luxury car enthusiasts."
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -2129,39 +2138,39 @@
       "weekNumber": 8,
       "dayIndex": 3,
       "dayName": "Wednesday",
-      "focus": "Car Customization & PPF in Gurugram",
+      "focus": "Physiotherapy & Spine Care Clinics (Round 2 Deep Penetration)",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Car Detailing and PPF",
-          "locality": "in Gurugram",
-          "city": "Gurugram",
-          "targetLeads": 35
+          "query": "Physiotherapy Clinics",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
           "targetCalls": 15,
-          "targetCloses": 2,
-          "notes": "High margin industry. Show them before/after gallery."
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -2170,39 +2179,39 @@
       "weekNumber": 8,
       "dayIndex": 4,
       "dayName": "Thursday",
-      "focus": "Ceramic Coating & Detailing in Ahmedabad",
+      "focus": "Skin Clinics & Aesthetic Cosmetology Centers (Round 2 Deep Penetration)",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Ceramic Coating",
-          "locality": "in Ahmedabad",
-          "city": "Ahmedabad",
-          "targetLeads": 35
+          "query": "Skin Clinics",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
           "targetCalls": 15,
-          "targetCloses": 2,
-          "notes": "Show pricing calculator and warranty tiers."
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -2211,39 +2220,39 @@
       "weekNumber": 8,
       "dayIndex": 5,
       "dayName": "Friday",
-      "focus": "Premium Auto Care in Jaipur",
+      "focus": "Pediatric & Maternity Specialty Clinics (Round 2 Deep Penetration)",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Car Detailing",
-          "locality": "in Jaipur",
-          "city": "Jaipur",
-          "targetLeads": 35
+          "query": "Pediatric Clinics",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
           "targetCalls": 15,
-          "targetCloses": 2,
-          "notes": "Close on Friday."
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -2252,39 +2261,39 @@
       "weekNumber": 8,
       "dayIndex": 6,
       "dayName": "Saturday",
-      "focus": "Car Detailing Studios in Ludhiana",
+      "focus": "Diagnostic Centers & Pathology Labs (Round 2 Deep Penetration)",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Car Detailing",
-          "locality": "in Ludhiana",
-          "city": "Ludhiana",
-          "targetLeads": 35
+          "query": "Diagnostic Centers",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
-          "targetCalls": 20,
-          "targetCloses": 2,
-          "notes": "Ludhiana has massive luxury SUV count."
+          "targetCalls": 15,
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -2293,26 +2302,26 @@
       "weekNumber": 8,
       "dayIndex": 7,
       "dayName": "Sunday",
-      "focus": "Revenue Reconciliation & UPI Advance Audit",
+      "focus": "Doctor Consultation Script Follow-ups & Reviews (Round 2 Deep Penetration)",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Car Detailing",
-          "locality": "in Indore",
-          "city": "Indore",
-          "targetLeads": 20
+          "query": "Dental Clinics",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 20
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
           "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 20
+          "batchSize": 0
         },
         "dispatchWave2": {
           "enabled": false,
@@ -2323,9 +2332,9 @@
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
-          "targetCalls": 10,
+          "targetCalls": 15,
           "targetCloses": 1,
-          "notes": "Auditing total booked revenue. Cross ₹80,000 mark."
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -2334,31 +2343,31 @@
       "weekNumber": 9,
       "dayIndex": 1,
       "dayName": "Monday",
-      "focus": "Boutique Resorts in Udaipur",
+      "focus": "Luxury Unisex Salons (Round 2 Deep Penetration)",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Resorts",
-          "locality": "in Udaipur",
-          "city": "Udaipur",
-          "targetLeads": 35
+          "query": "Unisex Salons",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
@@ -2366,7 +2375,7 @@
           "callYesterdayLeads": true,
           "targetCalls": 15,
           "targetCloses": 1,
-          "notes": "Pitch direct room booking without paying 20% to MakeMyTrip/Goibibo."
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -2375,39 +2384,39 @@
       "weekNumber": 9,
       "dayIndex": 2,
       "dayName": "Tuesday",
-      "focus": "Heritage Homestays in Jaipur",
+      "focus": "Bridal Makeup Studios & Beauty Parlours (Round 2 Deep Penetration)",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Homestays and Resorts",
-          "locality": "in Jaipur",
-          "city": "Jaipur",
-          "targetLeads": 35
+          "query": "Beauty Parlours",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
           "targetCalls": 15,
-          "targetCloses": 2,
-          "notes": "High seasonal demand."
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -2416,39 +2425,39 @@
       "weekNumber": 9,
       "dayIndex": 3,
       "dayName": "Wednesday",
-      "focus": "Luxury Villas & Farmstays in Dehradun",
+      "focus": "Day Spas & Wellness Centers (Round 2 Deep Penetration)",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Resorts and Homestays",
-          "locality": "in Dehradun",
-          "city": "Dehradun",
-          "targetLeads": 35
+          "query": "Day Spas",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
           "targetCalls": 15,
-          "targetCloses": 2,
-          "notes": "Weekend gateway planners."
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -2457,39 +2466,39 @@
       "weekNumber": 9,
       "dayIndex": 4,
       "dayName": "Thursday",
-      "focus": "Wellness Resorts & Ayurveda in Kochi",
+      "focus": "Hair Styling & Keratin Treatment Salons (Round 2 Deep Penetration)",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Resorts",
-          "locality": "in Kochi",
-          "city": "Kochi",
-          "targetLeads": 35
+          "query": "Hair Salons",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
           "targetCalls": 15,
-          "targetCloses": 2,
-          "notes": "Direct package booking."
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -2498,39 +2507,39 @@
       "weekNumber": 9,
       "dayIndex": 5,
       "dayName": "Friday",
-      "focus": "Boutique Hotels & Banquet Venues in Lucknow",
+      "focus": "Nail Art Studios & Lash Extensions (Round 2 Deep Penetration)",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Banquet Halls and Hotels",
-          "locality": "in Lucknow",
-          "city": "Lucknow",
-          "targetLeads": 35
+          "query": "Nail Spas",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
           "targetCalls": 15,
-          "targetCloses": 2,
-          "notes": "Event & wedding inquiries."
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -2539,39 +2548,39 @@
       "weekNumber": 9,
       "dayIndex": 6,
       "dayName": "Saturday",
-      "focus": "Nature Resorts & Retreats in Mysore",
+      "focus": "Men Grooming & Beard Styling Lounges (Round 2 Deep Penetration)",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Resorts",
-          "locality": "in Mysore",
-          "city": "Mysore",
-          "targetLeads": 35
+          "query": "Men Salons",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 18
+          "batchSize": 0
         },
         "dispatchWave2": {
-          "enabled": true,
+          "enabled": false,
           "cronTime": "16:30",
-          "batchSize": 17
+          "batchSize": 0
         },
         "followUpReview": {
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
-          "targetCalls": 20,
-          "targetCloses": 2,
-          "notes": "Weekend closing."
+          "targetCalls": 15,
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -2580,26 +2589,26 @@
       "weekNumber": 9,
       "dayIndex": 7,
       "dayName": "Sunday",
-      "focus": "Hospitality Referral Network Activation",
+      "focus": "Salon Portfolio Demos & Direct Call Reviews (Round 2 Deep Penetration)",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Resorts",
-          "locality": "in Jodhpur",
-          "city": "Jodhpur",
-          "targetLeads": 20
+          "query": "Unisex Salons",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "23:15",
+          "cronTime": "22:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 20
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
           "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 20
+          "batchSize": 0
         },
         "dispatchWave2": {
           "enabled": false,
@@ -2610,9 +2619,9 @@
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
-          "targetCalls": 10,
+          "targetCalls": 15,
           "targetCloses": 1,
-          "notes": "Referral loop."
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     },
@@ -2621,272 +2630,26 @@
       "weekNumber": 10,
       "dayIndex": 1,
       "dayName": "Monday",
-      "focus": "IIT JEE & NEET Coaching in Kota",
+      "focus": "Car Detailing & Ceramic Coating Studios (Round 2 Deep Penetration)",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Coaching Institutes",
-          "locality": "in Kota",
-          "city": "Kota",
-          "targetLeads": 35
+          "query": "Car Detailing",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
-          "enabled": true,
-          "cronTime": "23:15",
-          "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
-        },
-        "dispatchWave1": {
-          "enabled": true,
-          "cronTime": "12:00",
-          "batchSize": 18
-        },
-        "dispatchWave2": {
-          "enabled": true,
-          "cronTime": "16:30",
-          "batchSize": 17
-        },
-        "followUpReview": {
-          "enabled": true,
-          "cronTime": "18:00",
-          "callYesterdayLeads": true,
-          "targetCalls": 15,
-          "targetCloses": 2,
-          "notes": "Kota education capital. Direct prospectus download & WhatsApp lead flow."
-        }
-      }
-    },
-    {
-      "dayNumber": 65,
-      "weekNumber": 10,
-      "dayIndex": 2,
-      "dayName": "Tuesday",
-      "focus": "Civil Services & UPSC Academies in Pune",
-      "tasks": {
-        "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "UPSC Coaching",
-          "locality": "in Pune",
-          "city": "Pune",
-          "targetLeads": 35
-        },
-        "analyseAndBuild": {
-          "enabled": true,
-          "cronTime": "23:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
-        },
-        "dispatchWave1": {
-          "enabled": true,
-          "cronTime": "12:00",
-          "batchSize": 18
-        },
-        "dispatchWave2": {
-          "enabled": true,
-          "cronTime": "16:30",
-          "batchSize": 17
-        },
-        "followUpReview": {
-          "enabled": true,
-          "cronTime": "18:00",
-          "callYesterdayLeads": true,
-          "targetCalls": 15,
-          "targetCloses": 2,
-          "notes": "Course schedules and demo lecture booking."
-        }
-      }
-    },
-    {
-      "dayNumber": 66,
-      "weekNumber": 10,
-      "dayIndex": 3,
-      "dayName": "Wednesday",
-      "focus": "Commerce & CA Coaching in Ahmedabad",
-      "tasks": {
-        "scraper": {
-          "enabled": true,
-          "cronTime": "22:15",
-          "query": "CA Coaching Institutes",
-          "locality": "in Ahmedabad",
-          "city": "Ahmedabad",
-          "targetLeads": 35
-        },
-        "analyseAndBuild": {
-          "enabled": true,
-          "cronTime": "23:15",
-          "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
-        },
-        "dispatchWave1": {
-          "enabled": true,
-          "cronTime": "12:00",
-          "batchSize": 18
-        },
-        "dispatchWave2": {
-          "enabled": true,
-          "cronTime": "16:30",
-          "batchSize": 17
-        },
-        "followUpReview": {
-          "enabled": true,
-          "cronTime": "18:00",
-          "callYesterdayLeads": true,
-          "targetCalls": 15,
-          "targetCloses": 2,
-          "notes": "High paying CA foundation institutes."
-        }
-      }
-    },
-    {
-      "dayNumber": 67,
-      "weekNumber": 10,
-      "dayIndex": 4,
-      "dayName": "Thursday",
-      "focus": "Study Abroad & IELTS Academies in Chandigarh",
-      "tasks": {
-        "scraper": {
-          "enabled": true,
-          "cronTime": "22:15",
-          "query": "IELTS Coaching",
-          "locality": "in Chandigarh",
-          "city": "Chandigarh",
-          "targetLeads": 35
-        },
-        "analyseAndBuild": {
-          "enabled": true,
-          "cronTime": "23:15",
-          "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
-        },
-        "dispatchWave1": {
-          "enabled": true,
-          "cronTime": "12:00",
-          "batchSize": 18
-        },
-        "dispatchWave2": {
-          "enabled": true,
-          "cronTime": "16:30",
-          "batchSize": 17
-        },
-        "followUpReview": {
-          "enabled": true,
-          "cronTime": "18:00",
-          "callYesterdayLeads": true,
-          "targetCalls": 15,
-          "targetCloses": 2,
-          "notes": "Huge Punjab student abroad market. Aggressive spenders."
-        }
-      }
-    },
-    {
-      "dayNumber": 68,
-      "weekNumber": 10,
-      "dayIndex": 5,
-      "dayName": "Friday",
-      "focus": "Medical & Engineering Coaching in Indore",
-      "tasks": {
-        "scraper": {
-          "enabled": true,
-          "cronTime": "22:15",
-          "query": "Coaching Institutes",
-          "locality": "in Indore",
-          "city": "Indore",
-          "targetLeads": 35
-        },
-        "analyseAndBuild": {
-          "enabled": true,
-          "cronTime": "23:15",
-          "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
-        },
-        "dispatchWave1": {
-          "enabled": true,
-          "cronTime": "12:00",
-          "batchSize": 18
-        },
-        "dispatchWave2": {
-          "enabled": true,
-          "cronTime": "16:30",
-          "batchSize": 17
-        },
-        "followUpReview": {
-          "enabled": true,
-          "cronTime": "18:00",
-          "callYesterdayLeads": true,
-          "targetCalls": 15,
-          "targetCloses": 2,
-          "notes": "Final power closes for the 10-week cycle."
-        }
-      }
-    },
-    {
-      "dayNumber": 69,
-      "weekNumber": 10,
-      "dayIndex": 6,
-      "dayName": "Saturday",
-      "focus": "Language & Professional Training in Vadodara",
-      "tasks": {
-        "scraper": {
-          "enabled": true,
-          "cronTime": "22:15",
-          "query": "Training Institutes",
-          "locality": "in Vadodara",
-          "city": "Vadodara",
-          "targetLeads": 35
-        },
-        "analyseAndBuild": {
-          "enabled": true,
-          "cronTime": "23:15",
-          "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
-        },
-        "dispatchWave1": {
-          "enabled": true,
-          "cronTime": "12:00",
-          "batchSize": 18
-        },
-        "dispatchWave2": {
-          "enabled": true,
-          "cronTime": "16:30",
-          "batchSize": 17
-        },
-        "followUpReview": {
-          "enabled": true,
-          "cronTime": "18:00",
-          "callYesterdayLeads": true,
-          "targetCalls": 20,
-          "targetCloses": 2,
-          "notes": "Weekend student orientation calls."
-        }
-      }
-    },
-    {
-      "dayNumber": 70,
-      "weekNumber": 10,
-      "dayIndex": 7,
-      "dayName": "Sunday",
-      "focus": "100-Day Grand Milestone & Scaling Masterclass",
-      "tasks": {
-        "scraper": {
-          "enabled": true,
-          "cronTime": "22:15",
-          "query": "Coaching Institutes",
-          "locality": "in Jaipur",
-          "city": "Jaipur",
-          "targetLeads": 20
-        },
-        "analyseAndBuild": {
-          "enabled": true,
-          "cronTime": "23:15",
-          "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 20
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
           "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 20
+          "batchSize": 0
         },
         "dispatchWave2": {
           "enabled": false,
@@ -2897,16 +2660,262 @@
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
-          "targetCalls": 10,
-          "targetCloses": 2,
-          "notes": "Crossed ₹1,20,000 - ₹1,60,000 revenue target with 15-20 clients!"
+          "targetCalls": 15,
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
+        }
+      }
+    },
+    {
+      "dayNumber": 65,
+      "weekNumber": 10,
+      "dayIndex": 2,
+      "dayName": "Tuesday",
+      "focus": "PPF (Paint Protection Film) Installers (Round 2 Deep Penetration)",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Paint Protection Film PPF",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 33
+        },
+        "dispatchWave1": {
+          "enabled": false,
+          "cronTime": "12:00",
+          "batchSize": 0
+        },
+        "dispatchWave2": {
+          "enabled": false,
+          "cronTime": "16:30",
+          "batchSize": 0
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 15,
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
+        }
+      }
+    },
+    {
+      "dayNumber": 66,
+      "weekNumber": 10,
+      "dayIndex": 3,
+      "dayName": "Wednesday",
+      "focus": "Premium Car Wash & Auto Spa Centers (Round 2 Deep Penetration)",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Car Spa and Wash",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 33
+        },
+        "dispatchWave1": {
+          "enabled": false,
+          "cronTime": "12:00",
+          "batchSize": 0
+        },
+        "dispatchWave2": {
+          "enabled": false,
+          "cronTime": "16:30",
+          "batchSize": 0
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 15,
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
+        }
+      }
+    },
+    {
+      "dayNumber": 67,
+      "weekNumber": 10,
+      "dayIndex": 4,
+      "dayName": "Thursday",
+      "focus": "Superbike & Premium Two-Wheeler Service Centers (Round 2 Deep Penetration)",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Bike Service Centers",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 33
+        },
+        "dispatchWave1": {
+          "enabled": false,
+          "cronTime": "12:00",
+          "batchSize": 0
+        },
+        "dispatchWave2": {
+          "enabled": false,
+          "cronTime": "16:30",
+          "batchSize": 0
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 15,
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
+        }
+      }
+    },
+    {
+      "dayNumber": 68,
+      "weekNumber": 10,
+      "dayIndex": 5,
+      "dayName": "Friday",
+      "focus": "Multi-brand Car Repair Garages & Mechanics (Round 2 Deep Penetration)",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Car Repair Garages",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 33
+        },
+        "dispatchWave1": {
+          "enabled": false,
+          "cronTime": "12:00",
+          "batchSize": 0
+        },
+        "dispatchWave2": {
+          "enabled": false,
+          "cronTime": "16:30",
+          "batchSize": 0
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 15,
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
+        }
+      }
+    },
+    {
+      "dayNumber": 69,
+      "weekNumber": 10,
+      "dayIndex": 6,
+      "dayName": "Saturday",
+      "focus": "Car Accessories, Sound & Custom Modification Shops (Round 2 Deep Penetration)",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Car Accessories",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 33
+        },
+        "dispatchWave1": {
+          "enabled": false,
+          "cronTime": "12:00",
+          "batchSize": 0
+        },
+        "dispatchWave2": {
+          "enabled": false,
+          "cronTime": "16:30",
+          "batchSize": 0
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 15,
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
+        }
+      }
+    },
+    {
+      "dayNumber": 70,
+      "weekNumber": 10,
+      "dayIndex": 7,
+      "dayName": "Sunday",
+      "focus": "Auto Workshop Pitch Demos & CRM Status Review (Round 2 Deep Penetration)",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Car Detailing",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 33
+        },
+        "dispatchWave1": {
+          "enabled": false,
+          "cronTime": "12:00",
+          "batchSize": 0
+        },
+        "dispatchWave2": {
+          "enabled": false,
+          "cronTime": "16:30",
+          "batchSize": 0
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 15,
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     }
   ],
   "phoneScriptTemplates": {
-    "courtesyOpener": "Hi [Owner Name], Ameya here from Arclane Studios. Maine aapke business ([Business Name]) ke liye ek custom live website concept banakar WhatsApp par share kiya tha. Bas ek minute check karna tha ki kya aapko link mila aur aapne glance kiya?",
-    "pricingOffer": "Humne aapka base design ready kar liya hai, isliye flat partner launch price ₹7,999 one-time me custom .com domain, lifetime hosting, WhatsApp booking aur Google Maps setup ke sath 24 hours me live kar denge.",
-    "referralScript": "Hi [Owner Name], aapki website live ho chuki hai! Agar aapke circle me kisi aur business owner ko website chahiye, share my contact—I will give them the same ₹7,999 partner discount."
+    "courtesyOpener": "Hi [Owner Name], Ameya Sharma calling from Arclane Studios, Patna. Maine aapke business [Business Name] ke liye ek custom mobile website concept design karke host kiya hai. Hum ye bilkul FREE gift offer kar rahe hain — main abhi WhatsApp par link bhej raha hoon. Agar pasand aaye toh hum aage discuss kar sakte hain, aur agar na bhi pasand aaye toh aap isse permanently FREE rakh sakte hain. No strings attached!",
+    "whatsappFollowupCopy": "Namaste [Owner Name] ji! 🙏\n\nMain Ameya Sharma, Arclane Studios (Patna) se. Jaisa humne call par baat ki, maine aapke [Business Name] ke liye ek special live mobile website prototype banaya hai:\n\n🔗 [Live Website Demo Link]\n\nIsme direct WhatsApp booking, Google Maps location, services menu aur customer review section live integrate kar diya hai. Ye website aapke liye bilkul FREE gift hai — aap isse permanently rakh sakte hain!\n\nAapko overall look aur concept kaisa laga? Take a quick look and let me know your thoughts!",
+    "dealCloseScript": "Agar aap chahein toh hum isme aapka custom .com domain, Google Search SEO listing, aur online menu/inquiry system 24 hours me live kar denge just a one-time launch support fee of ₹7,999."
   }
 }

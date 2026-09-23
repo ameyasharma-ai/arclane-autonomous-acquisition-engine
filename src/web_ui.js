@@ -124,6 +124,13 @@ class WebUIServer {
             res.json({ success: true, metrics });
         });
 
+        // 1b. Force refresh metrics from CRM Sheet
+        this.app.post('/api/refresh-metrics', async (req, res) => {
+            const metrics = await this.auditLogger.getAnalytics();
+            this.io.emit('metrics_update', metrics);
+            res.json({ success: true, metrics });
+        });
+
         // 2. Human Approval Queue API
         this.app.get('/api/approval-queue', (req, res) => {
             const queue = this.approvalQueue.loadQueue();

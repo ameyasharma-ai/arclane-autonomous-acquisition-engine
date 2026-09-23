@@ -803,13 +803,25 @@ async def main(search_query, locality, city, num_of_leads, end_date="", end_time
         async with async_playwright() as p:
             import os
             user_data_dir = os.path.join(os.getcwd(), 'playwright_auth')
-            context = await p.chromium.launch_persistent_context(
-                user_data_dir,
-                headless=False,
-                channel="chrome",
-                args=['--window-size=1920,1080', '--disable-blink-features=AutomationControlled'],
-                viewport={'width': 1920, 'height': 1080}
-            )
+            is_in_docker = os.path.exists('/.dockerenv') or os.environ.get('NODE_ENV') == 'production'
+            headless_mode = is_in_docker or os.environ.get('HEADLESS', 'false').lower() == 'true'
+            launch_args = ['--window-size=1920,1080', '--disable-blink-features=AutomationControlled', '--no-sandbox', '--disable-dev-shm-usage']
+            
+            try:
+                context = await p.chromium.launch_persistent_context(
+                    user_data_dir,
+                    headless=headless_mode,
+                    channel="chrome",
+                    args=launch_args,
+                    viewport={'width': 1920, 'height': 1080}
+                )
+            except Exception as chrome_err:
+                context = await p.chromium.launch_persistent_context(
+                    user_data_dir,
+                    headless=headless_mode,
+                    args=launch_args,
+                    viewport={'width': 1920, 'height': 1080}
+                )
             pages = context.pages
             page = pages[0] if pages else await context.new_page()
             await Stealth().apply_stealth_async(page)

@@ -147,18 +147,18 @@ export class Scheduler {
             const today = this.getTodayPlan();
             if (today && today.tasks.followUpReview.enabled) {
                 await this.sendTelegram(
-                    `📞 *[Controller] Evening Follow-Up Call Window (06:00 PM – 07:30 PM)*\n\n` +
+                    `📞 *[Controller] Evening Client Outreach Window (06:00 PM – 07:30 PM)*\n\n` +
                     `🎯 *Today's Focus:* ${today.tasks.followUpReview.notes}\n` +
                     `☎️ *Target Calls:* ${today.tasks.followUpReview.targetCalls || 15} leads\n` +
                     `💰 *Target Closes:* ${today.tasks.followUpReview.targetCloses || 1} client(s)\n\n` +
-                    `💡 *Quick Script Reminder:*\n` +
-                    `_"Hi [Owner], Ameya here from Arclane Studios. Maine aapke business ke liye ek live custom website concept WhatsApp par share kiya tha. Bas ek minute check karna tha ki kya aapko link receive hua?"_`
+                    `💡 *Proven "No-Risk Free Gift" Calling Script:*\n` +
+                    `_"Hi [Owner Name], Ameya Sharma calling from Arclane Studios, Patna. Maine aapke business [Business Name] ke liye ek custom mobile website concept design karke host kiya hai. Hum ye bilkul FREE gift offer kar rahe hain — main abhi WhatsApp par link bhej raha hoon. Agar pasand aaye toh hum aage discuss kar sakte hain, aur agar na bhi pasand aaye toh aap isse permanently FREE rakh sakte hain. No strings attached!"_`
                 );
             }
         }, { timezone: CONFIG.TIMEZONE });
         this.cronJobs.push(followUpCron);
 
-        console.log(`[Scheduler] ✅ Registered 5 daily automated cron schedules with Real-Time Streaming.`);
+        console.log(`[Scheduler] ✅ Registered daily automated cron schedules (Night Scrape & Build at 10:15 PM, Safety Sweep at 11:15 PM, Manual Call Window at 6:00 PM).`);
     }
 
     pause() {

@@ -184,7 +184,7 @@ export class WebsiteBuilder {
             
             // Ensure Vercel project exists under the business slug
             try {
-                await execAsync(`npx -y vercel project add ${vercelSlug} ${tokenFlag}`, { cwd: clientSiteDir, timeout: 30000 });
+                await execAsync(`vercel project add ${vercelSlug} ${tokenFlag}`, { cwd: clientSiteDir, timeout: 30000 });
             } catch (pErr) {
                 // Project may already exist or error can be ignored
             }
@@ -192,7 +192,7 @@ export class WebsiteBuilder {
             // Write vercel.json configuration as secondary safeguard
             fs.writeFileSync(path.join(clientSiteDir, 'vercel.json'), JSON.stringify({ name: vercelSlug }, null, 2), 'utf-8');
 
-            const vercelCmd = `npx -y vercel --prod --yes ${tokenFlag}`.trim();
+            const vercelCmd = `vercel --prod --yes ${tokenFlag}`.trim();
             const { stdout, stderr } = await execAsync(vercelCmd, { cwd: clientSiteDir, timeout: 60000 });
 
             // Combine stdout and stderr (Vercel CLI prints progress & Aliased domain to stderr)
@@ -205,7 +205,7 @@ export class WebsiteBuilder {
             } else {
                 // Fetch exact production domain from Vercel project list
                 try {
-                    const { stdout: lsOut, stderr: lsErr } = await execAsync(`npx -y vercel project ls ${tokenFlag}`.trim(), { timeout: 30000 });
+                    const { stdout: lsOut, stderr: lsErr } = await execAsync(`vercel project ls ${tokenFlag}`.trim(), { timeout: 30000 });
                     const cleanLs = `${lsOut || ''}\n${lsErr || ''}`.replace(/\x1B\[[0-9;]*[a-zA-Z]/g, '');
                     const projectMatch = cleanLs.match(new RegExp(`${vercelSlug}\\s+(https:\\/\\/[a-zA-Z0-9-]+\\.vercel\\.app)`, 'i'));
                     if (projectMatch) {

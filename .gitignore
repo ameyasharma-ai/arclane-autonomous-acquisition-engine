@@ -40,3 +40,5 @@ __pycache__/
 
 public/contacts.vcf
 public/qr.png
+config/vercel/
+node_modules

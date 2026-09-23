@@ -154,7 +154,7 @@ export class WhatsAppSender {
         }
 
         console.log(`[WhatsApp] Launching Official Chrome with persistent profile...`);
-        this.context = await chromium.launchPersistentContext(this.sessionDir, {
+        const launchOpts = {
             headless: headless,
             channel: 'chrome',
             viewport: null, // Full-screen window without grey margins
@@ -163,9 +163,16 @@ export class WhatsAppSender {
                 '--disable-blink-features=AutomationControlled',
                 '--no-sandbox',
                 '--disable-infobars',
-                '--start-maximized'
+                '--start-maximized',
+                '--disable-dev-shm-usage'
             ]
-        });
+        };
+        try {
+            this.context = await chromium.launchPersistentContext(this.sessionDir, launchOpts);
+        } catch (err) {
+            delete launchOpts.channel;
+            this.context = await chromium.launchPersistentContext(this.sessionDir, launchOpts);
+        }
 
         this.page = this.context.pages().length > 0 ? this.context.pages()[0] : await this.context.newPage();
         

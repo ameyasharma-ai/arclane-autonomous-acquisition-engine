@@ -22,12 +22,7 @@ def timestamped_print(*args, **kwargs):
     original_print(timestamp, *args, **kwargs)
 builtins.print = timestamped_print
 
-# Load .env from current directory or parent directory
 load_dotenv()
-if not os.getenv("SPREADSHEET_NAME"):
-    parent_env = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '.env'))
-    if os.path.exists(parent_env):
-        load_dotenv(parent_env)
 
 def extract_phone_from_url_or_text(text):
     if not text:
@@ -668,14 +663,9 @@ async def clean_lead_with_llm(lead_dict):
     return cleaned_lead
 
 # --- CONFIGURATION VARIABLES ---
-SPREADSHEET_NAME = os.getenv("SPREADSHEET_NAME", "Google Maps Leads")
-WORKSHEET_NAME = os.getenv("WORKSHEET_NAME", "Sheet1")
-_sa_env = os.getenv("SERVICE_ACCOUNT_FILE", "service_account.json")
-if os.path.exists(_sa_env):
-    SERVICE_ACCOUNT_FILE = _sa_env
-else:
-    _parent_sa = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', _sa_env))
-    SERVICE_ACCOUNT_FILE = _parent_sa if os.path.exists(_parent_sa) else _sa_env
+SPREADSHEET_NAME = "Google Maps Leads"
+WORKSHEET_NAME = "Sheet1"
+SERVICE_ACCOUNT_FILE = "service_account.json"
 
 # --- SCRIPT ---
 COLUMNS = [
@@ -1155,13 +1145,36 @@ async def main(search_query, locality, city, num_of_leads, end_date="", end_time
         async with async_playwright() as p:
             import os
             user_data_dir = os.path.join(os.getcwd(), 'playwright_auth')
-            context = await p.chromium.launch_persistent_context(
-                user_data_dir,
-                headless=False,
-                channel="chrome",
-                args=['--window-size=1920,1080', '--disable-blink-features=AutomationControlled'],
-                viewport={'width': 1920, 'height': 1080}
-            )
+            # In Docker / Linux server environments without X11 display, run headless
+            is_in_docker = os.path.exists('/.dockerenv') or os.environ.get('NODE_ENV') == 'production'
+            headless_mode = is_in_docker or os.environ.get('HEADLESS', 'false').lower() == 'true'
+            launch_args = ['--window-size=1920,1080', '--disable-blink-features=AutomationControlled', '--no-sandbox', '--disable-dev-shm-usage']
+            
+            # When in Docker, launch Playwright's native Chromium for rock-solid stability
+            try:
+                if is_in_docker:
+                    context = await p.chromium.launch_persistent_context(
+                        user_data_dir,
+                        headless=True,
+                        args=launch_args,
+                        viewport={'width': 1920, 'height': 1080}
+                    )
+                else:
+                    context = await p.chromium.launch_persistent_context(
+                        user_data_dir,
+                        headless=headless_mode,
+                        channel="chrome",
+                        args=launch_args,
+                        viewport={'width': 1920, 'height': 1080}
+                    )
+            except Exception as first_err:
+                # Universal fallback
+                context = await p.chromium.launch_persistent_context(
+                    user_data_dir,
+                    headless=headless_mode,
+                    args=launch_args,
+                    viewport={'width': 1920, 'height': 1080}
+                )
             pages = context.pages
             page = pages[0] if pages else await context.new_page()
             await Stealth().apply_stealth_async(page)
@@ -1390,24 +1403,15 @@ async def main(search_query, locality, city, num_of_leads, end_date="", end_time
                             print(f"\n  [Google Maps] | {'Name'.ljust(11)} | {safe_name}")
                                 
                             website = ""
-                            phones = []
-                            phone_elems = await detail_page.query_selector_all('button[data-item-id^="phone:tel:"]')
-                            for pe in phone_elems:
-                                phone_attr = await pe.get_attribute('data-item-id')
+                            phone = ""
+                            # Strictly extract ONLY the official primary business phone button from Google Maps (NO fallbacks)
+                            phone_btn = await detail_page.query_selector('button[data-item-id^="phone:tel:"]')
+                            if phone_btn:
+                                phone_attr = await phone_btn.get_attribute('data-item-id')
                                 if phone_attr:
-                                    p_num = phone_attr.replace('phone:tel:', '').strip()
-                                    clean_p = extract_phone_from_url_or_text(p_num) or p_num
-                                    if clean_p and clean_p not in phones:
-                                        phones.append(clean_p)
-                            
-                            # Deep Extraction Trick 1: Extract from initial website/WA link
-                            if website:
-                                extracted_wa_phone = extract_phone_from_url_or_text(website)
-                                if extracted_wa_phone and extracted_wa_phone not in phones:
-                                    phones.append(extracted_wa_phone)
-                                    print(f"  [Google Maps] | {'Phone (WA Link)'.ljust(11)} | {extracted_wa_phone}")
+                                    raw_phone = phone_attr.replace('phone:tel:', '').strip()
+                                    phone = extract_phone_from_url_or_text(raw_phone) or raw_phone
 
-                            phone = " / ".join(phones)
                             print(f"  [Google Maps] | {'Phone'.ljust(11)} | {phone if phone else 'Not Found'}")
                             
                             website = ""
@@ -1489,13 +1493,7 @@ async def main(search_query, locality, city, num_of_leads, end_date="", end_time
                                     print(f"  [Google Maps] | {'Website'.ljust(11)} | Blacklisted domain ({website}). Treating as NO-WEBSITE.")
                                     website = ""
 
-                            # Deep Extraction Trick 2: Check website link & anchor tags for additional numbers
-                            if website:
-                                extracted_wa_phone = extract_phone_from_url_or_text(website)
-                                if extracted_wa_phone and extracted_wa_phone not in phones:
-                                    phones.append(extracted_wa_phone)
-                                    phone = " / ".join(phones)
-                                    print(f"  [Google Maps] | {'Phone (WA/Web)'.ljust(11)} | {extracted_wa_phone}")
+
 
                             # Extract socials directly from Maps DOM early to apply early-skip check
                             maps_socials = {
@@ -1514,27 +1512,7 @@ async def main(search_query, locality, city, num_of_leads, end_date="", end_time
                                     elif 'youtube.com' in hl: maps_socials["YouTube"].add(href)
                                     elif 'tiktok.com' in hl: maps_socials["TikTok"].add(href)
 
-                            # Deep Extraction Trick 3: Check all links and page text for phone / WA links
-                            for link in maps_links:
-                                href = await link.get_attribute('href') or ""
-                                text = await link.inner_text() or ""
-                                extracted = extract_phone_from_url_or_text(href) or extract_phone_from_url_or_text(text)
-                                if extracted and extracted not in phones:
-                                    phones.append(extracted)
-                                    phone = " / ".join(phones)
-                                    print(f"  [Google Maps] | {'Phone (Page Link)'.ljust(11)} | {extracted}")
-                                    
-                            if len(phones) == 0:
-                                # Quick regex check on full page text for Indian phone
-                                try:
-                                    page_body_text = await detail_page.evaluate("() => document.body.innerText")
-                                    body_phone = extract_phone_from_url_or_text(page_body_text[:3000])
-                                    if body_phone and body_phone not in phones:
-                                        phones.append(body_phone)
-                                        phone = " / ".join(phones)
-                                        print(f"  [Google Maps] | {'Phone (Page Text)'.ljust(11)} | {body_phone}")
-                                except Exception:
-                                    pass
+
 
                             has_phone = bool(phone.strip())
                             has_socials = any(len(maps_socials[social]) > 0 for social in ["Instagram", "Facebook", "LinkedIn", "X (Twitter)", "YouTube", "TikTok"])

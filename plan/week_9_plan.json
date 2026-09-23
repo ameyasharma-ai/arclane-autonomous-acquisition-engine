@@ -1,32 +1,41 @@
 {
-  "blueprintVersion": "Week 9 of 10-Week / 100-Day INR 1L+ Engine",
+  "blueprintVersion": "Week 9 of 10-Week Patna 5-Niche Engine",
   "weekNumber": 9,
   "agency": {
     "name": "Arclane Studios",
     "founder": "Ameya Sharma",
-    "targetMarket": "Indian SMBs (Gyms, Salons, Spas, Clinics, Cafes, Designers, Institutes)",
+    "targetMarket": "Verified SMBs in Patna across 5 High-Value Niches: Gyms, Restaurants, Clinics, Salons, Car/Bike Detailing & Services",
+    "coreOffer": {
+      "type": "Free Website Gift",
+      "description": "Direct courtesy call offering a custom, mobile-optimized live website concept hosted on Vercel as a 100% FREE gift. Link sent directly on WhatsApp. If they love it, discuss maintenance/expansion; if not, they keep it for free forever with zero risk."
+    },
     "targetGoal": {
-      "durationDays": 100,
-      "targetClients": "15 - 20 Indian Clients",
+      "durationDays": 70,
+      "dailyBuildTarget": 33,
+      "totalBuildsProjected": 2310,
+      "targetClients": "10 - 20 Patna Clients",
       "averageDealSizeINR": 7999,
-      "projectedRevenueINR": "1,20,000 - 1,60,000"
+      "projectedRevenueINR": "80,000 - 1,60,000"
     }
   },
   "automationSettings": {
     "autoStartCron": true,
     "timezone": "Asia/Kolkata",
+    "dailyScrapeTime": "22:15",
+    "dailyLeadsQuota": 33,
     "leadQualificationFilter": {
-      "minRating": 4.5,
-      "minReviews": 30,
+      "minRating": 4,
+      "minReviews": 10,
       "websiteRequired": false
     },
-    "whatsappSafeLimits": {
-      "maxPerBatch": 20,
-      "maxPerDay": 40,
-      "minDelaySeconds": 30,
-      "maxDelaySeconds": 75,
-      "requireVcfImport": true
-    }
+    "autoWhatsAppDispatched": false,
+    "crmFieldsToUpdateManually": [
+      "Phone/WhatsApp",
+      "Current Status",
+      "Outreach Date",
+      "Negotiation Status",
+      "Notes"
+    ]
   },
   "dailySchedule": [
     {
@@ -34,272 +43,26 @@
       "weekNumber": 9,
       "dayIndex": 1,
       "dayName": "Monday",
-      "focus": "Boutique Resorts in Udaipur",
+      "focus": "Luxury Unisex Salons (Round 2 Deep Penetration)",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Resorts",
-          "locality": "in Udaipur",
-          "city": "Udaipur",
-          "targetLeads": 35
+          "query": "Unisex Salons",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
         },
         "analyseAndBuild": {
-          "enabled": true,
-          "cronTime": "23:15",
-          "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
-        },
-        "dispatchWave1": {
-          "enabled": true,
-          "cronTime": "12:00",
-          "batchSize": 18
-        },
-        "dispatchWave2": {
-          "enabled": true,
-          "cronTime": "16:30",
-          "batchSize": 17
-        },
-        "followUpReview": {
-          "enabled": true,
-          "cronTime": "18:00",
-          "callYesterdayLeads": true,
-          "targetCalls": 15,
-          "targetCloses": 1,
-          "notes": "Pitch direct room booking without paying 20% to MakeMyTrip/Goibibo."
-        }
-      }
-    },
-    {
-      "dayNumber": 58,
-      "weekNumber": 9,
-      "dayIndex": 2,
-      "dayName": "Tuesday",
-      "focus": "Heritage Homestays in Jaipur",
-      "tasks": {
-        "scraper": {
           "enabled": true,
           "cronTime": "22:15",
-          "query": "Homestays and Resorts",
-          "locality": "in Jaipur",
-          "city": "Jaipur",
-          "targetLeads": 35
-        },
-        "analyseAndBuild": {
-          "enabled": true,
-          "cronTime": "23:15",
           "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
-        },
-        "dispatchWave1": {
-          "enabled": true,
-          "cronTime": "12:00",
-          "batchSize": 18
-        },
-        "dispatchWave2": {
-          "enabled": true,
-          "cronTime": "16:30",
-          "batchSize": 17
-        },
-        "followUpReview": {
-          "enabled": true,
-          "cronTime": "18:00",
-          "callYesterdayLeads": true,
-          "targetCalls": 15,
-          "targetCloses": 2,
-          "notes": "High seasonal demand."
-        }
-      }
-    },
-    {
-      "dayNumber": 59,
-      "weekNumber": 9,
-      "dayIndex": 3,
-      "dayName": "Wednesday",
-      "focus": "Luxury Villas & Farmstays in Dehradun",
-      "tasks": {
-        "scraper": {
-          "enabled": true,
-          "cronTime": "22:15",
-          "query": "Resorts and Homestays",
-          "locality": "in Dehradun",
-          "city": "Dehradun",
-          "targetLeads": 35
-        },
-        "analyseAndBuild": {
-          "enabled": true,
-          "cronTime": "23:15",
-          "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
-        },
-        "dispatchWave1": {
-          "enabled": true,
-          "cronTime": "12:00",
-          "batchSize": 18
-        },
-        "dispatchWave2": {
-          "enabled": true,
-          "cronTime": "16:30",
-          "batchSize": 17
-        },
-        "followUpReview": {
-          "enabled": true,
-          "cronTime": "18:00",
-          "callYesterdayLeads": true,
-          "targetCalls": 15,
-          "targetCloses": 2,
-          "notes": "Weekend gateway planners."
-        }
-      }
-    },
-    {
-      "dayNumber": 60,
-      "weekNumber": 9,
-      "dayIndex": 4,
-      "dayName": "Thursday",
-      "focus": "Wellness Resorts & Ayurveda in Kochi",
-      "tasks": {
-        "scraper": {
-          "enabled": true,
-          "cronTime": "22:15",
-          "query": "Resorts",
-          "locality": "in Kochi",
-          "city": "Kochi",
-          "targetLeads": 35
-        },
-        "analyseAndBuild": {
-          "enabled": true,
-          "cronTime": "23:15",
-          "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
-        },
-        "dispatchWave1": {
-          "enabled": true,
-          "cronTime": "12:00",
-          "batchSize": 18
-        },
-        "dispatchWave2": {
-          "enabled": true,
-          "cronTime": "16:30",
-          "batchSize": 17
-        },
-        "followUpReview": {
-          "enabled": true,
-          "cronTime": "18:00",
-          "callYesterdayLeads": true,
-          "targetCalls": 15,
-          "targetCloses": 2,
-          "notes": "Direct package booking."
-        }
-      }
-    },
-    {
-      "dayNumber": 61,
-      "weekNumber": 9,
-      "dayIndex": 5,
-      "dayName": "Friday",
-      "focus": "Boutique Hotels & Banquet Venues in Lucknow",
-      "tasks": {
-        "scraper": {
-          "enabled": true,
-          "cronTime": "22:15",
-          "query": "Banquet Halls and Hotels",
-          "locality": "in Lucknow",
-          "city": "Lucknow",
-          "targetLeads": 35
-        },
-        "analyseAndBuild": {
-          "enabled": true,
-          "cronTime": "23:15",
-          "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
-        },
-        "dispatchWave1": {
-          "enabled": true,
-          "cronTime": "12:00",
-          "batchSize": 18
-        },
-        "dispatchWave2": {
-          "enabled": true,
-          "cronTime": "16:30",
-          "batchSize": 17
-        },
-        "followUpReview": {
-          "enabled": true,
-          "cronTime": "18:00",
-          "callYesterdayLeads": true,
-          "targetCalls": 15,
-          "targetCloses": 2,
-          "notes": "Event & wedding inquiries."
-        }
-      }
-    },
-    {
-      "dayNumber": 62,
-      "weekNumber": 9,
-      "dayIndex": 6,
-      "dayName": "Saturday",
-      "focus": "Nature Resorts & Retreats in Mysore",
-      "tasks": {
-        "scraper": {
-          "enabled": true,
-          "cronTime": "22:15",
-          "query": "Resorts",
-          "locality": "in Mysore",
-          "city": "Mysore",
-          "targetLeads": 35
-        },
-        "analyseAndBuild": {
-          "enabled": true,
-          "cronTime": "23:15",
-          "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 35
-        },
-        "dispatchWave1": {
-          "enabled": true,
-          "cronTime": "12:00",
-          "batchSize": 18
-        },
-        "dispatchWave2": {
-          "enabled": true,
-          "cronTime": "16:30",
-          "batchSize": 17
-        },
-        "followUpReview": {
-          "enabled": true,
-          "cronTime": "18:00",
-          "callYesterdayLeads": true,
-          "targetCalls": 20,
-          "targetCloses": 2,
-          "notes": "Weekend closing."
-        }
-      }
-    },
-    {
-      "dayNumber": 63,
-      "weekNumber": 9,
-      "dayIndex": 7,
-      "dayName": "Sunday",
-      "focus": "Hospitality Referral Network Activation",
-      "tasks": {
-        "scraper": {
-          "enabled": true,
-          "cronTime": "22:15",
-          "query": "Resorts",
-          "locality": "in Jodhpur",
-          "city": "Jodhpur",
-          "targetLeads": 20
-        },
-        "analyseAndBuild": {
-          "enabled": true,
-          "cronTime": "23:15",
-          "autoDetectNewLeads": true,
-          "maxLeadsToProcess": 20
+          "maxLeadsToProcess": 33
         },
         "dispatchWave1": {
           "enabled": false,
           "cronTime": "12:00",
-          "batchSize": 20
+          "batchSize": 0
         },
         "dispatchWave2": {
           "enabled": false,
@@ -310,16 +73,262 @@
           "enabled": true,
           "cronTime": "18:00",
           "callYesterdayLeads": true,
-          "targetCalls": 10,
+          "targetCalls": 15,
           "targetCloses": 1,
-          "notes": "Referral loop."
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
+        }
+      }
+    },
+    {
+      "dayNumber": 58,
+      "weekNumber": 9,
+      "dayIndex": 2,
+      "dayName": "Tuesday",
+      "focus": "Bridal Makeup Studios & Beauty Parlours (Round 2 Deep Penetration)",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Beauty Parlours",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 33
+        },
+        "dispatchWave1": {
+          "enabled": false,
+          "cronTime": "12:00",
+          "batchSize": 0
+        },
+        "dispatchWave2": {
+          "enabled": false,
+          "cronTime": "16:30",
+          "batchSize": 0
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 15,
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
+        }
+      }
+    },
+    {
+      "dayNumber": 59,
+      "weekNumber": 9,
+      "dayIndex": 3,
+      "dayName": "Wednesday",
+      "focus": "Day Spas & Wellness Centers (Round 2 Deep Penetration)",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Day Spas",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 33
+        },
+        "dispatchWave1": {
+          "enabled": false,
+          "cronTime": "12:00",
+          "batchSize": 0
+        },
+        "dispatchWave2": {
+          "enabled": false,
+          "cronTime": "16:30",
+          "batchSize": 0
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 15,
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
+        }
+      }
+    },
+    {
+      "dayNumber": 60,
+      "weekNumber": 9,
+      "dayIndex": 4,
+      "dayName": "Thursday",
+      "focus": "Hair Styling & Keratin Treatment Salons (Round 2 Deep Penetration)",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Hair Salons",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 33
+        },
+        "dispatchWave1": {
+          "enabled": false,
+          "cronTime": "12:00",
+          "batchSize": 0
+        },
+        "dispatchWave2": {
+          "enabled": false,
+          "cronTime": "16:30",
+          "batchSize": 0
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 15,
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
+        }
+      }
+    },
+    {
+      "dayNumber": 61,
+      "weekNumber": 9,
+      "dayIndex": 5,
+      "dayName": "Friday",
+      "focus": "Nail Art Studios & Lash Extensions (Round 2 Deep Penetration)",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Nail Spas",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 33
+        },
+        "dispatchWave1": {
+          "enabled": false,
+          "cronTime": "12:00",
+          "batchSize": 0
+        },
+        "dispatchWave2": {
+          "enabled": false,
+          "cronTime": "16:30",
+          "batchSize": 0
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 15,
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
+        }
+      }
+    },
+    {
+      "dayNumber": 62,
+      "weekNumber": 9,
+      "dayIndex": 6,
+      "dayName": "Saturday",
+      "focus": "Men Grooming & Beard Styling Lounges (Round 2 Deep Penetration)",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Men Salons",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 33
+        },
+        "dispatchWave1": {
+          "enabled": false,
+          "cronTime": "12:00",
+          "batchSize": 0
+        },
+        "dispatchWave2": {
+          "enabled": false,
+          "cronTime": "16:30",
+          "batchSize": 0
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 15,
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
+        }
+      }
+    },
+    {
+      "dayNumber": 63,
+      "weekNumber": 9,
+      "dayIndex": 7,
+      "dayName": "Sunday",
+      "focus": "Salon Portfolio Demos & Direct Call Reviews (Round 2 Deep Penetration)",
+      "tasks": {
+        "scraper": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "query": "Unisex Salons",
+          "locality": "in Patna",
+          "city": "Patna",
+          "targetLeads": 33
+        },
+        "analyseAndBuild": {
+          "enabled": true,
+          "cronTime": "22:15",
+          "autoDetectNewLeads": true,
+          "maxLeadsToProcess": 33
+        },
+        "dispatchWave1": {
+          "enabled": false,
+          "cronTime": "12:00",
+          "batchSize": 0
+        },
+        "dispatchWave2": {
+          "enabled": false,
+          "cronTime": "16:30",
+          "batchSize": 0
+        },
+        "followUpReview": {
+          "enabled": true,
+          "cronTime": "18:00",
+          "callYesterdayLeads": true,
+          "targetCalls": 15,
+          "targetCloses": 1,
+          "notes": "Call business owner, offer custom website as a 100% FREE gift, send link on WhatsApp, update CRM status."
         }
       }
     }
   ],
   "phoneScriptTemplates": {
-    "courtesyOpener": "Hi [Owner Name], Ameya here from Arclane Studios. Maine aapke business ([Business Name]) ke liye ek custom live website concept banakar WhatsApp par share kiya tha. Bas ek minute check karna tha ki kya aapko link mila aur aapne glance kiya?",
-    "pricingOffer": "Humne aapka base design ready kar liya hai, isliye flat partner launch price ₹7,999 one-time me custom .com domain, lifetime hosting, WhatsApp booking aur Google Maps setup ke sath 24 hours me live kar denge.",
-    "referralScript": "Hi [Owner Name], aapki website live ho chuki hai! Agar aapke circle me kisi aur business owner ko website chahiye, share my contact—I will give them the same ₹7,999 partner discount."
+    "courtesyOpener": "Hi [Owner Name], Ameya Sharma calling from Arclane Studios, Patna. Maine aapke business [Business Name] ke liye ek custom mobile website concept design karke host kiya hai. Hum ye bilkul FREE gift offer kar rahe hain — main abhi WhatsApp par link bhej raha hoon. Agar pasand aaye toh hum aage discuss kar sakte hain, aur agar na bhi pasand aaye toh aap isse permanently FREE rakh sakte hain. No strings attached!",
+    "whatsappFollowupCopy": "Namaste [Owner Name] ji! 🙏\n\nMain Ameya Sharma, Arclane Studios (Patna) se. Jaisa humne call par baat ki, maine aapke [Business Name] ke liye ek special live mobile website prototype banaya hai:\n\n🔗 [Live Website Demo Link]\n\nIsme direct WhatsApp booking, Google Maps location, services menu aur customer review section live integrate kar diya hai. Ye website aapke liye bilkul FREE gift hai — aap isse permanently rakh sakte hain!\n\nAapko overall look aur concept kaisa laga? Take a quick look and let me know your thoughts!",
+    "dealCloseScript": "Agar aap chahein toh hum isme aapka custom .com domain, Google Search SEO listing, aur online menu/inquiry system 24 hours me live kar denge just a one-time launch support fee of ₹7,999."
   }
 }

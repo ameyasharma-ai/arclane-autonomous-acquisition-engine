@@ -34,6 +34,9 @@ services:
       - ./generated_sites:/usr/src/app/generated_sites
       - ./whatsapp_user_session:/usr/src/app/whatsapp_user_session
       - ./config/service_account.json:/usr/src/app/config/service_account.json:ro
+      - ./config/vercel:/home/pwuser/.local/share/com.vercel.cli
+      - ./config/vercel:/home/pwuser/.config/com.vercel.cli
+      - ./config/vercel:/home/pwuser/.vercel
       - ./plan:/usr/src/app/plan
       - ./data:/usr/src/app/data
     ipc: host # Playwright browser shared memory requirement

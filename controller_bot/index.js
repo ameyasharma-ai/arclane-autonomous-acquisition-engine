@@ -165,13 +165,11 @@ bot.command('status', async (ctx) => {
         `• *Target Industry:* ${s.todayFocus}\n\n` +
         `*Live Task State:*\n` +
         `• 🔍 Scraper: ${s.isScraperRunning ? '🟡 Scraping Active' : '⚪ Idle'}\n` +
-        `• ⚙️ Pipeline/Builder: ${s.isPipelineRunning ? '🟡 Building / Dispatching Active' : '⚪ Idle'}\n\n` +
-        `*Daily Cron Schedule (Asia/Kolkata):*\n` +
-        `• 12:00 PM: 📲 Morning WhatsApp Dispatch Wave (${plan?.tasks.dispatchWave1.batchSize || 18} msgs)\n` +
-        `• 04:30 PM: 📲 Afternoon WhatsApp Dispatch Wave (${plan?.tasks.dispatchWave2.batchSize || 17} msgs)\n` +
-        `• 06:00 PM: 📞 Evening Follow-Up Phone Calls & Scripts\n` +
-        `• 10:15 PM: ⚡ Night Stream Scrape & Build (35 Leads)\n` +
-        `• 11:15 PM: ⚙️ Safety Sweep Analysis`;
+        `• ⚙️ Pipeline/Builder: ${s.isPipelineRunning ? '🟡 Building / Hosting Active' : '⚪ Idle'}\n\n` +
+        `*Daily Schedule (Asia/Kolkata):*\n` +
+        `• 10:15 PM: ⚡ Night Stream Scrape, Build & Deploy (33 Leads into CRM)\n` +
+        `• 11:15 PM: ⚙️ Safety Sweep & Data Verification\n` +
+        `• 06:00 PM: 📞 Manual Calling & WhatsApp Free Gift Outreach Window`;
 
     await ctx.reply(msg, {
         parse_mode: 'Markdown',
@@ -192,14 +190,13 @@ bot.command('today', async (ctx) => {
         `📅 *Today's Strategy Blueprint (${plan.dayName})*\n\n` +
         `• *Target Niche & City:* ${plan.focus}\n` +
         `• *Search Query:* \`${plan.tasks.scraper.query}\` (${plan.tasks.scraper.locality})\n` +
-        `• *Target Volume:* ${plan.tasks.scraper.targetLeads} leads\n\n` +
-        `*Scheduled Timetable:*\n` +
-        `• 12:00 PM: 📲 WhatsApp Wave 1 (${plan.tasks.dispatchWave1.batchSize} leads)\n` +
-        `• 04:30 PM: 📲 WhatsApp Wave 2 (${plan.tasks.dispatchWave2.batchSize} leads)\n` +
-        `• 06:00 PM: 📞 Follow-up Calling Window\n` +
-        `• 10:15 PM: ⚡ Night Stream Scrape & Build (${plan.tasks.scraper.targetLeads} leads)\n\n` +
-        `💡 *Phone Close Script:*\n` +
-        `_"${CONFIG.loadPlan()?.phoneScriptTemplates?.courtesyOpener || 'Hi [Owner], Maine aapke business ke liye live website concept share kiya tha...'}"_`;
+        `• *Target Volume:* ${plan.tasks.scraper.targetLeads || 33} leads\n\n` +
+        `*Daily Workflow:*\n` +
+        `• 10:15 PM: 🌙 Scrape, Audit, Build & Deploy to Vercel (Auto-appends to CRM)\n` +
+        `• Daytime: 📞 Manual Calls & WhatsApp Pitching (Offer Free Website Gift)\n` +
+        `• 06:00 PM: ⏰ Prime Evening Calling Window\n\n` +
+        `💡 *Your "No-Risk Free Gift" Calling Script:*\n` +
+        `_"${CONFIG.loadPlan()?.phoneScriptTemplates?.courtesyOpener || 'Hi [Owner], Ameya here from Arclane Studios. Maine aapke business ke liye ek custom website banakar WhatsApp par link share kiya hai. Ye completely free gift hai — agar pasand aaye toh aage baat karenge, nahi toh aap permanently free rakh sakte hain!'}"_`;
 
     await ctx.reply(msg, { parse_mode: 'Markdown' });
 });
@@ -263,14 +260,14 @@ async function handleRunFull(ctx) {
     const args = parseArgs(ctx.message.text);
     const plan = scheduler.getTodayPlan();
     const query = args[0] || plan?.tasks.scraper.query || "Gyms";
-    const city = args[1] || plan?.tasks.scraper.city || "Pune";
+    const city = args[1] || plan?.tasks.scraper.city || "Patna";
     const count = parseInt(args[2], 10) || 1;
 
     await ctx.reply(
-        `🚀 *Launching Complete 360° Acquisition Pipeline for ${count} lead(s)...*\n\n` +
+        `🚀 *Launching 1-Lead Test Pipeline for ${count} lead(s)...*\n\n` +
         `📍 *Niche:* \`${query}\`\n` +
         `🏙️ *City:* \`${city}\`\n` +
-        `⚡ *Stages:* Scrape ➔ 14-Point Audit ➔ Build Website ➔ Deploy to Vercel ➔ Send WhatsApp Message\n` +
+        `⚡ *Stages:* Google Maps Scrape ➔ 14-Point Audit ➔ Build Website ➔ Host on Vercel ➔ Auto-Save to CRM\n` +
         `🛑 Type \`/abort\` to cancel, or \`/reset_plan\` to restore 24/7 schedule.`,
         { parse_mode: 'Markdown' }
     );
@@ -309,11 +306,10 @@ async function handleResetResumePlan(ctx) {
         `• Pipeline State: Cleanly Reset to Idle 🔄\n` +
         `• 24/7 Automation: 🟢 *ACTIVE & RUNNING*\n` +
         `• Today's Target (${plan?.dayName}): *${plan?.focus}*\n\n` +
-        `📅 *Upcoming Timetable for Today:*\n` +
-        `• 12:00 PM: 📲 WhatsApp Wave 1 (${plan?.tasks.dispatchWave1.batchSize || 18} msgs)\n` +
-        `• 04:30 PM: 📲 WhatsApp Wave 2 (${plan?.tasks.dispatchWave2.batchSize || 17} msgs)\n` +
-        `• 06:00 PM: 📞 Follow-up Call Alert\n` +
-        `• 10:15 PM: ⚡ Night Stream Scrape & Build (${plan?.tasks.scraper.targetLeads || 35} leads)`,
+        `📅 *Daily Workflow:*\n` +
+        `• 10:15 PM: ⚡ Night Stream Scrape, Build & Deploy (${plan?.tasks.scraper.targetLeads || 33} leads auto-saved to CRM)\n` +
+        `• 11:15 PM: ⚙️ Safety Sweep Analysis\n` +
+        `• 06:00 PM: 📞 Manual Calling Window (Free Website Gift Offer)`,
         { parse_mode: 'Markdown', ...getMainKeyboard(true) }
     );
 }
@@ -435,13 +431,10 @@ bot.action('cmd_status', async (ctx) => {
         `• *Target Industry:* ${s.todayFocus}\n\n` +
         `*Live Task State:*\n` +
         `• 🔍 Scraper: ${s.isScraperRunning ? '🟡 Scraping Active' : '⚪ Idle'}\n` +
-        `• ⚙️ Pipeline/Builder: ${s.isPipelineRunning ? '🟡 Building / Dispatching Active' : '⚪ Idle'}\n\n` +
-        `*Daily Cron Schedule:*\n` +
-        `• 12:00 PM: 📲 Morning WhatsApp Dispatch (${plan?.tasks.dispatchWave1.batchSize || 18} msgs)\n` +
-        `• 04:30 PM: 📲 Afternoon WhatsApp Dispatch (${plan?.tasks.dispatchWave2.batchSize || 17} msgs)\n` +
-        `• 06:00 PM: 📞 Evening Follow-up Call Reminder\n` +
-        `• 10:15 PM: ⚡ Night Stream Scrape & Build (35 Leads)\n` +
-        `• 11:15 PM: ⚙️ Safety Sweep Analysis`,
+        `• *Daily Schedule:*\n` +
+        `• 10:15 PM: ⚡ Night Stream Scrape, Build & Deploy (33 Leads into CRM)\n` +
+        `• 11:15 PM: ⚙️ Safety Sweep & Data Verification\n` +
+        `• 06:00 PM: 📞 Manual Calling & WhatsApp Free Gift Outreach Window`,
         {
             parse_mode: 'Markdown',
             ...getMainKeyboard(s.isAutoRunning)
@@ -470,13 +463,13 @@ bot.action('cmd_run_full_1', async (ctx) => {
     if (!scheduler) scheduler = new Scheduler(bot, ctx.chat.id);
     const plan = scheduler.getTodayPlan();
     const query = plan?.tasks.scraper.query || "Gyms";
-    const city = plan?.tasks.scraper.city || "Pune";
+    const city = plan?.tasks.scraper.city || "Patna";
 
     await ctx.reply(
-        `🚀 *Launching Complete 360° Acquisition Pipeline for 1 lead...*\n\n` +
+        `🚀 *Launching 1-Lead Test Pipeline (Patna)...*\n\n` +
         `📍 *Niche:* \`${query}\`\n` +
         `🏙️ *City:* \`${city}\`\n` +
-        `⚡ *Stages:* Scrape ➔ 14-Point Audit ➔ Build Website ➔ Deploy to Vercel ➔ Send WhatsApp Message\n` +
+        `⚡ *Stages:* Scrape ➔ 14-Point Audit ➔ Build Website ➔ Host on Vercel ➔ Auto-Save to CRM\n` +
         `🛑 Type \`/abort\` to cancel, or \`/reset_plan\` to restore 24/7 schedule.`,
         { parse_mode: 'Markdown' }
     );

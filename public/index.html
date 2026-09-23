@@ -163,8 +163,11 @@
             <button class="tab-btn" onclick="switchView('events')" id="tab-events">📜 Audit Log</button>
         </div>
 
-        <!-- Emergency Status -->
+        <!-- Emergency Status & Sync -->
         <div class="flex items-center gap-3">
+            <button onclick="syncCrmData()" id="btn-sync-crm" class="px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 text-xs font-bold transition flex items-center gap-1.5">
+                🔄 Sync CRM
+            </button>
             <button onclick="sendCommand('/abort')" class="px-3 py-1.5 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 text-xs font-bold transition">
                 🛑 Global Kill Switch
             </button>
@@ -221,19 +224,19 @@
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-5 gap-4 text-center">
                     <div class="p-4 bg-slate-950/60 rounded-xl border border-slate-800/60">
-                        <div class="text-xs text-slate-400">Stage 1: Discovery</div>
-                        <div class="text-lg font-bold text-white my-1">~2,100 Leads</div>
-                        <div class="text-[11px] text-cyan-400">Scraped across 10 Weeks</div>
+                        <div class="text-xs text-slate-400">Stage 1: Discovery & Build</div>
+                        <div class="text-lg font-bold text-white my-1">~2,310 Leads</div>
+                        <div class="text-[11px] text-cyan-400">33 Leads/Night @ 10:15 PM</div>
                     </div>
                     <div class="p-4 bg-slate-950/60 rounded-xl border border-slate-800/60">
-                        <div class="text-xs text-slate-400">Stage 2: Qualified</div>
-                        <div class="text-lg font-bold text-white my-1">~1,500 Demos</div>
-                        <div class="text-[11px] text-emerald-400">No-website / High reviews</div>
+                        <div class="text-xs text-slate-400">Stage 2: Live Prototype</div>
+                        <div class="text-lg font-bold text-white my-1">~1,800 Hosted</div>
+                        <div class="text-[11px] text-emerald-400">Auto-Built & Vercel Hosted</div>
                     </div>
                     <div class="p-4 bg-slate-950/60 rounded-xl border border-slate-800/60">
-                        <div class="text-xs text-slate-400">Stage 3: Outbound</div>
-                        <div class="text-lg font-bold text-white my-1">~1,500 Dispatched</div>
-                        <div class="text-[11px] text-slate-400">Dual Waves (12 PM & 4:30 PM)</div>
+                        <div class="text-xs text-slate-400">Stage 3: Personal Outreach</div>
+                        <div class="text-lg font-bold text-white my-1">Manual Direct Calls</div>
+                        <div class="text-[11px] text-slate-400">Offer Free Website Gift</div>
                     </div>
                     <div class="p-4 bg-slate-950/60 rounded-xl border border-slate-800/60">
                         <div class="text-xs text-slate-400">Stage 4: Dialogues</div>
@@ -257,30 +260,30 @@
                         <div class="flex justify-between items-center p-3 bg-slate-950/50 rounded-xl border border-slate-800">
                             <div>
                                 <span class="font-bold text-cyan-400">🌙 10:15 PM IST</span>
-                                <p class="text-xs text-slate-400">Night Stream Scraper & Live Builder</p>
+                                <p class="text-xs text-slate-400">Night Stream Scraper, Live Builder & Vercel Deploy</p>
                             </div>
-                            <span class="text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-300 font-mono">35 Leads/Day</span>
+                            <span class="text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-300 font-mono">33 Leads/Day</span>
                         </div>
                         <div class="flex justify-between items-center p-3 bg-slate-950/50 rounded-xl border border-slate-800">
                             <div>
-                                <span class="font-bold text-emerald-400">📱 12:00 PM IST</span>
-                                <p class="text-xs text-slate-400">Morning WhatsApp Outreach (Wave 1)</p>
+                                <span class="font-bold text-emerald-400">📊 11:15 PM IST</span>
+                                <p class="text-xs text-slate-400">CRM Auto-Sync & Google Sheet Logging</p>
                             </div>
-                            <span class="text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-300 font-mono">18 Contacts</span>
+                            <span class="text-xs px-2.5 py-1 rounded bg-slate-800 text-emerald-400 font-mono">Automated CRM</span>
                         </div>
                         <div class="flex justify-between items-center p-3 bg-slate-950/50 rounded-xl border border-slate-800">
                             <div>
-                                <span class="font-bold text-amber-400">⚡ 04:30 PM IST</span>
-                                <p class="text-xs text-slate-400">Afternoon WhatsApp Outreach (Wave 2)</p>
+                                <span class="font-bold text-amber-400">⏸️ Auto WhatsApp</span>
+                                <p class="text-xs text-slate-400">Paused — Manual Review & Controlled Outreach</p>
                             </div>
-                            <span class="text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-300 font-mono">17 Contacts</span>
+                            <span class="text-xs px-2.5 py-1 rounded bg-slate-800 text-amber-400 font-mono">Manual Mode</span>
                         </div>
                         <div class="flex justify-between items-center p-3 bg-slate-950/50 rounded-xl border border-slate-800">
                             <div>
                                 <span class="font-bold text-purple-400">📞 06:00 PM IST</span>
-                                <p class="text-xs text-slate-400">Direct Phone Closing Calls & CRM Alerts</p>
+                                <p class="text-xs text-slate-400">Manual Call Window ("No-Risk Free Gift" Offer)</p>
                             </div>
-                            <span class="text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-300 font-mono">Closing Window</span>
+                            <span class="text-xs px-2.5 py-1 rounded bg-slate-800 text-slate-300 font-mono">High Close Window</span>
                         </div>
                     </div>
                 </div>
@@ -476,10 +479,39 @@
         }
 
         // Fetch Analytics on Mount
-        fetch('/api/analytics')
-            .then(r => r.json())
-            .then(d => { if (d.success) updateMetricsDisplay(d.metrics); })
-            .catch(()=>{});
+        function fetchAnalytics() {
+            fetch('/api/analytics')
+                .then(r => r.json())
+                .then(d => { if (d.success) updateMetricsDisplay(d.metrics); })
+                .catch(()=>{});
+        }
+        fetchAnalytics();
+
+        // Manual CRM Sync Trigger
+        function syncCrmData() {
+            const btn = document.getElementById('btn-sync-crm');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerText = '⏳ Syncing...';
+            }
+            fetch('/api/refresh-metrics', { method: 'POST' })
+                .then(r => r.json())
+                .then(d => {
+                    if (d.success) {
+                        updateMetricsDisplay(d.metrics);
+                        showToast('✅ CRM metrics successfully synchronized!');
+                    }
+                })
+                .catch(e => {
+                    showToast('❌ Failed to sync CRM metrics: ' + e.message);
+                })
+                .finally(() => {
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = '🔄 Sync CRM';
+                    }
+                });
+        }
 
         // Approval Queue Management & Folders
         let currentQueueFilter = 'pending'; // 'pending' | 'rejected' | 'approved'

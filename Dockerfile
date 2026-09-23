@@ -20,9 +20,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY package*.json ./
 COPY requirements.txt ./
 
-# Install Node and Python dependencies
+# Install Node and Python dependencies + Official Chrome + Playwright Browsers + Vercel CLI
 RUN npm ci --omit=dev
 RUN pip3 install --no-cache-dir -r requirements.txt
+RUN npx playwright install chrome chromium
+RUN python3 -m playwright install chromium
+RUN npm install -g vercel@39
+RUN chown -R pwuser:pwuser /ms-playwright
 
 # Copy application source code
 COPY . .

@@ -120,31 +120,41 @@ export class AuditLogger {
             let withWebsite = 0;
             let contacted = 0;
             let qualified = 0;
-
-            // Also count actual generated sites in generated_sites/
-            const sitesDir = path.join(process.cwd(), 'generated_sites');
-            let actualSiteCount = 0;
-            if (fs.existsSync(sitesDir)) {
-                actualSiteCount = fs.readdirSync(sitesDir).filter(f => fs.statSync(path.join(sitesDir, f)).isDirectory()).length;
-            }
+            let replies = 0;
+            let clientsWon = 0;
 
             rows.forEach(r => {
                 const d = r.toObject();
                 if (d['Business Name']) discovered++;
                 if (d['Website URL'] && String(d['Website URL']).trim().length > 3) withWebsite++;
                 const status = (d['Current Status'] || '').toLowerCase();
-                if (status.includes('contacted') || status.includes('sent')) {
+                const outreachDate = (d['Outreach Date'] || '').trim();
+                const paymentStatus = (d['Payment Status'] || '').toLowerCase();
+                const negotiationStatus = (d['Negotiation Status'] || '').toLowerCase();
+                const meetingScheduled = (d['Meeting Scheduled'] || '').toLowerCase();
+
+                // Outreach sent via manual WhatsApp or Call
+                if (status.includes('contacted') || status.includes('sent') || status.includes('called') || outreachDate.length > 0) {
                     contacted++;
                 }
-                if (status.includes('built') || status.includes('analyzed') || status.includes('approval')) {
+                if (status.includes('built') || status.includes('analyzed') || status.includes('approval') || (d['Website URL'] && String(d['Website URL']).trim().length > 3)) {
                     qualified++;
+                }
+                if (status.includes('replied') || status.includes('interested') || status.includes('call') || meetingScheduled === 'yes') {
+                    replies++;
+                }
+                if (status.includes('won') || status.includes('closed') || paymentStatus.includes('received') || paymentStatus.includes('advance') || paymentStatus.includes('paid')) {
+                    clientsWon++;
                 }
             });
 
-            metrics.leads_discovered = Math.max(discovered, metrics.leads_discovered || 0);
-            metrics.leads_qualified = Math.max(qualified, actualSiteCount, metrics.leads_qualified || 0);
-            metrics.demos_deployed = Math.max(withWebsite, actualSiteCount, metrics.demos_deployed || 0);
-            metrics.messages_sent = Math.max(contacted, metrics.messages_sent || 0);
+            // Directly mirror live CRM counts from Google Sheet
+            metrics.leads_discovered = discovered;
+            metrics.leads_qualified = qualified;
+            metrics.demos_deployed = withWebsite;
+            metrics.messages_sent = contacted;
+            metrics.replies_total = replies;
+            metrics.clients_won = clientsWon;
             metrics.updated_at = new Date().toISOString();
 
             // Persist synced metrics
