@@ -1,10 +1,34 @@
+import fs from 'fs';
+import dotenv from 'dotenv';
 import { google } from 'googleapis';
 import { GoogleSpreadsheet } from 'google-spreadsheet';
 import { JWT } from 'google-auth-library';
-import fs from 'fs';
-import dotenv from 'dotenv';
 
 dotenv.config();
+
+let clockDriftMs = 0;
+let isClockSynced = false;
+
+/**
+ * Automatically syncs with Google's HTTP server time to handle any local system clock drift.
+ * Solves: "invalid_grant: Invalid JWT timeframe" without needing admin OS time resets.
+ */
+async function ensureGoogleClockSync() {
+    if (isClockSynced) return;
+    try {
+        const headRes = await fetch('https://www.googleapis.com', { method: 'HEAD' });
+        const dateHeader = headRes.headers.get('date');
+        if (dateHeader) {
+            const serverMs = new Date(dateHeader).getTime();
+            const localMs = Date.now();
+            clockDriftMs = serverMs - localMs;
+            console.log(`[GoogleSheet] Synced with Google server clock (offset: ${Math.round(clockDriftMs / 1000)}s)`);
+        }
+    } catch (e) {
+        // Continue with zero drift if offline
+    }
+    isClockSynced = true;
+}
 
 export async function getSpreadsheetId(authClient, name) {
     const drive = google.drive({ version: 'v3', auth: authClient });
@@ -19,37 +43,59 @@ export async function getSpreadsheetId(authClient, name) {
 }
 
 export async function loadGoogleSheet() {
-    const credentials = JSON.parse(fs.readFileSync(process.env.SERVICE_ACCOUNT_FILE));
-    
-    const authClient = new google.auth.GoogleAuth({
-        credentials,
-        scopes: [
-            'https://www.googleapis.com/auth/spreadsheets',
-            'https://www.googleapis.com/auth/drive.readonly',
-        ],
-    });
+    await ensureGoogleClockSync();
 
-    const auth = await authClient.getClient();
-    const spreadsheetId = await getSpreadsheetId(auth, process.env.SPREADSHEET_NAME);
-
-    const jwt = new JWT({
-        email: credentials.client_email,
-        key: credentials.private_key,
-        scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-    });
-
-    const doc = new GoogleSpreadsheet(spreadsheetId, jwt);
-    await doc.loadInfo();
-
-    let sheet;
-    if (process.env.WORKSHEET_NAME) {
-        sheet = doc.sheetsByTitle[process.env.WORKSHEET_NAME];
-    } else {
-        sheet = doc.sheetsByIndex[0];
+    // Wrap Date during JWT signing so `new Date().getTime()` in gtoken matches Google server time
+    const OrigDate = global.Date;
+    if (Math.abs(clockDriftMs) > 1000) {
+        function SyncedDate(...args) {
+            if (args.length === 0) {
+                return new OrigDate(OrigDate.now() + clockDriftMs);
+            }
+            return new OrigDate(...args);
+        }
+        SyncedDate.prototype = OrigDate.prototype;
+        SyncedDate.now = () => OrigDate.now() + clockDriftMs;
+        SyncedDate.parse = OrigDate.parse;
+        SyncedDate.UTC = OrigDate.UTC;
+        global.Date = SyncedDate;
     }
-    
-    await sheet.loadHeaderRow();
-    return { sheet, doc };
+
+    try {
+        const credentials = JSON.parse(fs.readFileSync(process.env.SERVICE_ACCOUNT_FILE));
+        
+        const authClient = new google.auth.GoogleAuth({
+            credentials,
+            scopes: [
+                'https://www.googleapis.com/auth/spreadsheets',
+                'https://www.googleapis.com/auth/drive.readonly',
+            ],
+        });
+
+        const auth = await authClient.getClient();
+        const spreadsheetId = await getSpreadsheetId(auth, process.env.SPREADSHEET_NAME);
+
+        const jwt = new JWT({
+            email: credentials.client_email,
+            key: credentials.private_key,
+            scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+        });
+
+        const doc = new GoogleSpreadsheet(spreadsheetId, jwt);
+        await doc.loadInfo();
+
+        let sheet;
+        if (process.env.WORKSHEET_NAME) {
+            sheet = doc.sheetsByTitle[process.env.WORKSHEET_NAME];
+        } else {
+            sheet = doc.sheetsByIndex[0];
+        }
+        
+        await sheet.loadHeaderRow();
+        return { sheet, doc };
+    } finally {
+        global.Date = OrigDate;
+    }
 }
 
 export async function getLeads(sheet, startId, endId, excludedIds) {
@@ -58,89 +104,68 @@ export async function getLeads(sheet, startId, endId, excludedIds) {
     let alreadyProcessedCount = 0;
 
     for (const row of rows) {
-        const rowData = row.toObject();
-        const clientIdStr = rowData['Client ID'];
-        if (!clientIdStr) continue;
-
-        const clientId = parseInt(clientIdStr, 10);
+        const rawClientId = row.get('Client ID');
+        const clientId = parseInt(rawClientId, 10);
+        
         if (isNaN(clientId)) continue;
 
-        // Check range
-        if (startId !== null && clientId < startId) continue;
-        if (endId !== null && clientId > endId) continue;
+        if (startId !== null && startId !== undefined && clientId < startId) continue;
+        if (endId !== null && endId !== undefined && clientId > endId) continue;
 
-        // Check excluded
-        if (excludedIds && excludedIds.includes(clientId)) continue;
+        if (excludedIds && excludedIds.includes(clientId)) {
+            continue;
+        }
 
-        // Failsafe: Skip if Notes cell is not empty (already processed)
-        if (rowData['Notes'] && rowData['Notes'].trim() !== '') {
+        const status = (row.get('Current Status') || '').toLowerCase();
+        const website = (row.get('Website URL') || '').toLowerCase();
+        
+        const isCompleted = 
+            status.includes('analyzed') || 
+            status.includes('website built') || 
+            status.includes('contacted') || 
+            status.includes('ready') ||
+            (website && website.startsWith('http'));
+
+        if (isCompleted) {
             alreadyProcessedCount++;
             continue;
         }
 
-        // Attach the actual row object and sheet so we can update it later
         filteredLeads.push({
-            data: rowData,
-            row: row,
-            sheet: sheet,
-            clientId: clientId
+            clientId,
+            businessName: row.get('Business Name'),
+            websiteUrl: row.get('Website URL'),
+            phone: row.get('Phone/WhatsApp') || row.get('Phone') || row.get('WhatsApp') || '',
+            fullAddress: row.get('Address') || row.get('Full Address') || '',
+            rating: row.get('Ratings') || row.get('Rating') || '',
+            totalReviews: row.get('Number Of Reviews') || row.get('Total Reviews') || '',
+            rawRow: row
         });
     }
 
-    console.log(`[Sheets] Lead Scan: Found ${filteredLeads.length} new leads to process (${alreadyProcessedCount} already processed leads with notes skipped).`);
+    if (alreadyProcessedCount > 0) {
+        console.log(`[GoogleSheet] Skipped ${alreadyProcessedCount} already-analyzed/built leads in range.`);
+    }
+
     return filteredLeads;
 }
 
-export async function updateLeadFields(sheet, clientId, fieldsObj) {
+export async function updateLeadStatus(sheet, clientId, status) {
+    return updateLeadFields(sheet, clientId, { 'Current Status': status });
+}
+
+export async function updateLeadFields(sheet, clientId, fieldsToUpdate) {
     const rows = await sheet.getRows();
-    const targetRow = rows.find(r => parseInt(r.toObject()['Client ID'], 10) === clientId);
-    if (!targetRow) {
-        console.warn(`[Sheets] Could not find row for Client ID ${clientId}`);
+    const row = rows.find(r => r.get('Client ID') == String(clientId));
+
+    if (!row) {
+        console.warn(`Lead ${clientId} not found in sheet for updating fields:`, Object.keys(fieldsToUpdate));
         return false;
     }
 
-    const rowIndex = targetRow.rowNumber - 1; // 0-indexed API
-    const headerValues = sheet.headerValues;
-
-    const validUpdates = [];
-    for (const [fieldName, value] of Object.entries(fieldsObj)) {
-        const colIndex = headerValues.indexOf(fieldName);
-        if (colIndex !== -1) {
-            validUpdates.push({ colIndex, fieldName, value });
-        } else {
-            console.warn(`[Sheets] Field "${fieldName}" not found in sheet columns`);
-        }
+    for (const [key, value] of Object.entries(fieldsToUpdate)) {
+        row.set(key, value);
     }
-
-    if (validUpdates.length === 0) return false;
-
-    const minCol = Math.min(...validUpdates.map(u => u.colIndex));
-    const maxCol = Math.max(...validUpdates.map(u => u.colIndex));
-
-    await sheet.loadCells({
-        startRowIndex: rowIndex,
-        endRowIndex: rowIndex + 1,
-        startColumnIndex: minCol,
-        endColumnIndex: maxCol + 1
-    });
-
-    for (const { colIndex, fieldName, value } of validUpdates) {
-        const cell = sheet.getCell(rowIndex, colIndex);
-        cell.value = value;
-    }
-
-    await sheet.saveUpdatedCells();
-    console.log(`[Sheets] ✅ Updated ${validUpdates.length} fields for Client ${clientId}:`, Object.keys(fieldsObj).join(', '));
+    await row.save();
     return true;
 }
-
-export async function updateLeadField(sheet, clientId, fieldName, value) {
-    return await updateLeadFields(sheet, clientId, { [fieldName]: value });
-}
-
-export async function updateLeadNotes(lead, notesContent) {
-    const sheet = lead.sheet;
-    const clientId = lead.clientId;
-    return await updateLeadField(sheet, clientId, 'Notes', notesContent);
-}
-

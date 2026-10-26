@@ -150,20 +150,22 @@ The ecosystem provides **redundant, zero-downtime management** through two synch
 * Evaluates SWOT, Mobile UX Deficiencies, SEO gaps, Local Reputation, and generates SPIN sales hooks and responsive website design prompts.
 * Writes markdown report to `reports/<clientId>/audit.md`.
 
-### C. Website Builder & Vercel Deployer (`src/builder.js`)
+### C. Website Builder & Agency Subdomain Publisher (`src/builder.js` + `src/agency_publisher.js`)
 * **Code Generation:** Converts the Antigravity prompt into a complete, responsive mobile-first Tailwind CSS website (`generated_sites/<clientId>/index.html`).
 * **Design Quality Enforcement:**
   * Header is 100% solid/opaque (`bg-[#09090b]` or `bg-white`) with zero transparent overlay bugs.
   * Mobile drawer menu sits with top-11/12 breathing room, `rounded-tl-2xl` corner, backdrop blur overlay (`z-[90]`), and drawer `z-[100]`.
   * Fluid typography on H1/H2 (`text-2xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl break-words`) to prevent mobile word clipping.
   * Sticky mobile action bar with glowing Call Now and WhatsApp buttons (`pb-28` body padding).
-* **Automated Git & Cloud Publishing:**
-  * Initializes Git repository and publishes to GitHub (`gh repo create ameyasharma-ai/<slug> --public`).
-  * Deploys live production website to Vercel (`npx vercel --prod --yes --project <slug>`).
-  * Yields live public URL: `https://<business-slug>.vercel.app`.
+* **Agency Subdomain Batch Hosting (`*.arclanestudios.space`):**
+  * **No Individual Vercel Projects:** Rather than spamming separate Vercel projects and git repositories, each client site is staged directly inside [`web-dev-agency/public/sites/<slug>/index.html`](file:///c:/Users/Ameya%20Sharma/Downloads/arclane-autonomous-acquisition-engine/web-dev-agency/public/sites).
+  * **Batch Trigger (Every 5 Leads):** Automatically commits and pushes to GitHub (`ameyasharma-ai/WEB-DEV-AGENCY`) after every 5 scrapes, triggering a single unified Vercel deployment.
+  * **End-of-Run Sweep:** Any remaining leads that do not form a full batch of 5 are automatically swept and deployed to production as soon as the scraper finishes.
+  * **Subdomain URL Structure:** Every business receives a clean, high-conversion URL: `https://<business-slug>.arclanestudios.space` (and fallback `https://www.arclanestudios.space/sites/<business-slug>`).
+  * **Subdomain Isolation:** Next.js middleware and layout isolation detect client subdomains and strip the agency header, footer, and navigation so the client site looks 100% standalone.
 * **Report Structuring:**
   * Writes structured metadata to `reports/<clientId>/outreach.json` and `outreach.txt`.
-  * Updates Google Sheets with the live URL and sets status to `Website Built`.
+  * Updates Google Sheets with the live branded subdomain URL and sets status to `Website Built`.
 
 ---
 
@@ -191,6 +193,48 @@ A stateless Python Telegram bot for email-based outreach:
 
 ## 8. Complete Command & CLI Reference
 
+### 🎯 Fast Test Run: 10 Gyms in Patna
+
+To run an autonomous test batch of **10 Gyms in Patna** with real-time scraping, website building, and agency subdomain batch deployment:
+
+#### Method 1: Via Local Web UI (Port 3000)
+1. Start the controller bot & Web UI server:
+   ```powershell
+   node controller_bot/index.js
+   ```
+2. Open your browser to `http://localhost:3000`.
+3. In the chat command box, send:
+   ```text
+   /trigger_stream Gyms Patna 10
+   ```
+   *(Or for full pipeline with automated WhatsApp curiosity pitch: `/run_full Gyms Patna 10`)*.
+
+#### Method 2: Via Telegram Controller Bot
+Send to `@ArclaneControllerBot`:
+```text
+/trigger_stream Gyms Patna 10
+```
+
+#### Method 3: Direct CLI Stream Command
+```powershell
+node -e "
+import('./controller_bot/pipeline_runner.js').then(async ({ PipelineRunner }) => {
+    const { ScraperRunner } = await import('./controller_bot/scraper_runner.js');
+    const runner = new PipelineRunner();
+    const scraper = new ScraperRunner();
+    await runner.runStreamingScrapeAndBuild({
+        query: 'Gyms',
+        locality: 'Patna',
+        city: 'Patna',
+        targetLeads: 10,
+        scraperRunner: scraper
+    });
+});
+"
+```
+
+---
+
 ### 🤖 A. Master Controller Bot & Web UI Interactive Buttons Reference
 
 The interactive dashboard (available both in Telegram and at `http://localhost:3000`) provides 1-tap execution buttons:
@@ -199,14 +243,14 @@ The interactive dashboard (available both in Telegram and at `http://localhost:3
 | :--- | :--- | :--- |
 | **Live Status** | `/status` | **Health & Schedule Monitor:** Queries operational state, reporting whether Scraper or Pipeline Builder processes are active/idle, displays current IST time, and outlines today's cron executions. |
 | **Today's Plan** | `/today` | **Daily Strategic Brief:** Reads `plan/week_1_plan.json`. Displays targeted niche (e.g. Dental Clinics in Ahmedabad), target lead quota (35), batch wave dispatches, and deal-closing phone scripts. |
-| **360° Full Pipeline (1 Lead)** | `/run_full "Query" "City" 1` | **End-to-End Instant Demo:** Extracts exactly **1 qualified lead** from Google Maps, conducts 14-point AI audit, generates custom Tailwind CSS website, deploys live to Vercel, and immediately sends a curiosity WhatsApp pitch. |
-| **Stream Scrape & Build** | `/trigger_stream [query] [city] [count]` | **Concurrent Streaming Pipeline:** Launches Playwright scraper for today's niche. As soon as 1 lead is extracted, it streams into builder queue to deploy the site while scraper continues searching in parallel. |
+| **360° Full Pipeline (1-10 Leads)** | `/run_full [query] [city] [count]` | **End-to-End Autonomous Pipeline:** Extracts qualified leads from Google Maps, conducts 14-point AI audit, generates custom Tailwind CSS websites, deploys live to agency subdomains in batches of 5, and sends curiosity WhatsApp pitches. |
+| **Stream Scrape & Build** | `/trigger_stream [query] [city] [count]` | **Concurrent Streaming Pipeline:** Launches Playwright scraper for today's niche. As each lead is extracted, it streams into the builder queue and stages to `arclanestudios.space`. Deploys every 5 leads + remaining. |
 | **Reset & Resume 24/7 Plan** | `/reset_plan` | **State Reset:** Aborts active manual pipeline, flushes task queues, and restores autonomous 24/7 timetable. |
 | **Abort Active Task** | `/abort` or `/stop` | **Emergency Halt:** Immediately transmits `SIGTERM` kill signal to all active Playwright, Puppeteer, and website builder child processes. |
 | **WhatsApp Dispatch** | `/trigger_send [count]` | **Outreach Wave:** Connects to WhatsApp Web via persistent session (`whatsapp_user_session/`), retrieves next pending batch of leads with built sites, and messages them with 30-75s safe delays. |
 | **🟢 Green Signal Gate** | Inline Button: `cmd_approve_dispatch` | **2-Step Safe Dispatch Approval:** At scheduled times (12:00 PM & 04:30 PM), the bot generates and exports a `.vcf` contact book to your Telegram/Web UI first, then pauses. WhatsApp messages are only sent once you tap **[🟢 Approve & Launch Wave]**. |
 | **Scrape Only** | `/trigger_scrape [query] [city] [count]` | **Lead Extraction Only:** Scrapes Google Maps listings and writes them into Google Sheets (`Sheet1`). Does not trigger website builds or messaging. |
-| **Build Only** | `/trigger_analyse [maxLeads]` | **Batch Site Generation:** Scans Google Sheets for unprocessed leads, executes 14-point AI SWOT audit, generates mobile-first sites, and deploys to Vercel. |
+| **Build Only** | `/trigger_analyse [maxLeads]` | **Batch Site Generation:** Scans Google Sheets for unprocessed leads, executes 14-point AI SWOT audit, generates mobile-first sites, and deploys to subdomains. |
 | **Pause / Resume Automation** | `/pause_auto` / `/start_auto` | **Cron Master Switch:** Toggles 24/7 autonomous cron schedule on or off without halting manual command triggers. |
 | **View Schedule JSON** | `/view_plan` | **Configuration Inspector:** Shows file path (`plan/week_1_plan.json`) and instructions for reconfiguring daily niches, locations, and batch sizes. |
 

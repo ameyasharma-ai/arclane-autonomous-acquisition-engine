@@ -53,8 +53,12 @@ export class ScraperRunner {
                 '--leads', String(targetLeads)
             ];
 
-            // Use python from system or environment
-            const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
+            // Robust Python resolution: prefer Anaconda python where playwright is installed
+            let pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
+            const anacondaPath = 'C:\\Users\\Ameya Sharma\\anaconda3\\python.exe';
+            if (process.platform === 'win32' && fs.existsSync(anacondaPath)) {
+                pythonCmd = anacondaPath;
+            }
             
             console.log(`[ScraperRunner] Spawning: ${pythonCmd} ${args.join(' ')} in ${CONFIG.SCRAPER_DIR}`);
 

@@ -682,6 +682,35 @@ else:
     _parent_sa = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', _sa_env))
     SERVICE_ACCOUNT_FILE = _parent_sa if os.path.exists(_parent_sa) else _sa_env
 
+def get_gspread_client():
+    import urllib.request
+    import email.utils
+    import gspread
+    from google.oauth2 import service_account
+    
+    try:
+        req = urllib.request.Request('https://www.google.com', method='HEAD')
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            server_date_str = resp.headers.get('date')
+        if server_date_str:
+            from datetime import datetime as dt, timezone as tz, timedelta as td
+            server_dt = email.utils.parsedate_to_datetime(server_date_str)
+            skew = server_dt.timestamp() - dt.now(tz.utc).timestamp()
+            if abs(skew) > 1:
+                import google.auth._helpers
+                orig_utcnow = getattr(google.auth._helpers, '_orig_utcnow', google.auth._helpers.utcnow)
+                google.auth._helpers._orig_utcnow = orig_utcnow
+                google.auth._helpers.utcnow = lambda: orig_utcnow() + td(seconds=skew)
+    except Exception as e:
+        print(f"[GoogleClockSync] Clock sync notice: {e}")
+
+    scopes = [
+        'https://www.googleapis.com/auth/spreadsheets',
+        'https://www.googleapis.com/auth/drive'
+    ]
+    creds = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=scopes)
+    return gspread.authorize(creds)
+
 # --- SCRIPT ---
 COLUMNS = [
     "Client ID", "Date Added", "Business Name", "Industry/Niche", "City/State", 
@@ -1025,9 +1054,7 @@ async def main(search_query, locality, city, num_of_leads, end_date="", end_time
     target_row = 2
     seen_leads = set()
     try:
-        import gspread
-
-        gc = gspread.service_account(filename=SERVICE_ACCOUNT_FILE)
+        gc = get_gspread_client()
         sh = gc.open(SPREADSHEET_NAME)
         gs_worksheet = sh.worksheet(WORKSHEET_NAME)
         
@@ -1846,8 +1873,7 @@ async def main(search_query, locality, city, num_of_leads, end_date="", end_time
                                             time.sleep(10 * (attempt + 1))
                                             try:
                                                 # Force re-authentication to build a brand new HTTP session if connection was forcibly closed
-                                                import gspread
-                                                gc = gspread.service_account(filename=SERVICE_ACCOUNT_FILE)
+                                                gc = get_gspread_client()
                                                 sh = gc.open(SPREADSHEET_NAME)
                                                 gs_worksheet = sh.worksheet(WORKSHEET_NAME)
                                             except Exception as auth_e:
