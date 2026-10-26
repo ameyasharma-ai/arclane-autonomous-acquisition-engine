@@ -7,6 +7,7 @@ import { Scraper } from '../src/scraper.js';
 import { Summarizer } from '../src/summarizer.js';
 import { WebsiteBuilder } from '../src/builder.js';
 import { WhatsAppSender } from '../src/whatsapp_sender.js';
+import { agencyPublisher } from '../src/agency_publisher.js';
 import { CONFIG } from './config.js';
 
 export class PipelineRunner {
@@ -239,13 +240,20 @@ export class PipelineRunner {
             console.log(`[PipelineRunner] ⏳ Scraper finished. Waiting for remaining queued website builds to complete...`);
             await this.leadQueue.onIdle();
 
+            // Flush and deploy any remaining unpushed sites in the batch queue
+            if (agencyPublisher.batchQueue.length > 0) {
+                console.log(`[PipelineRunner] 📦 Flushing remaining ${agencyPublisher.batchQueue.length} sites to production...`);
+                await agencyPublisher.deployBatch(async (msg) => this.sendTelegram(msg));
+            }
+
             const totalDurationMin = ((new Date() - startTime) / 60000).toFixed(1);
 
             await this.sendTelegram(
                 `🏁 *[Controller] Concurrent Streaming Pipeline Complete!*\n\n` +
                 `📊 *Summary:*\n` +
                 `• Total Leads Scraped: ${streamedCount}\n` +
-                `• Websites Built & Deployed: ${processedCount}\n` +
+                `• Websites Built & Hosted: ${processedCount}\n` +
+                `• Subdomains Active: \`*.arclanestudios.space\`\n` +
                 `⏱️ *Total Duration:* ${totalDurationMin} min`
             );
 
@@ -396,9 +404,15 @@ export class PipelineRunner {
             const orchestrator = new Orchestrator(this.bot, this.chatId);
             await orchestrator.processLeads(leadsToProcess);
 
+            // Flush remaining sites in batch queue
+            if (agencyPublisher.batchQueue.length > 0) {
+                console.log(`[PipelineRunner] 📦 Flushing remaining ${agencyPublisher.batchQueue.length} sites to production...`);
+                await agencyPublisher.deployBatch(async (msg) => this.sendTelegram(msg));
+            }
+
             await this.sendTelegram(
                 `🎉 *[Controller] Batch Analysis & Website Builds Complete!*\n` +
-                `✅ Range \`[${firstId}:${lastId}]\` has been built, deployed to Vercel, and synced with Google Sheets.`
+                `✅ Range \`[${firstId}:${lastId}]\` has been built, deployed to arclanestudios.space, and synced with Google Sheets.`
             );
 
             this.isProcessing = false;

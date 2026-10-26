@@ -4,6 +4,7 @@ import { exec } from 'child_process';
 import util from 'util';
 import { LLMClient } from './llm.js';
 import { loadGoogleSheet, updateLeadFields } from './sheets.js';
+import { agencyPublisher } from './agency_publisher.js';
 
 const execAsync = util.promisify(exec);
 
@@ -134,99 +135,23 @@ export class WebsiteBuilder {
         const htmlFilePath = path.join(clientSiteDir, 'index.html');
         fs.writeFileSync(htmlFilePath, htmlCode, 'utf-8');
 
-        // Vercel & GitHub project name (clean business slug with NO "website" suffix)
-        const vercelSlug = businessName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-        let githubRepoUrl = `https://github.com/ameyasharma-ai/${vercelSlug}`;
+        // Stage into web-dev-agency/public/sites/<slug>/index.html
+        const staged = agencyPublisher.stageSite(clientId, businessName, htmlCode);
+        const vercelSlug = staged.slug;
+        const deployedUrl = staged.deployedUrl;
+        const githubRepoUrl = `https://github.com/ameyasharma-ai/WEB-DEV-AGENCY/tree/main/public/sites/${vercelSlug}`;
 
-        // Write package.json so Vercel registers the exact clean business name
-        fs.writeFileSync(path.join(clientSiteDir, 'package.json'), JSON.stringify({ name: vercelSlug, version: "1.0.0" }, null, 2), 'utf-8');
+        await this.sendStatus(`✅ *[2/4] Code Generated Successfully!*\nSaved locally to \`generated_sites/${clientId}/index.html\`\nStaged for subdomain: \`${deployedUrl}\``);
 
-        await this.sendStatus(`✅ *[2/4] Code Generated Successfully!*\nSaved locally to \`generated_sites/${clientId}/index.html\``);
+        // 4. Staged for batch deployment (every 5 scrapes or end of run)
+        await this.sendStatus(`📦 *[3/4] Staged for Agency Subdomain Build (${agencyPublisher.batchQueue.length}/5 in current batch)...*`);
 
-        // 4. Git & GitHub Hosting
-        await this.sendStatus(`📦 *[3/4] Publishing to GitHub & Deploying to Vercel...*`);
-        try {
-            await execAsync(`git init`, { cwd: clientSiteDir });
-            await execAsync(`git add .`, { cwd: clientSiteDir });
-            try {
-                await execAsync(`git commit -m "Initial commit for ${businessName}"`, { cwd: clientSiteDir });
-            } catch (cErr) {
-                // Commit already up to date
-            }
-            
-            const ghBinary = fs.existsSync("C:\\Program Files\\GitHub CLI\\gh.exe") 
-                ? `"C:\\Program Files\\GitHub CLI\\gh.exe"` 
-                : "gh";
-
-            try {
-                const { stdout: ghOut } = await execAsync(`${ghBinary} repo create ameyasharma-ai/${vercelSlug} --public --source=. --remote=origin --push`, { cwd: clientSiteDir });
-                const ghMatch = ghOut.match(/https:\/\/github\.com\/[^\s]+/);
-                if (ghMatch) githubRepoUrl = ghMatch[0];
-            } catch (ghErr) {
-                try {
-                    await execAsync(`git push -u origin master`, { cwd: clientSiteDir });
-                } catch (pushErr) {
-                    try {
-                        await execAsync(`git push -u origin main`, { cwd: clientSiteDir });
-                    } catch (pushErr2) {
-                        console.log("GitHub push notice:", pushErr2.message);
-                    }
-                }
-            }
-        } catch (e) {
-            console.log("Git local commit notice:", e.message);
+        // Check if batch threshold (5 leads) is reached
+        if (agencyPublisher.shouldDeployBatch()) {
+            await agencyPublisher.deployBatch(async (msg) => this.sendStatus(msg));
         }
 
-        // 5. Deploy to Vercel (Ensure project name is the business slug)
-        let deployedUrl = "";
-        try {
-            const tokenFlag = process.env.VERCEL_TOKEN ? `--token ${process.env.VERCEL_TOKEN}` : '';
-            
-            // Ensure Vercel project exists under the business slug
-            try {
-                await execAsync(`vercel project add ${vercelSlug} ${tokenFlag}`, { cwd: clientSiteDir, timeout: 30000 });
-            } catch (pErr) {
-                // Project may already exist or error can be ignored
-            }
-
-            // Write vercel.json configuration as secondary safeguard
-            fs.writeFileSync(path.join(clientSiteDir, 'vercel.json'), JSON.stringify({ name: vercelSlug }, null, 2), 'utf-8');
-
-            const vercelCmd = `vercel --prod --yes ${tokenFlag}`.trim();
-            const { stdout, stderr } = await execAsync(vercelCmd, { cwd: clientSiteDir, timeout: 60000 });
-
-            // Combine stdout and stderr (Vercel CLI prints progress & Aliased domain to stderr)
-            const combinedOutput = `${stdout || ''}\n${stderr || ''}`;
-            const cleanOutput = combinedOutput.replace(/\x1B\[[0-9;]*[a-zA-Z]/g, '');
-            const aliasMatch = cleanOutput.match(/Aliased\s+(https:\/\/[a-zA-Z0-9-]+\.vercel\.app)/i) ||
-                               cleanOutput.match(/Production:\s*(https:\/\/[a-zA-Z0-9-]+\.vercel\.app)/i) ||
-                               cleanOutput.match(/(https:\/\/[a-zA-Z0-9-]+\.vercel\.app)/i);
-
-            if (aliasMatch) {
-                deployedUrl = aliasMatch[1].trim();
-            } else {
-                // Fetch exact production domain from Vercel project list
-                try {
-                    const { stdout: lsOut, stderr: lsErr } = await execAsync(`vercel project ls ${tokenFlag}`.trim(), { timeout: 30000 });
-                    const cleanLs = `${lsOut || ''}\n${lsErr || ''}`.replace(/\x1B\[[0-9;]*[a-zA-Z]/g, '');
-                    const projectMatch = cleanLs.match(new RegExp(`${vercelSlug}\\s+(https:\\/\\/[a-zA-Z0-9-]+\\.vercel\\.app)`, 'i'));
-                    if (projectMatch) {
-                        deployedUrl = projectMatch[1].trim();
-                    }
-                } catch (lsErr) {
-                    console.log("Project list fetch notice:", lsErr.message);
-                }
-            }
-        } catch (e) {
-            console.error(`Vercel deployment notice (${e.message}).`);
-        }
-
-        if (!deployedUrl) {
-            deployedUrl = `https://${vercelSlug}.vercel.app`;
-            console.log(`[Vercel Fallback] Using predicted canonical URL: ${deployedUrl}`);
-        }
-
-        // 6. Generate structured & formatted reports in reports/<clientId>/
+        // 5. Generate structured & formatted reports in reports/<clientId>/
         if (!fs.existsSync(clientReportsDir)) {
             fs.mkdirSync(clientReportsDir, { recursive: true });
         }

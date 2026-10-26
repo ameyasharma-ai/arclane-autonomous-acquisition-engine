@@ -58,3 +58,6 @@ __pycache__/
 # Public Dynamic Assets
 public/contacts.vcf
 public/qr.png
+
+# Nested submodules / separate repos
+web-dev-agency/
