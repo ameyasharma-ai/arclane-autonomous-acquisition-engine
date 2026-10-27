@@ -109,10 +109,10 @@ Located in `controller_bot/`. The central autonomous coordinator that schedules 
   Dispatches the remaining 17 leads during the late-afternoon engagement window.
 * **06:00 PM — 📞 Deal-Closing Phone Alert:**
   Pushes follow-up reminders and Hindi/English phone scripts to Telegram/Web UI to close ₹7,999 deals over 2-minute calls.
-* **10:15 PM — ⚡ Night Real-Time Streaming Scrape & Build:**
-  Spawns `scraper/scraper_no_website.py` overnight for today's designated city and query. As each lead is extracted from Google Maps, it immediately triggers the deep crawl, 14-point audit, and Vercel website deployment for that lead in parallel while scraping continues.
-* **11:15 PM — ⚙️ Night Safety Sweep Analysis:**
-  Checks Google Sheets for any unprocessed or manually inserted leads and builds websites for them so that tomorrow's batch is 100% ready.
+* **06:00 AM — 🌅 Morning Real-Time Streaming Scrape & Build:**
+  Spawns `scraper/scraper_no_website.py` in the morning for today's designated city and query. As each lead is extracted from Google Maps, it immediately triggers the deep crawl, 14-point audit, and Vercel website deployment for that lead in parallel while scraping continues.
+* **07:30 AM — ⚙️ Morning Safety Sweep Analysis:**
+  Checks Google Sheets for any unprocessed or manually inserted leads and builds websites for them so that today's batch is 100% ready.
 
 ### Weekly Strategic Plan (`plan/week_1_plan.json`):
 * **Monday:** Gyms & Fitness Centers in Pune (Target: 35 Leads)

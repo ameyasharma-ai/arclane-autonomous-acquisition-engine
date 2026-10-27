@@ -1135,7 +1135,7 @@ flowchart TD
 ```
 
 ### Detailed Operator Step-by-Step
-1. **Automated Run:** Night stream runs at 10:15 PM IST. Scrapes 30 leads, builds landing pages, and stages subdomains at `*.arclanestudios.space`.
+1. **Automated Run:** Morning stream runs at 06:00 AM IST. Scrapes 30 leads, builds landing pages, and stages subdomains at `*.arclanestudios.space`.
 2. **Morning Human Verification (10:00 AM – 11:30 AM):** Operator opens `http://localhost:3001` (Approval Queue), checks the business name, verifies the phone number is a valid WhatsApp line, and previews the staged site.
 3. **Controlled Dispatch (12:00 PM – 1:00 PM):** Operator approves the queue batch. Messages are sent with 30–75 second humanized intervals.
 4. **Dialogue & Courtesy Call (6:00 PM – 7:00 PM):** When an owner replies with feedback or interest, the operator uses the 2-minute courtesy opener:

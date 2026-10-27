@@ -128,7 +128,7 @@ Render free services sleep after 15 minutes of inactivity. Use a free external p
 ```
 GET https://your-render-app.onrender.com/api/analytics
 ```
-Interval: Every 10 minutes (ensures the 10:15 PM and 11:15 PM cron schedules trigger without sleeping).
+Interval: Every 10 minutes (ensures the 06:00 AM and 07:30 AM cron schedules trigger without sleeping).
 
 ---
 

@@ -15,7 +15,7 @@ The Arclane Autonomous Acquisition Engine is an end-to-end sales prospecting, bu
 1. **Entry Points & Active Services:**
    - `controller_bot/index.js`: Telegram bot controller & Web UI command listener running Telegraf with Socket.io real-time broadcast.
    - `src/web_ui.js`: Express & Socket.io server (port 3000) serving local dashboard (`public/`) and bi-directionally syncing messages with Telegram.
-   - `controller_bot/scheduler.js`: Cron-based task scheduler (`node-cron`) configured for 10:15 PM scraping, 11:15 PM audit sweep, 12:00 PM wave 1 dispatch, 4:30 PM wave 2 dispatch, and 6:00 PM phone follow-ups.
+   - `controller_bot/scheduler.js`: Cron-based task scheduler (`node-cron`) configured for 06:00 AM scraping, 07:30 AM audit sweep, 12:00 PM wave 1 dispatch, 4:30 PM wave 2 dispatch, and 6:00 PM phone follow-ups.
    - `scraper/telegram_bot.py`: Python Playwright scraper extracting Google Maps business details, reviews, and phone numbers.
    - `scripts/sales_bot.py`: Python SMTP/Telegram email dispatcher reading `reports/` and sending PDF audit attachments.
    - `scripts/whatsapp_bot.js`: Standalone WhatsApp Web CLI dispatcher using Playwright persistent browser context (`whatsapp_user_session/`).
