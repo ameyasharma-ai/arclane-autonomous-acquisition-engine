@@ -96,7 +96,21 @@ CRITICAL DESIGN & AESTHETIC PRINCIPLES (MUST FOLLOW STRICTLY):
    - Clickable Links: All phone numbers ('tel:...'), WhatsApp links ('https://wa.me/...'), and maps links must be active and correctly formatted.
    - High-Quality Imagery: Use crisp, relevant Unsplash photos with curated query parameters (e.g. 'https://images.unsplash.com/photo-...?auto=format&fit=crop&w=800&q=80') and beautiful gradient fallback backgrounds.
 
-5. DELIVERABLE FORMAT:
+5. SECURE WEB PRACTICES & ZERO-VULNERABILITY GUARANTEE (MANDATORY):
+   - Zero XSS & DOM Injection:
+     * Never write unescaped user input or dynamic text directly into 'innerHTML' or 'document.write'. Always use 'textContent', 'innerText', or sanitize before insertion.
+     * Never use 'eval()', 'Function()', or inline 'javascript:' pseudo-protocols.
+   - Reverse Tabnabbing Protection:
+     * Every external link with 'target="_blank"' MUST strictly include 'rel="noopener noreferrer"' to prevent reverse tabnabbing and window.opener hijacking.
+   - Resource Protocol Integrity & HTTPS:
+     * All CDN scripts, styles, Google Fonts, and images MUST use strict HTTPS ('https://...'). Never use unencrypted HTTP ('http://') or protocol-relative ('//...') URLs.
+   - Safe Dynamic Actions & Forms:
+     * Contact and inquiry forms must validate inputs client-side, sanitize values before any feedback modal or alert, and never expose sensitive keys or send credentials over unencrypted channels.
+     * All phone numbers ('tel:+...') and WhatsApp links ('https://wa.me/...') must contain only valid digits and standard E.164 characters, avoiding CRLF or malformed characters.
+   - Modern Safe APIs:
+     * Use standard, secure browser APIs (e.g., addEventListener) without leaking global variables or risking prototype pollution.
+
+6. DELIVERABLE FORMAT:
    - Output a single, complete, beautiful index.html file.
    - Load Tailwind CSS via CDN: <script src="https://cdn.tailwindcss.com"></script>
    - Load Google Fonts & Lucide Icons (<script src="https://unpkg.com/lucide@latest"></script> + lucide.createIcons()).

@@ -345,6 +345,24 @@ export class WebsiteBuilder {
             return `${p1}${c}${p3}`;
         });
 
+        // 8. Deterministic Security Post-Processing (Reverse Tabnabbing & Protocol Protection)
+        // Ensure all target="_blank" links have rel="noopener noreferrer"
+        html = html.replace(/(<a\s+[^>]*target=["']_blank["'][^>]*)(>)/gi, (match, prefix, closing) => {
+            if (!prefix.includes('rel=')) {
+                return `${prefix} rel="noopener noreferrer"${closing}`;
+            } else if (!prefix.includes('noopener')) {
+                return prefix.replace(/rel=["']([^"']*)["']/i, 'rel="$1 noopener noreferrer"') + closing;
+            }
+            return match;
+        });
+
+        // Neutralize unsafe javascript: pseudo-protocols in href and src
+        html = html.replace(/(href|src)=["']javascript:[^"']*["']/gi, '$1="#"');
+
+        // Upgrade CDN http:// resources to https://
+        html = html.replace(/src=["']http:\/\/cdn\./gi, 'src="https://cdn.');
+        html = html.replace(/href=["']http:\/\/fonts\./gi, 'href="https://fonts.');
+
         return html;
     }
 }

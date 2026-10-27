@@ -558,9 +558,20 @@
                 .finally(() => {
                     if (btn) {
                         btn.disabled = false;
-                        btn.innerHTML = '🌐 Reset Hosted Sites';
+                        btn.innerText = '🗑️ Reset Agency to Baseline';
                     }
                 });
+        }
+
+        // Security: HTML entity escaping to neutralize XSS in dynamic cards
+        function escapeHtml(str) {
+            if (!str && str !== 0) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
         }
 
         // Approval Queue Management & Folders
@@ -641,30 +652,41 @@
                 return;
             }
 
-            c.innerHTML = filtered.map(q => `
+            c.innerHTML = filtered.map(q => {
+                const safeName = escapeHtml(q.business_name);
+                const safePhone = escapeHtml(q.phone || 'N/A');
+                const safeLeadId = escapeHtml(q.lead_id);
+                const safeStatus = escapeHtml(q.status);
+                const safeContent = escapeHtml(q.message_content);
+                const safeDemoUrl = q.demo_url ? encodeURI(q.demo_url) : '';
+                const safeRejection = escapeHtml(q.rejection_reason || 'Outreach skipped');
+                const safeApprovedBy = escapeHtml(q.approved_by || 'Operator');
+                const approvedTime = q.approved_at ? 'at ' + new Date(q.approved_at).toLocaleTimeString() : '';
+
+                return `
                 <div class="p-5 bg-slate-900 border border-slate-800 rounded-2xl space-y-3">
                     <div class="flex justify-between items-start">
                         <div>
-                            <h4 class="text-base font-bold text-white">${q.business_name}</h4>
-                            <span class="text-xs text-slate-400">Phone: ${q.phone || 'N/A'} • ID: ${q.lead_id}</span>
+                            <h4 class="text-base font-bold text-white">${safeName}</h4>
+                            <span class="text-xs text-slate-400">Phone: ${safePhone} • ID: ${safeLeadId}</span>
                         </div>
                         <span class="text-xs px-2.5 py-1 rounded font-bold ${
                             q.status === 'AWAITING_APPROVAL' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' 
                             : q.status === 'REJECTED' ? 'bg-red-500/10 text-red-400 border border-red-500/20' 
                             : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                        }">${q.status}</span>
+                        }">${safeStatus}</span>
                     </div>
 
-                    ${q.demo_url ? `<div class="text-xs text-cyan-400">🔗 Live Demo: <a href="${q.demo_url}" target="_blank" class="underline font-semibold">${q.demo_url}</a></div>` : ''}
+                    ${safeDemoUrl ? `<div class="text-xs text-cyan-400">🔗 Live Demo: <a href="${safeDemoUrl}" target="_blank" rel="noopener noreferrer" class="underline font-semibold">${escapeHtml(q.demo_url)}</a></div>` : ''}
 
                     <!-- Message View or Edit Mode -->
-                    <div id="msg-view-${q.lead_id}" class="p-3 bg-slate-950 rounded-xl border border-slate-800 font-mono text-xs text-slate-300 whitespace-pre-wrap">${q.message_content}</div>
+                    <div id="msg-view-${safeLeadId}" class="p-3 bg-slate-950 rounded-xl border border-slate-800 font-mono text-xs text-slate-300 whitespace-pre-wrap">${safeContent}</div>
                     
-                    <div id="msg-edit-${q.lead_id}" class="hidden space-y-2">
-                        <textarea id="textarea-${q.lead_id}" rows="5" class="w-full bg-slate-950 border border-cyan-500/50 rounded-xl p-3 font-mono text-xs text-slate-100 focus:outline-none">${q.message_content}</textarea>
+                    <div id="msg-edit-${safeLeadId}" class="hidden space-y-2">
+                        <textarea id="textarea-${safeLeadId}" rows="5" class="w-full bg-slate-950 border border-cyan-500/50 rounded-xl p-3 font-mono text-xs text-slate-100 focus:outline-none">${safeContent}</textarea>
                         <div class="flex gap-2">
-                            <button onclick="saveEditedMessage('${q.lead_id}')" class="px-3 py-1.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold rounded-lg transition">💾 Save Changes</button>
-                            <button onclick="toggleEdit('${q.lead_id}', false)" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg transition">Cancel</button>
+                            <button onclick="saveEditedMessage('${safeLeadId}')" class="px-3 py-1.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold rounded-lg transition">💾 Save Changes</button>
+                            <button onclick="toggleEdit('${safeLeadId}', false)" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg transition">Cancel</button>
                         </div>
                     </div>
 
@@ -672,34 +694,35 @@
                     <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
                         ${q.status === 'AWAITING_APPROVAL' ? `
                             <div class="flex gap-2">
-                                <button onclick="approveLead('${q.lead_id}')" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-xl transition">
+                                <button onclick="approveLead('${safeLeadId}')" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-xl transition">
                                     ✅ Approve (Queue for Wave)
                                 </button>
-                                <button onclick="toggleEdit('${q.lead_id}', true)" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 font-bold text-xs rounded-xl transition">
+                                <button onclick="toggleEdit('${safeLeadId}', true)" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 font-bold text-xs rounded-xl transition">
                                     ✏️ Edit Copy
                                 </button>
-                                <button onclick="rejectLead('${q.lead_id}')" class="px-3.5 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 font-bold text-xs rounded-xl transition">
+                                <button onclick="rejectLead('${safeLeadId}')" class="px-3.5 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 font-bold text-xs rounded-xl transition">
                                     ❌ Reject (File to Archive)
                                 </button>
                             </div>
                         ` : q.status === 'REJECTED' ? `
                             <div class="flex items-center gap-2">
-                                <span class="text-xs text-red-400/90 font-medium">Archived: ${q.rejection_reason || 'Outreach skipped'}</span>
+                                <span class="text-xs text-red-400/90 font-medium">Archived: ${safeRejection}</span>
                             </div>
                             <div class="flex gap-2">
-                                <button onclick="restoreLead('${q.lead_id}')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 font-bold text-xs rounded-xl transition">
+                                <button onclick="restoreLead('${safeLeadId}')" class="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 font-bold text-xs rounded-xl transition">
                                     🔄 Restore to Pending
                                 </button>
-                                <button onclick="toggleEdit('${q.lead_id}', true)" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 font-bold text-xs rounded-lg transition">
+                                <button onclick="toggleEdit('${safeLeadId}', true)" class="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 font-bold text-xs rounded-lg transition">
                                     ✏️ Edit & Re-Evaluate
                                 </button>
                             </div>
                         ` : `
-                            <div class="text-xs text-emerald-400/80">✅ Approved by ${q.approved_by || 'Operator'} ${q.approved_at ? 'at ' + new Date(q.approved_at).toLocaleTimeString() : ''}</div>
+                            <div class="text-xs text-emerald-400/80">✅ Approved by ${safeApprovedBy} ${approvedTime}</div>
                         `}
                     </div>
                 </div>
-            `).join('');
+            `;
+            }).join('');
         }
 
         function toggleEdit(leadId, isEditing) {
