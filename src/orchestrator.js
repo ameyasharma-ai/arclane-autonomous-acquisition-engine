@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { Scraper } from './scraper.js';
 import { Summarizer } from './summarizer.js';
-import { updateLeadFields, updateLeadNotes } from './sheets.js';
+import { updateLeadFields } from './sheets.js';
 import { WebsiteBuilder } from './builder.js';
 
 export class Orchestrator {

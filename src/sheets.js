@@ -154,6 +154,10 @@ export async function updateLeadStatus(sheet, clientId, status) {
     return updateLeadFields(sheet, clientId, { 'Current Status': status });
 }
 
+export async function updateLeadField(sheet, clientId, field, value) {
+    return updateLeadFields(sheet, clientId, { [field]: value });
+}
+
 export async function updateLeadFields(sheet, clientId, fieldsToUpdate) {
     const rows = await sheet.getRows();
     const row = rows.find(r => r.get('Client ID') == String(clientId));
@@ -168,4 +172,8 @@ export async function updateLeadFields(sheet, clientId, fieldsToUpdate) {
     }
     await row.save();
     return true;
+}
+
+export async function updateLeadNotes(sheet, clientId, notes) {
+    return updateLeadFields(sheet, clientId, { 'Notes': notes });
 }
