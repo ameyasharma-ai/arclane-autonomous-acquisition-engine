@@ -91,7 +91,41 @@ export async function loadGoogleSheet() {
             sheet = doc.sheetsByIndex[0];
         }
         
-        await sheet.loadHeaderRow();
+        try {
+            await sheet.loadHeaderRow();
+        } catch (headerErr) {
+            if (headerErr.message && headerErr.message.includes('Duplicate header detected')) {
+                console.warn('[GoogleSheet] Duplicate header detected, auto-sanitizing row 1...');
+                const sheetsApi = google.sheets({ version: 'v4', auth });
+                const title = sheet.title || 'Sheet1';
+                const rowRes = await sheetsApi.spreadsheets.values.get({
+                    spreadsheetId,
+                    range: `${title}!1:1`
+                });
+                const rawHeaders = rowRes.data.values ? rowRes.data.values[0] : [];
+                const seen = new Set();
+                const cleanHeaders = [];
+                for (const h of rawHeaders) {
+                    const t = (h || '').trim();
+                    if (!t) continue;
+                    if (!seen.has(t)) {
+                        seen.add(t);
+                        cleanHeaders.push(t);
+                    }
+                }
+                await sheetsApi.spreadsheets.values.clear({ spreadsheetId, range: `${title}!1:1` });
+                await sheetsApi.spreadsheets.values.update({
+                    spreadsheetId,
+                    range: `${title}!A1`,
+                    valueInputOption: 'USER_ENTERED',
+                    requestBody: { values: [cleanHeaders] }
+                });
+                await sheet.loadHeaderRow();
+                console.log('[GoogleSheet] Auto-sanitized headers successfully!');
+            } else {
+                throw headerErr;
+            }
+        }
         return { sheet, doc };
     } finally {
         global.Date = OrigDate;
