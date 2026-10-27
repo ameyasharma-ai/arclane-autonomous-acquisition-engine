@@ -150,7 +150,7 @@
             </div>
             <div>
                 <h1 class="text-lg font-extrabold tracking-tight text-white flex items-center gap-2">
-                    ArcLane Sales OS <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">24/7 Autopilot</span>
+                    ArcLane Sales OS <span id="autopilot-badge" class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-semibold transition">24/7 Autopilot: Active</span>
                 </h1>
                 <p class="text-xs text-slate-400">Autonomous Prospecting, Demo Hosting & Conversion Platform</p>
             </div>
@@ -167,6 +167,9 @@
 
         <!-- Emergency Status & Actions -->
         <div class="flex items-center gap-2">
+            <button onclick="toggleSchedulerAutomation()" id="btn-toggle-auto" class="px-3.5 py-1.5 rounded-lg bg-amber-500/15 text-amber-300 border border-amber-500/30 hover:bg-amber-500/25 text-xs font-bold transition flex items-center gap-1.5 shadow-sm" title="Persistently toggle automated 24/7 scheduled pipeline on or off">
+                <span id="btn-toggle-auto-icon">⏸️</span> <span id="btn-toggle-auto-text">Pause Automation</span>
+            </button>
             <button onclick="clearPlacesAndCrm()" id="btn-clear-places-crm" class="px-3 py-1.5 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 text-xs font-bold transition flex items-center gap-1.5" title="Clear scraped places and CRM leads locally & in Google Sheets">
                 🧹 Clear Places & CRM
             </button>
@@ -473,6 +476,12 @@
             updateMetricsDisplay(metrics);
         });
 
+        socket.on('scheduler_state_changed', (data) => {
+            if (data && typeof data.isAutoRunning === 'boolean') {
+                updateSchedulerUI(data.isAutoRunning);
+            }
+        });
+
         socket.on('history', (history) => {
             messagesDiv.innerHTML = '';
             history.forEach(msg => appendMessage(msg.type, msg.text, msg.opts));
@@ -503,6 +512,72 @@
                 .catch(()=>{});
         }
         fetchAnalytics();
+
+        // Persistent Scheduler Automation State
+        let isAutoRunning = true;
+        function updateSchedulerUI(isRunning) {
+            isAutoRunning = isRunning;
+            const badge = document.getElementById('autopilot-badge');
+            const btn = document.getElementById('btn-toggle-auto');
+            const icon = document.getElementById('btn-toggle-auto-icon');
+            const text = document.getElementById('btn-toggle-auto-text');
+
+            if (isRunning) {
+                if (badge) {
+                    badge.innerText = '24/7 Autopilot: Active';
+                    badge.className = 'text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-semibold transition';
+                }
+                if (btn) {
+                    btn.className = 'px-3.5 py-1.5 rounded-lg bg-amber-500/15 text-amber-300 border border-amber-500/30 hover:bg-amber-500/25 text-xs font-bold transition flex items-center gap-1.5 shadow-sm';
+                }
+                if (icon) icon.innerText = '⏸️';
+                if (text) text.innerText = 'Pause Automation';
+            } else {
+                if (badge) {
+                    badge.innerText = '24/7 Autopilot: Paused';
+                    badge.className = 'text-xs px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-semibold transition';
+                }
+                if (btn) {
+                    btn.className = 'px-3.5 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/35 hover:bg-emerald-500/30 text-xs font-bold transition flex items-center gap-1.5 shadow-sm';
+                }
+                if (icon) icon.innerText = '▶️';
+                if (text) text.innerText = 'Resume Automation';
+            }
+        }
+
+        function fetchSchedulerStatus() {
+            fetch('/api/scheduler/status')
+                .then(r => r.json())
+                .then(d => {
+                    if (d.success) {
+                        updateSchedulerUI(d.isAutoRunning);
+                    }
+                })
+                .catch(()=>{});
+        }
+        fetchSchedulerStatus();
+
+        function toggleSchedulerAutomation() {
+            const nextState = !isAutoRunning;
+            const actionLabel = nextState ? 'Resume' : 'Pause';
+            showToast(`⚙️ ${actionLabel}ing 24/7 automation persistently...`);
+
+            fetch('/api/scheduler/toggle', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ isAutoRunning: nextState })
+            })
+            .then(r => r.json())
+            .then(d => {
+                if (d.success) {
+                    updateSchedulerUI(d.isAutoRunning);
+                    showToast(d.isAutoRunning ? '🟢 Automation active & running on schedule!' : '⏸️ Automation paused persistently until resumed.');
+                } else {
+                    showToast('❌ Failed to toggle scheduler: ' + (d.error || 'Unknown error'));
+                }
+            })
+            .catch(e => showToast('❌ Error: ' + e.message));
+        }
 
         // Clear All Scraped Places & CRM Leads
         function clearPlacesAndCrm() {

@@ -12,8 +12,38 @@ export class Scheduler {
         this.scraperRunner = new ScraperRunner(telegramBot, chatId);
         this.pipelineRunner = new PipelineRunner(telegramBot, chatId);
         this.cronJobs = [];
-        this.isAutoRunning = true;
         this.plan = CONFIG.loadPlan();
+        this.isAutoRunning = this.loadPersistentAutoRunning();
+    }
+
+    loadPersistentAutoRunning() {
+        try {
+            const statePath = path.join(CONFIG.ROOT_DIR, 'plan', 'engine_state.json');
+            if (fs.existsSync(statePath)) {
+                const state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
+                if (typeof state.isAutoRunning === 'boolean') {
+                    return state.isAutoRunning;
+                }
+            }
+        } catch (e) {
+            console.warn('[Scheduler] loadPersistentAutoRunning notice:', e.message);
+        }
+        return true;
+    }
+
+    savePersistentAutoRunning(isRunning) {
+        try {
+            const statePath = path.join(CONFIG.ROOT_DIR, 'plan', 'engine_state.json');
+            let state = {};
+            if (fs.existsSync(statePath)) {
+                state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
+            }
+            state.isAutoRunning = isRunning;
+            state.lastUpdated = new Date().toISOString();
+            fs.writeFileSync(statePath, JSON.stringify(state, null, 2), 'utf8');
+        } catch (e) {
+            console.warn('[Scheduler] savePersistentAutoRunning error:', e.message);
+        }
     }
 
     setChatId(chatId) {
@@ -76,9 +106,9 @@ export class Scheduler {
 
     start() {
         this.stop(); // Clear any existing cron jobs
-        this.isAutoRunning = true;
+        this.isAutoRunning = this.loadPersistentAutoRunning();
 
-        console.log(`[Scheduler] 🚀 Starting 24/7 Automation Scheduler (Timezone: ${CONFIG.TIMEZONE})...`);
+        console.log(`[Scheduler] 🚀 Starting 24/7 Automation Scheduler (Timezone: ${CONFIG.TIMEZONE}, State: ${this.isAutoRunning ? 'ACTIVE' : 'PAUSED'})...`);
         import('../src/web_ui.js').then(({ webUI }) => webUI.broadcast(msg)).catch(()=>{});
 
         // 1. Daily Real-Time Streaming Scrape & Build Job (10:15 PM every night)
@@ -166,12 +196,14 @@ export class Scheduler {
 
     pause() {
         this.isAutoRunning = false;
-        console.log(`[Scheduler] ⏸ Automation paused by user.`);
+        this.savePersistentAutoRunning(false);
+        console.log(`[Scheduler] ⏸ Automation paused persistently by user.`);
     }
 
     resume() {
         this.isAutoRunning = true;
-        console.log(`[Scheduler] ▶️ Automation resumed.`);
+        this.savePersistentAutoRunning(true);
+        console.log(`[Scheduler] ▶️ Automation resumed persistently.`);
     }
 
     abort() {

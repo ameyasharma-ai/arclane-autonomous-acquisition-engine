@@ -199,6 +199,53 @@ class WebUIServer {
             const schedules = this.followUp.loadSchedules();
             res.json({ success: true, schedules });
         });
+
+        // 6. Scheduler Automation Persistent State API
+        this.app.get('/api/scheduler/status', (req, res) => {
+            let isAutoRunning = true;
+            try {
+                const statePath = path.join(__dirname, '../plan/engine_state.json');
+                if (fs.existsSync(statePath)) {
+                    const state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
+                    if (typeof state.isAutoRunning === 'boolean') {
+                        isAutoRunning = state.isAutoRunning;
+                    }
+                }
+            } catch (e) {}
+            res.json({ success: true, isAutoRunning });
+        });
+
+        this.app.post('/api/scheduler/toggle', async (req, res) => {
+            const { isAutoRunning } = req.body;
+            try {
+                const statePath = path.join(__dirname, '../plan/engine_state.json');
+                let state = {};
+                if (fs.existsSync(statePath)) {
+                    state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
+                }
+                state.isAutoRunning = !!isAutoRunning;
+                state.lastUpdated = new Date().toISOString();
+                fs.writeFileSync(statePath, JSON.stringify(state, null, 2), 'utf8');
+
+                // Broadcast change to all connected clients
+                this.io.emit('scheduler_state_changed', { isAutoRunning: state.isAutoRunning });
+
+                // Also trigger internal bot command if registered
+                const cmd = state.isAutoRunning ? 'start_auto' : 'pause_auto';
+                if (this.commandHandlers[cmd]) {
+                    const fakeCtx = {
+                        chat: { id: 'local-web-ui' },
+                        reply: async (msg) => this.emitAndSave({ type: 'bot', text: msg })
+                    };
+                    await this.commandHandlers[cmd](fakeCtx);
+                }
+
+                res.json({ success: true, isAutoRunning: state.isAutoRunning });
+            } catch (e) {
+                res.status(500).json({ success: false, error: e.message });
+            }
+        });
+
         // 7. Execute Command API (e.g. from UI buttons or scripts)
         this.app.post('/api/command', async (req, res) => {
             const { text } = req.body;
