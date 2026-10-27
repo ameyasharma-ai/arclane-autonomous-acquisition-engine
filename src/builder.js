@@ -256,6 +256,30 @@ export class WebsiteBuilder {
     enforceDesignQualityStandards(html) {
         if (!html || typeof html !== 'string') return html;
 
+        // 0. Ensure a vibrant, high-DPI industry-specific SVG favicon is always injected
+        if (!html.includes('rel="icon"') && !html.includes("rel='icon'")) {
+            let emoji = '⚡';
+            const lowerHtml = html.toLowerCase();
+            if (lowerHtml.includes('gym') || lowerHtml.includes('fitness') || lowerHtml.includes('workout') || lowerHtml.includes('crossfit')) {
+                emoji = '⚡';
+            } else if (lowerHtml.includes('restaurant') || lowerHtml.includes('cafe') || lowerHtml.includes('dhaba') || lowerHtml.includes('dine') || lowerHtml.includes('bhojnalaya') || lowerHtml.includes('food')) {
+                emoji = '🍽️';
+            } else if (lowerHtml.includes('salon') || lowerHtml.includes('spa') || lowerHtml.includes('beauty') || lowerHtml.includes('hair') || lowerHtml.includes('parlour')) {
+                emoji = '✂️';
+            } else if (lowerHtml.includes('clinic') || lowerHtml.includes('dental') || lowerHtml.includes('hospital') || lowerHtml.includes('care') || lowerHtml.includes('doctor')) {
+                emoji = '🩺';
+            } else {
+                emoji = '✨';
+            }
+
+            const faviconSvg = `<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2224%22 fill=%22%230F172A%22/><text y=%2268%22 x=%2250%22 text-anchor=%22middle%22 font-size=%2260%22>${emoji}</text></svg>">`;
+            if (html.includes('<head>')) {
+                html = html.replace('<head>', `<head>\n    ${faviconSvg}`);
+            } else if (html.includes('<head ')) {
+                html = html.replace(/(<head\s*[^>]*>)/i, `$1\n    ${faviconSvg}`);
+            }
+        }
+
         // 1. Ensure header is 100% solid/opaque and never transparent
         html = html.replace(/(<header\s+[^>]*class=["'])([^"']*)(["'])/gi, (m, p1, classes, p3) => {
             let c = classes;
