@@ -714,14 +714,14 @@ def get_gspread_client():
 # --- SCRIPT ---
 COLUMNS = [
     "Client ID", "Date Added", "Business Name", "Industry/Niche", "City/State", 
-    "Phone/WhatsApp", "Website URL", "Email", "Instagram", "Facebook", "X (Twitter)", "YouTube", "TikTok", "LinkedIn", "Ratings", "Number Of Reviews", 
+    "Phone/WhatsApp", "Website URL", "Subdomain URL", "Agency Hosted URL", "Email", "Instagram", "Facebook", "X (Twitter)", "YouTube", "TikTok", "LinkedIn", "Ratings", "Number Of Reviews", 
     "Timings", "Address", "Maps URL", "Owner Name", "Contact Person", 
     "AI Outreach Hook", "Outreach Platform", "Outreach Date", "Follow-Up Date", "Current Status", "Priority Level", 
     "Interested Services", "Pain Points", "Project Type", "Estimated Budget", 
     "Quoted Price", "Negotiation Status", "Meeting Scheduled", "Meeting Date", 
     "Proposal Sent", "Contract Sent", "Payment Status", "Advance Received", 
     "Final Payment", "Delivery Deadline", "Project Status", "Testimonials Received", 
-    "Referral Potential", "Notes"
+    "Referral Potential", "Notes", "Email Status"
 ]
 
 def clean_industry(query, loc, cit):

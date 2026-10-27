@@ -194,6 +194,8 @@ export class WebsiteBuilder {
             }
         }
 
+        const agencyPathUrl = staged.agencyPathUrl || `https://www.arclanestudios.space/sites/${vercelSlug}`;
+
         // Construct structured JSON
         const outreachJson = {
             clientId: Number(clientId),
@@ -201,6 +203,7 @@ export class WebsiteBuilder {
             phone,
             whatsapp: whatsappPhone,
             deployedUrl,
+            agencyHostedUrl: agencyPathUrl,
             githubRepoUrl,
             whatsappMessage: waMessage,
             callScript: callScript,
@@ -217,11 +220,13 @@ export class WebsiteBuilder {
         const updatedReportContent = reportContent.replace(/\[website-url\]|https:\/\/[a-zA-Z0-9-.]+\.vercel\.app/gi, deployedUrl);
         fs.writeFileSync(auditMdPath, updatedReportContent, 'utf-8');
 
-        // Update Google Sheet with Website URL & Status
+        // Update Google Sheet with Subdomain URL, Agency Hosted URL, & Status
         try {
             const { sheet } = await loadGoogleSheet();
             await updateLeadFields(sheet, Number(clientId), {
                 'Website URL': deployedUrl,
+                'Subdomain URL': deployedUrl,
+                'Agency Hosted URL': agencyPathUrl,
                 'Current Status': 'Website Built'
             });
         } catch (sheetErr) {

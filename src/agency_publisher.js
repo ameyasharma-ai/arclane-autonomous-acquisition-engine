@@ -62,10 +62,17 @@ Rules:
     }
 
     /**
-     * Compute canonical public URL
+     * Compute canonical public Subdomain URL
      */
     getSubdomainUrl(slug) {
         return `https://${slug}.${this.apexDomain}`;
+    }
+
+    /**
+     * Compute canonical main agency path URL (hosted at arclane)
+     */
+    getAgencyPathUrl(slug) {
+        return `https://www.arclanestudios.space/sites/${slug}`;
     }
 
     /**
@@ -83,19 +90,22 @@ Rules:
         fs.writeFileSync(targetHtmlPath, htmlCode, 'utf-8');
 
         const deployedUrl = this.getSubdomainUrl(slug);
+        const agencyPathUrl = this.getAgencyPathUrl(slug);
 
         // Add to batch tracking
         this.batchQueue.push({
             clientId: Number(clientId),
             businessName,
             slug,
-            deployedUrl
+            deployedUrl,
+            agencyPathUrl
         });
 
         console.log(`[AgencyPublisher] Staged Lead #${clientId} (${businessName}) -> /public/sites/${slug}/index.html`);
         return {
             slug,
             deployedUrl,
+            agencyPathUrl,
             stagedPath: targetHtmlPath
         };
     }
