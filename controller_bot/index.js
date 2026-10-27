@@ -167,8 +167,8 @@ bot.command('status', async (ctx) => {
         `• 🔍 Scraper: ${s.isScraperRunning ? '🟡 Scraping Active' : '⚪ Idle'}\n` +
         `• ⚙️ Pipeline/Builder: ${s.isPipelineRunning ? '🟡 Building / Hosting Active' : '⚪ Idle'}\n\n` +
         `*Daily Schedule (Asia/Kolkata):*\n` +
-        `• 10:15 PM: ⚡ Night Stream Scrape, Build & Deploy (33 Leads into CRM)\n` +
-        `• 11:15 PM: ⚙️ Safety Sweep & Data Verification\n` +
+        `• 06:00 AM - 07:30 AM: 🌅 Morning Stream Scrape, Build & Deploy (33 Leads into CRM)\n` +
+        `• 07:30 AM: ⚙️ Safety Sweep & Data Verification\n` +
         `• 06:00 PM: 📞 Manual Calling & WhatsApp Free Gift Outreach Window`;
 
     await ctx.reply(msg, {
@@ -307,8 +307,8 @@ async function handleResetResumePlan(ctx) {
         `• 24/7 Automation: 🟢 *ACTIVE & RUNNING*\n` +
         `• Today's Target (${plan?.dayName}): *${plan?.focus}*\n\n` +
         `📅 *Daily Workflow:*\n` +
-        `• 10:15 PM: ⚡ Night Stream Scrape, Build & Deploy (${plan?.tasks.scraper.targetLeads || 33} leads auto-saved to CRM)\n` +
-        `• 11:15 PM: ⚙️ Safety Sweep Analysis\n` +
+        `• 06:00 AM - 07:30 AM: 🌅 Morning Stream Scrape, Build & Deploy (${plan?.tasks.scraper.targetLeads || 33} leads auto-saved to CRM)\n` +
+        `• 07:30 AM: ⚙️ Safety Sweep Analysis\n` +
         `• 06:00 PM: 📞 Manual Calling Window (Free Website Gift Offer)`,
         { parse_mode: 'Markdown', ...getMainKeyboard(true) }
     );
@@ -432,8 +432,8 @@ bot.action('cmd_status', async (ctx) => {
         `*Live Task State:*\n` +
         `• 🔍 Scraper: ${s.isScraperRunning ? '🟡 Scraping Active' : '⚪ Idle'}\n` +
         `• *Daily Schedule:*\n` +
-        `• 10:15 PM: ⚡ Night Stream Scrape, Build & Deploy (33 Leads into CRM)\n` +
-        `• 11:15 PM: ⚙️ Safety Sweep & Data Verification\n` +
+        `• 06:00 AM - 07:30 AM: 🌅 Morning Stream Scrape, Build & Deploy (33 Leads into CRM)\n` +
+        `• 07:30 AM: ⚙️ Safety Sweep & Data Verification\n` +
         `• 06:00 PM: 📞 Manual Calling & WhatsApp Free Gift Outreach Window`,
         {
             parse_mode: 'Markdown',
