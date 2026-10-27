@@ -111,6 +111,11 @@ class WebUIServer {
                 }
             });
 
+            socket.on('clear_history', () => {
+                console.log(`[WebUI] Clear history requested by ${socket.id}`);
+                this.clearHistory();
+            });
+
             socket.on('disconnect', () => {
                 console.log(`[WebUI] Client disconnected: ${socket.id}`);
             });
@@ -246,7 +251,17 @@ class WebUIServer {
             }
 
             res.json({ success: true, handled });
+        // 8. Clear Chat History API
+        this.app.post('/api/chat/clear', (req, res) => {
+            this.clearHistory();
+            res.json({ success: true, message: 'Chat history cleared' });
         });
+    }
+
+    clearHistory() {
+        this.history = [];
+        this.saveHistory();
+        this.io.emit('history', []);
     }
 
     loadHistory() {
@@ -274,9 +289,6 @@ class WebUIServer {
 
     saveHistory() {
         try {
-            if (this.history.length > 100) {
-                this.history = this.history.slice(this.history.length - 100);
-            }
             fs.writeFileSync(HISTORY_FILE, JSON.stringify(this.history, null, 2));
         } catch (e) {
             console.error('[WebUI] Failed to save history:', e);
