@@ -24,7 +24,7 @@ export class WebsiteBuilder {
     async sendStatus(msg) {
         console.log(`[Builder] ${msg}`);
         import('./web_ui.js').then(({ webUI }) => webUI.broadcast(msg)).catch(()=>{});
-        if (this.telegramBot && this.chatId) {
+        if (this.telegramBot && this.chatId && this.chatId !== 'local-web-ui' && this.chatId !== 'web_ui_user') {
             try {
                 await this.telegramBot.telegram.sendMessage(this.chatId, msg, { parse_mode: 'Markdown' });
             } catch (e) {
@@ -32,7 +32,9 @@ export class WebsiteBuilder {
                 try {
                     await this.telegramBot.telegram.sendMessage(this.chatId, msg);
                 } catch (err) {
-                    console.error("Failed to send telegram status:", err.message);
+                    if (!err.message.includes('chat not found')) {
+                        console.error("Failed to send telegram status:", err.message);
+                    }
                 }
             }
         }

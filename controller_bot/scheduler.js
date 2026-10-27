@@ -17,6 +17,9 @@ export class Scheduler {
     }
 
     setChatId(chatId) {
+        if (!chatId || chatId === 'local-web-ui' || chatId === 'web_ui_user') {
+            return;
+        }
         this.chatId = chatId;
         this.scraperRunner.chatId = chatId;
         this.pipelineRunner.chatId = chatId;

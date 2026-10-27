@@ -24,14 +24,16 @@ export class PipelineRunner {
     async sendTelegram(msg) {
         console.log(`[PipelineRunner] ${msg}`);
         import('../src/web_ui.js').then(({ webUI }) => webUI.broadcast(msg)).catch(()=>{});
-        if (this.bot && this.chatId) {
+        if (this.bot && this.chatId && this.chatId !== 'local-web-ui' && this.chatId !== 'web_ui_user') {
             try {
                 await this.bot.telegram.sendMessage(this.chatId, msg, { parse_mode: 'Markdown' });
             } catch (e) {
                 try {
                     await this.bot.telegram.sendMessage(this.chatId, msg);
                 } catch (err) {
-                    console.error("[PipelineRunner] Telegram error:", err.message);
+                    if (!err.message.includes('chat not found')) {
+                        console.error("[PipelineRunner] Telegram error:", err.message);
+                    }
                 }
             }
         }
