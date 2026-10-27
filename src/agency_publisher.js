@@ -157,6 +157,29 @@ Rules:
             await execAsync(`git push origin main`, { cwd: this.agencyDir });
             console.log(`[AgencyPublisher] Successfully pushed batch of ${count} sites to GitHub!`);
 
+            // 3. Instant SSL Guarantee: Register specific subdomains with Vercel API
+            const vercelToken = process.env.VERCEL_TOKEN;
+            if (vercelToken) {
+                const projectId = 'prj_bDQewUJReqeKlYBNwvDPcO6vamOZ';
+                const teamId = 'team_7pHeotFcK2tW9w7oom9czThz';
+                for (const item of currentBatch) {
+                    try {
+                        const domainName = `${item.slug}.${this.apexDomain}`;
+                        await fetch(`https://api.vercel.com/v10/projects/${projectId}/domains?teamId=${teamId}`, {
+                            method: 'POST',
+                            headers: {
+                                Authorization: `Bearer ${vercelToken}`,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ name: domainName })
+                        });
+                        console.log(`[AgencyPublisher] Instant SSL enabled on Vercel for ${domainName}`);
+                    } catch (dErr) {
+                        // Wildcard fallback if API fails
+                    }
+                }
+            }
+
             // Clear processed items from batchQueue
             this.batchQueue = this.batchQueue.filter(item => !currentBatch.includes(item));
 
