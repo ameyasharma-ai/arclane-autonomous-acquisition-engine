@@ -21,7 +21,7 @@
   "automationSettings": {
     "autoStartCron": true,
     "timezone": "Asia/Kolkata",
-    "dailyScrapeTime": "22:15",
+    "dailyScrapeTime": "06:00",
     "dailyLeadsQuota": 33,
     "leadQualificationFilter": {
       "minRating": 4,
@@ -47,7 +47,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Restaurants",
           "locality": "in Patna",
           "city": "Patna",
@@ -55,7 +55,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -88,7 +88,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Rooftop Restaurants",
           "locality": "in Patna",
           "city": "Patna",
@@ -96,7 +96,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -129,7 +129,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Cafes",
           "locality": "in Patna",
           "city": "Patna",
@@ -137,7 +137,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -170,7 +170,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Multi Cuisine Restaurants",
           "locality": "in Patna",
           "city": "Patna",
@@ -178,7 +178,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -211,7 +211,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Bakeries and Cafes",
           "locality": "in Patna",
           "city": "Patna",
@@ -219,7 +219,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -252,7 +252,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Dine In Restaurants",
           "locality": "in Patna",
           "city": "Patna",
@@ -260,7 +260,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -293,7 +293,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Restaurants",
           "locality": "in Patna",
           "city": "Patna",
@@ -301,7 +301,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },

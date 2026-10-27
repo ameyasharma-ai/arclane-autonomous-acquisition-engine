@@ -192,7 +192,7 @@ bot.command('today', async (ctx) => {
         `• *Search Query:* \`${plan.tasks.scraper.query}\` (${plan.tasks.scraper.locality})\n` +
         `• *Target Volume:* ${plan.tasks.scraper.targetLeads || 33} leads\n\n` +
         `*Daily Workflow:*\n` +
-        `• 10:15 PM: 🌙 Scrape, Audit, Build & Deploy to Vercel (Auto-appends to CRM)\n` +
+        `• 06:00 AM - 07:30 AM: 🌅 Scrape, Audit, Build & Deploy to Vercel (Auto-appends to CRM)\n` +
         `• Daytime: 📞 Manual Calls & WhatsApp Pitching (Offer Free Website Gift)\n` +
         `• 06:00 PM: ⏰ Prime Evening Calling Window\n\n` +
         `💡 *Your "No-Risk Free Gift" Calling Script:*\n` +

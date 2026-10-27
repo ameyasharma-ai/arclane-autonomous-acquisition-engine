@@ -20,7 +20,7 @@
   "automationSettings": {
     "autoStartCron": true,
     "timezone": "Asia/Kolkata",
-    "dailyScrapeTime": "22:15",
+    "dailyScrapeTime": "06:00",
     "dailyLeadsQuota": 33,
     "leadQualificationFilter": {
       "minRating": 4,
@@ -51,7 +51,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Gyms",
           "locality": "in Patna",
           "city": "Patna",
@@ -59,7 +59,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -92,7 +92,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "CrossFit Gyms",
           "locality": "in Patna",
           "city": "Patna",
@@ -100,7 +100,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -133,7 +133,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Fitness Centers",
           "locality": "in Patna",
           "city": "Patna",
@@ -141,7 +141,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -174,7 +174,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Fitness Studios",
           "locality": "in Patna",
           "city": "Patna",
@@ -182,7 +182,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -215,7 +215,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Gyms and Fitness",
           "locality": "in Patna",
           "city": "Patna",
@@ -223,7 +223,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -256,7 +256,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "MMA Gyms",
           "locality": "in Patna",
           "city": "Patna",
@@ -264,7 +264,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -297,7 +297,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Gyms",
           "locality": "in Patna",
           "city": "Patna",
@@ -305,7 +305,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -338,7 +338,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Restaurants",
           "locality": "in Patna",
           "city": "Patna",
@@ -346,7 +346,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -379,7 +379,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Rooftop Restaurants",
           "locality": "in Patna",
           "city": "Patna",
@@ -387,7 +387,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -420,7 +420,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Cafes",
           "locality": "in Patna",
           "city": "Patna",
@@ -428,7 +428,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -461,7 +461,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Multi Cuisine Restaurants",
           "locality": "in Patna",
           "city": "Patna",
@@ -469,7 +469,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -502,7 +502,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Bakeries and Cafes",
           "locality": "in Patna",
           "city": "Patna",
@@ -510,7 +510,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -543,7 +543,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Dine In Restaurants",
           "locality": "in Patna",
           "city": "Patna",
@@ -551,7 +551,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -584,7 +584,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Restaurants",
           "locality": "in Patna",
           "city": "Patna",
@@ -592,7 +592,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -625,7 +625,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Dental Clinics",
           "locality": "in Patna",
           "city": "Patna",
@@ -633,7 +633,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -666,7 +666,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Eye Clinics",
           "locality": "in Patna",
           "city": "Patna",
@@ -674,7 +674,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -707,7 +707,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Physiotherapy Clinics",
           "locality": "in Patna",
           "city": "Patna",
@@ -715,7 +715,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -748,7 +748,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Skin Clinics",
           "locality": "in Patna",
           "city": "Patna",
@@ -756,7 +756,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -789,7 +789,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Pediatric Clinics",
           "locality": "in Patna",
           "city": "Patna",
@@ -797,7 +797,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -830,7 +830,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Diagnostic Centers",
           "locality": "in Patna",
           "city": "Patna",
@@ -838,7 +838,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -871,7 +871,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Dental Clinics",
           "locality": "in Patna",
           "city": "Patna",
@@ -879,7 +879,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -912,7 +912,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Unisex Salons",
           "locality": "in Patna",
           "city": "Patna",
@@ -920,7 +920,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -953,7 +953,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Beauty Parlours",
           "locality": "in Patna",
           "city": "Patna",
@@ -961,7 +961,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -994,7 +994,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Day Spas",
           "locality": "in Patna",
           "city": "Patna",
@@ -1002,7 +1002,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -1035,7 +1035,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Hair Salons",
           "locality": "in Patna",
           "city": "Patna",
@@ -1043,7 +1043,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -1076,7 +1076,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Nail Spas",
           "locality": "in Patna",
           "city": "Patna",
@@ -1084,7 +1084,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -1117,7 +1117,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Men Salons",
           "locality": "in Patna",
           "city": "Patna",
@@ -1125,7 +1125,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -1158,7 +1158,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Unisex Salons",
           "locality": "in Patna",
           "city": "Patna",
@@ -1166,7 +1166,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -1199,7 +1199,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Car Detailing",
           "locality": "in Patna",
           "city": "Patna",
@@ -1207,7 +1207,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -1240,7 +1240,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Paint Protection Film PPF",
           "locality": "in Patna",
           "city": "Patna",
@@ -1248,7 +1248,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -1281,7 +1281,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Car Spa and Wash",
           "locality": "in Patna",
           "city": "Patna",
@@ -1289,7 +1289,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -1322,7 +1322,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Bike Service Centers",
           "locality": "in Patna",
           "city": "Patna",
@@ -1330,7 +1330,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -1363,7 +1363,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Car Repair Garages",
           "locality": "in Patna",
           "city": "Patna",
@@ -1371,7 +1371,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -1404,7 +1404,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Car Accessories",
           "locality": "in Patna",
           "city": "Patna",
@@ -1412,7 +1412,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -1445,7 +1445,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Car Detailing",
           "locality": "in Patna",
           "city": "Patna",
@@ -1453,7 +1453,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -1486,7 +1486,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Gyms",
           "locality": "in Patna",
           "city": "Patna",
@@ -1494,7 +1494,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -1527,7 +1527,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "CrossFit Gyms",
           "locality": "in Patna",
           "city": "Patna",
@@ -1535,7 +1535,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -1568,7 +1568,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Fitness Centers",
           "locality": "in Patna",
           "city": "Patna",
@@ -1576,7 +1576,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -1609,7 +1609,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Fitness Studios",
           "locality": "in Patna",
           "city": "Patna",
@@ -1617,7 +1617,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -1650,7 +1650,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Gyms and Fitness",
           "locality": "in Patna",
           "city": "Patna",
@@ -1658,7 +1658,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -1691,7 +1691,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "MMA Gyms",
           "locality": "in Patna",
           "city": "Patna",
@@ -1699,7 +1699,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -1732,7 +1732,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Gyms",
           "locality": "in Patna",
           "city": "Patna",
@@ -1740,7 +1740,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -1773,7 +1773,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Restaurants",
           "locality": "in Patna",
           "city": "Patna",
@@ -1781,7 +1781,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -1814,7 +1814,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Rooftop Restaurants",
           "locality": "in Patna",
           "city": "Patna",
@@ -1822,7 +1822,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -1855,7 +1855,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Cafes",
           "locality": "in Patna",
           "city": "Patna",
@@ -1863,7 +1863,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -1896,7 +1896,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Multi Cuisine Restaurants",
           "locality": "in Patna",
           "city": "Patna",
@@ -1904,7 +1904,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -1937,7 +1937,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Bakeries and Cafes",
           "locality": "in Patna",
           "city": "Patna",
@@ -1945,7 +1945,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -1978,7 +1978,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Dine In Restaurants",
           "locality": "in Patna",
           "city": "Patna",
@@ -1986,7 +1986,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -2019,7 +2019,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Restaurants",
           "locality": "in Patna",
           "city": "Patna",
@@ -2027,7 +2027,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -2060,7 +2060,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Dental Clinics",
           "locality": "in Patna",
           "city": "Patna",
@@ -2068,7 +2068,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -2101,7 +2101,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Eye Clinics",
           "locality": "in Patna",
           "city": "Patna",
@@ -2109,7 +2109,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -2142,7 +2142,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Physiotherapy Clinics",
           "locality": "in Patna",
           "city": "Patna",
@@ -2150,7 +2150,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -2183,7 +2183,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Skin Clinics",
           "locality": "in Patna",
           "city": "Patna",
@@ -2191,7 +2191,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -2224,7 +2224,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Pediatric Clinics",
           "locality": "in Patna",
           "city": "Patna",
@@ -2232,7 +2232,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -2265,7 +2265,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Diagnostic Centers",
           "locality": "in Patna",
           "city": "Patna",
@@ -2273,7 +2273,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -2306,7 +2306,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Dental Clinics",
           "locality": "in Patna",
           "city": "Patna",
@@ -2314,7 +2314,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -2347,7 +2347,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Unisex Salons",
           "locality": "in Patna",
           "city": "Patna",
@@ -2355,7 +2355,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -2388,7 +2388,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Beauty Parlours",
           "locality": "in Patna",
           "city": "Patna",
@@ -2396,7 +2396,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -2429,7 +2429,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Day Spas",
           "locality": "in Patna",
           "city": "Patna",
@@ -2437,7 +2437,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -2470,7 +2470,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Hair Salons",
           "locality": "in Patna",
           "city": "Patna",
@@ -2478,7 +2478,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -2511,7 +2511,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Nail Spas",
           "locality": "in Patna",
           "city": "Patna",
@@ -2519,7 +2519,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -2552,7 +2552,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Men Salons",
           "locality": "in Patna",
           "city": "Patna",
@@ -2560,7 +2560,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -2593,7 +2593,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Unisex Salons",
           "locality": "in Patna",
           "city": "Patna",
@@ -2601,7 +2601,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -2634,7 +2634,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Car Detailing",
           "locality": "in Patna",
           "city": "Patna",
@@ -2642,7 +2642,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -2675,7 +2675,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Paint Protection Film PPF",
           "locality": "in Patna",
           "city": "Patna",
@@ -2683,7 +2683,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -2716,7 +2716,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Car Spa and Wash",
           "locality": "in Patna",
           "city": "Patna",
@@ -2724,7 +2724,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -2757,7 +2757,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Bike Service Centers",
           "locality": "in Patna",
           "city": "Patna",
@@ -2765,7 +2765,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -2798,7 +2798,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Car Repair Garages",
           "locality": "in Patna",
           "city": "Patna",
@@ -2806,7 +2806,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -2839,7 +2839,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Car Accessories",
           "locality": "in Patna",
           "city": "Patna",
@@ -2847,7 +2847,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
@@ -2880,7 +2880,7 @@
       "tasks": {
         "scraper": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "query": "Car Detailing",
           "locality": "in Patna",
           "city": "Patna",
@@ -2888,7 +2888,7 @@
         },
         "analyseAndBuild": {
           "enabled": true,
-          "cronTime": "22:15",
+          "cronTime": "06:00",
           "autoDetectNewLeads": true,
           "maxLeadsToProcess": 33
         },
