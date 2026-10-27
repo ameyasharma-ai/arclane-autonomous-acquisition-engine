@@ -1,6 +1,6 @@
 # 🌐 Arclane Studios — Autonomous Client Acquisition & Growth Ecosystem
 
-![Version](https://img.shields.io/badge/version-3.3.0-blue.svg)
+![Version](https://img.shields.io/badge/version-3.3.1-blue.svg)
 ![Status](https://img.shields.io/badge/status-Production_Ready-success.svg)
 ![Architecture](https://img.shields.io/badge/architecture-Unified_Streaming_Pipeline-orange.svg)
 ![Target Market](https://img.shields.io/badge/market-Indian_SMBs-green.svg)
