@@ -1,12 +1,14 @@
 # 🌐 Arclane Studios — Autonomous Client Acquisition & Growth Ecosystem
 
-![Version](https://img.shields.io/badge/version-3.2.0-blue.svg)
+![Version](https://img.shields.io/badge/version-3.3.0-blue.svg)
 ![Status](https://img.shields.io/badge/status-Production_Ready-success.svg)
 ![Architecture](https://img.shields.io/badge/architecture-Unified_Streaming_Pipeline-orange.svg)
 ![Target Market](https://img.shields.io/badge/market-Indian_SMBs-green.svg)
 ![Control Channels](https://img.shields.io/badge/control-Telegram_%2B_Local_Web_UI-purple.svg)
 
 An enterprise-grade, multi-agent autonomous system built specifically to capture, enrich, convert, and onboard Indian local businesses (Gyms, Salons, Spas, Clinics, Cafes) on 100% autopilot.
+
+> 📘 **Free Cloud Hosting & Low-Memory Architecture:** See [`FREE_CLOUD_DEPLOYMENT_PLAN.md`](FREE_CLOUD_DEPLOYMENT_PLAN.md) for hosting on Render / Oracle Cloud with SerpApi integration.
 
 This comprehensive manual covers **the entire unified system:** from Google Maps scraping mechanics (now directly housed under `scraper/`) and real-time streaming architectures to website generation, Vercel deployments, WhatsApp automation, dual Telegram + Web UI control channels, and 24/7 server operations.
 
