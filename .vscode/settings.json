@@ -1,5 +1,9 @@
 {
     "workbench.editor.enablePreview": false,
     "workbench.editor.enablePreviewFromQuickOpen": false,
-    "workbench.editor.enablePreviewFromCodeNavigation": false
+    "workbench.editor.enablePreviewFromCodeNavigation": false,
+    "antigravity.agent.openFilesOnEdit": false,
+    "antigravity.chat.openFilesOnEdit": false,
+    "antigravity.openModifiedFiles": false,
+    "chat.agent.openFilesOnEdit": false
 }
