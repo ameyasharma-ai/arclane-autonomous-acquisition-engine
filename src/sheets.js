@@ -177,3 +177,45 @@ export async function updateLeadFields(sheet, clientId, fieldsToUpdate) {
 export async function updateLeadNotes(sheet, clientId, notes) {
     return updateLeadFields(sheet, clientId, { 'Notes': notes });
 }
+
+/**
+ * Completely clear all CRM rows while preserving the header row.
+ */
+export async function clearCrmSheet(sheet) {
+    const rows = await sheet.getRows();
+    let deletedCount = 0;
+    for (const row of rows) {
+        await row.delete();
+        deletedCount++;
+    }
+    return deletedCount;
+}
+
+/**
+ * Clear hosted website fields (Subdomain URL, Agency Hosted URL, Status) from CRM leads.
+ */
+export async function clearHostedCrmFields(sheet) {
+    const rows = await sheet.getRows();
+    let updatedCount = 0;
+    for (const row of rows) {
+        let changed = false;
+        if (row.get('Subdomain URL')) {
+            row.set('Subdomain URL', '');
+            changed = true;
+        }
+        if (row.get('Agency Hosted URL')) {
+            row.set('Agency Hosted URL', '');
+            changed = true;
+        }
+        const currentStatus = (row.get('Current Status') || '').toLowerCase();
+        if (currentStatus.includes('website built') || currentStatus.includes('analyzed')) {
+            row.set('Current Status', 'Lead Discovered');
+            changed = true;
+        }
+        if (changed) {
+            await row.save();
+            updatedCount++;
+        }
+    }
+    return updatedCount;
+}

@@ -8,6 +8,8 @@ import { AuditLogger } from './engine/audit_logger.js';
 import { ApprovalQueue } from './engine/approval_queue.js';
 import { DeduplicationEngine } from './engine/deduplication.js';
 import { FollowUpEngine } from './engine/follow_up.js';
+import { loadGoogleSheet, clearCrmSheet, clearHostedCrmFields } from './sheets.js';
+import { agencyPublisher } from './agency_publisher.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -251,10 +253,104 @@ class WebUIServer {
             }
 
             res.json({ success: true, handled });
+        });
+
         // 8. Clear Chat History API
         this.app.post('/api/chat/clear', (req, res) => {
             this.clearHistory();
             res.json({ success: true, message: 'Chat history cleared' });
+        });
+
+        // 9. Clear All Scraped Places & CRM Leads (Locally & Online)
+        this.app.post('/api/clear-places-crm', async (req, res) => {
+            try {
+                console.log('[WebUI] 🧹 Clear Scraped Places & CRM requested');
+                
+                // A. Local files
+                const placesFiles = [
+                    path.join(__dirname, '../scraped_places.txt'),
+                    path.join(__dirname, '../scraper/scraped_places.txt')
+                ];
+                for (const pf of placesFiles) {
+                    if (fs.existsSync(pf)) {
+                        fs.writeFileSync(pf, '');
+                    }
+                }
+
+                // Clean reports directory client folders
+                const reportsDir = path.join(__dirname, '../reports');
+                if (fs.existsSync(reportsDir)) {
+                    const entries = fs.readdirSync(reportsDir, { withFileTypes: true });
+                    for (const entry of entries) {
+                        if (entry.isDirectory() && !entry.name.startsWith('.')) {
+                            fs.rmSync(path.join(reportsDir, entry.name), { recursive: true, force: true });
+                        }
+                    }
+                }
+
+                // B. Online CRM Sheet
+                let crmDeleted = 0;
+                try {
+                    const { sheet } = await loadGoogleSheet();
+                    crmDeleted = await clearCrmSheet(sheet);
+                } catch (sheetErr) {
+                    console.error('[WebUI] Google Sheet clear note:', sheetErr.message);
+                }
+
+                // Refresh metrics & notify
+                try {
+                    const m = await this.auditLogger.getAnalytics();
+                    this.io.emit('metrics_update', m);
+                } catch (e) {}
+
+                this.broadcast(`🧹 *[Admin] All scraped places and CRM leads cleared locally & online!* (${crmDeleted} rows removed from CRM)`);
+                res.json({ success: true, crmDeleted });
+            } catch (err) {
+                console.error('[WebUI] Error in clear-places-crm:', err);
+                res.status(500).json({ success: false, error: err.message });
+            }
+        });
+
+        // 10. Clear Hosted Websites & Reset Agency to Normal Baseline
+        this.app.post('/api/clear-hosted-sites', async (req, res) => {
+            try {
+                console.log('[WebUI] 🧹 Clear Hosted Websites requested');
+
+                // A. Local generated_sites
+                const genDir = path.join(__dirname, '../generated_sites');
+                if (fs.existsSync(genDir)) {
+                    const entries = fs.readdirSync(genDir, { withFileTypes: true });
+                    for (const entry of entries) {
+                        if (entry.isDirectory()) {
+                            fs.rmSync(path.join(genDir, entry.name), { recursive: true, force: true });
+                        }
+                    }
+                }
+
+                // B. Remove hosted sites in web-dev-agency & push baseline to GitHub
+                await agencyPublisher.clearHostedWebsites((msg) => this.broadcast(msg));
+
+                // C. Clear hosted domains and reset status in Online CRM
+                let crmUpdated = 0;
+                try {
+                    const { sheet } = await loadGoogleSheet();
+                    crmUpdated = await clearHostedCrmFields(sheet);
+                } catch (sheetErr) {
+                    console.error('[WebUI] CRM hosted fields reset note:', sheetErr.message);
+                }
+
+                // Refresh metrics
+                try {
+                    const m = await this.auditLogger.getAnalytics();
+                    this.io.emit('metrics_update', m);
+                } catch (e) {}
+
+                this.broadcast(`✅ *[Admin] Hosted websites cleared! Agency website reset to clean baseline. (${crmUpdated} leads updated in CRM)*`);
+                res.json({ success: true, crmUpdated });
+            } catch (err) {
+                console.error('[WebUI] Error in clear-hosted-sites:', err);
+                res.status(500).json({ success: false, error: err.message });
+            }
         });
     }
 

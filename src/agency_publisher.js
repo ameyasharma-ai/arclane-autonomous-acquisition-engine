@@ -202,6 +202,53 @@ Rules:
             this.isDeploying = false;
         }
     }
+
+    /**
+     * Clear all hosted client demo websites and restore agency to pristine baseline
+     * Removes all directories in web-dev-agency/public/sites/, commits, and pushes to GitHub/Vercel.
+     */
+    async clearHostedWebsites(statusCallback = null) {
+        try {
+            if (statusCallback) {
+                await statusCallback(`🧹 *[AgencyPublisher] Clearing all hosted client websites...*`);
+            }
+
+            // 1. Remove all subdirectories in web-dev-agency/public/sites/
+            if (fs.existsSync(this.agencyPublicSitesDir)) {
+                const entries = fs.readdirSync(this.agencyPublicSitesDir, { withFileTypes: true });
+                for (const entry of entries) {
+                    if (entry.isDirectory()) {
+                        const targetPath = path.join(this.agencyPublicSitesDir, entry.name);
+                        fs.rmSync(targetPath, { recursive: true, force: true });
+                    }
+                }
+                // Ensure a baseline .gitkeep exists so the directory remains tracked
+                fs.writeFileSync(path.join(this.agencyPublicSitesDir, '.gitkeep'), '');
+            }
+
+            // Reset batch queue
+            this.batchQueue = [];
+
+            // 2. Commit & Push to GitHub to trigger Vercel rebuild to baseline
+            try {
+                await execAsync(`git add -A public/sites/`, { cwd: this.agencyDir });
+                await execAsync(`git commit -m "chore(sites): restore agency website to clean baseline"`, { cwd: this.agencyDir });
+                await execAsync(`git push origin main`, { cwd: this.agencyDir });
+                console.log(`[AgencyPublisher] Successfully pushed clean baseline to GitHub.`);
+            } catch (gitErr) {
+                console.log(`[AgencyPublisher] Git baseline commit note:`, gitErr.message);
+            }
+
+            if (statusCallback) {
+                await statusCallback(`✅ *[AgencyPublisher] Hosted client sites cleared. Agency website reset to baseline!*`);
+            }
+
+            return { success: true };
+        } catch (err) {
+            console.error(`[AgencyPublisher] Failed to clear hosted websites:`, err);
+            throw err;
+        }
+    }
 }
 
 export const agencyPublisher = new AgencyPublisher();

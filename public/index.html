@@ -163,8 +163,14 @@
             <button class="tab-btn" onclick="switchView('events')" id="tab-events">📜 Audit Log</button>
         </div>
 
-        <!-- Emergency Status & Sync -->
-        <div class="flex items-center gap-3">
+        <!-- Emergency Status & Actions -->
+        <div class="flex items-center gap-2">
+            <button onclick="clearPlacesAndCrm()" id="btn-clear-places-crm" class="px-3 py-1.5 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 text-xs font-bold transition flex items-center gap-1.5" title="Clear scraped places and CRM leads locally & in Google Sheets">
+                🧹 Clear Places & CRM
+            </button>
+            <button onclick="clearHostedSites()" id="btn-clear-hosted-sites" class="px-3 py-1.5 rounded-lg bg-purple-500/10 text-purple-400 border border-purple-500/20 hover:bg-purple-500/20 text-xs font-bold transition flex items-center gap-1.5" title="Clear hosted demo sites, reset CRM hosted columns, and restore agency site to baseline">
+                🌐 Reset Hosted Sites
+            </button>
             <button onclick="syncCrmData()" id="btn-sync-crm" class="px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 text-xs font-bold transition flex items-center gap-1.5">
                 🔄 Sync CRM
             </button>
@@ -496,28 +502,61 @@
         }
         fetchAnalytics();
 
-        // Manual CRM Sync Trigger
-        function syncCrmData() {
-            const btn = document.getElementById('btn-sync-crm');
+        // Clear All Scraped Places & CRM Leads
+        function clearPlacesAndCrm() {
+            if (!confirm('Are you sure you want to clear all scraped places and CRM leads? This will clear them locally (scraped_places.txt, reports) and delete all rows from Google Sheets.')) return;
+            const btn = document.getElementById('btn-clear-places-crm');
             if (btn) {
                 btn.disabled = true;
-                btn.innerText = '⏳ Syncing...';
+                btn.innerText = '⏳ Clearing CRM...';
             }
-            fetch('/api/refresh-metrics', { method: 'POST' })
+            fetch('/api/clear-places-crm', { method: 'POST' })
                 .then(r => r.json())
                 .then(d => {
                     if (d.success) {
-                        updateMetricsDisplay(d.metrics);
-                        showToast('✅ CRM metrics successfully synchronized!');
+                        showToast(`🧹 Scraped places & ${d.crmDeleted} CRM leads cleared!`);
+                        fetchAnalytics();
+                    } else {
+                        showToast('❌ Error: ' + (d.error || 'Failed to clear'));
                     }
                 })
                 .catch(e => {
-                    showToast('❌ Failed to sync CRM metrics: ' + e.message);
+                    showToast('❌ Error: ' + e.message);
                 })
                 .finally(() => {
                     if (btn) {
                         btn.disabled = false;
-                        btn.innerHTML = '🔄 Sync CRM';
+                        btn.innerHTML = '🧹 Clear Places & CRM';
+                    }
+                });
+        }
+
+        // Clear Hosted Websites & Reset Agency to Baseline
+        function clearHostedSites() {
+            if (!confirm('Are you sure you want to clear all hosted client websites? This will remove generated sites locally, reset public/sites on GitHub/Vercel back to baseline, and clear hosted domain fields in Google Sheets.')) return;
+            const btn = document.getElementById('btn-clear-hosted-sites');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerText = '⏳ Resetting Agency...';
+            }
+            showToast('🚀 Clearing hosted sites & restoring agency baseline...');
+            fetch('/api/clear-hosted-sites', { method: 'POST' })
+                .then(r => r.json())
+                .then(d => {
+                    if (d.success) {
+                        showToast(`✅ Hosted websites cleared & ${d.crmUpdated} leads reset in CRM!`);
+                        fetchAnalytics();
+                    } else {
+                        showToast('❌ Error: ' + (d.error || 'Failed to reset'));
+                    }
+                })
+                .catch(e => {
+                    showToast('❌ Error: ' + e.message);
+                })
+                .finally(() => {
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = '🌐 Reset Hosted Sites';
                     }
                 });
         }
