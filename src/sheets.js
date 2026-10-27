@@ -207,6 +207,14 @@ export async function clearHostedCrmFields(sheet) {
             row.set('Agency Hosted URL', '');
             changed = true;
         }
+        if (row.get('Audit Report URL')) {
+            row.set('Audit Report URL', '');
+            changed = true;
+        }
+        if (row.get('AI Outreach Hook')) {
+            row.set('AI Outreach Hook', '');
+            changed = true;
+        }
         const currentStatus = (row.get('Current Status') || '').toLowerCase();
         if (currentStatus.includes('website built') || currentStatus.includes('analyzed')) {
             row.set('Current Status', 'Lead Discovered');

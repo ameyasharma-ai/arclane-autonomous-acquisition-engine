@@ -222,13 +222,18 @@ export class WebsiteBuilder {
         const updatedReportContent = reportContent.replace(/\[website-url\]|https:\/\/[a-zA-Z0-9-.]+\.vercel\.app/gi, deployedUrl);
         fs.writeFileSync(auditMdPath, updatedReportContent, 'utf-8');
 
-        // Update Google Sheet with Subdomain URL, Agency Hosted URL, & Status
+        // Stage audit report & metadata into web-dev-agency/public/reports/<clientId>/
+        const auditReportUrl = agencyPublisher.stageReport(clientId, updatedReportContent, outreachJson);
+
+        // Update Google Sheet with Subdomain URL, Agency Hosted URL, Audit Report URL, AI Outreach Hook, & Status
         try {
             const { sheet } = await loadGoogleSheet();
             await updateLeadFields(sheet, Number(clientId), {
                 'Website URL': deployedUrl,
                 'Subdomain URL': deployedUrl,
                 'Agency Hosted URL': agencyPathUrl,
+                'Audit Report URL': auditReportUrl,
+                'AI Outreach Hook': waMessage,
                 'Current Status': 'Website Built'
             });
         } catch (sheetErr) {

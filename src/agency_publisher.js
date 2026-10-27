@@ -118,6 +118,34 @@ Rules:
     }
 
     /**
+     * Compute canonical public Audit Report URL
+     */
+    getAuditReportUrl(clientId) {
+        return `https://www.arclanestudios.space/reports/${clientId}`;
+    }
+
+    /**
+     * Stage generated audit report markdown and metadata into web-dev-agency/public/reports/<clientId>/
+     */
+    stageReport(clientId, auditMarkdown, outreachJson = null) {
+        const reportsDir = path.join(this.agencyDir, 'public', 'reports', String(clientId));
+        if (!fs.existsSync(reportsDir)) {
+            fs.mkdirSync(reportsDir, { recursive: true });
+        }
+
+        if (auditMarkdown) {
+            fs.writeFileSync(path.join(reportsDir, 'audit.md'), auditMarkdown, 'utf-8');
+        }
+        if (outreachJson) {
+            fs.writeFileSync(path.join(reportsDir, 'outreach.json'), JSON.stringify(outreachJson, null, 2), 'utf-8');
+        }
+
+        const reportUrl = this.getAuditReportUrl(clientId);
+        console.log(`[AgencyPublisher] Staged Audit Report for Lead #${clientId} -> /public/reports/${clientId}/audit.md (${reportUrl})`);
+        return reportUrl;
+    }
+
+    /**
      * Flush and deploy batch of sites by pushing to GitHub
      * (Vercel builds automatically from GitHub push)
      */
@@ -137,11 +165,11 @@ Rules:
 
         try {
             if (statusCallback) {
-                await statusCallback(`🚀 *[Batch Deployer] Syncing ${count} new client sites to arclanestudios.space...*`);
+                await statusCallback(`🚀 *[Batch Deployer] Syncing ${count} new client sites & reports to arclanestudios.space...*`);
             }
 
-            // 1. Stage and commit in web-dev-agency
-            await execAsync(`git add public/sites/`, { cwd: this.agencyDir });
+            // 1. Stage and commit both sites and reports in web-dev-agency
+            await execAsync(`git add public/sites/ public/reports/`, { cwd: this.agencyDir });
             
             const clientList = currentBatch.map(c => c.slug).join(', ');
             const commitMsg = `feat(sites): add batch of ${count} client sites [${clientList}]`;
