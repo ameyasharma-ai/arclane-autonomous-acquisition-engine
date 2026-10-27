@@ -136,7 +136,7 @@ export class WebsiteBuilder {
         fs.writeFileSync(htmlFilePath, htmlCode, 'utf-8');
 
         // Stage into web-dev-agency/public/sites/<slug>/index.html
-        const staged = agencyPublisher.stageSite(clientId, businessName, htmlCode);
+        const staged = await agencyPublisher.stageSite(clientId, businessName, htmlCode);
         const vercelSlug = staged.slug;
         const deployedUrl = staged.deployedUrl;
         const githubRepoUrl = `https://github.com/ameyasharma-ai/WEB-DEV-AGENCY/tree/main/public/sites/${vercelSlug}`;

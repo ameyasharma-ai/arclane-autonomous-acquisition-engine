@@ -20,11 +20,43 @@ export class AgencyPublisher {
     }
 
     /**
-     * Compute clean subdomain slug from business name
+     * Use Gemini AI to pick an ultra-clean, short, branded subdomain slug
+     * e.g. "Pulse 8 gym the unisex" -> "pulse8" or "pulse8gym"
+     * e.g. "FITNATION GYM" -> "fitnation"
      */
-    getSlug(businessName) {
+    async getSlug(businessName) {
+        try {
+            if (process.env.API) {
+                const OpenAI = (await import('openai')).default;
+                const client = new OpenAI({
+                    baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai/',
+                    apiKey: process.env.API,
+                });
+                const prompt = `Given the business name: "${businessName}", pick an ultra-short, premium, branded subdomain slug.
+Rules:
+- Keep it 1 to 2 words max (ideally just the core brand name, e.g. "pulse8", "fitnation", "gymone").
+- Strip out fluff words like "the unisex", "pvt ltd", "centre", "patna", "official".
+- Output ONLY the clean lowercase slug (letters, numbers, single hyphens). No punctuation, no markdown, no quotes.`;
+
+                const res = await client.chat.completions.create({
+                    model: 'gemini-flash-lite-latest',
+                    messages: [{ role: 'user', content: prompt }]
+                });
+                const rawSlug = res.choices[0].message.content.trim().toLowerCase()
+                    .replace(/[^a-z0-9]+/g, '-')
+                    .replace(/^-+|-+$/g, '');
+                if (rawSlug && rawSlug.length >= 3 && rawSlug.length <= 20) {
+                    return rawSlug;
+                }
+            }
+        } catch (e) {
+            console.log(`[AgencyPublisher] AI slug picker notice (${e.message}), using fallback.`);
+        }
+
+        // Clean deterministic fallback
         return businessName
             .toLowerCase()
+            .replace(/\b(the|unisex|gym|fitness|center|centre|club|patna|pvt|ltd)\b/gi, '')
             .replace(/[^a-z0-9]+/g, '-')
             .replace(/^-+|-+$/g, '') || 'client-site';
     }
@@ -39,8 +71,8 @@ export class AgencyPublisher {
     /**
      * Stage a newly built site HTML into web-dev-agency/public/sites/<slug>/index.html
      */
-    stageSite(clientId, businessName, htmlCode) {
-        const slug = this.getSlug(businessName);
+    async stageSite(clientId, businessName, htmlCode) {
+        const slug = await this.getSlug(businessName);
         const targetDir = path.join(this.agencyPublicSitesDir, slug);
 
         if (!fs.existsSync(targetDir)) {
