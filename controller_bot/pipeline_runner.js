@@ -710,7 +710,7 @@ export class PipelineRunner {
 
         while (totalLeadsAccumulated < targetTotal && iteration < maxHops && !this.isAborted) {
             iteration++;
-            const nextLocality = localityEngine.getNextLocality(query, state, city);
+            const nextLocality = await localityEngine.getNextLocality(query, state, city);
             const remainingNeeded = targetTotal - totalLeadsAccumulated;
             const batchTarget = Math.min(remainingNeeded, 35);
 
