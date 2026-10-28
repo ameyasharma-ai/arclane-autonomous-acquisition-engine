@@ -103,22 +103,23 @@ export class PipelineRunner {
         }
 
         try {
+            const formattedLeadData = {
+                'Client ID': clientId,
+                'Business Name': businessName,
+                'Website URL': website,
+                'Phone': phone,
+                'WhatsApp': phone,
+                'Phone/WhatsApp': phone,
+                'Full Address': address,
+                'Rating': rating,
+                'Total Reviews': reviews
+            };
+
             // 1. Optional web presence scrape (non-blocking failsafe)
             let scrapedData = { website: {}, maps: '', social: {}, extractedPhones: [] };
             try {
                 const scraper = new Scraper();
                 await scraper.init();
-                const formattedLeadData = {
-                    'Client ID': clientId,
-                    'Business Name': businessName,
-                    'Website URL': website,
-                    'Phone': phone,
-                    'WhatsApp': phone,
-                    'Phone/WhatsApp': phone,
-                    'Full Address': address,
-                    'Rating': rating,
-                    'Total Reviews': reviews
-                };
                 scrapedData = await scraper.scrapeLead(formattedLeadData);
                 await scraper.close();
             } catch (scrapeErr) {
