@@ -103,22 +103,27 @@ export class PipelineRunner {
         }
 
         try {
-            // 1. Scrape web presence
-            const scraper = new Scraper();
-            await scraper.init();
-            const formattedLeadData = {
-                'Client ID': clientId,
-                'Business Name': businessName,
-                'Website URL': website,
-                'Phone': phone,
-                'WhatsApp': phone,
-                'Phone/WhatsApp': phone,
-                'Full Address': address,
-                'Rating': rating,
-                'Total Reviews': reviews
-            };
-            const scrapedData = await scraper.scrapeLead(formattedLeadData);
-            await scraper.close();
+            // 1. Optional web presence scrape (non-blocking failsafe)
+            let scrapedData = { website: {}, maps: '', social: {}, extractedPhones: [] };
+            try {
+                const scraper = new Scraper();
+                await scraper.init();
+                const formattedLeadData = {
+                    'Client ID': clientId,
+                    'Business Name': businessName,
+                    'Website URL': website,
+                    'Phone': phone,
+                    'WhatsApp': phone,
+                    'Phone/WhatsApp': phone,
+                    'Full Address': address,
+                    'Rating': rating,
+                    'Total Reviews': reviews
+                };
+                scrapedData = await scraper.scrapeLead(formattedLeadData);
+                await scraper.close();
+            } catch (scrapeErr) {
+                console.log(`[PipelineRunner] Secondary web scrape skipped/failed for Lead #${clientId} (${scrapeErr.message}). Continuing with Maps data.`);
+            }
 
             if (this.isAborted) return null;
 
