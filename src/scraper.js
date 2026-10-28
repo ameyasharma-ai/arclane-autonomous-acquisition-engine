@@ -136,7 +136,8 @@ export class Scraper {
                         console.log(`[Scraper] ⚠️ Loaded ${type} (${name || url}) but found no usable text content.`);
                     }
 
-                    // Deep Phone Extraction from HTML & Text
+                    // Deep Phone Extraction from HTML & Text (Commented out: only pick data from Maps card)
+                    /*
                     const phonesInPage = extractPhonesFromContent(html + '\n' + textContent);
                     for (const p of phonesInPage) {
                         if (!results.extractedPhones.includes(p)) {
@@ -144,6 +145,7 @@ export class Scraper {
                             console.log(`[Scraper] 📞 Discovered phone/WhatsApp from ${type} (${name || url}): ${p}`);
                         }
                     }
+                    */
                     
                     if (type === 'website') {
                         results.website[name || 'homepage'] = textContent;

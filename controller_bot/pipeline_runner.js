@@ -122,7 +122,8 @@ export class PipelineRunner {
 
             if (this.isAborted) return null;
 
-            // If phone was missing but discovered in social/web profile scraping, update lead & Google Sheet
+            // Phone strictly from Google Maps card (Commented out: do not override from website/social scraping)
+            /*
             if (!phone && scrapedData?.extractedPhones?.length > 0) {
                 phone = scrapedData.extractedPhones[0];
                 formattedLeadData['Phone'] = phone;
@@ -136,6 +137,7 @@ export class PipelineRunner {
                     });
                 } catch (e) {}
             }
+            */
 
             // 2. Summarize & Generate 14-Point Strategic Audit
             const summarizer = new Summarizer();
