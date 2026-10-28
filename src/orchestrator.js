@@ -47,16 +47,28 @@ export class Orchestrator {
 
             count++;
             const clientId = lead.clientId;
-            const businessName = lead.data['Business Name'] || `Client ${clientId}`;
+            const businessName = lead.businessName || (lead.data && lead.data['Business Name']) || `Client ${clientId}`;
+            const leadData = lead.data || {
+                'Client ID': clientId,
+                'Business Name': businessName,
+                'Website URL': lead.websiteUrl || '',
+                'Phone': lead.phone || '',
+                'WhatsApp': lead.phone || '',
+                'Phone/WhatsApp': lead.phone || '',
+                'Full Address': lead.fullAddress || '',
+                'Rating': lead.rating || '',
+                'Total Reviews': lead.totalReviews || ''
+            };
+            const leadSheet = lead.sheet || (lead.rawRow && lead.rawRow._sheet);
             
             await this.sendStatus(`[${count}/${leads.length}] Processing ${businessName} (ID: ${clientId})...`);
             
             try {
                 // 1. Scrape
-                const scrapedData = await this.scraper.scrapeLead(lead.data);
+                const scrapedData = await this.scraper.scrapeLead(leadData);
                 
                 // 2. Summarize & Generate 14-Point Strategy
-                const textReport = await this.summarizer.analyze(lead.data, scrapedData);
+                const textReport = await this.summarizer.analyze(leadData, scrapedData);
                 
                 // 3. Save to local reports/<clientId>/ dir
                 const clientReportsDir = path.join(this.reportsDir, String(clientId));
@@ -75,11 +87,13 @@ export class Orchestrator {
                 }
 
                 // 4. Update Google Sheet (Notes, AI Outreach Hook, Current Status)
-                await updateLeadFields(lead.sheet, clientId, {
-                    'Notes': `reports/${clientId}/audit.md`,
-                    'AI Outreach Hook': outreachHook,
-                    'Current Status': 'Analyzed'
-                });
+                if (leadSheet) {
+                    await updateLeadFields(leadSheet, clientId, {
+                        'Notes': `reports/${clientId}/audit.md`,
+                        'AI Outreach Hook': outreachHook,
+                        'Current Status': 'Analyzed'
+                    });
+                }
                 
                 await this.sendStatus(`✅ Strategy report generated for ${businessName} (ID: ${clientId})\nSaved to \`reports/${clientId}/audit.md\``);
 
