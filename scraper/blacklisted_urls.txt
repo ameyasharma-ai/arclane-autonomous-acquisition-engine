@@ -37,4 +37,4 @@ digitalintouch.co.in
 blogspot.com
 maps.app.goo.gl,website_of_interest
 bit.ly
-yourdigitallift.in
+yourdigitallift.in,website_of_interest
