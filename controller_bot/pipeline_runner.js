@@ -8,6 +8,7 @@ import { Summarizer } from '../src/summarizer.js';
 import { WebsiteBuilder } from '../src/builder.js';
 import { WhatsAppSender } from '../src/whatsapp_sender.js';
 import { agencyPublisher } from '../src/agency_publisher.js';
+import { localityEngine } from '../src/engine/locality_engine.js';
 import { CONFIG } from './config.js';
 
 export class PipelineRunner {
@@ -625,4 +626,136 @@ export class PipelineRunner {
         }
     }
 
+    /**
+     * Build and deploy a single Google Maps business URL immediately
+     */
+    async buildFromMapsUrl(mapsUrl) {
+        if (this.isProcessing) {
+            throw new Error("A task is already running! Please wait or send /abort.");
+        }
+        this.isProcessing = true;
+        this.isAborted = false;
+
+        await this.sendTelegram(
+            `🎯 *[Instant Builder] Processing Custom Google Maps Link...*\n\n` +
+            `🔗 URL: \`${mapsUrl}\`\n` +
+            `⚡ Scraping details, synthesizing audit, and building custom website...`
+        );
+
+        try {
+            const { sheet } = await loadGoogleSheet();
+            const rows = await sheet.getRows();
+            const nextClientId = rows.length + 1;
+
+            const scraper = new Scraper();
+            await scraper.init();
+            const rawLeadData = {
+                'Client ID': nextClientId,
+                'Business Name': 'Direct Maps Target',
+                'Website URL': '',
+                'Maps URL': mapsUrl
+            };
+            const scrapedData = await scraper.scrapeLead(rawLeadData);
+            await scraper.close();
+
+            const leadObj = {
+                clientId: nextClientId,
+                businessName: 'Custom Target ' + nextClientId,
+                phone: scrapedData.extractedPhones?.[0] || '',
+                whatsapp: scrapedData.extractedPhones?.[0] || '',
+                website: '',
+                address: 'Patna, Bihar'
+            };
+
+            const result = await this.processSingleLead(leadObj, sheet);
+            if (agencyPublisher.batchQueue.length > 0) {
+                await agencyPublisher.deployBatch(async (msg) => this.sendTelegram(msg));
+            }
+
+            this.isProcessing = false;
+            await this.sendTelegram(
+                `🎉 *[Instant Builder Complete!]*\n\n` +
+                `🏢 *Business:* ${result.businessName}\n` +
+                `🔗 *Live Website:* ${result.deployedUrl}\n` +
+                `📄 *Audit Link:* https://www.arclanestudios.space/reports/${nextClientId}`
+            );
+            return result;
+        } catch (e) {
+            this.isProcessing = false;
+            await this.sendTelegram(`❌ *[Instant Builder Error]:* ${e.message}`);
+            throw e;
+        }
+    }
+
+    /**
+     * Autonomous Chained Locality Scrape: Solves boundary exhaustion by hopping micro-localities
+     */
+    async runLocalityChain({ query, city = 'Patna', state = 'Bihar', targetTotal = 100, scraperRunner }) {
+        if (this.isProcessing) {
+            throw new Error("A pipeline job is already in progress!");
+        }
+
+        const overallStartTime = new Date();
+        let totalLeadsAccumulated = 0;
+        let iteration = 0;
+        const maxHops = 10;
+
+        await this.sendTelegram(
+            `🌐 *[Autonomous Locality Explorer Initiated]*\n\n` +
+            `📍 *Niche:* \`${query}\`\n` +
+            `🏙️ *Region:* \`${city}, ${state}\`\n` +
+            `🎯 *Overall Target:* \`${targetTotal}\` leads across micro-localities\n` +
+            `⚡ *Self-Healing:* Auto-hops boundaries when Google Maps exhausts listings!`
+        );
+
+        while (totalLeadsAccumulated < targetTotal && iteration < maxHops && !this.isAborted) {
+            iteration++;
+            const nextLocality = localityEngine.getNextLocality(query, state, city);
+            const remainingNeeded = targetTotal - totalLeadsAccumulated;
+            const batchTarget = Math.min(remainingNeeded, 35);
+
+            await this.sendTelegram(
+                `📍 *[Locality Hop #${iteration}] Target Area: \`${nextLocality}, ${city}\`*\n` +
+                `🎯 Fetching up to ${batchTarget} leads (Need ${remainingNeeded} more to reach ${targetTotal})...`
+            );
+
+            try {
+                const res = await this.runStreamingScrapeAndBuild({
+                    query,
+                    locality: `in ${nextLocality}`,
+                    city: `${city}, ${state}`,
+                    targetLeads: batchTarget,
+                    scraperRunner
+                });
+
+                const scrapedInHop = res.streamedCount || 0;
+                totalLeadsAccumulated += scrapedInHop;
+                localityEngine.recordYield(query, nextLocality, city, state, scrapedInHop);
+
+                await this.sendTelegram(
+                    `📊 *Locality Yield for ${nextLocality}:* ${scrapedInHop} leads.\n` +
+                    `📈 Total Progress: ${totalLeadsAccumulated}/${targetTotal} leads.`
+                );
+
+                if (scrapedInHop === 0) {
+                    console.log(`[PipelineRunner] Zero leads in ${nextLocality}. Hopping to next locality...`);
+                }
+            } catch (hopErr) {
+                console.error(`[PipelineRunner] Hop error on ${nextLocality}:`, hopErr.message);
+                if (this.isAborted) break;
+            }
+        }
+
+        const totalMins = ((new Date() - overallStartTime) / 60000).toFixed(1);
+        await this.sendTelegram(
+            `🏁 *[Autonomous Locality Explorer Finished]*\n\n` +
+            `🎯 Total Target: ${targetTotal}\n` +
+            `✅ Total Leads Secured: ${totalLeadsAccumulated}\n` +
+            `⏱️ Total Exploration Duration: ${totalMins} min\n` +
+            `🌐 All sites staged & active under \`*.arclanestudios.space\``
+        );
+
+        return { totalLeadsAccumulated, totalMins };
+    }
 }
+

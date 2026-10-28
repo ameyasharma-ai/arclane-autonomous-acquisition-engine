@@ -1,0 +1,51 @@
+{
+  "Bihar": {
+    "Patna": [
+      "Boring Road",
+      "Kankarbagh",
+      "Fraser Road",
+      "Bailey Road",
+      "Rajendra Nagar",
+      "Patliputra Colony",
+      "Mithapur",
+      "Danapur",
+      "Anisabad",
+      "Ashok Rajpath",
+      "Saguna More",
+      "Gola Road",
+      "Raja Bazar",
+      "Khagaul",
+      "Digha",
+      "Buddha Colony",
+      "Chiraiyatand",
+      "Lalbagh",
+      "Bahadurpur",
+      "Musallahpur Hat",
+      "Kadamkuan",
+      "Kurji"
+    ],
+    "Gaya": [
+      "Civil Lines",
+      "AP Colony",
+      "Rampur",
+      "Bodh Gaya Road",
+      "Chand Chaura",
+      "Delha"
+    ],
+    "Muzaffarpur": [
+      "Mithanpura",
+      "Motijheel",
+      "Aghoria Bazar",
+      "Brahmpura",
+      "Gobarsahi",
+      "Zero Mile"
+    ],
+    "Bhagalpur": [
+      "Tilkamanjhi",
+      "Khalifabag",
+      "Adampur",
+      "Aliganj",
+      "Barari"
+    ]
+  }
+}

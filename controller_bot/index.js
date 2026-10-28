@@ -646,6 +646,88 @@ bot.action('cmd_view_plan', async (ctx) => {
     await handleViewPlan(ctx);
 });
 
+// Command: /coverage [niche] [city]
+bot.command('coverage', async (ctx) => {
+    if (!scheduler) scheduler = new Scheduler(bot, ctx.chat.id);
+    const args = parseArgs(ctx.message.text);
+    const niche = args[0] || "Gyms";
+    const city = args[1] || "Patna";
+    const { localityEngine } = await import('../src/engine/locality_engine.js');
+    const report = localityEngine.getCoverageReport(niche, 'Bihar', city);
+
+    let text = `🗺️ *Locality Coverage Matrix for ${niche} (${city}, ${report.state})*\n\n` +
+               `• *Coverage Rate:* ${report.coveredLocalities}/${report.totalLocalities} Localities (${report.coveragePercentage}%)\n` +
+               `• *Total Leads Gathered:* ${report.totalLeads} leads\n\n` +
+               `*Breakdown by Area:*\n`;
+    report.breakdown.forEach(b => {
+        const icon = b.status === 'COMPLETED' ? '✅' : '⚪';
+        text += `${icon} *${b.locality}:* ${b.leads} leads ${b.lastScraped ? `(\`${new Date(b.lastScraped).toLocaleDateString()}\`)` : ''}\n`;
+    });
+
+    await ctx.reply(text, { parse_mode: 'Markdown' });
+});
+
+// Command: /auto_explore [niche] [city] [targetTotal]
+bot.command('auto_explore', async (ctx) => {
+    if (!scheduler) scheduler = new Scheduler(bot, ctx.chat.id);
+    scheduler.setChatId(ctx.chat.id);
+    const args = parseArgs(ctx.message.text);
+    const niche = args[0] || "Gyms";
+    const city = args[1] || "Patna";
+    const target = parseInt(args[2], 10) || 50;
+
+    await ctx.reply(
+        `🚀 *Initiating Autonomous Locality Chained Explorer!*\n` +
+        `• Niche: \`${niche}\`\n` +
+        `• City: \`${city}\`\n` +
+        `• Target: \`${target}\` Leads\n\n` +
+        `The system will hop micro-localities whenever Google Maps exhausts results until ${target} leads are secured. Send \`/abort\` to halt.`,
+        { parse_mode: 'Markdown' }
+    );
+
+    scheduler.pipelineRunner.runLocalityChain({
+        query: niche,
+        city,
+        state: 'Bihar',
+        targetTotal: target,
+        scraperRunner: scheduler.scraperRunner
+    }).catch(e => {
+        if (!scheduler.pipelineRunner.isAborted) ctx.reply(`❌ Auto explore error: ${e.message}`);
+    });
+});
+
+// Command: /build_url [Maps Link]
+async function handleBuildUrl(ctx, mapsUrl) {
+    if (!scheduler) scheduler = new Scheduler(bot, ctx.chat.id);
+    scheduler.setChatId(ctx.chat.id);
+
+    await ctx.reply(`🎯 *Identified Google Maps target URL.*\nLaunching instant bespoke scraper & website synthesizer...`, { parse_mode: 'Markdown' });
+    scheduler.pipelineRunner.buildFromMapsUrl(mapsUrl).catch(e => {
+        ctx.reply(`❌ Build from URL failed: ${e.message}`);
+    });
+}
+
+bot.command('build_url', async (ctx) => {
+    const args = parseArgs(ctx.message.text);
+    const url = args[0];
+    if (!url || !url.startsWith('http')) {
+        return ctx.reply("Please provide a valid Google Maps URL. Example: `/build_url https://maps.app.goo.gl/...`", { parse_mode: 'Markdown' });
+    }
+    await handleBuildUrl(ctx, url);
+});
+
+// Direct text listener: Automatically detect when user pastes a Google Maps link into chat
+bot.on('text', async (ctx, next) => {
+    const text = ctx.message?.text || '';
+    if (text.startsWith('/')) return next(); // Ignore standard commands
+    const mapsRegex = /(https?:\/\/(?:www\.)?(?:google\.com\/maps|maps\.app\.goo\.gl|goo\.gl\/maps)[^\s]+)/i;
+    const match = text.match(mapsRegex);
+    if (match) {
+        return handleBuildUrl(ctx, match[1]);
+    }
+    return next();
+});
+
 // Launch Bot
 console.log("==================================================");
 console.log(`[ControllerBot] 🚀 Starting Controller Bot on token: ${CONFIG.BOT_TOKEN.slice(0, 10)}...`);

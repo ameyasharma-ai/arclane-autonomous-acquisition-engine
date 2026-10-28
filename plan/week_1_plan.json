@@ -28,6 +28,15 @@
       "minReviews": 10,
       "websiteRequired": false
     },
+    "localityExplorationEngine": {
+      "enabled": true,
+      "strategy": "Micro-Locality Auto-Hopping",
+      "boundaryExhaustionThreshold": 5,
+      "targetState": "Bihar",
+      "primaryCity": "Patna",
+      "ledgerFile": "data/locality_coverage.json",
+      "maxAutopilotSessionHours": 12
+    },
     "autoWhatsAppDispatched": false,
     "crmFieldsToUpdateManually": [
       "Phone/WhatsApp",
@@ -166,15 +175,17 @@
       "weekNumber": 1,
       "dayIndex": 4,
       "dayName": "Thursday",
-      "focus": "Zumba, Aerobics & Cardio Fitness Studios in Patna",
+      "focus": "Zumba, Aerobics & Cardio Fitness Studios across Kankarbagh & Boring Road",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "06:00",
           "query": "Fitness Studios",
-          "locality": "in Patna",
+          "locality": "Kankarbagh, Patna",
           "city": "Patna",
-          "targetLeads": 33
+          "targetLeads": 33,
+          "useLocalityChaining": true,
+          "fallbackLocalities": ["Boring Road", "Rajendra Nagar", "Anisabad"]
         },
         "analyseAndBuild": {
           "enabled": true,
@@ -207,15 +218,17 @@
       "weekNumber": 1,
       "dayIndex": 5,
       "dayName": "Friday",
-      "focus": "Strength Training & Personal Training Gyms in Patna",
+      "focus": "Strength Training & Personal Training Gyms across Bailey Road & Danapur",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "06:00",
           "query": "Gyms and Fitness",
-          "locality": "in Patna",
+          "locality": "Bailey Road, Patna",
           "city": "Patna",
-          "targetLeads": 33
+          "targetLeads": 33,
+          "useLocalityChaining": true,
+          "fallbackLocalities": ["Danapur", "Khagaul Road", "Saguna More"]
         },
         "analyseAndBuild": {
           "enabled": true,
@@ -248,15 +261,17 @@
       "weekNumber": 1,
       "dayIndex": 6,
       "dayName": "Saturday",
-      "focus": "Combat, MMA & Martial Arts Gyms in Patna",
+      "focus": "Combat, MMA & Martial Arts Gyms across Patliputra & Ashiana Digha",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "06:00",
           "query": "MMA Gyms",
-          "locality": "in Patna",
+          "locality": "Patliputra, Patna",
           "city": "Patna",
-          "targetLeads": 33
+          "targetLeads": 33,
+          "useLocalityChaining": true,
+          "fallbackLocalities": ["Ashiana Digha Road", "Digha", "Kurji"]
         },
         "analyseAndBuild": {
           "enabled": true,
@@ -289,15 +304,17 @@
       "weekNumber": 1,
       "dayIndex": 7,
       "dayName": "Sunday",
-      "focus": "Weekend Lead Sweep & High-Intent Calling Review",
+      "focus": "Weekend Lead Sweep & High-Intent Locality Exhaustion Recovery",
       "tasks": {
         "scraper": {
           "enabled": true,
           "cronTime": "06:00",
           "query": "Gyms",
-          "locality": "in Patna",
+          "locality": "Fraser Road, Patna",
           "city": "Patna",
-          "targetLeads": 33
+          "targetLeads": 33,
+          "useLocalityChaining": true,
+          "fallbackLocalities": ["Exhibition Road", "Dak Bungalow", "Gandhi Maidan"]
         },
         "analyseAndBuild": {
           "enabled": true,
