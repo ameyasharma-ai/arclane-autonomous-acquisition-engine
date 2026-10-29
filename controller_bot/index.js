@@ -341,25 +341,39 @@ async function handleAbort(ctx) {
 bot.command('abort', handleAbort);
 bot.command('stop', handleAbort);
 
-// Command: /trigger_stream [query] [city] [count]
-bot.command('trigger_stream', async (ctx) => {
+// Command: /trigger_stream & /stream_scrape [query] [locality/city] [city] [count]
+async function handleTriggerStream(ctx) {
     if (!scheduler) scheduler = new Scheduler(bot, ctx.chat.id);
     scheduler.setChatId(ctx.chat.id);
 
     const args = parseArgs(ctx.message.text);
     const plan = scheduler.getTodayPlan();
     const query = args[0] || plan?.tasks.scraper.query || "Gyms";
-    const city = args[1] || plan?.tasks.scraper.city || "Pune";
-    const count = parseInt(args[2], 10) || plan?.tasks.scraper.targetLeads || 35;
+
+    let locality = `in Patna`;
+    let city = "Patna";
+    let count = 35;
+
+    if (args.length >= 3 && isNaN(parseInt(args[1], 10)) && isNaN(parseInt(args[2], 10))) {
+        // e.g. /stream_scrape "Fitness Studios" "Kankarbagh, Patna" "Patna" 33
+        locality = args[1].startsWith('in ') ? args[1] : `in ${args[1]}`;
+        city = args[2] || "Patna";
+        count = parseInt(args[3], 10) || plan?.tasks.scraper.targetLeads || 35;
+    } else {
+        // Standard syntax: [query] [city] [count]
+        city = args[1] || plan?.tasks.scraper.city || "Patna";
+        count = parseInt(args[2], 10) || plan?.tasks.scraper.targetLeads || 35;
+        locality = `in ${city}`;
+    }
 
     await ctx.reply(
-        `⚡ Launching concurrent stream scrape & build for *${query}* in *${city}* (${count} leads)...\n🛑 Send \`/abort\` to cancel.`,
+        `⚡ Launching concurrent stream scrape & build for *${query}* in *${locality}* (${count} leads)...\n🛑 Send \`/abort\` to cancel.`,
         { parse_mode: 'Markdown' }
     );
 
     scheduler.pipelineRunner.runStreamingScrapeAndBuild({
         query,
-        locality: `in`,
+        locality,
         city,
         targetLeads: count,
         scraperRunner: scheduler.scraperRunner
@@ -368,7 +382,9 @@ bot.command('trigger_stream', async (ctx) => {
             ctx.reply(`❌ Stream error: ${e.message}`);
         }
     });
-});
+}
+bot.command('trigger_stream', handleTriggerStream);
+bot.command('stream_scrape', handleTriggerStream);
 
 // Command: /trigger_scrape [query] [city] [count]
 bot.command('trigger_scrape', async (ctx) => {

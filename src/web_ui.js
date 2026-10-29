@@ -97,7 +97,8 @@ class WebUIServer {
                         handled = true;
                     }
                 } else {
-                    const cmdName = text.split(' ')[0].replace('/', '');
+                    const rawCmd = text.split(' ')[0].replace('/', '').trim();
+                    const cmdName = (rawCmd.toLowerCase() === 'stream_scrape') ? 'trigger_stream' : rawCmd;
                     if (this.commandHandlers[cmdName]) {
                         try {
                             await this.commandHandlers[cmdName](fakeCtx);

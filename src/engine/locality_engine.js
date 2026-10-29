@@ -121,13 +121,72 @@ Example: ["Boring Canal Road", "SK Puri", "Nageshwar Colony", "Harding Road"]`;
     }
 
     /**
+     * Dynamically ask AI for nearby micro-localities or neighborhoods adjacent to a specific saturated locality.
+     */
+    async discoverNearbyLocalitiesWithAI(currentLocality, niche = 'Gyms', city = 'Patna', state = 'Bihar') {
+        try {
+            if (process.env.API) {
+                const OpenAI = (await import('openai')).default;
+                const client = new OpenAI({
+                    baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai/',
+                    apiKey: process.env.API,
+                });
+
+                const existingHierarchy = this.loadHierarchy();
+                const existing = (existingHierarchy[state] && existingHierarchy[state][city]) || [];
+
+                const prompt = `You are an expert geographical market researcher for Indian commercial hubs.
+We are scouting high-density commercial micro-localities and adjacent neighborhoods in ${city}, ${state} for: "${niche}".
+Google Maps listings in "${currentLocality}" are exhausted or returning duplicates.
+
+We need neighboring, adjacent commercial roads, sectors, or micro-pockets strictly close to "${currentLocality}" or within ${city} with active ${niche}.
+Currently registered: ${JSON.stringify(existing)}
+
+Task:
+Suggest 4-6 adjacent or nearby commercial neighborhoods/roads near "${currentLocality}", ${city}.
+Return ONLY a valid JSON array of strings containing the locality names. No explanations, no markdown tags.
+Example: ["Nearby Market 1", "Nearby Main Road", "Adjacent Colony"]`;
+
+                const res = await client.chat.completions.create({
+                    model: 'gemini-flash-lite-latest',
+                    messages: [{ role: 'user', content: prompt }]
+                });
+
+                let text = res.choices[0].message.content.trim();
+                text = text.replace(/```json/gi, '').replace(/```/g, '').trim();
+                const parsed = JSON.parse(text);
+
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    console.log(`[LocalityEngine] 🧠 AI discovered ${parsed.length} nearby micro-localities adjacent to "${currentLocality}": ${parsed.join(', ')}`);
+                    this.registerDiscoveredLocalities(state, city, parsed);
+                    return parsed;
+                }
+            }
+        } catch (e) {
+            console.log(`[LocalityEngine] Nearby locality discovery notice: ${e.message}`);
+        }
+        return [];
+    }
+
+    /**
      * Get next unvisited or least-recently scraped locality for a niche in city.
      * If all known localities are saturated or exhausted, dynamically queries AI for fresh micro-localities!
      */
-    async getNextLocality(niche, state = 'Bihar', city = 'Patna') {
+    async getNextLocality(niche, state = 'Bihar', city = 'Patna', nearLocality = null) {
         let localities = this.getLocalities(state, city);
         let coverage = this.loadCoverage();
         let cityCoverage = coverage[niche]?.[state]?.[city] || {};
+
+        if (nearLocality) {
+            const aiNearby = await this.discoverNearbyLocalitiesWithAI(nearLocality, niche, city, state);
+            if (aiNearby.length > 0) {
+                for (const loc of aiNearby) {
+                    if (!cityCoverage[loc] || cityCoverage[loc].status === 'PENDING' || cityCoverage[loc].totalLeads === 0) {
+                        return loc;
+                    }
+                }
+            }
+        }
 
         // 1. Look for unvisited localities
         for (const loc of localities) {

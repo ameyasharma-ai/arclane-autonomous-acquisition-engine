@@ -13,9 +13,52 @@ export class AgencyPublisher {
         this.batchQueue = [];
         this.batchThreshold = 5;
         this.isDeploying = false;
+        this.domainLimitReached = false;
+        this.registeredSubdomains = new Set();
 
         if (!fs.existsSync(this.agencyPublicSitesDir)) {
             fs.mkdirSync(this.agencyPublicSitesDir, { recursive: true });
+        }
+    }
+
+    /**
+     * Check if a specific subdomain is verified and active on Vercel without hitting the 50 domain limit
+     */
+    async isSubdomainActive(slug) {
+        if (this.domainLimitReached) {
+            return false;
+        }
+        const fullDomain = `${slug}.${this.apexDomain}`;
+        if (this.registeredSubdomains.has(fullDomain)) {
+            return true;
+        }
+        const vercelToken = process.env.VERCEL_TOKEN;
+        if (!vercelToken) return false;
+
+        const projectId = 'prj_bDQewUJReqeKlYBNwvDPcO6vamOZ';
+        const teamId = 'team_7pHeotFcK2tW9w7oom9czThz';
+        try {
+            const res = await fetch(`https://api.vercel.com/v10/projects/${projectId}/domains?teamId=${teamId}`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${vercelToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name: fullDomain })
+            });
+            const data = await res.json();
+            if (data.error) {
+                if (data.error.code === 'project_domain_limit_reached') {
+                    console.warn(`[AgencyPublisher] ⚠️ Vercel 50-domain project limit reached. Switching to Agency Hosted URLs.`);
+                    this.domainLimitReached = true;
+                    return false;
+                }
+                return false;
+            }
+            this.registeredSubdomains.add(fullDomain);
+            return true;
+        } catch (e) {
+            return false;
         }
     }
 
@@ -187,13 +230,13 @@ Rules:
 
             // 3. Instant SSL Guarantee: Register specific subdomains with Vercel API
             const vercelToken = process.env.VERCEL_TOKEN;
-            if (vercelToken) {
+            if (vercelToken && !this.domainLimitReached) {
                 const projectId = 'prj_bDQewUJReqeKlYBNwvDPcO6vamOZ';
                 const teamId = 'team_7pHeotFcK2tW9w7oom9czThz';
                 for (const item of currentBatch) {
                     try {
                         const domainName = `${item.slug}.${this.apexDomain}`;
-                        await fetch(`https://api.vercel.com/v10/projects/${projectId}/domains?teamId=${teamId}`, {
+                        const res = await fetch(`https://api.vercel.com/v10/projects/${projectId}/domains?teamId=${teamId}`, {
                             method: 'POST',
                             headers: {
                                 Authorization: `Bearer ${vercelToken}`,
@@ -201,7 +244,16 @@ Rules:
                             },
                             body: JSON.stringify({ name: domainName })
                         });
-                        console.log(`[AgencyPublisher] Instant SSL enabled on Vercel for ${domainName}`);
+                        const data = await res.json();
+                        if (data.error && data.error.code === 'project_domain_limit_reached') {
+                            console.warn(`[AgencyPublisher] ⚠️ Vercel domain limit (50) reached during batch deployment. Falling back gracefully to agency hosted routes.`);
+                            this.domainLimitReached = true;
+                            break;
+                        }
+                        if (!data.error) {
+                            this.registeredSubdomains.add(domainName);
+                            console.log(`[AgencyPublisher] Instant SSL enabled on Vercel for ${domainName}`);
+                        }
                     } catch (dErr) {
                         // Wildcard fallback if API fails
                     }

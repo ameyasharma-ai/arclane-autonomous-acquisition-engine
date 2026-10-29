@@ -38,3 +38,4 @@ blogspot.com
 maps.app.goo.gl,website_of_interest
 bit.ly
 yourdigitallift.in,website_of_interest
+svhrt.com,website_of_interest

@@ -242,6 +242,54 @@ export class PipelineRunner {
                 }
             });
 
+            // Intelligent Locality Auto-Hop Escape: If boundary exhaustion occurred and target is unfulfilled,
+            // ask AI for adjacent micro-localities to complete the original quota!
+            let currentLocality = locality.replace(/^in\s+/i, '').trim();
+            let hopCount = 0;
+            const maxEscapeHops = 3;
+
+            while (streamedCount < targetLeads && hopCount < maxEscapeHops && !this.isAborted) {
+                hopCount++;
+                const remaining = targetLeads - streamedCount;
+                console.log(`[PipelineRunner] 🔄 Boundary exhausted in "${currentLocality}". Asking AI for adjacent micro-localities to complete remaining ${remaining} leads...`);
+
+                const cleanCity = city.includes(',') ? city.split(',')[0].trim() : city;
+                const nextNearby = await localityEngine.getNextLocality(query, 'Bihar', cleanCity, currentLocality);
+
+                if (!nextNearby || nextNearby === currentLocality) {
+                    console.log(`[PipelineRunner] No additional adjacent micro-localities found. Halting escape loop.`);
+                    break;
+                }
+
+                await this.sendTelegram(
+                    `🧭 *[Locality Auto-Hop]* Google Maps exhausted listings in \`${currentLocality}\` (Fetched: ${streamedCount}/${targetLeads}).\n` +
+                    `🧠 *AI Discovered Adjacent Pocket:* \`${nextNearby}, ${cleanCity}\`\n` +
+                    `🎯 Resuming stream scrape to secure remaining \`${remaining}\` leads...`
+                );
+
+                currentLocality = nextNearby;
+                await scraperRunner.runScrape({
+                    query,
+                    locality: `in ${nextNearby}`,
+                    city,
+                    targetLeads: remaining,
+                    onLeadScraped: (leadObj) => {
+                        if (this.isAborted) return;
+                        streamedCount++;
+                        console.log(`[PipelineRunner] 📥 Received streamed lead #${streamedCount}: ${leadObj.businessName} (ID: ${leadObj.clientId})`);
+
+                        this.leadQueue.add(async () => {
+                            if (this.isAborted) return;
+                            const res = await this.processSingleLead(leadObj, sheet);
+                            if (res && res.clientId && !res.error) {
+                                processedClientIds.push(res.clientId);
+                                processedCount++;
+                            }
+                        });
+                    }
+                });
+            }
+
             if (this.isAborted) {
                 await this.sendTelegram(`🛑 *[Controller] Pipeline was aborted by user.*`);
                 return { success: false, aborted: true };

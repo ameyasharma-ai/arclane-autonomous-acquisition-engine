@@ -198,28 +198,44 @@ export class WebsiteBuilder {
 
         const agencyPathUrl = staged.agencyPathUrl || `https://www.arclanestudios.space/sites/${vercelSlug}`;
 
+        // Verify if subdomain is active or if Vercel project domain limit is reached
+        let subdomainVerified = false;
+        try {
+            subdomainVerified = await agencyPublisher.isSubdomainActive(vercelSlug);
+        } catch (subErr) {
+            subdomainVerified = false;
+        }
+
+        // Canonical working URL to feature in CRM & outreach
+        const primaryLiveUrl = subdomainVerified ? deployedUrl : agencyPathUrl;
+
         // Construct structured JSON
         const outreachJson = {
             clientId: Number(clientId),
             businessName,
             phone,
             whatsapp: whatsappPhone,
-            deployedUrl,
+            deployedUrl: primaryLiveUrl,
             agencyHostedUrl: agencyPathUrl,
+            subdomainUrl: subdomainVerified ? deployedUrl : '',
             githubRepoUrl,
-            whatsappMessage: waMessage,
-            callScript: callScript,
+            whatsappMessage: waMessage.replace(new RegExp(deployedUrl, 'g'), primaryLiveUrl),
+            callScript: callScript.replace(new RegExp(deployedUrl, 'g'), primaryLiveUrl),
             updatedAt: new Date().toISOString()
         };
         fs.writeFileSync(outreachJsonPath, JSON.stringify(outreachJson, null, 2), 'utf-8');
 
         // Construct human-readable outreach text
-        const outreachTxt = `[CONTACT_DETAILS]\nPhone: ${phone || 'Not available.'}\nWhatsApp: ${whatsappPhone || 'Not available.'}\n\n[OUTREACH_PLATFORM]\nWhatsApp & Follow-up Phone Call\n\n[FINAL_OUTREACH_MESSAGE]\n\n[WHATSAPP_START]\n${waMessage}\n[WHATSAPP_END]\n\n[CALL_SCRIPT_START]\n${callScript}\n[CALL_SCRIPT_END]`;
+        const finalWaMessage = outreachJson.whatsappMessage;
+        const finalCallScript = outreachJson.callScript;
+        const outreachTxt = `[CONTACT_DETAILS]\nPhone: ${phone || 'Not available.'}\nWhatsApp: ${whatsappPhone || 'Not available.'}\n\n[OUTREACH_PLATFORM]\nWhatsApp & Follow-up Phone Call\n\n[FINAL_OUTREACH_MESSAGE]\n\n[WHATSAPP_START]\n${finalWaMessage}\n[WHATSAPP_END]\n\n[CALL_SCRIPT_START]\n${finalCallScript}\n[CALL_SCRIPT_END]`;
         fs.writeFileSync(path.join(clientReportsDir, 'outreach.txt'), outreachTxt, 'utf-8');
         fs.writeFileSync(clientFinalPath, outreachTxt, 'utf-8');
 
         // Update audit.md with live deployed URL
-        const updatedReportContent = reportContent.replace(/\[website-url\]|https:\/\/[a-zA-Z0-9-.]+\.vercel\.app/gi, deployedUrl);
+        const updatedReportContent = reportContent
+            .replace(/\[website-url\]|https:\/\/[a-zA-Z0-9-.]+\.vercel\.app/gi, primaryLiveUrl)
+            .replace(new RegExp(deployedUrl, 'g'), primaryLiveUrl);
         fs.writeFileSync(auditMdPath, updatedReportContent, 'utf-8');
 
         // Stage audit report & metadata into web-dev-agency/public/reports/<clientId>/
@@ -228,26 +244,35 @@ export class WebsiteBuilder {
         // Update Google Sheet with Subdomain URL, Agency Hosted URL, Audit Report URL, AI Outreach Hook, & Status
         try {
             const { sheet } = await loadGoogleSheet();
-            await updateLeadFields(sheet, Number(clientId), {
-                'Website URL': deployedUrl,
-                'Subdomain URL': deployedUrl,
+            const sheetUpdates = {
+                'Website URL': primaryLiveUrl,
                 'Agency Hosted URL': agencyPathUrl,
                 'Audit Report URL': auditReportUrl,
-                'AI Outreach Hook': waMessage,
+                'AI Outreach Hook': finalWaMessage,
                 'Current Status': 'Website Built'
-            });
+            };
+
+            // If domain limit encountered, do NOT write broken subdomain to CRM; leave blank and use Agency Hosted URL
+            if (subdomainVerified) {
+                sheetUpdates['Subdomain URL'] = deployedUrl;
+            } else {
+                sheetUpdates['Subdomain URL'] = '';
+            }
+
+            await updateLeadFields(sheet, Number(clientId), sheetUpdates);
         } catch (sheetErr) {
             console.error("Sheet update notice:", sheetErr.message);
         }
 
         await this.sendStatus(`🎉 *[4/4] Website Built & Hosted Successfully!*\n\n` +
-            `🔗 *Live Website:* ${deployedUrl}\n` +
+            `🔗 *Live Website:* ${primaryLiveUrl}\n` +
+            (subdomainVerified ? `🌐 *Subdomain:* ${deployedUrl}\n` : `🌐 *Agency Hosted URL:* ${agencyPathUrl} (Subdomain omitted due to domain limit)\n`) +
             `📦 *GitHub Repo:* ${githubRepoUrl}\n` +
             `📁 *Local Site:* \`generated_sites/${clientId}/\`\n` +
             `📄 *Structured Report:* \`reports/${clientId}/outreach.json\``);
 
         // Send preview of final outreach message
-        await this.sendStatus(`📋 *Ready-to-Send WhatsApp Outreach Preview:*\n\n\`\`\`\n${waMessage}\n\`\`\``);
+        await this.sendStatus(`📋 *Ready-to-Send WhatsApp Outreach Preview:*\n\n\`\`\`\n${finalWaMessage}\n\`\`\``);
 
         return {
             clientId,

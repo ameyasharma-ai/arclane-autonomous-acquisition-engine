@@ -66,8 +66,10 @@ _blacklist_paths = [
     os.path.join(os.path.dirname(__file__), "blacklisted_urls.txt"),
     os.path.join(os.getcwd(), "scraper", "blacklisted_urls.txt")
 ]
+_active_blacklist_file = None
 for _bp in _blacklist_paths:
     if os.path.exists(_bp):
+        _active_blacklist_file = os.path.abspath(_bp)
         try:
             with open(_bp, "r", encoding="utf-8") as f:
                 for line in f:
@@ -82,6 +84,99 @@ for _bp in _blacklist_paths:
             break
         except Exception:
             pass
+
+def record_website_of_interest(url_or_domain):
+    """
+    Appends newly discovered website_of_interest domain to blacklisted_urls.txt
+    and updates runtime memory so the scraper gets dynamically smarter on every round.
+    """
+    global INTEREST_URLS, BLACKLISTED_URLS, _active_blacklist_file
+    try:
+        import urllib.parse
+        parsed = urllib.parse.urlparse(url_or_domain if "://" in url_or_domain else "http://" + url_or_domain)
+        netloc = parsed.netloc.lower()
+        if netloc.startswith("www."):
+            netloc = netloc[4:]
+        parts = netloc.split(".")
+        if len(parts) >= 3 and parts[-1] in ["in", "uk", "au", "nz", "br"] and parts[-2] in ["co", "com", "org", "net", "gov", "edu"]:
+            domain = ".".join(parts[-3:])
+        elif len(parts) >= 2:
+            domain = ".".join(parts[-2:])
+        else:
+            domain = netloc
+
+        if not domain or domain in INTEREST_URLS:
+            return
+
+        INTEREST_URLS.append(domain)
+        if domain not in BLACKLISTED_URLS:
+            BLACKLISTED_URLS.append(domain)
+
+        target_file = _active_blacklist_file or os.path.join(os.path.dirname(__file__), "blacklisted_urls.txt")
+        with open(target_file, "a", encoding="utf-8") as f:
+            f.write(f"\n{domain},website_of_interest")
+        print(f"  [AI Intelligence] 📝 Recorded new '{domain},website_of_interest' in {os.path.basename(target_file)}")
+    except Exception as e:
+        print(f"  [AI Intelligence] Warning saving website of interest: {e}")
+
+async def analyze_url_with_ai(url, business_name=""):
+    """
+    Intelligently analyzes unknown business website URLs using Gemini AI to check if they are
+    generic/experimental builds, app-builders, or subdomains of interest (e.g., replit.app, grexa.site,
+    svhrt.com, netlify, vercel, github.io, yourdigitallift.in, bio-links, uncustomized portals)
+    that qualify as 'website_of_interest' for Arclane to build a custom modern replacement for.
+    """
+    if not url:
+        return False
+
+    # Fast match against known interest domains
+    url_lower = url.lower()
+    if any(dom in url_lower for dom in INTEREST_URLS):
+        return True
+
+    # Use Gemini or OpenRouter to evaluate unknown website
+    var_name, gemini_key = get_current_gemini_key()
+    if not gemini_key:
+        return False
+
+    prompt = f"""You are a specialized B2B sales intelligence agent for web design agencies.
+We target local SMBs (e.g. gym, clinic, restaurant) that do NOT have a professional custom website, or only have:
+- A generic experimental web builder (e.g. replit.app, netlify.app, vercel.app, github.io)
+- A low-quality third-party ERP/booking portal (e.g. grexa.site, yourdigitallift.in, svhrt.com, healtrailconnect.in)
+- A raw Google Maps bio shortlink (e.g. maps.app.goo.gl)
+- An uncustomized, broken, or templated placeholder.
+
+Business Name: "{business_name}"
+Website URL: "{url}"
+
+Question:
+Is this URL a generic experimental build, portal subdomain, or template that qualifies as a "website_of_interest" to replace with a high-converting agency website?
+Answer ONLY with a JSON object: {{"is_website_of_interest": true/false, "root_domain": "example.com"}}"""
+
+    payload = {
+        "contents": [{"parts": [{"text": prompt}]}]
+    }
+
+    try:
+        async with aiohttp.ClientSession() as session:
+            await gemini_limiter.wait_if_needed()
+            gemini_url = f"https://generativelanguage.googleapis.com/v1beta/models/{PRIMARY_MODEL}:generateContent?key={gemini_key}"
+            async with session.post(gemini_url, json=payload, timeout=20) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    if "candidates" in data and len(data["candidates"]) > 0:
+                        content = data["candidates"][0]["content"]["parts"][0]["text"].strip()
+                        import re
+                        m = re.search(r'\{.*\}', content, re.DOTALL)
+                        if m:
+                            parsed = json.loads(m.group(0))
+                            if parsed.get("is_website_of_interest") is True:
+                                root = parsed.get("root_domain") or url
+                                record_website_of_interest(root)
+                                return True
+    except Exception as e:
+        pass
+    return False
 
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
 
@@ -116,7 +211,7 @@ FALLBACK_MODELS = LLM_CONFIG.get("fallback_models", [
     "liquid/lfm-2.5-1.2b-instruct:free",
     "qwen/qwen3-coder:free"
 ])
-GEMINI_KEYS_ENV = LLM_CONFIG.get("gemini_keys_env", ["GEMINI_REVIEWS_API_KEY", "GEMINI_REVIEWS_CLEANER_KEY"])
+GEMINI_KEYS_ENV = LLM_CONFIG.get("gemini_keys_env", ["GEMINI_REVIEWS_API_KEY", "GEMINI_REVIEWS_CLEANER_KEY", "API"])
 OPENROUTER_KEYS_ENV = LLM_CONFIG.get("openrouter_keys_env", ["OPENROUTER_API_KEY", "OPENROUTER_API_KEY_AGENT_SMITH", "OPENROUTER_API_KEY_CLEANER"])
 
 # Gemini Key Pool Manager
@@ -1263,6 +1358,7 @@ async def main(search_query, locality, city, num_of_leads, end_date="", end_time
             client_id_counter = client_id_start
             end_reached = False
             empty_scroll_count = 0
+            duplicate_scan_streak = 0
             
             while len(leads) < num_of_leads and not end_reached:
                 import os
@@ -1309,7 +1405,15 @@ async def main(search_query, locality, city, num_of_leads, end_date="", end_time
                         pass
                         
                 if not has_new_leads and not end_reached:
-                    print("[INFO] Scanning visible listings (all are duplicates). Scrolling down to find new leads...")
+                    duplicate_scan_streak += 1
+                    print(f"[INFO] Scanning visible listings (all are duplicates). Scrolling down to find new leads... (Streak {duplicate_scan_streak}/5)")
+                    
+                    if duplicate_scan_streak >= 5:
+                        print(f"\n[BOUNDARY EXHAUSTION] Google Maps has no new listings in this locality after {duplicate_scan_streak} full duplicate scans.")
+                        print("[AUTO-ESCAPE] Concluding current locality extraction cleanly so Controller can auto-hop to adjacent micro-locality...")
+                        end_reached = True
+                        break
+
                     scroll_count = 0
                     while not has_new_leads and not end_reached and scroll_count < 10:
                         if cards:
@@ -1336,6 +1440,7 @@ async def main(search_query, locality, city, num_of_leads, end_date="", end_time
                                     new_key = (clean_business_name(name), get_canonical_maps_key(url))
                                     if new_key not in seen_leads:
                                         has_new_leads = True
+                                        duplicate_scan_streak = 0
                                         break
                                     else:
                                         scraped_urls.add(url)
@@ -1343,6 +1448,8 @@ async def main(search_query, locality, city, num_of_leads, end_date="", end_time
                                 pass
                         scroll_count += 1
                     continue
+                else:
+                    duplicate_scan_streak = 0
                 
                 new_items = []
                 for card in cards:
@@ -1527,6 +1634,17 @@ async def main(search_query, locality, city, num_of_leads, end_date="", end_time
                                         if bl in wl:
                                             is_blacklisted = True
                                             break
+
+                                # If website is unknown, run AI analysis to check if it's an experimental build / portal
+                                if not is_blacklisted:
+                                    print(f"  [AI Intelligence] Analyzing '{website}' with AI to check for experimental build/portal...")
+                                    try:
+                                        if await analyze_url_with_ai(website, name):
+                                            is_of_interest = True
+                                            is_blacklisted = True
+                                            print(f"  [AI Intelligence] 🎯 AI classified '{website}' as WEBSITE OF INTEREST!")
+                                    except Exception as ai_url_err:
+                                        pass
                                         
                             if website and not is_blacklisted:
                                 print(f"  [SKIP] Found valid website ({website}). Hunting for No-Website leads only. Skipping.")
