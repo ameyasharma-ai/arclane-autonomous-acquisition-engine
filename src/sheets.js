@@ -208,6 +208,56 @@ export async function updateLeadFields(sheet, clientId, fieldsToUpdate) {
     return true;
 }
 
+/**
+ * Highlights a specific cell in the Google Sheet CRM with a custom background and text color.
+ * Default is soft pastel red fill (#FCE8E6) with deep red text (#C5221F) for high visibility.
+ */
+export async function highlightCell(sheet, doc, rowIndexZeroBased, columnIndexZeroBased, bgColor = { red: 0.988, green: 0.910, blue: 0.902 }, fgColor = { red: 0.772, green: 0.133, blue: 0.122 }) {
+    try {
+        const credentials = JSON.parse(fs.readFileSync(process.env.SERVICE_ACCOUNT_FILE));
+        const authClient = new google.auth.GoogleAuth({
+            credentials,
+            scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+        });
+        const auth = await authClient.getClient();
+        const sheetsApi = google.sheets({ version: 'v4', auth });
+        const sheetId = sheet.sheetId || 0;
+
+        await sheetsApi.spreadsheets.batchUpdate({
+            spreadsheetId: doc.spreadsheetId,
+            requestBody: {
+                requests: [
+                    {
+                        repeatCell: {
+                            range: {
+                                sheetId: sheetId,
+                                startRowIndex: rowIndexZeroBased,
+                                endRowIndex: rowIndexZeroBased + 1,
+                                startColumnIndex: columnIndexZeroBased,
+                                endColumnIndex: columnIndexZeroBased + 1,
+                            },
+                            cell: {
+                                userEnteredFormat: {
+                                    backgroundColor: bgColor,
+                                    textFormat: {
+                                        foregroundColor: fgColor,
+                                        bold: true
+                                    }
+                                }
+                            },
+                            fields: 'userEnteredFormat(backgroundColor,textFormat)'
+                        }
+                    }
+                ]
+            }
+        });
+        return true;
+    } catch (err) {
+        console.warn(`[GoogleSheet] Could not highlight cell: ${err.message}`);
+        return false;
+    }
+}
+
 export async function updateLeadNotes(sheet, clientId, notes) {
     return updateLeadFields(sheet, clientId, { 'Notes': notes });
 }

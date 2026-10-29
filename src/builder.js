@@ -3,7 +3,7 @@ import path from 'path';
 import { exec } from 'child_process';
 import util from 'util';
 import { LLMClient } from './llm.js';
-import { loadGoogleSheet, updateLeadFields } from './sheets.js';
+import { loadGoogleSheet, updateLeadFields, highlightCell } from './sheets.js';
 import { agencyPublisher } from './agency_publisher.js';
 
 const execAsync = util.promisify(exec);
@@ -243,7 +243,7 @@ export class WebsiteBuilder {
 
         // Update Google Sheet with Subdomain URL, Agency Hosted URL, Audit Report URL, AI Outreach Hook, & Status
         try {
-            const { sheet } = await loadGoogleSheet();
+            const { sheet, doc } = await loadGoogleSheet();
             const sheetUpdates = {
                 'Website URL': primaryLiveUrl,
                 'Agency Hosted URL': agencyPathUrl,
@@ -260,6 +260,30 @@ export class WebsiteBuilder {
             }
 
             await updateLeadFields(sheet, Number(clientId), sheetUpdates);
+
+            // Highlight Agency Hosted URL cell in Red if this lead had an existing website we wanted to build for (website_of_interest)
+            try {
+                const rows = await sheet.getRows();
+                const rowIndex = rows.findIndex(r => r.get('Client ID') == String(clientId));
+                if (rowIndex !== -1) {
+                    const row = rows[rowIndex];
+                    const notes = (row.get('Notes') || '').toLowerCase();
+                    const origWebsite = (row.get('Website URL') || '').toLowerCase();
+                    const isInterest = notes.includes('website_of_interest') || 
+                                       ['netlify', 'vercel', 'github.io', 'replit', 'grexa', 'svhrt', 'yourdigitallift', 'gym.com', 'marxfitness'].some(d => origWebsite.includes(d));
+                    
+                    if (isInterest) {
+                        const agencyColIndex = sheet.headerValues.indexOf('Agency Hosted URL');
+                        if (agencyColIndex !== -1) {
+                            // rowIndex + 1 because row 0 is header row
+                            await highlightCell(sheet, doc, rowIndex + 1, agencyColIndex);
+                            console.log(`[GoogleSheet] 🚨 Highlighted Agency Hosted URL in RED for Lead #${clientId} (${businessName})`);
+                        }
+                    }
+                }
+            } catch (highlightErr) {
+                console.warn("[GoogleSheet] Highlight styling notice:", highlightErr.message);
+            }
         } catch (sheetErr) {
             console.error("Sheet update notice:", sheetErr.message);
         }

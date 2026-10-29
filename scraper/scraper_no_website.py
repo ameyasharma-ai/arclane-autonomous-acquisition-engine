@@ -2102,6 +2102,7 @@ async def main(search_query, locality, city, num_of_leads, end_date="", end_time
     try:
         from openpyxl import load_workbook
         from openpyxl.utils import get_column_letter
+        from openpyxl.styles import PatternFill, Font
         
         wb = load_workbook('google_maps_leads.xlsx')
         ws = wb.active
@@ -2116,6 +2117,26 @@ async def main(search_query, locality, city, num_of_leads, end_date="", end_time
                     pass
             adjusted_width = (max_length + 2)
             ws.column_dimensions[column].width = adjusted_width
+            
+        # Highlight Agency Hosted URL in RED for leads with website_of_interest
+        headers = [c.value for c in ws[1]]
+        if "Agency Hosted URL" in headers and "Notes" in headers:
+            agency_col_idx = headers.index("Agency Hosted URL") + 1
+            notes_col_idx = headers.index("Notes") + 1
+            web_col_idx = headers.index("Website URL") + 1 if "Website URL" in headers else -1
+            
+            red_fill = PatternFill(start_color="FCE8E6", end_color="FCE8E6", fill_type="solid")
+            red_font = Font(color="C5221F", bold=True)
+            
+            for row_idx in range(2, ws.max_row + 1):
+                notes_val = str(ws.cell(row=row_idx, column=notes_col_idx).value or "").lower()
+                web_val = str(ws.cell(row=row_idx, column=web_col_idx).value or "").lower() if web_col_idx != -1 else ""
+                
+                is_interest = "website_of_interest" in notes_val or any(d in web_val for d in ['netlify', 'vercel', 'github.io', 'replit', 'grexa', 'svhrt', 'yourdigitallift', 'gym.com', 'marxfitness'])
+                if is_interest:
+                    cell = ws.cell(row=row_idx, column=agency_col_idx)
+                    cell.fill = red_fill
+                    cell.font = red_font
             
         wb.save('google_maps_leads.xlsx')
     except Exception as e:

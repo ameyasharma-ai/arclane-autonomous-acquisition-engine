@@ -1,0 +1,98 @@
+[
+  {
+    "domain": "gym.com",
+    "url": "http://gym.com/",
+    "is_website_of_interest": true,
+    "reason": "This is a generic parked domain and temporary placeholder lacking a dedicated commercial business presence."
+  },
+  {
+    "domain": "theprofitnessgym.com",
+    "url": "http://theprofitnessgym.com/",
+    "is_website_of_interest": false,
+    "reason": "This is an established custom commercial web portal for the business."
+  },
+  {
+    "domain": "marxfitness.info",
+    "url": "https://www.marxfitness.info/",
+    "is_website_of_interest": true,
+    "reason": "This utilizes an unmaintained personal .info template instead of a professional commercial website."
+  },
+  {
+    "domain": "goldsgym.in",
+    "url": "https://goldsgym.in/",
+    "is_website_of_interest": false,
+    "reason": "This is an established custom commercial portal for a major fitness brand."
+  },
+  {
+    "domain": "form.svhrt.com",
+    "url": "https://form.svhrt.com/6762e8562505a317f8f1e779",
+    "is_website_of_interest": true,
+    "reason": "This is merely a lead capture form link rather than a fully developed business website."
+  },
+  {
+    "domain": "globalfitness.co.in",
+    "url": "https://www.globalfitness.co.in/",
+    "is_website_of_interest": false,
+    "reason": "This is an established custom commercial website for the business."
+  },
+  {
+    "domain": "relaxyogacentre.com",
+    "url": "http://www.relaxyogacentre.com/",
+    "is_website_of_interest": false,
+    "reason": "This is an established custom commercial website for the business."
+  },
+  {
+    "domain": "nispa.in",
+    "url": "http://www.nispa.in/",
+    "is_website_of_interest": false,
+    "reason": "This is an established custom commercial website for the business."
+  },
+  {
+    "domain": "mmaarenapatna.com",
+    "url": "https://mmaarenapatna.com/",
+    "is_website_of_interest": false,
+    "reason": "This is an established custom commercial portal for the business."
+  },
+  {
+    "domain": "familyfitness.in",
+    "url": "http://familyfitness.in/",
+    "is_website_of_interest": false,
+    "reason": "This is an established custom commercial website for the business."
+  },
+  {
+    "domain": "fitnessasylum.in",
+    "url": "http://fitnessasylum.in/",
+    "is_website_of_interest": false,
+    "reason": "This is an established custom commercial website for the business."
+  },
+  {
+    "domain": "anantarogyam.in",
+    "url": "http://www.anantarogyam.in/",
+    "is_website_of_interest": false,
+    "reason": "This is an established custom commercial website for the business."
+  },
+  {
+    "domain": "sweatbox.co.in",
+    "url": "http://www.sweatbox.co.in/",
+    "is_website_of_interest": false,
+    "reason": "This is an established custom commercial website for the business."
+  },
+  {
+    "domain": "hulkfitnesspatna.com",
+    "url": "https://hulkfitnesspatna.com/",
+    "is_website_of_interest": false,
+    "reason": "This is an established custom commercial website for the business."
+  },
+  {
+    "domain": "risingyouthgymnastics.com",
+    "url": "https://www.risingyouthgymnastics.com/",
+    "is_website_of_interest": false,
+    "reason": "This is an established custom commercial website for the business."
+  },
+  {
+    "domain": "proteinworld.in",
+    "url": "http://proteinworld.in/",
+    "is_website_of_interest": false,
+    "reason": "This is an established custom commercial website for the business."
+  }
+]
