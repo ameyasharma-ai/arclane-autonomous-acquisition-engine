@@ -244,9 +244,9 @@ The interactive dashboard (available both in Telegram and at `http://localhost:3
 | Button / UI Control | Underlying Command / Action | Detailed Operational Function |
 | :--- | :--- | :--- |
 | **Live Status** | `/status` | **Health & Schedule Monitor:** Queries operational state, reporting whether Scraper or Pipeline Builder processes are active/idle, displays current IST time, and outlines today's cron executions. |
-| **Today's Plan** | `/today` | **Daily Strategic Brief:** Reads `plan/week_1_plan.json`. Displays targeted niche (e.g. Dental Clinics in Ahmedabad), target lead quota (35), batch wave dispatches, and deal-closing phone scripts. |
+| **Today's Plan** | `/today` | **Daily Strategic Brief:** Reads `plan/week_1_plan.json`. Displays targeted niche, target lead quota, batch wave dispatches, and deal-closing phone scripts. |
 | **360° Full Pipeline (1-10 Leads)** | `/run_full [query] [city] [count]` | **End-to-End Autonomous Pipeline:** Extracts qualified leads from Google Maps, conducts 14-point AI audit, generates custom Tailwind CSS websites, deploys live to agency subdomains in batches of 5, and sends curiosity WhatsApp pitches. |
-| **Stream Scrape & Build** | `/trigger_stream [query] [city] [count]` | **Concurrent Streaming Pipeline:** Launches Playwright scraper for today's niche. As each lead is extracted, it streams into the builder queue and stages to `arclanestudios.space`. Deploys every 5 leads + remaining. |
+| **Stream Scrape & Build** | `/trigger_stream [query] [city] [count]` or `/stream_scrape [query] [locality] [city] [count]` | **Concurrent Streaming Pipeline:** Launches Playwright scraper for today's niche. As each lead is extracted, it streams into the builder queue and stages to `arclanestudios.space`. Deploys every 5 leads + remaining. Auto-hops to adjacent micro-localities if listings exhaust! |
 | **Reset & Resume 24/7 Plan** | `/reset_plan` | **State Reset:** Aborts active manual pipeline, flushes task queues, and restores autonomous 24/7 timetable. |
 | **Abort Active Task** | `/abort` or `/stop` | **Emergency Halt:** Immediately transmits `SIGTERM` kill signal to all active Playwright, Puppeteer, and website builder child processes. |
 | **WhatsApp Dispatch** | `/trigger_send [count]` | **Outreach Wave:** Connects to WhatsApp Web via persistent session (`whatsapp_user_session/`), retrieves next pending batch of leads with built sites, and messages them with 30-75s safe delays. |
@@ -255,6 +255,8 @@ The interactive dashboard (available both in Telegram and at `http://localhost:3
 | **Build Only** | `/trigger_analyse [maxLeads]` | **Batch Site Generation:** Scans Google Sheets for unprocessed leads, executes 14-point AI SWOT audit, generates mobile-first sites, and deploys to subdomains. |
 | **Pause / Resume Automation** | `/pause_auto` / `/start_auto` | **Cron Master Switch:** Toggles 24/7 autonomous cron schedule on or off without halting manual command triggers. |
 | **View Schedule JSON** | `/view_plan` | **Configuration Inspector:** Shows file path (`plan/week_1_plan.json`) and instructions for reconfiguring daily niches, locations, and batch sizes. |
+| **Locality Intelligence** | `/locality_report [niche] [city]` | **Market Coverage Map:** Analyzes completed vs pending micro-localities in `data/locality_coverage.json` and previews AI-discovered expansion areas. |
+| **12-Hour Autopilot** | `/autopilot_12h [query] [target] [city]` | **Autonomous Boundary Hopping:** Continuously scrapes, builds, and deploys leads across micro-localities, auto-discovering new pockets with AI when boundaries exhaust. |
 
 ---
 
@@ -291,15 +293,17 @@ The interactive dashboard (available both in Telegram and at `http://localhost:3
 4. `Industry/Niche`
 5. `City/State`
 6. `Phone/WhatsApp`
-7. `Website URL` (Populated with live `https://<slug>.vercel.app` after build)
-8. `Email`
-9. `Instagram`, `Facebook`, `X (Twitter)`, `YouTube`, `LinkedIn`
-10. `Ratings` & `Number Of Reviews`
-11. `Timings` & `Address`
-12. `Maps URL`
-13. `AI Outreach Hook` (Custom teaser sentence extracted from audit)
-14. `Current Status` (See lifecycle below)
-15. `Notes` (Path to report: `reports/<id>/audit.md`)
+7. `Website URL` (Primary live URL: Verified Subdomain or Agency Hosted URL fallback)
+8. `Subdomain URL` (Custom branded subdomain e.g. `https://<slug>.arclanestudios.space`; auto-omitted if 50-domain project cap hit)
+9. `Agency Hosted URL` (100% resilient fallback URL e.g. `https://www.arclanestudios.space/sites/<slug>`)
+10. `Email`
+11. `Instagram`, `Facebook`, `X (Twitter)`, `YouTube`, `TikTok`, `LinkedIn`
+12. `Ratings` & `Number Of Reviews`
+13. `Timings` & `Address`
+14. `Maps URL`
+15. `AI Outreach Hook` (Custom teaser sentence extracted from audit)
+16. `Current Status` (See lifecycle below)
+17. `Notes` (Path to report: `reports/<id>/audit.md`)
 
 ### Status Lifecycle Transitions:
 ```text

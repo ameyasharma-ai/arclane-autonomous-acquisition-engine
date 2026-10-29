@@ -38,12 +38,12 @@ RUN mkdir -p reports/.crm_state generated_sites whatsapp_user_session chrome_pro
 # Switch to standard Playwright non-root user
 USER pwuser
 
-# Expose Web UI port
+# Expose Web UI port (Default 3000)
 EXPOSE 3000
 
 # Health check to ensure Express Web UI server is alive
-HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
-  CMD curl -f http://localhost:3000/ || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
+  CMD curl -f http://localhost:3000/api/analytics || exit 1
 
 # Default command launches 24/7 Controller Bot with Web UI
 CMD ["node", "controller_bot/index.js"]

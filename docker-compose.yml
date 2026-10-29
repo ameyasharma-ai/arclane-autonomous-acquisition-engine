@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   arclane-engine:
     build:
@@ -39,6 +37,8 @@ services:
       - ./config/vercel:/home/pwuser/.vercel
       - ./plan:/usr/src/app/plan
       - ./data:/usr/src/app/data
+      - ./scraper/blacklisted_urls.txt:/usr/src/app/scraper/blacklisted_urls.txt
+      - ./web-dev-agency:/usr/src/app/web-dev-agency
     ipc: host # Playwright browser shared memory requirement
     logging:
       driver: "json-file"

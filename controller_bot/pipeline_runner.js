@@ -246,12 +246,12 @@ export class PipelineRunner {
             // ask AI for adjacent micro-localities to complete the original quota!
             let currentLocality = locality.replace(/^in\s+/i, '').trim();
             let hopCount = 0;
-            const maxEscapeHops = 3;
+            const maxEscapeHops = 5;
 
             while (streamedCount < targetLeads && hopCount < maxEscapeHops && !this.isAborted) {
                 hopCount++;
                 const remaining = targetLeads - streamedCount;
-                console.log(`[PipelineRunner] 🔄 Boundary exhausted in "${currentLocality}". Asking AI for adjacent micro-localities to complete remaining ${remaining} leads...`);
+                console.log(`[PipelineRunner] 🔄 Boundary exhausted in "${currentLocality}" (Target unfulfilled: ${streamedCount}/${targetLeads}). Asking AI for next micro-locality to complete remaining ${remaining} leads...`);
 
                 const cleanCity = city.includes(',') ? city.split(',')[0].trim() : city;
                 const nextNearby = await localityEngine.getNextLocality(query, 'Bihar', cleanCity, currentLocality);
@@ -262,8 +262,8 @@ export class PipelineRunner {
                 }
 
                 await this.sendTelegram(
-                    `🧭 *[Locality Auto-Hop]* Google Maps exhausted listings in \`${currentLocality}\` (Fetched: ${streamedCount}/${targetLeads}).\n` +
-                    `🧠 *AI Discovered Adjacent Pocket:* \`${nextNearby}, ${cleanCity}\`\n` +
+                    `🧭 *[Locality Auto-Hop #${hopCount}]* Google Maps exhausted listings in \`${currentLocality}\` (Captured: ${streamedCount}/${targetLeads}).\n` +
+                    `🧠 *AI Discovered Next High-Yield Area:* \`${nextNearby}, ${cleanCity}\`\n` +
                     `🎯 Resuming stream scrape to secure remaining \`${remaining}\` leads...`
                 );
 

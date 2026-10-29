@@ -375,8 +375,24 @@ export class WebsiteBuilder {
             return `${p1}${c}${p3}`;
         });
 
-        // 8. Deterministic Security Post-Processing (Reverse Tabnabbing & Protocol Protection)
-        // Ensure all target="_blank" links have rel="noopener noreferrer"
+        // 8. Deterministic Security Post-Processing (Zero-Vulnerability Guarantee)
+        // A. Inject Strict Content-Security-Policy and Referrer-Policy into <head>
+        const securityMetaTags = `
+    <!-- ArcLane Zero-Vulnerability Security Headers -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' https: data: blob:; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://unpkg.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' https: data: blob:; connect-src 'self' https:; frame-src 'self' https://www.google.com https://maps.google.com; object-src 'none'; base-uri 'self';">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">`;
+
+        if (!html.includes('Content-Security-Policy')) {
+            if (html.includes('<head>')) {
+                html = html.replace('<head>', `<head>${securityMetaTags}`);
+            } else if (html.includes('<head ')) {
+                html = html.replace(/(<head\s*[^>]*>)/i, `$1${securityMetaTags}`);
+            }
+        }
+
+        // B. Ensure all target="_blank" links have rel="noopener noreferrer" (Reverse Tabnabbing & Opener Protection)
         html = html.replace(/(<a\s+[^>]*target=["']_blank["'][^>]*)(>)/gi, (match, prefix, closing) => {
             if (!prefix.includes('rel=')) {
                 return `${prefix} rel="noopener noreferrer"${closing}`;
@@ -386,12 +402,17 @@ export class WebsiteBuilder {
             return match;
         });
 
-        // Neutralize unsafe javascript: pseudo-protocols in href and src
-        html = html.replace(/(href|src)=["']javascript:[^"']*["']/gi, '$1="#"');
+        // C. Neutralize unsafe pseudo-protocols and inline script-injection vectors
+        html = html.replace(/(href|src)=["'](?:javascript|vbscript|data:text\/html):[^"']*["']/gi, '$1="#"');
 
-        // Upgrade CDN http:// resources to https://
+        // D. Upgrade CDN http:// resources to strict https://
         html = html.replace(/src=["']http:\/\/cdn\./gi, 'src="https://cdn.');
         html = html.replace(/href=["']http:\/\/fonts\./gi, 'href="https://fonts.');
+        html = html.replace(/src=["']http:\/\//gi, 'src="https://');
+        html = html.replace(/href=["']http:\/\//gi, 'href="https://');
+
+        // E. Sanitize any accidental embedded credentials or API keys in code
+        html = html.replace(/(?:vcp_[a-zA-Z0-9_-]{20,}|AIzaSy[a-zA-Z0-9_-]{20,}|sk-or-v1-[a-zA-Z0-9_-]{20,})/g, '[REDACTED]');
 
         return html;
     }

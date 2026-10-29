@@ -31,7 +31,16 @@ class WebUIServer {
         this.dedup = new DeduplicationEngine();
         this.followUp = new FollowUpEngine();
 
-        this.app.use(express.json());
+        // Security Middlewares & Headers
+        this.app.use((req, res, next) => {
+            res.setHeader('X-Content-Type-Options', 'nosniff');
+            res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+            res.setHeader('X-XSS-Protection', '1; mode=block');
+            res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+            next();
+        });
+
+        this.app.use(express.json({ limit: '2mb' }));
         this.loadHistory();
 
         // Serve static dashboard files from 'public' directory

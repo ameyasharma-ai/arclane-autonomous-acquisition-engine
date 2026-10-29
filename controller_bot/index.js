@@ -762,6 +762,15 @@ bot.launch({
 
 console.log("[ControllerBot] ✅ Telegram Bot is actively listening for messages & commands!");
 
+// 24/7 Resilience Failsafes: Global Process-Level Safety Nets
+process.on('uncaughtException', (err) => {
+    console.error('[Process Watchdog] ⚠️ Uncaught Exception caught cleanly:', err.message, err.stack);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('[Process Watchdog] ⚠️ Unhandled Promise Rejection caught cleanly:', reason);
+});
+
 // Enable graceful stop
 process.once('SIGINT', () => {
     if (scheduler) scheduler.stop();

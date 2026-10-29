@@ -339,7 +339,57 @@ class GeminiRateLimiter:
 
 gemini_limiter = GeminiRateLimiter(max_rpm=10)
 
+def is_network_online(host="1.1.1.1", port=53, timeout=3):
+    """
+    Ultra-fast socket test to check if the internet connection is active.
+    Checks Cloudflare/Google DNS resolvers.
+    """
+    import socket
+    for target in [(host, port), ("8.8.8.8", 53)]:
+        try:
+            socket.setdefaulttimeout(timeout)
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect(target)
+            s.close()
+            return True
+        except Exception:
+            continue
+    return False
+
+async def wait_for_network_reconnect(check_interval=5):
+    """
+    24/7 Resilience Sentinel:
+    If internet connectivity drops, pauses the scraper/pipeline cleanly,
+    polls until the connection is restored, and then seamlessly resumes.
+    """
+    if is_network_online():
+        return True
+
+    print("\n" + "=" * 60)
+    print("[NETWORK WATCHDOG] ⚠️ Internet connectivity lost! Pausing scraper...")
+    print("[NETWORK WATCHDOG] ⏳ Waiting for network restoration. Will auto-resume once online.")
+    print("=" * 60 + "\n")
+
+    offline_seconds = 0
+    while not is_network_online():
+        if os.path.exists("stop_scraper.flag"):
+            print("[NETWORK WATCHDOG] 🛑 Stop flag received while waiting for network. Exiting.")
+            return False
+        await asyncio.sleep(check_interval)
+        offline_seconds += check_interval
+        if offline_seconds % 30 == 0:
+            print(f"[NETWORK WATCHDOG] ⏳ Still offline ({offline_seconds}s elapsed). Retrying network check...")
+
+    print("\n" + "=" * 60)
+    print(f"[NETWORK WATCHDOG] ✅ Internet connectivity restored (Offline for {offline_seconds}s)!")
+    print("[NETWORK WATCHDOG] 🚀 Resuming extraction pipeline seamlessly...")
+    print("=" * 60 + "\n")
+    return True
+
 async def interruptible_sleep(seconds):
+    # Network check before sleeping
+    if not await wait_for_network_reconnect():
+        return False
     for _ in range(int(seconds)):
         if os.path.exists("stop_scraper.flag"):
             return False
@@ -1363,6 +1413,10 @@ async def main(search_query, locality, city, num_of_leads, end_date="", end_time
             while len(leads) < num_of_leads and not end_reached:
                 import os
                 
+                # Network Sentinel Check: pause if connection drops
+                if not await wait_for_network_reconnect():
+                    break
+                
                 if os.path.exists("pause.flag"):
                     print("\n[PAUSED] Bot paused by user. Sleeping...")
                     import time
@@ -1463,8 +1517,11 @@ async def main(search_query, locality, city, num_of_leads, end_date="", end_time
                     
                 if not new_items:
                     empty_scroll_count += 1
-                    if empty_scroll_count > 5:
-                        print("No new cards found after scrolling multiple times. Ending early.")
+                    print(f"[INFO] Empty scroll detected ({empty_scroll_count}/10). PageDown issued...")
+                    if empty_scroll_count >= 10:
+                        print(f"\n[BOUNDARY EXHAUSTION] No new listing cards loaded after {empty_scroll_count} consecutive scroll attempts.")
+                        print("[AUTO-ESCAPE] Concluding current search cleanly to trigger AI locality auto-hop for remaining leads.")
+                        end_reached = True
                         break
                     
                     # Scroll the feed container to trigger lazy loading via PageDown
@@ -1478,7 +1535,7 @@ async def main(search_query, locality, city, num_of_leads, end_date="", end_time
                             await page.keyboard.press("PageDown")
                         except Exception:
                             pass
-                        await page.wait_for_timeout(5000)
+                        await page.wait_for_timeout(3500)
                     continue
     
                 # Reset counter since we found cards
