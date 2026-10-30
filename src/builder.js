@@ -244,9 +244,22 @@ export class WebsiteBuilder {
         // Update Google Sheet with Subdomain URL, Agency Hosted URL, Audit Report URL, AI Outreach Hook, & Status
         try {
             const { sheet, doc } = await loadGoogleSheet();
+            const rows = await sheet.getRows();
+            const existingRow = rows.find(r => r.get('Client ID') == String(clientId));
+            const existingWebsite = (existingRow?.get('Website URL') || '').trim();
+            const existingNotes = (existingRow?.get('Notes') || '').toLowerCase();
+            const isInterest = existingNotes.includes('website_of_interest') || 
+                               ['netlify', 'vercel', 'github.io', 'replit', 'grexa', 'svhrt', 'yourdigitallift', 'gym.com', 'marxfitness'].some(d => existingWebsite.toLowerCase().includes(d));
+
+            // If this was a website_of_interest, show both the original URL and our agency hosted URL in the Agency Hosted URL column
+            const agencyHostedValue = isInterest && existingWebsite && !existingWebsite.includes('arclanestudios.space')
+                ? `${existingWebsite} | ${agencyPathUrl}`
+                : agencyPathUrl;
+
             const sheetUpdates = {
-                'Website URL': primaryLiveUrl,
-                'Agency Hosted URL': agencyPathUrl,
+                // If it had an original website of interest, preserve the original URL in 'Website URL'; otherwise use our primaryLiveUrl
+                'Website URL': isInterest && existingWebsite && !existingWebsite.includes('arclanestudios.space') ? existingWebsite : primaryLiveUrl,
+                'Agency Hosted URL': agencyHostedValue,
                 'Audit Report URL': auditReportUrl,
                 'AI Outreach Hook': finalWaMessage,
                 'Current Status': 'Website Built'
@@ -263,16 +276,9 @@ export class WebsiteBuilder {
 
             // Highlight Agency Hosted URL cell in Red if this lead had an existing website we wanted to build for (website_of_interest)
             try {
-                const rows = await sheet.getRows();
-                const rowIndex = rows.findIndex(r => r.get('Client ID') == String(clientId));
-                if (rowIndex !== -1) {
-                    const row = rows[rowIndex];
-                    const notes = (row.get('Notes') || '').toLowerCase();
-                    const origWebsite = (row.get('Website URL') || '').toLowerCase();
-                    const isInterest = notes.includes('website_of_interest') || 
-                                       ['netlify', 'vercel', 'github.io', 'replit', 'grexa', 'svhrt', 'yourdigitallift', 'gym.com', 'marxfitness'].some(d => origWebsite.includes(d));
-                    
-                    if (isInterest) {
+                if (isInterest) {
+                    const rowIndex = rows.findIndex(r => r.get('Client ID') == String(clientId));
+                    if (rowIndex !== -1) {
                         const agencyColIndex = sheet.headerValues.indexOf('Agency Hosted URL');
                         if (agencyColIndex !== -1) {
                             // rowIndex + 1 because row 0 is header row

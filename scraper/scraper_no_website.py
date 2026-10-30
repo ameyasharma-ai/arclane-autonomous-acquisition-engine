@@ -2118,7 +2118,7 @@ async def main(search_query, locality, city, num_of_leads, end_date="", end_time
             adjusted_width = (max_length + 2)
             ws.column_dimensions[column].width = adjusted_width
             
-        # Highlight Agency Hosted URL in RED for leads with website_of_interest
+        # Highlight Agency Hosted URL in RED for leads with website_of_interest and format original URL + agency hosted URL
         headers = [c.value for c in ws[1]]
         if "Agency Hosted URL" in headers and "Notes" in headers:
             agency_col_idx = headers.index("Agency Hosted URL") + 1
@@ -2130,13 +2130,17 @@ async def main(search_query, locality, city, num_of_leads, end_date="", end_time
             
             for row_idx in range(2, ws.max_row + 1):
                 notes_val = str(ws.cell(row=row_idx, column=notes_col_idx).value or "").lower()
-                web_val = str(ws.cell(row=row_idx, column=web_col_idx).value or "").lower() if web_col_idx != -1 else ""
+                web_val = str(ws.cell(row=row_idx, column=web_col_idx).value or "").strip()
+                agency_val = str(ws.cell(row=row_idx, column=agency_col_idx).value or "").strip()
                 
-                is_interest = "website_of_interest" in notes_val or any(d in web_val for d in ['netlify', 'vercel', 'github.io', 'replit', 'grexa', 'svhrt', 'yourdigitallift', 'gym.com', 'marxfitness'])
+                is_interest = "website_of_interest" in notes_val or any(d in web_val.lower() for d in ['netlify', 'vercel', 'github.io', 'replit', 'grexa', 'svhrt', 'yourdigitallift', 'gym.com', 'marxfitness'])
                 if is_interest:
                     cell = ws.cell(row=row_idx, column=agency_col_idx)
                     cell.fill = red_fill
                     cell.font = red_font
+                    
+                    if web_val and "arclanestudios.space" not in web_val and agency_val and not agency_val.startswith(web_val):
+                        cell.value = f"{web_val} | {agency_val}"
             
         wb.save('google_maps_leads.xlsx')
     except Exception as e:
