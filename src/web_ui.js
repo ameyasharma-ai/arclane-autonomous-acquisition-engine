@@ -24,6 +24,7 @@ class WebUIServer {
         this.commandHandlers = {};
         this.history = [];
         this.syncToTelegramHook = null;
+        this.scheduler = null;
 
         // Analytics & State instances
         this.auditLogger = new AuditLogger();
@@ -65,11 +66,29 @@ class WebUIServer {
                 socket.emit('metrics_update', liveMetrics);
             } catch (e) {}
 
+            socket.emit('process_status', this.getBusyStatus());
+
             socket.on('command', async (data) => {
                 const text = data.text;
                 if (!text) return;
                 
                 console.log(`[WebUI] Command received: ${text}`);
+
+                const rawCmd = text.split(' ')[0].replace('/', '').trim().toLowerCase();
+                const isControlOrStatus = ['status', 'today', 'help', 'start', 'abort', 'stop', 'reset_plan', 'resume_plan', 'coverage', 'view_plan', 'metrics'].includes(rawCmd);
+                const isHeavyTask = !text.startsWith('action:') && !isControlOrStatus && text.startsWith('/');
+
+                const busyInfo = this.getBusyStatus();
+                if (busyInfo.isBusy && isHeavyTask) {
+                    this.emitAndSave({ type: 'user', text });
+                    const rejectMsg = `⚠️ *[Command Rejected]* An automated process is currently active:\n` +
+                                      `• *Active Task:* \`${busyInfo.reason}\`\n\n` +
+                                      `_Please wait for the current run to finish, or send \`/abort\` to halt it before starting a new command._`;
+                    this.emitAndSave({ type: 'bot', text: rejectMsg });
+                    this.io.emit('process_status', busyInfo);
+                    return;
+                }
+
                 this.emitAndSave({ type: 'user', text });
 
                 const fakeCtx = {
@@ -106,8 +125,7 @@ class WebUIServer {
                         handled = true;
                     }
                 } else {
-                    const rawCmd = text.split(' ')[0].replace('/', '').trim();
-                    const cmdName = (rawCmd.toLowerCase() === 'stream_scrape') ? 'trigger_stream' : rawCmd;
+                    const cmdName = (rawCmd === 'stream_scrape') ? 'trigger_stream' : rawCmd;
                     if (this.commandHandlers[cmdName]) {
                         try {
                             await this.commandHandlers[cmdName](fakeCtx);
@@ -121,6 +139,11 @@ class WebUIServer {
                 if (!handled && text.startsWith('/')) {
                     fakeCtx.reply("Command not recognized by Web UI router.");
                 }
+
+                // Broadcast updated busy status after triggering
+                setTimeout(() => {
+                    this.io.emit('process_status', this.getBusyStatus());
+                }, 500);
             });
 
             socket.on('clear_history', () => {
@@ -256,12 +279,33 @@ class WebUIServer {
             }
         });
 
+        // 6b. Process & Concurrency Lock Status API
+        this.app.get('/api/process/status', (req, res) => {
+            res.json({ success: true, ...this.getBusyStatus() });
+        });
+
         // 7. Execute Command API (e.g. from UI buttons or scripts)
         this.app.post('/api/command', async (req, res) => {
             const { text } = req.body;
             if (!text) return res.status(400).json({ success: false, error: 'Command text is required' });
             
             console.log(`[WebUI API] Command received: ${text}`);
+
+            const rawCmd = text.split(' ')[0].replace('/', '').trim().toLowerCase();
+            const isControlOrStatus = ['status', 'today', 'help', 'start', 'abort', 'stop', 'reset_plan', 'resume_plan', 'coverage', 'view_plan', 'metrics'].includes(rawCmd);
+            const isHeavyTask = !text.startsWith('action:') && !isControlOrStatus && text.startsWith('/');
+
+            const busyInfo = this.getBusyStatus();
+            if (busyInfo.isBusy && isHeavyTask) {
+                this.emitAndSave({ type: 'user', text });
+                const rejectMsg = `⚠️ *[Command Rejected]* An automated process is currently active:\n` +
+                                  `• *Active Task:* \`${busyInfo.reason}\`\n\n` +
+                                  `_Please wait for the current run to finish, or send \`/abort\` to halt it before starting a new command._`;
+                this.emitAndSave({ type: 'bot', text: rejectMsg });
+                this.io.emit('process_status', busyInfo);
+                return res.status(409).json({ success: false, error: 'Process is currently busy', ...busyInfo });
+            }
+
             this.emitAndSave({ type: 'user', text });
 
             const fakeCtx = {
@@ -456,6 +500,27 @@ class WebUIServer {
             const m = await this.auditLogger.getAnalytics();
             this.io.emit('metrics_update', m);
         } catch (e) {}
+    }
+
+    setScheduler(scheduler) {
+        this.scheduler = scheduler;
+    }
+
+    isBusy() {
+        if (!this.scheduler) return false;
+        const scraperBusy = Boolean(this.scheduler.scraperRunner && this.scheduler.scraperRunner.isRunning);
+        const pipelineBusy = Boolean(this.scheduler.pipelineRunner && this.scheduler.pipelineRunner.isProcessing);
+        return scraperBusy || pipelineBusy;
+    }
+
+    getBusyStatus() {
+        if (!this.scheduler) return { isBusy: false, reason: '' };
+        const scraperBusy = Boolean(this.scheduler.scraperRunner && this.scheduler.scraperRunner.isRunning);
+        const pipelineBusy = Boolean(this.scheduler.pipelineRunner && this.scheduler.pipelineRunner.isProcessing);
+        if (scraperBusy && pipelineBusy) return { isBusy: true, reason: 'Scraping and Website Building actively running' };
+        if (scraperBusy) return { isBusy: true, reason: 'Google Maps scraping actively running' };
+        if (pipelineBusy) return { isBusy: true, reason: 'Website building & deployment actively running' };
+        return { isBusy: false, reason: '' };
     }
 
     registerCommand(cmd, handler) {

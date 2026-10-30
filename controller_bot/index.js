@@ -751,6 +751,16 @@ console.log("==================================================");
 
 scheduler = new Scheduler(bot, null);
 scheduler.start();
+webUI.setScheduler(scheduler);
+
+// Periodic broadcast of busy/idle process status to keep UI lock tightly synced
+setInterval(() => {
+    try {
+        if (webUI.io) {
+            webUI.io.emit('process_status', webUI.getBusyStatus());
+        }
+    } catch (e) {}
+}, 2000);
 
 webUI.start();
 bot.launch({
