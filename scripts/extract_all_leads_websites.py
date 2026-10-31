@@ -9,7 +9,7 @@ ws = wb.active
 headers = [cell.value for cell in ws[1]]
 client_id_idx = headers.index('Client ID')
 name_idx = headers.index('Business Name')
-website_idx = headers.index('Website URL')
+website_idx = headers.index('Existing Website') if 'Existing Website' in headers else headers.index('Website URL')
 notes_idx = headers.index('Notes')
 
 excel_leads = []

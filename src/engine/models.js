@@ -74,7 +74,7 @@ export function createNormalizedLead(rawData = {}, existingClientId = null) {
     const location = rawData.address || rawData.location || rawData['Address'] || rawData['Full Address'] || '';
     const phone = normalizePhone(rawPhone);
     const email = normalizeEmail(rawData.email || rawData['Email']);
-    const website = rawData.website || rawData['Website URL'] || rawData['Website'] || null;
+    const website = rawData.existingWebsite || rawData['Existing Website'] || rawData.website || rawData['Website URL'] || rawData['Website'] || null;
     const googleMapsUrl = rawData.googleMapsUrl || rawData['Google Maps URL'] || rawData['Maps URL'] || '';
     const category = rawData.category || rawData['Category'] || rawData['Industry'] || 'Local Business';
     const now = new Date().toISOString();

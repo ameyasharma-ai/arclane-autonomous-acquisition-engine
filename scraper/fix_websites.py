@@ -32,7 +32,8 @@ async def fix_websites():
         print(f"[ERROR] Failed to load local Excel file: {e}")
         return
         
-    missing_indices = df[df['Website URL'].isna() | (df['Website URL'] == '') | (df['Website URL'].astype(str).str.strip() == '')].index
+    web_col = 'Existing Website' if 'Existing Website' in df.columns else 'Website URL'
+    missing_indices = df[df[web_col].isna() | (df[web_col] == '') | (df[web_col].astype(str).str.strip() == '')].index
     total_missing = len(missing_indices)
     
     if total_missing == 0:
@@ -120,7 +121,7 @@ async def fix_websites():
                             
                 if website:
                     print(f"  [SUCCESS] Website Rescued: {website}")
-                    df.at[idx, 'Website URL'] = website
+                    df.at[idx, web_col] = website
                     rescued_websites[client_id] = website
                     fixed_count += 1
                 else:

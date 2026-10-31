@@ -10,9 +10,12 @@ const INTEREST_CLIENT_IDS = [
 async function highlightCrm() {
   const { sheet, doc } = await loadGoogleSheet();
   const rows = await sheet.getRows();
-  const agencyColIdx = sheet.headerValues.indexOf('Agency Hosted URL');
-  if (agencyColIdx === -1) {
-    console.log('Agency Hosted URL column not found in Google Sheet');
+  const targetColIdx = sheet.headerValues.indexOf('Existing Website') !== -1
+    ? sheet.headerValues.indexOf('Existing Website')
+    : sheet.headerValues.indexOf('Agency Hosted URL');
+
+  if (targetColIdx === -1) {
+    console.log('Target column not found in Google Sheet');
     return;
   }
   
@@ -24,7 +27,7 @@ async function highlightCrm() {
     
     if (INTEREST_CLIENT_IDS.includes(cid) || notes.includes('website_of_interest')) {
       // Row index in Google Sheets API is i + 1 (row 0 is header)
-      await highlightCell(sheet, doc, i + 1, agencyColIdx);
+      await highlightCell(sheet, doc, i + 1, targetColIdx);
       count++;
       console.log(`Highlighted row ${i + 2} (Client #${cid}): ${row.get('Business Name')}`);
     }

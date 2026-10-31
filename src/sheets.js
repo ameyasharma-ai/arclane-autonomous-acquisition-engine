@@ -151,14 +151,15 @@ export async function getLeads(sheet, startId, endId, excludedIds) {
         }
 
         const status = (row.get('Current Status') || '').toLowerCase();
-        const website = (row.get('Website URL') || '').toLowerCase();
+        const agencyHosted = (row.get('Agency Hosted URL') || '').toLowerCase();
+        const existingWebsite = (row.get('Existing Website') || row.get('Website URL') || '').toLowerCase();
         
         const isCompleted = 
             status.includes('analyzed') || 
             status.includes('website built') || 
             status.includes('contacted') || 
             status.includes('ready') ||
-            (website && website.startsWith('http'));
+            (agencyHosted && agencyHosted.startsWith('http'));
 
         if (isCompleted) {
             alreadyProcessedCount++;
@@ -168,7 +169,9 @@ export async function getLeads(sheet, startId, endId, excludedIds) {
         filteredLeads.push({
             clientId,
             businessName: row.get('Business Name'),
-            websiteUrl: row.get('Website URL'),
+            websiteUrl: existingWebsite,
+            existingWebsite: existingWebsite,
+            agencyHostedUrl: row.get('Agency Hosted URL') || '',
             phone: row.get('Phone/WhatsApp') || row.get('Phone') || row.get('WhatsApp') || '',
             fullAddress: row.get('Address') || row.get('Full Address') || '',
             rating: row.get('Ratings') || row.get('Rating') || '',

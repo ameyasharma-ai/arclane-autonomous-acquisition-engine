@@ -859,9 +859,11 @@ def get_gspread_client():
 # --- SCRIPT ---
 COLUMNS = [
     "Client ID", "Date Added", "Business Name", "Industry/Niche", "City/State", 
-    "Phone/WhatsApp", "Website URL", "Subdomain URL", "Agency Hosted URL", "Email", "Instagram", "Facebook", "X (Twitter)", "YouTube", "TikTok", "LinkedIn", "Ratings", "Number Of Reviews", 
-    "Timings", "Address", "Maps URL", "Owner Name", "Contact Person", 
-    "AI Outreach Hook", "Outreach Platform", "Outreach Date", "Follow-Up Date", "Current Status", "Priority Level", 
+    "Phone/WhatsApp", "Agency Hosted URL", "Existing Website", "AI Outreach Hook", 
+    "Current Status", "Priority Level", "Ratings", "Number Of Reviews", 
+    "Timings", "Socials", "Address", "Subdomain URL", "Email", "Instagram", "Facebook", "X (Twitter)", "YouTube", "TikTok", "LinkedIn", 
+    "Maps URL", "Owner Name", "Contact Person", 
+    "Outreach Platform", "Outreach Date", "Follow-Up Date", 
     "Interested Services", "Pain Points", "Project Type", "Estimated Budget", 
     "Quoted Price", "Negotiation Status", "Meeting Scheduled", "Meeting Date", 
     "Proposal Sent", "Contract Sent", "Payment Status", "Advance Received", 
@@ -1970,7 +1972,8 @@ async def main(search_query, locality, city, num_of_leads, end_date="", end_time
                             lead_row["Industry/Niche"] = industry
                             lead_row["City/State"] = city_state_loc
                             lead_row["Phone/WhatsApp"] = phone
-                            lead_row["Website URL"] = website
+                            lead_row["Agency Hosted URL"] = ""
+                            lead_row["Existing Website"] = website
                             lead_row["Email"] = website_data["Email"]
                             lead_row["Instagram"] = website_data["Instagram"]
                             lead_row["LinkedIn"] = website_data["LinkedIn"]
@@ -1978,6 +1981,17 @@ async def main(search_query, locality, city, num_of_leads, end_date="", end_time
                             lead_row["X (Twitter)"] = website_data["X (Twitter)"]
                             lead_row["YouTube"] = website_data["YouTube"]
                             lead_row["TikTok"] = website_data["TikTok"]
+
+                            # Aggregate Socials
+                            soc_parts = []
+                            if lead_row["Instagram"]: soc_parts.append(f"IG: {lead_row['Instagram']}")
+                            if lead_row["Facebook"]: soc_parts.append(f"FB: {lead_row['Facebook']}")
+                            if lead_row["X (Twitter)"]: soc_parts.append(f"X: {lead_row['X (Twitter)']}")
+                            if lead_row["YouTube"]: soc_parts.append(f"YT: {lead_row['YouTube']}")
+                            if lead_row["TikTok"]: soc_parts.append(f"TT: {lead_row['TikTok']}")
+                            if lead_row["LinkedIn"]: soc_parts.append(f"IN: {lead_row['LinkedIn']}")
+                            lead_row["Socials"] = " | ".join(soc_parts)
+
                             lead_row["Ratings"] = rating
                             lead_row["Number Of Reviews"] = num_reviews
                             lead_row["Timings"] = timings
@@ -1990,7 +2004,7 @@ async def main(search_query, locality, city, num_of_leads, end_date="", end_time
                             if is_of_interest:
                                 lead_row["Notes"] = "website_of_interest"
                                 
-                            # Root Website URL
+                            # Root Existing Website
                             import urllib.parse
                             root_web = ""
                             if website:
@@ -1999,7 +2013,7 @@ async def main(search_query, locality, city, num_of_leads, end_date="", end_time
                                     root_web = f"{wp.scheme}://{wp.netloc}/"
                                 except Exception:
                                     root_web = website
-                            lead_row["Website URL"] = root_web
+                            lead_row["Existing Website"] = root_web
                             
                             # Check if the lead has a phone number or any socials
                             has_phone = bool(lead_row.get("Phone/WhatsApp", "").strip())
@@ -2030,7 +2044,8 @@ async def main(search_query, locality, city, num_of_leads, end_date="", end_time
                                                 "businessName": cleaned_lead_row.get("Business Name", ""),
                                                 "phone": cleaned_lead_row.get("Phone/WhatsApp") or cleaned_lead_row.get("Phone", ""),
                                                 "whatsapp": cleaned_lead_row.get("Phone/WhatsApp") or cleaned_lead_row.get("WhatsApp", ""),
-                                                "website": cleaned_lead_row.get("Website URL", ""),
+                                                "website": cleaned_lead_row.get("Existing Website") or cleaned_lead_row.get("Website URL", ""),
+                                                "existingWebsite": cleaned_lead_row.get("Existing Website", ""),
                                                 "rating": cleaned_lead_row.get("Ratings") or cleaned_lead_row.get("Rating", ""),
                                                 "reviews": cleaned_lead_row.get("Number Of Reviews") or cleaned_lead_row.get("Total Reviews", ""),
                                                 "address": cleaned_lead_row.get("Address") or cleaned_lead_row.get("Full Address", "")
@@ -2118,29 +2133,24 @@ async def main(search_query, locality, city, num_of_leads, end_date="", end_time
             adjusted_width = (max_length + 2)
             ws.column_dimensions[column].width = adjusted_width
             
-        # Highlight Agency Hosted URL in RED for leads with website_of_interest and format original URL + agency hosted URL
+        # Highlight Existing Website in RED for leads with website_of_interest
         headers = [c.value for c in ws[1]]
-        if "Agency Hosted URL" in headers and "Notes" in headers:
-            agency_col_idx = headers.index("Agency Hosted URL") + 1
+        if "Existing Website" in headers and "Notes" in headers:
+            exist_col_idx = headers.index("Existing Website") + 1
             notes_col_idx = headers.index("Notes") + 1
-            web_col_idx = headers.index("Website URL") + 1 if "Website URL" in headers else -1
             
             red_fill = PatternFill(start_color="FCE8E6", end_color="FCE8E6", fill_type="solid")
             red_font = Font(color="C5221F", bold=True)
             
             for row_idx in range(2, ws.max_row + 1):
                 notes_val = str(ws.cell(row=row_idx, column=notes_col_idx).value or "").lower()
-                web_val = str(ws.cell(row=row_idx, column=web_col_idx).value or "").strip()
-                agency_val = str(ws.cell(row=row_idx, column=agency_col_idx).value or "").strip()
+                exist_val = str(ws.cell(row=row_idx, column=exist_col_idx).value or "").strip()
                 
-                is_interest = "website_of_interest" in notes_val or any(d in web_val.lower() for d in ['netlify', 'vercel', 'github.io', 'replit', 'grexa', 'svhrt', 'yourdigitallift', 'gym.com', 'marxfitness'])
+                is_interest = "website_of_interest" in notes_val or any(d in exist_val.lower() for d in ['netlify', 'vercel', 'github.io', 'replit', 'grexa', 'svhrt', 'yourdigitallift', 'gym.com', 'marxfitness'])
                 if is_interest:
-                    cell = ws.cell(row=row_idx, column=agency_col_idx)
+                    cell = ws.cell(row=row_idx, column=exist_col_idx)
                     cell.fill = red_fill
                     cell.font = red_font
-                    
-                    if web_val and "arclanestudios.space" not in web_val and agency_val and not agency_val.startswith(web_val):
-                        cell.value = f"{web_val} | {agency_val}"
             
         wb.save('google_maps_leads.xlsx')
     except Exception as e:

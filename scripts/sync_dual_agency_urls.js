@@ -21,6 +21,7 @@ async function syncRedAgencyUrls() {
   const { sheet, doc } = await loadGoogleSheet();
   const rows = await sheet.getRows();
   const agencyColIdx = sheet.headerValues.indexOf('Agency Hosted URL');
+  const existColIdx = sheet.headerValues.indexOf('Existing Website');
   
   let count = 0;
   for (let i = 0; i < rows.length; i++) {
@@ -29,19 +30,25 @@ async function syncRedAgencyUrls() {
     if (INTEREST_LEADS_MAP[cid]) {
       const info = INTEREST_LEADS_MAP[cid];
       const agencyUrl = `https://www.arclanestudios.space/sites/${info.slug}`;
-      const compositeVal = `${info.orig} | ${agencyUrl}`;
       
-      row.set('Agency Hosted URL', compositeVal);
-      row.set('Website URL', info.orig);
+      row.set('Agency Hosted URL', agencyUrl);
+      if (existColIdx !== -1) {
+        row.set('Existing Website', info.orig);
+      }
+      if (sheet.headerValues.includes('Website URL')) {
+        row.set('Website URL', info.orig);
+      }
       await row.save();
       
-      // Highlight in RED
-      await highlightCell(sheet, doc, i + 1, agencyColIdx);
+      // Highlight Existing Website in RED (or fallback to Agency Hosted URL if header not found)
+      const targetColIdx = existColIdx !== -1 ? existColIdx : agencyColIdx;
+      await highlightCell(sheet, doc, i + 1, targetColIdx);
       count++;
-      console.log(`Synced & Red-Highlighted Lead #${cid} (${row.get('Business Name')}): ${compositeVal}`);
+      console.log(`Synced & Red-Highlighted Lead #${cid} (${row.get('Business Name')}): Agency=[${agencyUrl}], Existing=[${info.orig}]`);
     }
   }
   console.log(`Finished updating ${count} leads in Google Sheets!`);
 }
 
 syncRedAgencyUrls().catch(err => console.error('Error:', err));
+

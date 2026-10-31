@@ -181,7 +181,7 @@ export class Scraper {
             });
         };
 
-        const url = leadData['Website URL'];
+        const url = leadData['Existing Website'] || leadData['Website URL'];
         if (url && url.trim() !== '') {
             safeScrape(url, 'website', 'homepage');
         }

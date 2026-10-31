@@ -126,7 +126,7 @@ export class AuditLogger {
             rows.forEach(r => {
                 const d = r.toObject();
                 if (d['Business Name']) discovered++;
-                if (d['Website URL'] && String(d['Website URL']).trim().length > 3) withWebsite++;
+                if ((d['Existing Website'] || d['Website URL']) && String(d['Existing Website'] || d['Website URL']).trim().length > 3) withWebsite++;
                 const status = (d['Current Status'] || '').toLowerCase();
                 const outreachDate = (d['Outreach Date'] || '').trim();
                 const paymentStatus = (d['Payment Status'] || '').toLowerCase();
@@ -137,7 +137,7 @@ export class AuditLogger {
                 if (status.includes('contacted') || status.includes('sent') || status.includes('called') || outreachDate.length > 0) {
                     contacted++;
                 }
-                if (status.includes('built') || status.includes('analyzed') || status.includes('approval') || (d['Website URL'] && String(d['Website URL']).trim().length > 3)) {
+                if (status.includes('built') || status.includes('analyzed') || status.includes('approval') || ((d['Agency Hosted URL'] || d['Website URL']) && String(d['Agency Hosted URL'] || d['Website URL']).trim().length > 3)) {
                     qualified++;
                 }
                 if (status.includes('replied') || status.includes('interested') || status.includes('call') || meetingScheduled === 'yes') {

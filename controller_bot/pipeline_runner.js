@@ -81,7 +81,7 @@ export class PipelineRunner {
         }
 
         let phone = leadData.phone || leadData['Phone'] || leadData['Phone/WhatsApp'] || leadData.whatsapp || leadData['WhatsApp'] || '';
-        let website = leadData.website || leadData['Website URL'] || '';
+        let website = leadData.website || leadData['Existing Website'] || leadData['Website URL'] || '';
         let address = leadData.address || leadData['Address'] || leadData['Full Address'] || '';
         let rating = leadData.rating || leadData['Ratings'] || leadData['Rating'] || '';
         let reviews = leadData.reviews || leadData['Number Of Reviews'] || leadData['Total Reviews'] || '';
@@ -93,7 +93,7 @@ export class PipelineRunner {
                 const matchedRow = rows.find(r => r.get('Client ID') == String(clientId));
                 if (matchedRow) {
                     phone = matchedRow.get('Phone/WhatsApp') || matchedRow.get('Phone') || matchedRow.get('WhatsApp') || '';
-                    if (!website) website = matchedRow.get('Website URL') || '';
+                    if (!website) website = matchedRow.get('Existing Website') || matchedRow.get('Website URL') || '';
                     if (!address) address = matchedRow.get('Address') || '';
                     if (!rating) rating = matchedRow.get('Ratings') || '';
                     if (!reviews) reviews = matchedRow.get('Number Of Reviews') || '';
@@ -107,6 +107,7 @@ export class PipelineRunner {
             const formattedLeadData = {
                 'Client ID': clientId,
                 'Business Name': businessName,
+                'Existing Website': website,
                 'Website URL': website,
                 'Phone': phone,
                 'WhatsApp': phone,
@@ -503,9 +504,9 @@ export class PipelineRunner {
                 const d = row.toObject();
                 const cid = parseInt(d['Client ID'], 10);
                 const status = (d['Current Status'] || '').toLowerCase();
-                const websiteUrl = d['Website URL'] || '';
+                const agencyHostedUrl = d['Agency Hosted URL'] || d['Website URL'] || '';
 
-                if (cid && websiteUrl && !status.includes('contacted') && !status.includes('sent')) {
+                if (cid && agencyHostedUrl && !status.includes('contacted') && !status.includes('sent')) {
                     const reportDir = path.join(CONFIG.REPORTS_DIR, String(cid));
                     const outreachJson = path.join(reportDir, 'outreach.json');
                     if (fs.existsSync(outreachJson)) {
@@ -566,9 +567,9 @@ export class PipelineRunner {
                 const d = row.toObject();
                 const cid = parseInt(d['Client ID'], 10);
                 const status = (d['Current Status'] || '').toLowerCase();
-                const websiteUrl = d['Website URL'] || '';
+                const agencyHostedUrl = d['Agency Hosted URL'] || d['Website URL'] || '';
 
-                if (cid && websiteUrl && !status.includes('contacted') && !status.includes('sent')) {
+                if (cid && agencyHostedUrl && !status.includes('contacted') && !status.includes('sent')) {
                     const reportDir = path.join(CONFIG.REPORTS_DIR, String(cid));
                     const outreachJson = path.join(reportDir, 'outreach.json');
                     if (fs.existsSync(outreachJson)) {
@@ -700,6 +701,8 @@ export class PipelineRunner {
             const rawLeadData = {
                 'Client ID': nextClientId,
                 'Business Name': 'Direct Maps Target',
+                'Existing Website': '',
+                'Agency Hosted URL': '',
                 'Website URL': '',
                 'Maps URL': mapsUrl
             };

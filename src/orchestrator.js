@@ -51,7 +51,9 @@ export class Orchestrator {
             const leadData = lead.data || {
                 'Client ID': clientId,
                 'Business Name': businessName,
-                'Website URL': lead.websiteUrl || '',
+                'Existing Website': lead.existingWebsite || lead.websiteUrl || '',
+                'Website URL': lead.existingWebsite || lead.websiteUrl || '',
+                'Agency Hosted URL': lead.agencyHostedUrl || '',
                 'Phone': lead.phone || '',
                 'WhatsApp': lead.phone || '',
                 'Phone/WhatsApp': lead.phone || '',

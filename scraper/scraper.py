@@ -350,14 +350,16 @@ else:
 # --- SCRIPT ---
 COLUMNS = [
     "Client ID", "Date Added", "Business Name", "Industry/Niche", "City/State", 
-    "Phone/WhatsApp", "Website URL", "Email", "Instagram", "Facebook", "X (Twitter)", "YouTube", "TikTok", "LinkedIn", "Ratings", "Number Of Reviews", 
-    "Timings", "Address", "Maps URL", "Owner Name", "Contact Person", 
-    "AI Outreach Hook", "Outreach Platform", "Outreach Date", "Follow-Up Date", "Current Status", "Priority Level", 
+    "Phone/WhatsApp", "Agency Hosted URL", "Existing Website", "AI Outreach Hook", 
+    "Current Status", "Priority Level", "Ratings", "Number Of Reviews", 
+    "Timings", "Socials", "Address", "Subdomain URL", "Email", "Instagram", "Facebook", "X (Twitter)", "YouTube", "TikTok", "LinkedIn", 
+    "Maps URL", "Owner Name", "Contact Person", 
+    "Outreach Platform", "Outreach Date", "Follow-Up Date", 
     "Interested Services", "Pain Points", "Project Type", "Estimated Budget", 
     "Quoted Price", "Negotiation Status", "Meeting Scheduled", "Meeting Date", 
     "Proposal Sent", "Contract Sent", "Payment Status", "Advance Received", 
     "Final Payment", "Delivery Deadline", "Project Status", "Testimonials Received", 
-    "Referral Potential", "Notes"
+    "Referral Potential", "Notes", "Email Status"
 ]
 
 def clean_industry(query, loc, cit):
@@ -1483,7 +1485,8 @@ async def main(search_query, locality, city, num_of_leads, end_date="", end_time
                             lead_row["Industry/Niche"] = industry
                             lead_row["City/State"] = city_state_loc
                             lead_row["Phone/WhatsApp"] = phone
-                            lead_row["Website URL"] = website
+                            lead_row["Agency Hosted URL"] = ""
+                            lead_row["Existing Website"] = website
                             lead_row["Email"] = website_data["Email"]
                             lead_row["Instagram"] = website_data["Instagram"]
                             lead_row["LinkedIn"] = website_data["LinkedIn"]
@@ -1491,6 +1494,17 @@ async def main(search_query, locality, city, num_of_leads, end_date="", end_time
                             lead_row["X (Twitter)"] = website_data["X (Twitter)"]
                             lead_row["YouTube"] = website_data["YouTube"]
                             lead_row["TikTok"] = website_data["TikTok"]
+
+                            # Aggregate Socials
+                            soc_parts = []
+                            if lead_row["Instagram"]: soc_parts.append(f"IG: {lead_row['Instagram']}")
+                            if lead_row["Facebook"]: soc_parts.append(f"FB: {lead_row['Facebook']}")
+                            if lead_row["X (Twitter)"]: soc_parts.append(f"X: {lead_row['X (Twitter)']}")
+                            if lead_row["YouTube"]: soc_parts.append(f"YT: {lead_row['YouTube']}")
+                            if lead_row["TikTok"]: soc_parts.append(f"TT: {lead_row['TikTok']}")
+                            if lead_row["LinkedIn"]: soc_parts.append(f"IN: {lead_row['LinkedIn']}")
+                            lead_row["Socials"] = " | ".join(soc_parts)
+
                             lead_row["Ratings"] = rating
                             lead_row["Number Of Reviews"] = num_reviews
                             lead_row["Timings"] = timings
@@ -1500,7 +1514,7 @@ async def main(search_query, locality, city, num_of_leads, end_date="", end_time
                             
                             # BI Columns (Priority Level, Interested Services, Notes) are reserved for a secondary AI.
                             # They will remain blank in this pipeline.
-                            # Root Website URL
+                            # Root Existing Website
                             import urllib.parse
                             root_web = ""
                             if website:
@@ -1509,7 +1523,7 @@ async def main(search_query, locality, city, num_of_leads, end_date="", end_time
                                     root_web = f"{wp.scheme}://{wp.netloc}/"
                                 except Exception:
                                     root_web = website
-                            lead_row["Website URL"] = root_web
+                            lead_row["Existing Website"] = root_web
                             
                             leads.append(lead_row)
                             import json

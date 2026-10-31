@@ -394,7 +394,8 @@ async def missing_websites(update: Update, context: ContextTypes.DEFAULT_TYPE):
             
         # --- END SYNC LOGIC ---
 
-        missing = df[df['Website URL'].isna() | (df['Website URL'] == '') | (df['Website URL'].astype(str).str.strip() == '')]
+        web_col = 'Existing Website' if 'Existing Website' in df.columns else ('Website URL' if 'Website URL' in df.columns else None)
+        missing = df[df[web_col].isna() | (df[web_col] == '') | (df[web_col].astype(str).str.strip() == '')] if web_col else []
         
         count = len(missing)
         if count == 0:

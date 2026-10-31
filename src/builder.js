@@ -241,31 +241,32 @@ export class WebsiteBuilder {
         // Stage audit report & metadata into web-dev-agency/public/reports/<clientId>/
         const auditReportUrl = agencyPublisher.stageReport(clientId, updatedReportContent, outreachJson);
 
-        // Update Google Sheet with Subdomain URL, Agency Hosted URL, Audit Report URL, AI Outreach Hook, & Status
+        // Update Google Sheet with Subdomain URL, Agency Hosted URL, Existing Website, Audit Report URL, AI Outreach Hook, & Status
         try {
             const { sheet, doc } = await loadGoogleSheet();
             const rows = await sheet.getRows();
             const existingRow = rows.find(r => r.get('Client ID') == String(clientId));
-            const existingWebsite = (existingRow?.get('Website URL') || '').trim();
+            const existingWebsite = (existingRow?.get('Existing Website') || existingRow?.get('Website URL') || '').trim();
             const existingNotes = (existingRow?.get('Notes') || '').toLowerCase();
             const isInterest = existingNotes.includes('website_of_interest') || 
                                ['netlify', 'vercel', 'github.io', 'replit', 'grexa', 'svhrt', 'yourdigitallift', 'gym.com', 'marxfitness'].some(d => existingWebsite.toLowerCase().includes(d));
 
-            // If this was a website_of_interest, show both the original URL and our agency hosted URL in the Agency Hosted URL column
-            const agencyHostedValue = isInterest && existingWebsite && !existingWebsite.includes('arclanestudios.space')
-                ? `${existingWebsite} | ${agencyPathUrl}`
-                : agencyPathUrl;
+            // Clean Agency Hosted URL contains only our hosted demo
+            const agencyHostedValue = agencyPathUrl;
 
             const sheetUpdates = {
-                // If it had an original website of interest, preserve the original URL in 'Website URL'; otherwise use our primaryLiveUrl
-                'Website URL': isInterest && existingWebsite && !existingWebsite.includes('arclanestudios.space') ? existingWebsite : primaryLiveUrl,
                 'Agency Hosted URL': agencyHostedValue,
                 'Audit Report URL': auditReportUrl,
                 'AI Outreach Hook': finalWaMessage,
                 'Current Status': 'Website Built'
             };
 
-            // If domain limit encountered, do NOT write broken subdomain to CRM; leave blank and use Agency Hosted URL
+            // Preserve or set Existing Website if it was an external site of interest
+            if (isInterest && existingWebsite && !existingWebsite.includes('arclanestudios.space')) {
+                sheetUpdates['Existing Website'] = existingWebsite;
+            }
+
+            // If domain limit encountered, do NOT write broken subdomain to CRM; leave blank
             if (subdomainVerified) {
                 sheetUpdates['Subdomain URL'] = deployedUrl;
             } else {
@@ -274,16 +275,18 @@ export class WebsiteBuilder {
 
             await updateLeadFields(sheet, Number(clientId), sheetUpdates);
 
-            // Highlight Agency Hosted URL cell in Red if this lead had an existing website we wanted to build for (website_of_interest)
+            // Highlight Existing Website cell in Red if this lead had an existing website we wanted to build for (website_of_interest)
             try {
                 if (isInterest) {
                     const rowIndex = rows.findIndex(r => r.get('Client ID') == String(clientId));
                     if (rowIndex !== -1) {
-                        const agencyColIndex = sheet.headerValues.indexOf('Agency Hosted URL');
-                        if (agencyColIndex !== -1) {
+                        const existColIndex = sheet.headerValues.indexOf('Existing Website') !== -1 
+                            ? sheet.headerValues.indexOf('Existing Website') 
+                            : sheet.headerValues.indexOf('Agency Hosted URL');
+                        if (existColIndex !== -1) {
                             // rowIndex + 1 because row 0 is header row
-                            await highlightCell(sheet, doc, rowIndex + 1, agencyColIndex);
-                            console.log(`[GoogleSheet] 🚨 Highlighted Agency Hosted URL in RED for Lead #${clientId} (${businessName})`);
+                            await highlightCell(sheet, doc, rowIndex + 1, existColIndex);
+                            console.log(`[GoogleSheet] 🚨 Highlighted Existing Website in RED for Lead #${clientId} (${businessName})`);
                         }
                     }
                 }
