@@ -65,3 +65,7 @@ swiggy.com,website_of_interest
 openinapp.co,website_of_interest
 sujatarestaurant.shop,website_of_interest
 angrezidhaba.live,website_of_interest
+patliputrahotels.com,website_of_interest
+hotelvirasatretreat.in,website_of_interest
+jimdosite.com,website_of_interest
+oyorooms.com,website_of_interest

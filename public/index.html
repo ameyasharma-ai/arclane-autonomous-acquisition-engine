@@ -528,7 +528,7 @@
             document.getElementById('m-revenue').innerText = `₹${(m.clients_won || 0) * 7999} Rev`;
         }
 
-        // Fetch Analytics on Mount
+        // Fetch Analytics on Mount & Periodic Polling
         function fetchAnalytics() {
             fetch('/api/analytics')
                 .then(r => r.json())
@@ -536,6 +536,32 @@
                 .catch(()=>{});
         }
         fetchAnalytics();
+        setInterval(fetchAnalytics, 10000);
+
+        function syncCrmData() {
+            const btn = document.getElementById('btn-sync-crm');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerText = '⏳ Syncing...';
+            }
+            fetch('/api/refresh-metrics', { method: 'POST' })
+                .then(r => r.json())
+                .then(d => {
+                    if (d.success) {
+                        updateMetricsDisplay(d.metrics);
+                        showToast('✅ CRM Metrics synchronized with live sheet!');
+                    } else {
+                        showToast('❌ Sync error: ' + (d.error || 'Failed to refresh'));
+                    }
+                })
+                .catch(e => showToast('❌ Sync error: ' + e.message))
+                .finally(() => {
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = '🔄 Sync CRM';
+                    }
+                });
+        }
 
         // Persistent Scheduler Automation State
         let isAutoRunning = true;

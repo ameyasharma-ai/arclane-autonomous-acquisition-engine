@@ -117,7 +117,8 @@ export class AuditLogger {
             const rows = await sheet.getRows();
 
             let discovered = 0;
-            let withWebsite = 0;
+            let demosHosted = 0;
+            let existingWebsites = 0;
             let contacted = 0;
             let qualified = 0;
             let replies = 0;
@@ -126,7 +127,11 @@ export class AuditLogger {
             rows.forEach(r => {
                 const d = r.toObject();
                 if (d['Business Name']) discovered++;
-                if ((d['Existing Website'] || d['Website URL']) && String(d['Existing Website'] || d['Website URL']).trim().length > 3) withWebsite++;
+                const agencyHosted = String(d['Agency Hosted URL'] || '').trim();
+                const existingWeb = String(d['Existing Website'] || d['Website URL'] || '').trim();
+                if (agencyHosted.length > 3) demosHosted++;
+                if (existingWeb.length > 3 && !existingWeb.includes('arclanestudios.space')) existingWebsites++;
+
                 const status = (d['Current Status'] || '').toLowerCase();
                 const outreachDate = (d['Outreach Date'] || '').trim();
                 const paymentStatus = (d['Payment Status'] || '').toLowerCase();
@@ -137,7 +142,7 @@ export class AuditLogger {
                 if (status.includes('contacted') || status.includes('sent') || status.includes('called') || outreachDate.length > 0) {
                     contacted++;
                 }
-                if (status.includes('built') || status.includes('analyzed') || status.includes('approval') || ((d['Agency Hosted URL'] || d['Website URL']) && String(d['Agency Hosted URL'] || d['Website URL']).trim().length > 3)) {
+                if (status.includes('built') || status.includes('analyzed') || status.includes('approval') || agencyHosted.length > 3) {
                     qualified++;
                 }
                 if (status.includes('replied') || status.includes('interested') || status.includes('call') || meetingScheduled === 'yes') {
@@ -151,7 +156,8 @@ export class AuditLogger {
             // Directly mirror live CRM counts from Google Sheet
             metrics.leads_discovered = discovered;
             metrics.leads_qualified = qualified;
-            metrics.demos_deployed = withWebsite;
+            metrics.demos_deployed = demosHosted;
+            metrics.existing_websites = existingWebsites;
             metrics.messages_sent = contacted;
             metrics.replies_total = replies;
             metrics.clients_won = clientsWon;
