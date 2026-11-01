@@ -350,7 +350,7 @@ const htmlContent = `<!DOCTYPE html>
                 <!-- Dish 4: Spicy Arrabbiata Red Sauce Pasta -->
                 <div class="menu-item bg-zinc-900/90 border border-zinc-800 rounded-2xl overflow-hidden hover:border-amber-500/40 transition-all group flex flex-col justify-between" data-category="pasta">
                     <div class="relative aspect-video overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&q=80&w=600" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80';" alt="Spicy Arrabbiata Red Sauce Pasta" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        <img src="https://images.unsplash.com/photo-1608897013039-887f21d8c804?auto=format&fit=crop&q=80&w=600" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1555949258-eb67b1ef0ceb?auto=format&fit=crop&q=80&w=600';" alt="Spicy Arrabbiata Red Sauce Pasta" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                         <span class="absolute top-3 left-3 bg-amber-500 text-black font-extrabold text-[10px] px-2.5 py-1 rounded-full uppercase tracking-wider">Classic</span>
                     </div>
                     <div class="p-5 flex-1 flex flex-col justify-between">
@@ -371,7 +371,7 @@ const htmlContent = `<!DOCTYPE html>
                 <!-- Dish 5: Smoky Afghani Murgh Tikka -->
                 <div class="menu-item bg-zinc-900/90 border border-zinc-800 rounded-2xl overflow-hidden hover:border-amber-500/40 transition-all group flex flex-col justify-between" data-category="starters">
                     <div class="relative aspect-video overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?auto=format&fit=crop&q=80&w=600" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80';" alt="Smoky Afghani Murgh Tikka" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        <img src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&q=80&w=600" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&q=80&w=600';" alt="Smoky Afghani Murgh Tikka" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                         <span class="absolute top-3 left-3 bg-amber-500 text-black font-extrabold text-[10px] px-2.5 py-1 rounded-full uppercase tracking-wider">Must Try</span>
                     </div>
                     <div class="p-5 flex-1 flex flex-col justify-between">
@@ -392,7 +392,7 @@ const htmlContent = `<!DOCTYPE html>
                 <!-- Dish 6: Crispy Honey Chilli Potatoes -->
                 <div class="menu-item bg-zinc-900/90 border border-zinc-800 rounded-2xl overflow-hidden hover:border-amber-500/40 transition-all group flex flex-col justify-between" data-category="starters">
                     <div class="relative aspect-video overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80';" alt="Crispy Honey Chilli Potatoes" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        <img src="https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&q=80&w=600" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&q=80&w=600';" alt="Crispy Honey Chilli Potatoes" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                         <span class="absolute top-3 left-3 bg-amber-500 text-black font-extrabold text-[10px] px-2.5 py-1 rounded-full uppercase tracking-wider">Crispy</span>
                     </div>
                     <div class="p-5 flex-1 flex flex-col justify-between">
@@ -995,3 +995,4 @@ fs.writeFileSync(clientPath, processedHtml, 'utf8');
 console.log('🎉 Successfully rebuilt Lead #1 (La Fumee):');
 console.log(' - Agency Site:', agencyPath);
 console.log(' - Client Site:', clientPath);
+

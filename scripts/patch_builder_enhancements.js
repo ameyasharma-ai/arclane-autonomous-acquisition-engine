@@ -112,3 +112,4 @@ if (oldFallbackRegex.test(code)) {
 
 fs.writeFileSync(builderPath, code, 'utf8');
 console.log('🎉 Successfully saved updates to src/builder.js');
+

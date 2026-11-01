@@ -116,7 +116,18 @@ CRITICAL DESIGN & AESTHETIC PRINCIPLES (MUST FOLLOW STRICTLY):
    - High-Quality Imagery & Zero-Redundancy Photography:
      * When authentic business photography paths (e.g. './assets/hero.jpg', './assets/featured-1.jpg', './assets/gallery-1.jpg') are specified in the prompt, you MUST prioritize and embed those exact relative paths with responsive 'w-full h-full object-cover' styling.
      * NEVER REPEAT THE SAME IMAGE URL across multiple service cards, gallery items, or menu dishes. Every card MUST have a distinct, visually diverse photo.
-     * For restaurants, cafes, and bakeries: Every single menu item MUST have a distinct, mouth-watering food photo matching its specific item (e.g. pizza photo for pizza, pasta photo for pasta, biryani photo for biryani, beverage photo for drinks). NEVER use restaurant dining room or furniture photos for food cards, and NEVER use clinic or dental photos for food.
+     * For restaurants, cafes, and bakeries: Every single menu item MUST have a distinct, mouth-watering food photo matching its specific item.
+      * MANDATORY VERIFIED FOOD PHOTO REGISTRY (STRICTLY USE THESE EXACT PHOTO IDS FOR DISHES):
+        - Pizza (Margherita): 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&q=80&w=600'
+        - Pizza (Peri Peri / Chicken): 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&q=80&w=600'
+        - Pasta (Creamy Alfredo / White Sauce): 'https://images.unsplash.com/photo-1555949258-eb67b1ef0ceb?auto=format&fit=crop&q=80&w=600'
+        - Pasta (Arrabbiata / Red Tomato): 'https://images.unsplash.com/photo-1608897013039-887f21d8c804?auto=format&fit=crop&q=80&w=600'
+        - Kebabs / Tikkas / Tandoori: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&q=80&w=600'
+        - Potatoes / Crispy Starters / Fries: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&q=80&w=600'
+        - Butter Chicken / Makhani / Curry: 'https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?auto=format&fit=crop&q=80&w=600'
+        - Biryani (Dum Handi): 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&q=80&w=600'
+        - Coffee / Cold Brew / Iced Latte: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?auto=format&fit=crop&q=80&w=600'
+        - STRICT BAN: NEVER use random Unsplash IDs (such as aquarium fish 'photo-1599488615731-7e5c2823ff28', raw meat, or animals) that do not match the dish!
      * If no authentic paths are specified, use verified category Unsplash photos with query parameters and beautiful gradient fallback backgrounds. Always include an inline 'onerror' fallback on all images.
 
 5. SECURE WEB PRACTICES & ZERO-VULNERABILITY GUARANTEE (MANDATORY & ENFORCED):

@@ -1,3 +1,4 @@
+import { resolveVerifiedFoodImage, VERIFIED_IMAGE_CATALOG } from './engine/verified_asset_catalog.js';
 import fs from 'fs';
 import path from 'path';
 import { exec } from 'child_process';
@@ -648,6 +649,27 @@ export class WebsiteBuilder {
         if (slug) {
             html = html.replace(/src=["'](?:\.\/)?assets\/([^"']+)["']/gi, (m, filename) => {
                 return `src="/sites/${slug}/assets/${filename}" onerror="this.onerror=null; this.src='${nicheFallback}';"`;
+            });
+        }
+
+        // 10. Intelligent Asset Accuracy & Fish Eradication Engine
+        // Automatically replaces mismatched dish images (e.g. aquarium fish, barbecue ribs for potatoes, steak for red pasta)
+        const isFoodVenue = /restaurant|cafe|dine|dining|kitchen|food|dhaba|bistro/i.test(businessName + ' ' + html.slice(0, 3000));
+        if (isFoodVenue) {
+            // Neutralize the fish URL globally across the HTML
+            html = html.replace(/photo-1599488615731-7e5c2823ff28/g, 'photo-1555939594-58d7cb561ad1');
+
+            // Parse each dish / menu-item card and ensure exact item-to-photo accuracy
+            html = html.replace(/(<div[^>]*class=["'][^"']*(?:menu-item|dish-card|food-card)[^"']*["'][^>]*>[\s\S]*?<\/div>\s*<\/div>)/gi, (card) => {
+                const titleMatch = card.match(/<h[34][^>]*>([^<]+)<\/h[34]>/i);
+                if (titleMatch) {
+                    const dishTitle = titleMatch[1].trim();
+                    const correctUrl = resolveVerifiedFoodImage(dishTitle);
+                    if (correctUrl) {
+                        return card.replace(/(<img[^>]*src=["'])(https:\/\/images\.unsplash\.com\/[^"']+)(["'])/i, `$1${correctUrl}$3`);
+                    }
+                }
+                return card;
             });
         }
 
