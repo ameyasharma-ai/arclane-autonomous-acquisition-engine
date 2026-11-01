@@ -11,3 +11,4 @@ https.get('https://www.arclanestudios.space/sites/lafumee', (res) => {
     console.log('Hero tag:', heroMatch ? heroMatch[0] : 'None');
   });
 });
+

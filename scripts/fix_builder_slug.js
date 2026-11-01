@@ -14,3 +14,4 @@ if (isCrlf) {
 
 fs.writeFileSync(builderPath, content, 'utf8');
 console.log('Fixed double declaration of vercelSlug!');
+

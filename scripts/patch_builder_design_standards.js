@@ -106,3 +106,4 @@ if (isCrlf) {
 
 fs.writeFileSync(builderPath, content, 'utf8');
 console.log('✅ Successfully enhanced enforceDesignQualityStandards in src/builder.js!');
+
