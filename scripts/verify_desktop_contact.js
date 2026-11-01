@@ -15,3 +15,4 @@ async function verifyContact() {
 }
 
 verifyContact().catch(console.error);
+

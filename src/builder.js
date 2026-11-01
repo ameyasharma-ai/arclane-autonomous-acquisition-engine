@@ -743,9 +743,44 @@ export class WebsiteBuilder {
         // B. Ensure all local ./assets/ images are rewritten to /sites/${slug}/assets/ AND have onerror fallback
         if (slug) {
             html = html.replace(/src=["'](?:\.\/)?assets\/([^"']+)["']/gi, (m, filename) => {
-                return `src="/sites/${slug}/assets/${filename}" onerror="this.onerror=null; this.src='${nicheFallback}';"`;
+                return `src="/sites/${slug}/assets/${filename}"`;
             });
+
+            // Restore authentic photos from photos_manifest.json if present
+            const manifestPath = path.join(process.cwd(), 'web-dev-agency', 'public', 'sites', slug, 'assets', 'photos_manifest.json');
+            if (fs.existsSync(manifestPath)) {
+                try {
+                    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+                    if (manifest.hasRealPhotos) {
+                        // 1. Restore Hero Image
+                        if (manifest.hero && manifest.hero.src) {
+                            const heroFilename = manifest.hero.src.split('/').pop();
+                            const heroUrl = `/sites/${slug}/assets/${heroFilename}`;
+                            // Match hero img regardless of whether src or alt comes first
+                            html = html.replace(/(<img\b(?=[^>]*\balt=["'][^"']*(?:hero|wide view|floor|gym|interior|exterior|entrance)[^"']*["'])[^>]*?\bsrc=["'])[^"']+["']/gi, `$1${heroUrl}"`);
+                        }
+                        // 2. Restore Gallery Images
+                        if (manifest.gallery && manifest.gallery.length > 0) {
+                            manifest.gallery.forEach((g) => {
+                                const gFilename = g.src.split('/').pop();
+                                const gUrl = `/sites/${slug}/assets/${gFilename}`;
+                                const desc = (g.description || '').toLowerCase();
+                                if (desc) {
+                                    const words = desc.split(/[^a-zA-Z0-9]+/).filter(w => w.length > 3);
+                                    words.forEach(w => {
+                                        const re = new RegExp(`(<img\\b(?=[^>]*\\balt=["'][^"']*${w}[^"']*["'])[^>]*?\\bsrc=["'])[^"']+["']`, 'gi');
+                                        html = html.replace(re, `$1${gUrl}"`);
+                                    });
+                                }
+                            });
+                        }
+                    }
+                } catch (e) {}
+            }
         }
+
+        // Clean out any stale data-has-fallen-back flags
+        html = html.replace(/\s*data-has-fallen-back=["'][^"']*["']/gi, '');
 
         // 10. Intelligent Asset Accuracy & Fish Eradication Engine
         // Automatically replaces mismatched dish images (e.g. aquarium fish, barbecue ribs for potatoes, steak for red pasta)

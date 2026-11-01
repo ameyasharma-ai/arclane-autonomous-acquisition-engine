@@ -14,6 +14,8 @@
  * 7. Document Horizontal Overflow (Ensures zero horizontal scrolling)
  */
 import { chromium } from 'playwright';
+import fs from 'fs';
+import path from 'path';
 
 export class VisualQualityGate {
     constructor() {
@@ -49,6 +51,17 @@ export class VisualQualityGate {
     async auditAndFix(html, slug = '', businessName = '') {
         if (!html || typeof html !== 'string') return { passed: true, cleanHtml: html, issuesFixed: [] };
 
+        // 1. Capture original image sources so headless Playwright evaluation never alters them
+        const originalImageSrcs = [];
+        const imgRegex = /<img\b[^>]*?\bsrc=["']([^"']+)["']/gi;
+        let match;
+        while ((match = imgRegex.exec(html)) !== null) {
+            originalImageSrcs.push(match[1]);
+        }
+
+        // 2. Strip client-side fallback error listeners from auditHtml so headless Chromium cannot mutate DOM
+        let auditHtml = html.replace(/<script[^>]*>[\s\S]*?addEventListener\(['"]error['"][\s\S]*?<\/script>/gi, '');
+
         await this.init();
         const context = await this.browser.newContext({
             viewport: { width: 393, height: 852 }, // Audit on mobile viewport by default
@@ -57,10 +70,22 @@ export class VisualQualityGate {
 
         const page = await context.newPage();
         try {
-            await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 15000 });
+            // Zero-Image-Mutation Sandbox: Mock all image requests with 200 OK
+            // Guarantees that relative asset paths (./assets/hero.jpg, /sites/.../assets/...)
+            // NEVER fail with 404 inside headless Playwright, error listeners NEVER trigger,
+            // and authentic photos are NEVER overwritten with stock fallbacks!
+            await page.route(/\.(png|jpg|jpeg|webp|svg|gif)(\?.*)?$/i, route => {
+                route.fulfill({
+                    status: 200,
+                    contentType: 'image/jpeg',
+                    body: Buffer.from('/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=', 'base64')
+                });
+            });
+
+            await page.setContent(auditHtml, { waitUntil: 'domcontentloaded', timeout: 15000 });
 
             // Run in-browser algorithmic audit and DOM surgery
-            const auditResult = await page.evaluate(() => {
+            const auditResult = await page.evaluate((origSrcs) => {
                 const logs = [];
 
                 // ========================================================
@@ -124,8 +149,11 @@ export class VisualQualityGate {
                     const badges = Array.from(card.querySelectorAll('.absolute')).filter(b => {
                         if (b.closest('svg')) return false;
                         if (b.classList.contains('pointer-events-none')) return false;
-                        if (b.classList.contains('inset-0') && !b.innerText.trim()) return false;
-                        return true;
+                        if (b.classList.contains('inset-0')) return false;
+                        if (b.querySelector('h1, h2, h3, h4, h5, h6')) return false;
+                        // Must be a compact badge/chip (e.g. rounded-full, rounded-md, or small pill)
+                        const isBadge = b.tagName === 'SPAN' || b.classList.contains('rounded-full') || b.classList.contains('rounded-md') || b.classList.contains('rounded-lg');
+                        return isBadge;
                     });
                     const hasTextContent = card.querySelector('h3, h4, p, a, button');
 
@@ -163,13 +191,15 @@ export class VisualQualityGate {
                 const statsContainers = Array.from(document.querySelectorAll('.grid-cols-3, .grid-cols-4')).filter(g => g.innerText.includes('%') || g.innerText.includes('+') || g.innerText.includes('Reviews'));
                 statsContainers.forEach(container => {
                     container.classList.add('w-full');
+                    container.classList.remove('gap-4', 'gap-6');
+                    container.classList.add('gap-2', 'sm:gap-4');
                     Array.from(container.children).forEach(col => {
                         col.classList.add('min-w-0');
                         const num = col.querySelector('span, h3, div');
                         if (num) {
                             num.classList.remove('text-2xl', 'text-3xl', 'text-4xl');
-                            num.classList.add('text-lg', 'sm:text-2xl', 'break-words', 'tracking-tight');
-                            num.style.fontSize = 'clamp(1.1rem, 4.5vw, 1.5rem)';
+                            num.classList.add('text-base', 'sm:text-2xl', 'break-words', 'tracking-tight');
+                            num.style.fontSize = 'clamp(0.95rem, 4vw, 1.4rem)';
                         }
                         const label = col.querySelector('.text-xs, .text-sm, span:last-child');
                         if (label) {
@@ -260,16 +290,62 @@ export class VisualQualityGate {
                     }
                 });
 
+                // 8. Restore original image sources exactly and purge fallback artifacts
+                const pageImgs = Array.from(document.querySelectorAll('img'));
+                pageImgs.forEach((img, idx) => {
+                    if (origSrcs && idx < origSrcs.length) {
+                        img.setAttribute('src', origSrcs[idx]);
+                    }
+                    img.removeAttribute('data-has-fallen-back');
+                });
+
                 return {
                     logs,
                     cleanedHtml: '<!DOCTYPE html>\n' + document.documentElement.outerHTML
                 };
-            });
+            }, originalImageSrcs);
 
             await context.close();
+
+            let finalHtml = auditResult.cleanedHtml;
+
+            // 9. Authentic Photos Manifest Enforcement (Restores real Google Maps photos)
+            if (slug) {
+                const manifestPath = path.join(process.cwd(), 'web-dev-agency', 'public', 'sites', slug, 'assets', 'photos_manifest.json');
+                if (fs.existsSync(manifestPath)) {
+                    try {
+                        const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+                        if (manifest.hasRealPhotos) {
+                            if (manifest.hero && manifest.hero.src) {
+                                const heroFilename = manifest.hero.src.split('/').pop();
+                                const heroUrl = `/sites/${slug}/assets/${heroFilename}`;
+                                finalHtml = finalHtml.replace(/(<img[^>]*alt=["'][^"']*(?:hero|wide view|floor|gym|interior|exterior|entrance)[^"']*["'][^>]*src=["'])[^"']+["']/i, `$1${heroUrl}"`);
+                            }
+                            if (manifest.gallery && manifest.gallery.length > 0) {
+                                manifest.gallery.forEach((g) => {
+                                    const gFilename = g.src.split('/').pop();
+                                    const gUrl = `/sites/${slug}/assets/${gFilename}`;
+                                    const desc = (g.description || '').toLowerCase();
+                                    if (desc) {
+                                        const words = desc.split(/[^a-zA-Z0-9]+/).filter(w => w.length > 3);
+                                        words.forEach(w => {
+                                            const re = new RegExp(`(<img[^>]*alt=["'][^"']*${w}[^"']*["'][^>]*src=["'])[^"']+["']`, 'gi');
+                                            finalHtml = finalHtml.replace(re, `$1${gUrl}"`);
+                                        });
+                                    }
+                                });
+                            }
+                        }
+                    } catch (e) {}
+                }
+            }
+
+            // Remove any leftover data-has-fallen-back attribute
+            finalHtml = finalHtml.replace(/\s*data-has-fallen-back=["'][^"']*["']/gi, '');
+
             return {
                 passed: true,
-                cleanHtml: auditResult.cleanedHtml,
+                cleanHtml: finalHtml,
                 issuesFixed: auditResult.logs
             };
         } catch (err) {
