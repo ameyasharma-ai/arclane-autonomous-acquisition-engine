@@ -96,6 +96,8 @@ export class MapsPhotoPipeline {
 
     /**
      * Use Gemini Vision to classify candidate photos into hero, service/dish, gallery, or discard.
+     * Enforces strict commercial standards: rejects street flex boards, banners, neighboring shop signs,
+     * low-light candids, and enforces minimum quality thresholds.
      */
     async classifyPhotos(candidateUrls, businessName = 'Local Business', industry = 'Commercial') {
         if (!this.geminiClient || !candidateUrls || candidateUrls.length === 0) {
@@ -111,7 +113,7 @@ export class MapsPhotoPipeline {
         ])).flat();
 
         const promptText = `
-You are an expert art director and web designer. Analyze these ${validCandidates.length} real Google Maps photos for "${businessName}" (${industry}).
+You are an elite art director and commercial web designer. Analyze these ${validCandidates.length} real Google Maps photos for "${businessName}" (${industry}).
 Categorize each image for a premium, conversion-optimized commercial website.
 
 Return ONLY a valid JSON object matching this schema:
@@ -122,17 +124,27 @@ Return ONLY a valid JSON object matching this schema:
       "category": "hero" | "featured" | "gallery" | "discard",
       "description": "5-word description of what is shown",
       "qualityScore": 1 to 10,
+      "isExteriorHoardingOrBanner": boolean,
       "reason": "Why this works for the website or why it is discarded"
     }
   ],
-  "bestHeroIndex": <1-based index of the best wide, inviting shot for the Hero banner>,
-  "bestFeaturedIndices": [<array of indices for signature products, dishes, equipment, or treatments>],
-  "bestGalleryIndices": [<array of indices for ambiance, facilities, and interior shots>]
+  "bestHeroIndex": <1-based index of a WIDE, BRIGHT, ARCHITECTURAL INTERIOR or MODERN FACADE shot (qualityScore >= 8) or null if none meet standard>,
+  "useStockForHero": <true if NO candidate image is a pristine wide interior shot with qualityScore >= 8>,
+  "bestFeaturedIndices": [<array of indices for signature dishes, authentic food, equipment, or treatments (qualityScore >= 7)>],
+  "bestGalleryIndices": [<array of indices for aesthetic facility ambiance, clean dining areas, or architectural details (qualityScore >= 7)>]
 }
 
-Rules:
-- Mark as "discard" if the photo is a blurry selfie, receipt, bathroom, poorly lit clutter, or off-topic.
-- "hero" must be clean, spacious, wide, and showcase the storefront, dining area, gym floor, or main facility.
+STRICT EXCLUSION RULES (MANDATORY):
+1. FORBID OUTDOOR HOARDINGS, FLEX BANNERS & STREET CLUTTER:
+   - Any outdoor photo of a street sign, flex banner, roadside hoarding, billboard, pole, traffic, or vinyl board MUST be marked as "discard" with isExteriorHoardingOrBanner: true.
+   - Any photo that shows signs, banners, or storefronts of neighboring shops (e.g. "फोटो कॉपी", "xerox", "chemist", "pan shop", "medical", "ATM") MUST be marked as "discard".
+2. FORBID AWKWARD CANDIDS & BLURRY SHOTS:
+   - Any photo showing the back of people's heads, awkward party angles, blurry selfies, cluttered dark tables, or dark lighting MUST be marked as "discard".
+3. HERO STANDARD:
+   - A photo can ONLY be category "hero" if it is a wide, professional, high-resolution interior dining room / gym floor / clinic reception with qualityScore >= 8.
+   - If the candidate photos are only food dishes, products, or low-res signs, set "bestHeroIndex": null and "useStockForHero": true.
+4. FEATURED / SIGNATURE:
+   - Mouth-watering food dishes, signature drinks, or treatment equipment with clear focus and appetizing presentation.
 - Do NOT output markdown fences or commentary outside the JSON.
 `;
 
@@ -157,30 +169,41 @@ Rules:
 
             const result = {
                 hero: null,
+                useStockForHero: Boolean(parsed.useStockForHero),
                 featured: [],
                 gallery: [],
                 discarded: []
             };
 
-            // Map indices back to URLs
+            // Map hero candidate - strictly enforce quality score >= 8 and not a hoarding/banner
             if (parsed.bestHeroIndex && validCandidates[parsed.bestHeroIndex - 1]) {
                 const heroClass = parsed.classifications?.find(c => c.index === parsed.bestHeroIndex);
-                result.hero = {
-                    url: validCandidates[parsed.bestHeroIndex - 1],
-                    description: heroClass?.description || 'Main entrance and atmosphere'
-                };
-            } else if (validCandidates.length > 0) {
-                result.hero = { url: validCandidates[0], description: 'Main atmosphere' };
+                const isAcceptable = heroClass && heroClass.qualityScore >= 8 && !heroClass.isExteriorHoardingOrBanner && heroClass.category !== 'discard';
+                
+                if (isAcceptable) {
+                    result.hero = {
+                        url: validCandidates[parsed.bestHeroIndex - 1],
+                        description: heroClass?.description || 'Main entrance and atmosphere'
+                    };
+                } else {
+                    console.log(`[MapsPhotoPipeline] ⚠️ Candidate hero (Index ${parsed.bestHeroIndex}) rejected (score: ${heroClass?.qualityScore || 0}, hoarding: ${heroClass?.isExteriorHoardingOrBanner}). Using verified stock hero.`);
+                    result.hero = null;
+                    result.useStockForHero = true;
+                }
+            } else {
+                result.useStockForHero = true;
             }
 
             if (Array.isArray(parsed.bestFeaturedIndices)) {
                 for (const idx of parsed.bestFeaturedIndices) {
                     if (validCandidates[idx - 1] && validCandidates[idx - 1] !== result.hero?.url) {
                         const c = parsed.classifications?.find(cl => cl.index === idx);
-                        result.featured.push({
-                            url: validCandidates[idx - 1],
-                            description: c?.description || 'Featured highlight'
-                        });
+                        if (c && c.category !== 'discard' && (c.qualityScore || 0) >= 6 && !c.isExteriorHoardingOrBanner) {
+                            result.featured.push({
+                                url: validCandidates[idx - 1],
+                                description: c?.description || 'Featured highlight'
+                            });
+                        }
                     }
                 }
             }
@@ -189,15 +212,17 @@ Rules:
                 for (const idx of parsed.bestGalleryIndices) {
                     if (validCandidates[idx - 1] && validCandidates[idx - 1] !== result.hero?.url) {
                         const c = parsed.classifications?.find(cl => cl.index === idx);
-                        result.gallery.push({
-                            url: validCandidates[idx - 1],
-                            description: c?.description || 'Facility detail'
-                        });
+                        if (c && c.category !== 'discard' && (c.qualityScore || 0) >= 6 && !c.isExteriorHoardingOrBanner) {
+                            result.gallery.push({
+                                url: validCandidates[idx - 1],
+                                description: c?.description || 'Facility detail'
+                            });
+                        }
                     }
                 }
             }
 
-            // Fill empty gallery slots with any remaining non-discarded candidates
+            // Fill empty gallery slots with any remaining clean candidates
             for (let i = 0; i < validCandidates.length; i++) {
                 const u = validCandidates[i];
                 if (u === result.hero?.url) continue;
@@ -205,14 +230,14 @@ Rules:
                 if (result.gallery.some(g => g.url === u)) continue;
                 
                 const c = parsed.classifications?.find(cl => cl.index === (i + 1));
-                if (c && c.category === 'discard') {
+                if (c && (c.category === 'discard' || c.isExteriorHoardingOrBanner || (c.qualityScore || 0) < 6)) {
                     result.discarded.push(u);
                 } else if (result.gallery.length < 3) {
                     result.gallery.push({ url: u, description: c?.description || 'Authentic photo' });
                 }
             }
 
-            console.log(`[MapsPhotoPipeline] ✅ Vision classified: Hero: 1, Featured: ${result.featured.length}, Gallery: ${result.gallery.length}`);
+            console.log(`[MapsPhotoPipeline] ✅ Vision classified: Hero: ${result.hero ? 'Real' : 'Verified Stock'}, Featured: ${result.featured.length}, Gallery: ${result.gallery.length}, Discarded: ${result.discarded.length}`);
             return result;
         } catch (err) {
             console.warn('[MapsPhotoPipeline] Gemini Vision classification failed, using heuristic fallback:', err.message);
@@ -275,6 +300,7 @@ Rules:
 
         const stagedManifest = {
             hasRealPhotos: false,
+            useStockForHero: classified.useStockForHero || !classified.hero,
             hero: null,
             featured: [],
             gallery: []
