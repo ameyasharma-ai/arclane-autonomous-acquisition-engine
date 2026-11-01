@@ -72,7 +72,7 @@ The first outreach optimizes for starting a **POSITIVE CONVERSATION**. It must e
    Explain in 1 clear Hinglish/English sentence what was specifically customized for them.
    *Example:* `"Maine aapke business ke liye ek live website demo design kiya hai — jisme direct WhatsApp trial booking, morning/evening timings, aur gallery integrate ki hai:"`
 4. **CLEAN LIVE DEMO LINK:**
-   `🔗 [website-url]` (or plain URL)
+   `🔗 [website-url]` (STRICT MANDATE: Always write literally `🔗 [website-url]`. NEVER insert the client's existing website or any other domain here. The automated deployment pipeline replaces `[website-url]` with their live agency demo site.)
 5. **LOW-FRICTION SOFT CTA & SIGNATURE:**
    Ask for their honest reaction or feedback rather than demanding a sales call.
    *Example:*

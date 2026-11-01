@@ -2,10 +2,11 @@ import fs from 'fs';
 import path from 'path';
 
 const builderPath = path.join(process.cwd(), 'src', 'builder.js');
-let content = fs.readFileSync(builderPath, 'utf8');
+let raw = fs.readFileSync(builderPath, 'utf8');
+const isCrlf = raw.includes('\r\n');
+let content = raw.replace(/\r\n/g, '\n');
 
-// Target snippet in src/builder.js
-const target = `        // Extract WhatsApp message
+const oldRegex = `        // Extract WhatsApp message
         let waMessage = "";
         const waMatch = reportContent.match(/\\[WHATSAPP_START\\]([\\s\\S]*?)\\[WHATSAPP_END\\]/i);
         if (waMatch) {
@@ -19,15 +20,13 @@ const target = `        // Extract WhatsApp message
             callScript = callMatch[1].trim().replace(/\\[website-url\\]|https:\\/\\/[a-zA-Z0-9-.]+\\.vercel\\.app/gi, deployedUrl);
         }`;
 
-const replacement = `        // Extract WhatsApp message with bulletproof URL normalization
+const newRegex = `        // Extract WhatsApp message with bulletproof URL normalization
         let waMessage = "";
         const waMatch = reportContent.match(/\\[WHATSAPP_START\\]([\\s\\S]*?)\\[WHATSAPP_END\\]/i);
         if (waMatch) {
             let msg = waMatch[1].trim();
-            // Replace [website-url] and any dummy/staging URLs
             msg = msg.replace(/\\[website-url\\]/gi, deployedUrl);
             msg = msg.replace(/https?:\\/\\/[a-zA-Z0-9-.]+\\.(?:vercel\\.app|netlify\\.app|workers\\.dev|studio|app|github\\.io)[^\\s]*/gi, deployedUrl);
-            // Replace any URL following the link emoji 🔗
             msg = msg.replace(/(🔗\\s*)https?:\\/\\/[^\\s]+/gi, \`$1\${deployedUrl}\`);
             waMessage = msg;
         }
@@ -43,20 +42,29 @@ const replacement = `        // Extract WhatsApp message with bulletproof URL no
             callScript = script;
         }`;
 
-if (content.includes('// Extract WhatsApp message')) {
-    content = content.replace(target, replacement);
-    
-    // Also ensure finalWaMessage replaces any remaining URL with primaryLiveUrl
-    const finalTarget = `whatsappMessage: waMessage.replace(new RegExp(deployedUrl, 'g'), primaryLiveUrl),
-            callScript: callScript.replace(new RegExp(deployedUrl, 'g'), primaryLiveUrl),`;
-            
-    const finalReplacement = `whatsappMessage: waMessage.replace(new RegExp(deployedUrl, 'g'), primaryLiveUrl).replace(/(🔗\\s*)https?:\\/\\/[^\\s]+/gi, \`$1\${primaryLiveUrl}\`),
-            callScript: callScript.replace(new RegExp(deployedUrl, 'g'), primaryLiveUrl).replace(/(🔗\\s*)https?:\\/\\/[^\\s]+/gi, \`$1\${primaryLiveUrl}\`),`;
-            
-    content = content.replace(finalTarget, finalReplacement);
-    
-    fs.writeFileSync(builderPath, content, 'utf8');
-    console.log('✅ Successfully patched src/builder.js to guarantee Agency Hosted URL in all outreach pitches!');
-} else {
-    console.error('❌ Could not find target in src/builder.js');
+if (!content.includes(oldRegex)) {
+    console.error('Target oldRegex not found!');
+    process.exit(1);
 }
+
+content = content.replace(oldRegex, newRegex);
+
+const oldFinal = `            whatsappMessage: waMessage.replace(new RegExp(deployedUrl, 'g'), primaryLiveUrl),
+            callScript: callScript.replace(new RegExp(deployedUrl, 'g'), primaryLiveUrl),`;
+
+const newFinal = `            whatsappMessage: waMessage.replace(new RegExp(deployedUrl, 'g'), primaryLiveUrl).replace(/(🔗\\s*)https?:\\/\\/[^\\s]+/gi, \`$1\${primaryLiveUrl}\`),
+            callScript: callScript.replace(new RegExp(deployedUrl, 'g'), primaryLiveUrl).replace(/(🔗\\s*)https?:\\/\\/[^\\s]+/gi, \`$1\${primaryLiveUrl}\`),`;
+
+if (!content.includes(oldFinal)) {
+    console.error('Target oldFinal not found!');
+    process.exit(1);
+}
+
+content = content.replace(oldFinal, newFinal);
+
+if (isCrlf) {
+    content = content.replace(/\n/g, '\r\n');
+}
+
+fs.writeFileSync(builderPath, content, 'utf8');
+console.log('✅ Real patch applied to src/builder.js successfully!');

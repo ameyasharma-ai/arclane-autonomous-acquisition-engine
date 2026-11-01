@@ -98,3 +98,4 @@ const isApply = process.argv.includes('--apply');
 fixAllSheetHooks(isApply).catch(console.error);
 
 export { fixAllSheetHooks };
+

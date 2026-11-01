@@ -256,18 +256,26 @@ export class WebsiteBuilder {
             fs.mkdirSync(clientReportsDir, { recursive: true });
         }
 
-        // Extract WhatsApp message
+        // Extract WhatsApp message with bulletproof URL normalization
         let waMessage = "";
         const waMatch = reportContent.match(/\[WHATSAPP_START\]([\s\S]*?)\[WHATSAPP_END\]/i);
         if (waMatch) {
-            waMessage = waMatch[1].trim().replace(/\[website-url\]|https:\/\/[a-zA-Z0-9-.]+\.vercel\.app/gi, deployedUrl);
+            let msg = waMatch[1].trim();
+            msg = msg.replace(/\[website-url\]/gi, deployedUrl);
+            msg = msg.replace(/https?:\/\/[a-zA-Z0-9-.]+\.(?:vercel\.app|netlify\.app|workers\.dev|studio|app|github\.io)[^\s]*/gi, deployedUrl);
+            msg = msg.replace(/(🔗\s*)https?:\/\/[^\s]+/gi, `$1${deployedUrl}`);
+            waMessage = msg;
         }
 
-        // Extract Call Script
+        // Extract Call Script with bulletproof URL normalization
         let callScript = "";
         const callMatch = reportContent.match(/\[CALL_SCRIPT_START\]([\s\S]*?)\[CALL_SCRIPT_END\]/i);
         if (callMatch) {
-            callScript = callMatch[1].trim().replace(/\[website-url\]|https:\/\/[a-zA-Z0-9-.]+\.vercel\.app/gi, deployedUrl);
+            let script = callMatch[1].trim();
+            script = script.replace(/\[website-url\]/gi, deployedUrl);
+            script = script.replace(/https?:\/\/[a-zA-Z0-9-.]+\.(?:vercel\.app|netlify\.app|workers\.dev|studio|app|github\.io)[^\s]*/gi, deployedUrl);
+            script = script.replace(/(🔗\s*)https?:\/\/[^\s]+/gi, `$1${deployedUrl}`);
+            callScript = script;
         }
 
         // Extract Contact info
@@ -317,8 +325,8 @@ export class WebsiteBuilder {
             agencyHostedUrl: agencyPathUrl,
             subdomainUrl: subdomainVerified ? deployedUrl : '',
             githubRepoUrl,
-            whatsappMessage: waMessage.replace(new RegExp(deployedUrl, 'g'), primaryLiveUrl),
-            callScript: callScript.replace(new RegExp(deployedUrl, 'g'), primaryLiveUrl),
+            whatsappMessage: waMessage.replace(new RegExp(deployedUrl, 'g'), primaryLiveUrl).replace(/(🔗\s*)https?:\/\/[^\s]+/gi, `$1${primaryLiveUrl}`),
+            callScript: callScript.replace(new RegExp(deployedUrl, 'g'), primaryLiveUrl).replace(/(🔗\s*)https?:\/\/[^\s]+/gi, `$1${primaryLiveUrl}`),
             updatedAt: new Date().toISOString()
         };
         fs.writeFileSync(outreachJsonPath, JSON.stringify(outreachJson, null, 2), 'utf-8');
