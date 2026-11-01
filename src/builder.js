@@ -254,7 +254,7 @@ export class WebsiteBuilder {
         await this.sendStatus(`📦 *[3/4] Staged for Agency Subdomain Build (${agencyPublisher.batchQueue.length}/5 in current batch)...*`);
 
         // Check if batch threshold (5 leads) is reached
-        if (agencyPublisher.shouldDeployBatch()) {
+        if (force || agencyPublisher.shouldDeployBatch()) {
             await agencyPublisher.deployBatch(async (msg) => this.sendStatus(msg));
         }
 
