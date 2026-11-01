@@ -5,6 +5,8 @@ import util from 'util';
 import { LLMClient } from './llm.js';
 import { loadGoogleSheet, updateLeadFields, highlightCell } from './sheets.js';
 import { agencyPublisher } from './agency_publisher.js';
+import { mapsPhotoCrawler } from './engine/maps_photo_crawler.js';
+import { mapsPhotoPipeline } from './engine/maps_photo_pipeline.js';
 
 const execAsync = util.promisify(exec);
 
@@ -112,9 +114,50 @@ export class WebsiteBuilder {
             }
         }
 
-        // Check for authentic Google Maps photos manifest
+        // Check for authentic Google Maps photos manifest (or autonomous crawl)
         const photosManifestPath = path.join(clientReportsDir, 'photos_manifest.json');
         let hasAuthenticPhotos = false;
+
+        // Autonomous Google Maps Photo Extraction & Vision Classification for any new lead
+        if (!fs.existsSync(photosManifestPath)) {
+            try {
+                let mapsUrl = '';
+                const mapsMatch = reportContent.match(/(?:Google Maps URL|Maps URL|Listing URL):\s*([^\n\r]+)/i);
+                if (mapsMatch) mapsUrl = mapsMatch[1].trim();
+
+                let address = '';
+                const addrMatch = reportContent.match(/(?:Address|Full Address):\s*([^\n\r]+)/i);
+                if (addrMatch) address = addrMatch[1].trim();
+
+                let industry = 'Commercial';
+                const indMatch = reportContent.match(/(?:Industry|Niche|Vertical):\s*([^\n\r]+)/i);
+                if (indMatch) industry = indMatch[1].trim();
+
+                console.log(`[Builder] 📸 Autonomous Google Maps Photo Pipeline running for "${businessName}"...`);
+                await this.sendStatus(`📸 *Extracting real Google Maps photos for ${businessName}...*`);
+
+                const candidateUrls = await mapsPhotoCrawler.fetchPhotosForBusiness(businessName, mapsUrl, address);
+                await mapsPhotoCrawler.close();
+
+                if (candidateUrls.length > 0) {
+                    await this.sendStatus(`🧠 *Classifying ${candidateUrls.length} real photos with Gemini Vision for ${businessName}...*`);
+                    const classified = await mapsPhotoPipeline.classifyPhotos(candidateUrls, businessName, industry);
+
+                    const slug = await agencyPublisher.getSlug(businessName);
+                    const agencySiteDir = path.join(agencyPublisher.agencyPublicSitesDir, slug);
+                    const clientSiteDir = path.join(this.sitesDir, String(clientId));
+
+                    await mapsPhotoPipeline.downloadAndStageAssets(classified, clientReportsDir);
+                    await mapsPhotoPipeline.downloadAndStageAssets(classified, agencySiteDir);
+                    await mapsPhotoPipeline.downloadAndStageAssets(classified, clientSiteDir);
+                    console.log(`[Builder] ✅ Real photos extracted & staged for ${businessName}`);
+                } else {
+                    console.log(`[Builder] ℹ️ Zero Maps photos found for ${businessName}, falling back to verified stock.`);
+                }
+            } catch (crawlErr) {
+                console.warn(`[Builder] Auto-crawl photo notice: ${crawlErr.message}`);
+            }
+        }
         if (fs.existsSync(photosManifestPath)) {
             try {
                 const pManifest = JSON.parse(fs.readFileSync(photosManifestPath, 'utf8'));

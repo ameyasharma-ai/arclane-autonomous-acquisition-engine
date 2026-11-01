@@ -130,3 +130,4 @@ main().catch(err => {
     console.error('Fatal error in build_with_maps_photos:', err);
     process.exit(1);
 });
+

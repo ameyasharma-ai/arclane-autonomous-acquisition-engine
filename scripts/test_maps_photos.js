@@ -86,3 +86,4 @@ async function testExtractPhotos() {
 }
 
 testExtractPhotos().catch(console.error);
+

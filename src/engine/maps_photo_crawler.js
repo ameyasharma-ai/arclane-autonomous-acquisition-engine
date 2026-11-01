@@ -108,3 +108,4 @@ export class MapsPhotoCrawler {
 }
 
 export const mapsPhotoCrawler = new MapsPhotoCrawler();
+

@@ -347,3 +347,4 @@ Rules:
 }
 
 export const mapsPhotoPipeline = new MapsPhotoPipeline();
+
