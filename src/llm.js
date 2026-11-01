@@ -94,7 +94,7 @@ CRITICAL DESIGN & AESTHETIC PRINCIPLES (MUST FOLLOW STRICTLY):
    - Interactive Contact Form: Complete form with inputs (Name, Phone, Service, Message) that features real-time validation, loading state on submit button, and a polished success popup modal.
    - Google Maps Embed: Responsive Google Maps iframe using the exact Google Maps URL provided in the prompt, with rounded corners and a direct 'Get Directions' button.
    - Clickable Links: All phone numbers ('tel:...'), WhatsApp links ('https://wa.me/...'), and maps links must be active and correctly formatted.
-   - High-Quality Imagery: Use crisp, relevant Unsplash photos with curated query parameters (e.g. 'https://images.unsplash.com/photo-...?auto=format&fit=crop&w=800&q=80') and beautiful gradient fallback backgrounds.
+   - High-Quality Imagery & Authentic Photography: When authentic business photography paths (e.g. './assets/hero.jpg', './assets/featured-1.jpg', './assets/gallery-1.jpg') are specified in the prompt, you MUST prioritize and embed those exact relative paths with responsive 'w-full h-full object-cover' styling. If no authentic paths are specified, use verified category Unsplash photos with query parameters and beautiful gradient fallback backgrounds.
 
 5. SECURE WEB PRACTICES & ZERO-VULNERABILITY GUARANTEE (MANDATORY & ENFORCED):
    - Zero XSS & DOM Injection:

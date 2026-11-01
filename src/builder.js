@@ -112,6 +112,43 @@ export class WebsiteBuilder {
             }
         }
 
+        // Check for authentic Google Maps photos manifest
+        const photosManifestPath = path.join(clientReportsDir, 'photos_manifest.json');
+        let hasAuthenticPhotos = false;
+        if (fs.existsSync(photosManifestPath)) {
+            try {
+                const pManifest = JSON.parse(fs.readFileSync(photosManifestPath, 'utf8'));
+                if (pManifest && pManifest.hasRealPhotos) {
+                    hasAuthenticPhotos = true;
+                    let photoInstructions = "\n\n## 📸 CRITICAL MANDATE: EMBED AUTHENTIC BUSINESS PHOTOGRAPHY (DO NOT USE STOCK URLS)\n" +
+                        "We have extracted and downloaded real, high-resolution photographs of this business directly from their Google Maps profile into the local './assets/' directory.\n" +
+                        "You MUST integrate these real images into the website using their exact relative paths:\n";
+
+                    if (pManifest.hero && pManifest.hero.src) {
+                        photoInstructions += "- HERO SECTION BANNER: Use '<img src=\"" + pManifest.hero.src + "\" alt=\"" + (pManifest.hero.description || businessName) + "\" class=\"w-full h-full object-cover\">' as the main hero background or visual focus.\n";
+                    }
+                    if (Array.isArray(pManifest.featured) && pManifest.featured.length > 0) {
+                        photoInstructions += "- FEATURED SERVICES / SIGNATURE HIGHLIGHTS:\n";
+                        pManifest.featured.forEach((f, idx) => {
+                            photoInstructions += "  * Service Card " + (idx + 1) + ": '<img src=\"" + f.src + "\" alt=\"" + (f.description || 'Featured highlight') + "\" class=\"w-full h-48 sm:h-56 object-cover rounded-xl mb-4\">'\n";
+                        });
+                    }
+                    if (Array.isArray(pManifest.gallery) && pManifest.gallery.length > 0) {
+                        photoInstructions += "- AUTHENTIC GALLERY / FACILITY SHOWCASE:\n";
+                        pManifest.gallery.forEach((g, idx) => {
+                            photoInstructions += "  * Gallery Card " + (idx + 1) + ": '<img src=\"" + g.src + "\" alt=\"" + (g.description || 'Facility interior') + "\" class=\"w-full h-64 object-cover rounded-2xl\">'\n";
+                        });
+                    }
+                    photoInstructions += "\nSTRICT INSTRUCTION: Use these exact relative paths ('./assets/...'). Do NOT replace these with Unsplash URLs or placeholder images.\n";
+
+                    antigravityPrompt += photoInstructions;
+                    console.log("[Builder] 📸 Injected authentic Google Maps photo instructions for " + businessName + "!");
+                }
+            } catch (e) {
+                console.warn('[Builder] Photos manifest read error:', e.message);
+            }
+        }
+
         await this.sendStatus(`🚀 *[1/4] Generating Website Code for ${businessName}...*\nUsing Antigravity Prompt from reports/${clientId}`);
 
         // 2. Generate Code using LLM
@@ -141,6 +178,24 @@ export class WebsiteBuilder {
         const staged = await agencyPublisher.stageSite(clientId, businessName, htmlCode);
         const vercelSlug = staged.slug;
         const deployedUrl = staged.deployedUrl;
+        // Ensure authentic assets are synced to agency public sites and generated_sites
+        const agencyAssetsDir = path.join(agencyPublisher.agencyPublicSitesDir, vercelSlug, 'assets');
+        const clientAssetsDir = path.join(clientSiteDir, 'assets');
+        const reportsAssetsDir = path.join(clientReportsDir, 'assets');
+
+        const sourceAssetsDir = fs.existsSync(reportsAssetsDir) ? reportsAssetsDir : (fs.existsSync(clientAssetsDir) ? clientAssetsDir : null);
+        if (sourceAssetsDir && fs.existsSync(sourceAssetsDir)) {
+            if (!fs.existsSync(agencyAssetsDir)) fs.mkdirSync(agencyAssetsDir, { recursive: true });
+            if (!fs.existsSync(clientAssetsDir)) fs.mkdirSync(clientAssetsDir, { recursive: true });
+
+            const assetFiles = fs.readdirSync(sourceAssetsDir);
+            for (const f of assetFiles) {
+                fs.copyFileSync(path.join(sourceAssetsDir, f), path.join(agencyAssetsDir, f));
+                fs.copyFileSync(path.join(sourceAssetsDir, f), path.join(clientAssetsDir, f));
+            }
+            console.log(`[Builder] 📁 Synced ${assetFiles.length} authentic asset files to /sites/${vercelSlug}/assets/`);
+        }
+
         const githubRepoUrl = `https://github.com/ameyasharma-ai/WEB-DEV-AGENCY/tree/main/public/sites/${vercelSlug}`;
 
         await this.sendStatus(`✅ *[2/4] Code Generated Successfully!*\nSaved locally to \`generated_sites/${clientId}/index.html\`\nStaged for subdomain: \`${deployedUrl}\``);
