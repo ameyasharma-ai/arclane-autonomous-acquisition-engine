@@ -104,3 +104,4 @@ export function resolveVerifiedFoodImage(itemTitle = '') {
 
     return VERIFIED_IMAGE_CATALOG.food.potatoes_crispy;
 }
+
