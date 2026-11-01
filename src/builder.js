@@ -768,28 +768,19 @@ export class WebsiteBuilder {
             });
         }
 
-        // 11. Standardize Google Maps Container & Eliminate Empty Voids
-        html = html.replace(/(<div[^>]*class=["'][^"']*["'][^>]*>)([\s\S]*?<iframe[^>]*maps[^>]*>[\s\S]*?<\/iframe>[\s\S]*?)(<\/div>)/gi, (m, openTag, content, closeTag) => {
-            let cleanOpen = openTag.replace(/\bh-(?:\[[^\]]+\]|[0-9]+)\b/g, '');
-            if (!cleanOpen.includes('aspect-')) {
-                cleanOpen = cleanOpen.replace(/class=["']([^"']*)["']/, 'class="$1 w-full aspect-[4/3] sm:aspect-[16/9] rounded-2xl overflow-hidden border border-zinc-800 relative"');
-            }
-            const cleanIframe = content.replace(/(<iframe[^>]*class=["'])([^"']*)(["'])/gi, (im, p1, cls, p3) => {
-                let c = cls;
-                if (!c.includes('w-full')) c = `w-full ${c}`;
-                if (!c.includes('h-full')) c = `h-full ${c}`;
-                if (!c.includes('border-0')) c = `border-0 ${c}`;
-                if (!c.includes('block')) c = `block ${c}`;
-                return `${p1}${c.replace(/\s+/g, ' ').trim()}${p3}`;
-            });
-            return `${cleanOpen}${cleanIframe}${closeTag}`;
+        // 11. Clean Announcement Bar Ribbon (Strip accidental aspect-ratios or fixed heights)
+        html = html.replace(/(<div[^>]*id=["']announcement-bar["'][^>]*>)/gi, (m) => {
+            return m.replace(/(?:^|\s)(?:aspect-[^\s"']+|sm:aspect-[^\s"']+|h-(?:\[[^\]]+\]|[0-9]+)|sm:h-[^\s"']+|rounded-[^\s"']+)/g, '');
         });
 
-        // 12. Card Footer Layout & Mid-Word Truncation Guard
-        html = html.replace(/(<div[^>]*class=["'][^"']*p-4\s+mt-2[^"']*["'][^>]*>)([\s\S]*?)(<\/div>)/gi, (m, openTag, content, closeTag) => {
-            const updatedOpen = openTag.replace(/items-center/g, 'items-start sm:items-center flex-col sm:flex-row gap-3');
-            const cleanContent = content.replace(/\btruncate\b/g, 'break-words');
-            return `${updatedOpen}${cleanContent}${closeTag}`;
+        // 12. Standardize Google Maps iframes (full bleed within container)
+        html = html.replace(/(<iframe[^>]*maps[^>]*class=["'])([^"']*)(["'])/gi, (m, p1, cls, p3) => {
+            let c = cls;
+            if (!c.includes('w-full')) c = `w-full ${c}`;
+            if (!c.includes('h-full')) c = `h-full ${c}`;
+            if (!c.includes('border-0')) c = `border-0 ${c}`;
+            if (!c.includes('block')) c = `block ${c}`;
+            return `${p1}${c.replace(/\s+/g, ' ').trim()}${p3}`;
         });
 
         return html;

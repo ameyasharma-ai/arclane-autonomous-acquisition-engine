@@ -5,11 +5,13 @@
  * before any generated website is saved, staged, or pushed to production.
  * 
  * Audits & Fixes:
- * 1. Absolute Badge Collisions (ensures badges are scoped to photos and never collide with buttons/text)
- * 2. Google Maps Empty Voids & Aspect Ratios (locks iframes into full-bleed responsive containers)
- * 3. Card Footer Layouts & Text Truncations (ensures multi-line wrapping without mid-word clipping)
- * 4. Heading Bounding-Box Overflows (guarantees scrollWidth <= clientWidth across mobile & desktop)
- * 5. Document Horizontal Overflow (ensures zero horizontal scrolling)
+ * 1. Announcement Bar Aspect Ratio / Height Bleed (Guarantees crisp ~36px ribbon, never 1080px wall)
+ * 2. Absolute Badge Collisions (Ensures badges are scoped to photos and never collide with buttons/text)
+ * 3. Hero Stats Bar Clipping (Enforces fluid scaling on narrow 3-column mobile grids)
+ * 4. Google Maps Empty Voids & Aspect Ratios (Locks iframes into full-bleed responsive containers)
+ * 5. Card Footer Layouts & Text Truncations (Ensures multi-line wrapping without mid-word clipping)
+ * 6. Heading Bounding-Box Overflows (Guarantees scrollWidth <= clientWidth across mobile & desktop)
+ * 7. Document Horizontal Overflow (Ensures zero horizontal scrolling)
  */
 import { chromium } from 'playwright';
 
@@ -62,25 +64,41 @@ export class VisualQualityGate {
                 const logs = [];
 
                 // ========================================================
-                // 1. Google Maps Empty Void & Container Normalization
+                // 1. Announcement Bar Ribbon Guard (Prevents 1080px Screen Wall)
+                // ========================================================
+                const banner = document.querySelector('#announcement-bar, body > div:first-child');
+                if (banner && (banner.id === 'announcement-bar' || banner.innerText.includes('OFFER') || banner.innerText.includes('LIMITED') || banner.className.includes('amber'))) {
+                    // Strip aspect-ratio, arbitrary heights, and border radiuses (including responsive variants like sm:aspect-[16/9])
+                    Array.from(banner.classList).forEach(cls => {
+                        if (/(?:^|:)(?:aspect-|h-(?:\[[^\]]+\]|[0-9]+)|rounded-)/.test(cls)) {
+                            banner.classList.remove(cls);
+                        }
+                    });
+                    banner.style.height = 'auto';
+                    banner.style.minHeight = 'auto';
+                    banner.style.maxHeight = '';
+                    banner.style.aspectRatio = 'auto';
+                    banner.classList.add('h-auto', 'py-2.5', 'px-4');
+                    logs.push('Normalized Announcement Bar to clean auto height ribbon');
+                }
+
+                // ========================================================
+                // 2. Google Maps Empty Void & Container Normalization
                 // ========================================================
                 const iframes = Array.from(document.querySelectorAll('iframe'));
                 iframes.forEach(iframe => {
                     const src = iframe.getAttribute('src') || '';
                     if (src.includes('google.com/maps') || src.includes('maps.google.com') || iframe.closest('#contact') || iframe.closest('#location')) {
-                        // Ensure iframe has 100% width and height
                         iframe.classList.add('w-full', 'h-full', 'block', 'border-0');
                         iframe.style.width = '100%';
                         iframe.style.height = '100%';
                         iframe.style.border = '0';
                         iframe.style.display = 'block';
 
-                        // Find or normalize the immediate parent container
                         const parent = iframe.parentElement;
                         if (parent) {
-                            // Strip ALL fixed height classes (e.g. h-[450px], h-[400px], h-96, h-80, etc.)
                             Array.from(parent.classList).forEach(cls => {
-                                if (/^h-(?:\[[^\]]+\]|[0-9]+)$/.test(cls)) {
+                                if (/(?:^|:)h-(?:\[[^\]]+\]|[0-9]+)/.test(cls)) {
                                     parent.classList.remove(cls);
                                 }
                             });
@@ -95,64 +113,91 @@ export class VisualQualityGate {
                 });
 
                 // ========================================================
-                // 2. Floating Badge & Absolute Positioning Collision Guard
+                // 3. Floating Badge & Absolute Positioning Collision Guard
                 // ========================================================
-                // Detect elements with absolute positioning that collide with buttons or text
-                const cards = Array.from(document.querySelectorAll('.rounded-3xl, .rounded-2xl'));
+                const cards = Array.from(document.querySelectorAll('.rounded-3xl, .rounded-2xl, .group'));
                 cards.forEach(card => {
                     const img = card.querySelector('img');
-                    const footer = card.querySelector('.p-4.mt-2, [class*="bg-zinc-950"]');
-                    const badges = Array.from(card.querySelectorAll(':scope > .absolute, :scope > span.absolute'));
+                    if (!img) return;
 
-                    if (img && footer && badges.length > 0) {
-                        // Create isolated photo wrapper
-                        const photoWrapper = document.createElement('div');
-                        photoWrapper.className = 'relative w-full rounded-2xl overflow-hidden';
+                    // Locate any absolute badge inside this card, excluding svg, hidden overlays, and background pattern divs
+                    const badges = Array.from(card.querySelectorAll('.absolute')).filter(b => {
+                        if (b.closest('svg')) return false;
+                        if (b.classList.contains('pointer-events-none')) return false;
+                        if (b.classList.contains('inset-0') && !b.innerText.trim()) return false;
+                        return true;
+                    });
+                    const hasTextContent = card.querySelector('h3, h4, p, a, button');
 
-                        // Insert photoWrapper before img
-                        img.parentNode.insertBefore(photoWrapper, img);
+                    if (badges.length > 0 && hasTextContent) {
+                        // Scope badges to photoWrapper so they never touch card text / footers
+                        let photoWrapper = img.parentElement;
+                        if (photoWrapper === card) {
+                            photoWrapper = document.createElement('div');
+                            photoWrapper.className = 'relative w-full rounded-2xl overflow-hidden';
+                            img.parentNode.insertBefore(photoWrapper, img);
+                            photoWrapper.appendChild(img);
+                        } else {
+                            photoWrapper.classList.add('relative');
+                        }
 
-                        // Move all badges and the img inside the photoWrapper
+                        // Re-parent all badges strictly inside photoWrapper
                         badges.forEach(b => {
-                            b.classList.remove('top-6', 'bottom-6', 'left-6', 'right-6', 'top-8', 'bottom-8');
-                            if (b.className.includes('top-') || b.className.includes('top:')) {
-                                b.classList.add('top-4', 'left-4');
-                            } else {
-                                b.classList.add('bottom-4', 'right-4');
+                            if (b.parentElement !== photoWrapper) {
+                                b.classList.remove('top-6', 'bottom-6', 'left-6', 'right-6', 'top-8', 'bottom-8');
+                                if (b.className.includes('top-') || b.innerText.includes('Signature') || b.innerText.includes('Featured') || b.innerText.includes('Best')) {
+                                    b.classList.add('top-4', 'left-4');
+                                } else {
+                                    b.classList.add('bottom-4', 'right-4');
+                                }
+                                photoWrapper.appendChild(b);
+                                logs.push('Moved floating badge inside photo container: ' + b.innerText.trim());
                             }
-                            photoWrapper.appendChild(b);
                         });
-                        photoWrapper.appendChild(img);
-                        logs.push(`Nesting ${badges.length} absolute badges inside photo wrapper to eliminate footer collisions`);
                     }
                 });
 
                 // ========================================================
-                // 3. Card Footer Sizing & Mid-Word Truncation Guard
+                // 4. Hero Stats Bar Fluid Mobile Sizing Guard
                 // ========================================================
-                const footers = Array.from(document.querySelectorAll('.p-4.mt-2, [class*="bg-zinc-950"]'));
+                const statsContainers = Array.from(document.querySelectorAll('.grid-cols-3, .grid-cols-4')).filter(g => g.innerText.includes('%') || g.innerText.includes('+') || g.innerText.includes('Reviews'));
+                statsContainers.forEach(container => {
+                    container.classList.add('w-full');
+                    Array.from(container.children).forEach(col => {
+                        col.classList.add('min-w-0');
+                        const num = col.querySelector('span, h3, div');
+                        if (num) {
+                            num.classList.remove('text-2xl', 'text-3xl', 'text-4xl');
+                            num.classList.add('text-lg', 'sm:text-2xl', 'break-words', 'tracking-tight');
+                            num.style.fontSize = 'clamp(1.1rem, 4.5vw, 1.5rem)';
+                        }
+                        const label = col.querySelector('.text-xs, .text-sm, span:last-child');
+                        if (label) {
+                            label.classList.add('break-words', 'leading-tight');
+                        }
+                    });
+                    logs.push('Normalized Hero Stats Bar for fluid mobile fitting without clipping');
+                });
+
+                // ========================================================
+                // 5. Card Footer Sizing & Mid-Word Truncation Guard
+                // ========================================================
+                const footers = Array.from(document.querySelectorAll('.p-4, .p-5, .p-6, [class*="bg-zinc-950"]')).filter(f => f.querySelector('h3, h4') && f.querySelector('p'));
                 footers.forEach(footer => {
-                    if (footer.querySelector('h3') && (footer.querySelector('a') || footer.querySelector('button'))) {
-                        // Ensure footer uses wrap-safe responsive flex
+                    const p = footer.querySelector('p');
+                    if (p) {
+                        p.classList.remove('truncate');
+                        p.classList.add('break-words', 'leading-normal');
+                    }
+                    if (footer.querySelector('a') || footer.querySelector('button')) {
                         footer.classList.remove('items-center');
                         footer.classList.add('flex', 'flex-col', 'sm:flex-row', 'items-start', 'sm:items-center', 'justify-between', 'gap-3');
-
-                        // Ensure inner text container allows wrapping
-                        const textDiv = footer.firstElementChild;
-                        if (textDiv) {
-                            textDiv.classList.add('min-w-0', 'flex-1');
-                            const p = textDiv.querySelector('p');
-                            if (p) {
-                                p.classList.remove('truncate');
-                                p.classList.add('break-words', 'leading-normal');
-                            }
-                        }
                         logs.push('Enforced wrap-safe responsive layout on card footer');
                     }
                 });
 
                 // ========================================================
-                // 4. Grid Columns Overflow Guard on Mobile
+                // 6. Grid Columns Overflow Guard on Mobile
                 // ========================================================
                 const grids = Array.from(document.querySelectorAll('.grid'));
                 grids.forEach(grid => {
@@ -168,7 +213,7 @@ export class VisualQualityGate {
                 });
 
                 // ========================================================
-                // 5. Heading Word-Wrap & Bounding Box Check
+                // 7. Heading Word-Wrap & Bounding Box Check
                 // ========================================================
                 const headings = Array.from(document.querySelectorAll('h1, h2, h3'));
                 headings.forEach(h => {
