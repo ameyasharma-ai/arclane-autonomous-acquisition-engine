@@ -222,7 +222,7 @@ export class WebsiteBuilder {
 
         // Stage into web-dev-agency/public/sites/<slug>/index.html
         const staged = await agencyPublisher.stageSite(clientId, businessName, htmlCode);
-        const vercelSlug = staged.slug;
+        // vercelSlug is already resolved above
         const deployedUrl = staged.deployedUrl;
         // Ensure authentic assets are synced to agency public sites and generated_sites
         const agencyAssetsDir = path.join(agencyPublisher.agencyPublicSitesDir, vercelSlug, 'assets');
