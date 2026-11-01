@@ -50,7 +50,7 @@ async function fixLead() {
     }
 
     const businessName = lead?.['Business Name'] || `Lead ${clientId}`;
-    const slug = await agencyPublisher.getSlug(businessName);
+    const slug = await agencyPublisher.getSlug(businessName, clientId);
     console.log(`🏢 Business: "${businessName}"`);
     console.log(`🔗 Slug: ${slug}`);
 
@@ -102,3 +102,4 @@ fixLead().catch(err => {
     console.error('Fatal error in fix_lead:', err);
     process.exit(1);
 });
+

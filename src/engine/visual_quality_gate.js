@@ -182,18 +182,53 @@ export class VisualQualityGate {
                 // ========================================================
                 // 5. Card Footer Sizing & Mid-Word Truncation Guard
                 // ========================================================
-                const footers = Array.from(document.querySelectorAll('.p-4, .p-5, .p-6, [class*="bg-zinc-950"]')).filter(f => f.querySelector('h3, h4') && f.querySelector('p'));
-                footers.forEach(footer => {
-                    const p = footer.querySelector('p');
-                    if (p) {
-                        p.classList.remove('truncate');
-                        p.classList.add('break-words', 'leading-normal');
+                // A. Strip mid-word truncation from any card text or paragraphs
+                const truncParagraphs = Array.from(document.querySelectorAll('p.truncate, span.truncate'));
+                truncParagraphs.forEach(p => {
+                    p.classList.remove('truncate');
+                    p.classList.add('break-words', 'leading-normal');
+                    logs.push('Removed mid-word truncation from card text');
+                });
+
+                // B. Comprehensive Layout Sanity Guard:
+                // Any card containing a form, details card, modal dialog, section, or footer
+                // MUST NEVER have horizontal flex layout injected into its root container!
+                const nonFlexContainers = Array.from(document.querySelectorAll('section, form, footer, [class*="space-y-"], #success-modal, #success-modal > div, div:has(> form), div:has(> #trial-form)'));
+                nonFlexContainers.forEach(vc => {
+                    const hasSpaceY = Array.from(vc.classList).some(c => c.startsWith('space-y-'));
+                    const isPureVertical = hasSpaceY ||
+                        ['SECTION', 'FORM', 'FOOTER'].includes(vc.tagName) ||
+                        vc.id === 'success-modal' ||
+                        vc.closest('#success-modal') ||
+                        vc.querySelector('form');
+
+                    if (isPureVertical) {
+                        vc.classList.remove('flex', 'flex-col', 'sm:flex-row', 'justify-between', 'items-start', 'items-center', 'sm:items-center', 'gap-3');
+                        logs.push('Sanitized vertical layout on ' + (vc.id || vc.tagName || 'container'));
                     }
-                    if (footer.querySelector('a') || footer.querySelector('button')) {
-                        footer.classList.remove('items-center');
-                        footer.classList.add('flex', 'flex-col', 'sm:flex-row', 'items-start', 'sm:items-center', 'justify-between', 'gap-3');
-                        logs.push('Enforced wrap-safe responsive layout on card footer');
-                    }
+                });
+
+                // C. Target ONLY true 2-item horizontal card footers (text info on left + button on right)
+                // NEVER touch full card bodies, sections, forms, or multi-row detail stacks
+                const cardFooters = Array.from(document.querySelectorAll('.rounded-2xl > div:last-child, .rounded-3xl > div:last-child')).filter(f => {
+                    if (['SECTION', 'FORM', 'HEADER', 'FOOTER', 'NAV', 'MAIN'].includes(f.tagName)) return false;
+                    if (Array.from(f.classList).some(c => c.startsWith('space-y-'))) return false;
+
+                    // Must already be a flex container with a button/link
+                    if (!f.classList.contains('flex') && !f.classList.contains('justify-between')) return false;
+                    const hasAction = f.querySelector('a, button');
+                    if (!hasAction) return false;
+
+                    // Must have exactly 2 direct children (e.g. text info + button)
+                    if (f.children.length !== 2) return false;
+
+                    return true;
+                });
+
+                cardFooters.forEach(footer => {
+                    footer.classList.remove('items-center');
+                    footer.classList.add('flex', 'flex-col', 'sm:flex-row', 'items-start', 'sm:items-center', 'justify-between', 'gap-3');
+                    logs.push('Enforced wrap-safe responsive layout on 2-item card footer');
                 });
 
                 // ========================================================

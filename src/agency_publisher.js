@@ -67,7 +67,22 @@ export class AgencyPublisher {
      * e.g. "Pulse 8 gym the unisex" -> "pulse8" or "pulse8gym"
      * e.g. "FITNATION GYM" -> "fitnation"
      */
-    async getSlug(businessName) {
+    async getSlug(businessName, clientId = null) {
+        // 1. If lead already has an established slug in outreach.json or on disk, preserve it deterministically
+        if (clientId) {
+            const outreachJsonPath = path.join(process.cwd(), 'reports', String(clientId), 'outreach.json');
+            if (fs.existsSync(outreachJsonPath)) {
+                try {
+                    const parsed = JSON.parse(fs.readFileSync(outreachJsonPath, 'utf8'));
+                    if (parsed.slug) return parsed.slug;
+                    if (parsed.deployedUrl) {
+                        const m = parsed.deployedUrl.match(/\/sites\/([a-zA-Z0-9-]+)/) || parsed.deployedUrl.match(/https?:\/\/([a-zA-Z0-9-]+)\./);
+                        if (m && m[1] && m[1] !== 'www') return m[1];
+                    }
+                } catch (e) {}
+            }
+        }
+
         try {
             if (process.env.API) {
                 const OpenAI = (await import('openai')).default;
@@ -122,7 +137,7 @@ Rules:
      * Stage a newly built site HTML into web-dev-agency/public/sites/<slug>/index.html
      */
     async stageSite(clientId, businessName, htmlCode) {
-        const slug = await this.getSlug(businessName);
+        const slug = await this.getSlug(businessName, clientId);
         const targetDir = path.join(this.agencyPublicSitesDir, slug);
 
         if (!fs.existsSync(targetDir)) {

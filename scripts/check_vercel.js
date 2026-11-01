@@ -19,3 +19,4 @@ async function checkDeployments() {
 }
 
 checkDeployments().catch(console.error);
+
