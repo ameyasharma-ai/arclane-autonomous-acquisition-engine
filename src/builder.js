@@ -8,6 +8,7 @@ import { loadGoogleSheet, updateLeadFields, highlightCell } from './sheets.js';
 import { agencyPublisher } from './agency_publisher.js';
 import { mapsPhotoCrawler } from './engine/maps_photo_crawler.js';
 import { mapsPhotoPipeline } from './engine/maps_photo_pipeline.js';
+import { visualQualityGate } from './engine/visual_quality_gate.js';
 
 const execAsync = util.promisify(exec);
 
@@ -215,6 +216,18 @@ export class WebsiteBuilder {
 
         // Apply deterministic design quality gate (guarantees solid header, top-11/12 mobile drawer spacing, rounded-tl-2xl, backdrop overlay, & triple-tier image fallbacks)
         htmlCode = this.enforceDesignQualityStandards(htmlCode, vercelSlug, businessName);
+
+        // Run automated in-browser Visual Quality Gate (Playwright headless verification)
+        console.log(`[Builder] 🛡️ Running Automated Pre-Flight Visual Quality Gate for "${businessName}"...`);
+        try {
+            const visualAudit = await visualQualityGate.auditAndFix(htmlCode, vercelSlug, businessName);
+            if (visualAudit.issuesFixed && visualAudit.issuesFixed.length > 0) {
+                console.log(`[Builder] ✅ Visual Quality Gate auto-corrected ${visualAudit.issuesFixed.length} layout issues:\n  - ${visualAudit.issuesFixed.join('\n  - ')}`);
+            }
+            htmlCode = visualAudit.cleanHtml;
+        } catch (gateErr) {
+            console.warn('[Builder] Visual Quality Gate notice:', gateErr.message);
+        }
 
         // 3. Save locally to generated_sites/<clientId>
         const clientSiteDir = path.join(this.sitesDir, String(clientId));
@@ -754,6 +767,30 @@ export class WebsiteBuilder {
                 return card;
             });
         }
+
+        // 11. Standardize Google Maps Container & Eliminate Empty Voids
+        html = html.replace(/(<div[^>]*class=["'][^"']*["'][^>]*>)([\s\S]*?<iframe[^>]*maps[^>]*>[\s\S]*?<\/iframe>[\s\S]*?)(<\/div>)/gi, (m, openTag, content, closeTag) => {
+            let cleanOpen = openTag.replace(/\bh-(?:\[[^\]]+\]|[0-9]+)\b/g, '');
+            if (!cleanOpen.includes('aspect-')) {
+                cleanOpen = cleanOpen.replace(/class=["']([^"']*)["']/, 'class="$1 w-full aspect-[4/3] sm:aspect-[16/9] rounded-2xl overflow-hidden border border-zinc-800 relative"');
+            }
+            const cleanIframe = content.replace(/(<iframe[^>]*class=["'])([^"']*)(["'])/gi, (im, p1, cls, p3) => {
+                let c = cls;
+                if (!c.includes('w-full')) c = `w-full ${c}`;
+                if (!c.includes('h-full')) c = `h-full ${c}`;
+                if (!c.includes('border-0')) c = `border-0 ${c}`;
+                if (!c.includes('block')) c = `block ${c}`;
+                return `${p1}${c.replace(/\s+/g, ' ').trim()}${p3}`;
+            });
+            return `${cleanOpen}${cleanIframe}${closeTag}`;
+        });
+
+        // 12. Card Footer Layout & Mid-Word Truncation Guard
+        html = html.replace(/(<div[^>]*class=["'][^"']*p-4\s+mt-2[^"']*["'][^>]*>)([\s\S]*?)(<\/div>)/gi, (m, openTag, content, closeTag) => {
+            const updatedOpen = openTag.replace(/items-center/g, 'items-start sm:items-center flex-col sm:flex-row gap-3');
+            const cleanContent = content.replace(/\btruncate\b/g, 'break-words');
+            return `${updatedOpen}${cleanContent}${closeTag}`;
+        });
 
         return html;
     }
