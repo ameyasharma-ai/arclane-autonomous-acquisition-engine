@@ -832,9 +832,9 @@ async function handleFixLead(ctx) {
         const address = lead?.['Address'] || '';
         const mapsUrl = lead?.['Google Maps URL'] || '';
 
-        await ctx.reply(`📍 *Business:* \`${businessName}\` (${industry})\n_Fetching authentic candidate photos from Google Maps..._`, { parse_mode: 'Markdown' });
+        await ctx.reply(`📍 *Business:* \`${businessName}\` (${industry})\n👀 *[Visual Bot Active]* Opening live Chromium browser window on your screen to crawl Google Maps photos...`, { parse_mode: 'Markdown' });
 
-        // Crawl candidate photos
+        // Crawl candidate photos in visual mode
         let candidateUrls = [];
         try {
             candidateUrls = await mapsPhotoCrawler.fetchPhotosForBusiness(businessName, mapsUrl, address);

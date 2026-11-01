@@ -368,9 +368,12 @@ You are an expert full-stack web developer and UI/UX designer. Build a complete,
 12. **Footer:** Brand identity, quick links, opening hours, contact details, link to Google Maps, copyright notice.
 
 ### INTERACTION, MOBILE-FIRST & TECHNICAL REQUIREMENTS:
-- **Mobile-First Priority (Strict Responsive Typography):** Over 80% of local customers browse on mobile (360px–428px). You MUST use wrap-safe fluid typography:
-  - Hero H1 MUST use: `text-2xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl font-extrabold font-syne text-white leading-[1.15] mb-6 break-words`. NEVER use raw `text-4xl`, `text-5xl`, or `text-7xl` on mobile as it causes horizontal word clipping on long words.
-  - Section H2 MUST use: `text-2xl sm:text-3xl md:text-4xl font-bold font-syne break-words`.
+- **Mobile-First Priority (Strict Responsive Typography & Sizing):** Over 80% of local customers browse on mobile (360px–428px). You MUST use wrap-safe fluid typography:
+  - Hero H1 MUST use: `text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold leading-[1.15] tracking-tight break-words`. NEVER use raw `text-4xl`, `text-5xl`, or `text-7xl` on mobile as it causes horizontal word clipping on long words.
+  - Section H2 MUST use: `text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold leading-tight tracking-tight break-words`.
+  - Section H3 MUST use: `text-lg sm:text-xl md:text-2xl font-bold leading-snug break-words`.
+  - Card & Container Paddings: NEVER use raw `p-8` or `p-12` on mobile! Always use responsive card padding: `p-5 sm:p-8 lg:p-12` so content never cramps, overflows, or collides with card borders on narrow viewports.
+  - Grid Columns on Mobile: When using responsive grids ('grid grid-cols-1 lg:grid-cols-12'), ALWAYS set children to 'col-span-1 lg:col-span-X' (NEVER use 'col-span-12' on mobile, as spanning 12 columns on a 1-column grid forces 11 phantom column gaps of 352px that overflow mobile viewports).
 - **Zero Horizontal Overflow:** Ensure 'overflow-x-hidden' on html and body with fluid responsive containers ('w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8') so there are zero horizontal layout glitches or scrollbars.
 - **100% Solid Opaque Header (Zero Transparency Bleed):** Every website header and mobile menu drawer MUST have a 100% solid, fully opaque background (e.g. 'bg-[#09090b]' / 'bg-zinc-950' or 'bg-white') so hero text and images NEVER sweep or bleed through the navigation bar when scrolling.
 - **Flawless Mobile Drawer:** Mobile menu drawer must be solid, elevated ('fixed top-11 sm:top-12 bottom-0 right-0 z-[100] w-full max-w-xs sm:max-w-sm rounded-tl-2xl p-6 pt-5 bg-[#09090b] border-l border-zinc-800 shadow-2xl') positioned cleanly below the top announcement banner with backdrop overlay ('z-[90]') and body scroll lock.

@@ -518,27 +518,103 @@ export class WebsiteBuilder {
             html = html.replace(/(<div\s+[^>]*id=["']mobile-(?:menu|drawer)["'])/i, `${backdropHtml}$1`);
         }
 
-        // 5. Enforce Fluid Mobile Typography on H1 (Prevents horizontal overflow and clipping on 360px-420px mobile screens)
-        html = html.replace(/(<h1\s+[^>]*class=["'])([^"']*)(["'])/gi, (m, p1, classes, p3) => {
-            let c = classes;
-            // Remove oversized base font sizes
-            c = c.replace(/\btext-[3-7]xl\b/g, '');
-            c = c.replace(/\bsm:text-[4-7]xl\b/g, '');
-            c = c.replace(/\blg:text-[5-7]xl\b/g, '');
-            c = c.replace(/\bxl:text-[6-7]xl\b/g, '');
-            c = `text-2xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl leading-[1.15] break-words ${c}`.replace(/\s+/g, ' ').trim();
-            return `${p1}${c}${p3}`;
+        // 5. Card & Section Padding Normalization for Mobile Viewports
+        // Solves mobile cramped cards where p-8 / p-12 eats up to 64px-96px of width on 360-400px screens
+        // A. Compound responsive paddings
+        html = html.replace(/\bp-8\s+sm:p-12\b/g, 'p-5 sm:p-8 lg:p-12');
+        html = html.replace(/\bp-10\s+sm:p-14\b/g, 'p-6 sm:p-10 lg:p-14');
+        html = html.replace(/\bp-12\s+sm:p-16\b/g, 'p-6 sm:p-10 lg:p-16');
+
+        // B. Standalone oversized paddings without responsive prefix (using negative lookbehind)
+        html = html.replace(/(?<![:\w-])p-8(?!\w)/g, 'p-5 sm:p-8');
+        html = html.replace(/(?<![:\w-])p-10(?!\w)/g, 'p-6 sm:p-10');
+        html = html.replace(/(?<![:\w-])p-12(?!\w)/g, 'p-6 sm:p-8 md:p-12');
+        html = html.replace(/(?<![:\w-])p-16(?!\w)/g, 'p-6 sm:p-10 md:p-16');
+        html = html.replace(/(?<![:\w-])px-8(?!\w)/g, 'px-5 sm:px-8');
+        html = html.replace(/(?<![:\w-])px-10(?!\w)/g, 'px-5 sm:px-10');
+        html = html.replace(/(?<![:\w-])px-12(?!\w)/g, 'px-6 sm:px-12');
+
+        // 6. Clean Utility to Strip all conflicting Tailwind font-size, weights and empty breakpoint tokens
+        const cleanFontAndSpacing = (cls) => {
+            return cls
+                // Remove all Tailwind text-size utilities with any breakpoint prefix (sm:text-..., md:text-..., text-...)
+                .replace(/(?:^|\s)(?:[a-z0-9]+:)*text-(?:xs|sm|base|lg|xl|[2-9]xl)(?:\/[a-z0-9.-]+)?(?=\s|$)/gi, ' ')
+                // Remove dangling prefixes like "sm: " or "md: "
+                .replace(/(?:^|\s)[a-z0-9]+:\s*(?=\s|$)/gi, ' ')
+                // Remove duplicate font weight tokens that we prepend
+                .replace(/\bfont-(?:bold|extrabold|semibold|black)\b/gi, ' ')
+                // Remove duplicate leading tokens that we prepend
+                .replace(/\bleading-(?:none|tight|snug|normal|relaxed|loose|\[[^\]]+\])\b/gi, ' ')
+                // Remove duplicate break-words and tracking
+                .replace(/\bbreak-words\b/gi, ' ')
+                .replace(/\btracking-(?:tighter|tight|normal|wide|wider|widest)\b/gi, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+        };
+
+        // 7. Enforce Fluid Mobile Typography on H1 (Hero Headlines)
+        html = html.replace(/(<h1\b[^>]*class=["'])([^"']*)(["'])/gi, (m, p1, classes, p3) => {
+            const clean = cleanFontAndSpacing(classes);
+            return `${p1}text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold leading-[1.15] tracking-tight break-words ${clean}${p3}`;
         });
 
-        // 6. Ensure H2 Section Headings are wrap-safe on mobile
-        html = html.replace(/(<h2\s+[^>]*class=["'])([^"']*)(["'])/gi, (m, p1, classes, p3) => {
-            let c = classes;
-            if (!c.includes('break-words')) c = `break-words ${c}`;
-            c = c.replace(/\btext-[4-7]xl\b/g, 'text-2xl sm:text-3xl md:text-4xl');
-            return `${p1}${c}${p3}`;
+        // 8. Enforce Wrap-Safe Fluid Mobile Typography on H2 (Section Headings)
+        // Uses text-xl on mobile (<640px) which prevents letter clipping in cards and narrow viewports
+        html = html.replace(/(<h2\b[^>]*class=["'])([^"']*)(["'])/gi, (m, p1, classes, p3) => {
+            const clean = cleanFontAndSpacing(classes);
+            return `${p1}text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold leading-tight tracking-tight break-words ${clean}${p3}`;
         });
 
-        // 7. Ensure Body and HTML have zero horizontal overflow and ample bottom padding for mobile sticky action bar
+        // 9. Enforce Wrap-Safe Mobile Typography on H3 (Card & Feature Headings)
+        html = html.replace(/(<h3\b[^>]*class=["'])([^"']*)(["'])/gi, (m, p1, classes, p3) => {
+            let c = classes;
+            if (/text-(?:2xl|3xl|4xl|5xl)/.test(c)) {
+                c = cleanFontAndSpacing(c);
+                c = `text-lg sm:text-xl md:text-2xl font-bold leading-snug break-words ${c}`;
+            } else if (!c.includes('break-words')) {
+                c = `break-words ${c}`;
+            }
+            return `${p1}${c.replace(/\s+/g, ' ').trim()}${p3}`;
+        });
+
+        // 10. Global Typography & Distortion Guard Stylesheet Injection
+        const typographyStyles = `
+    <!-- ArcLane Responsive Typography & Distortion Prevention Guard -->
+    <style>
+      * {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      h1, h2, h3, h4, h5, h6 {
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        hyphens: auto;
+      }
+      img, svg, video, canvas, audio, iframe, embed, object {
+        max-width: 100%;
+        height: auto;
+      }
+    </style>`;
+
+        if (!html.includes('ArcLane Responsive Typography & Distortion Prevention Guard')) {
+            if (html.includes('<head>')) {
+                html = html.replace('<head>', `<head>${typographyStyles}`);
+            } else if (html.includes('<head ')) {
+                html = html.replace(/(<head\s*[^>]*>)/i, `$1${typographyStyles}`);
+            }
+        }
+
+        // 11. Ensure all custom fonts used in classes are loaded from Google Fonts
+        if (html.includes('font-syne') && !html.includes('family=Syne')) {
+            const syneFontTag = `\n    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&display=swap" rel="stylesheet">`;
+            html = html.replace(/(<\/head>)/i, `${syneFontTag}\n$1`);
+        }
+        if (html.includes('font-outfit') && !html.includes('family=Outfit')) {
+            const outfitFontTag = `\n    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">`;
+            html = html.replace(/(<\/head>)/i, `${outfitFontTag}\n$1`);
+        }
+
+        // 12. Ensure Body and HTML have zero horizontal overflow and ample bottom padding for mobile sticky action bar
         html = html.replace(/(<body\s+[^>]*class=["'])([^"']*)(["'])/gi, (m, p1, classes, p3) => {
             let c = classes;
             if (!c.includes('pb-28') && !c.includes('pb-24') && !c.includes('pb-20')) c = `pb-28 lg:pb-0 ${c}`;
@@ -552,7 +628,13 @@ export class WebsiteBuilder {
             return `${p1}${c}${p3}`;
         });
 
-        // 8. Deterministic Security Post-Processing (Zero-Vulnerability Guarantee)
+        // 13. Fix Grid Column Overflow on Mobile
+        // In a grid-cols-1 mobile layout, assigning 'col-span-12' forces browsers to generate 11 implicit columns
+        // with gaps (e.g. 11 * 32px = 352px), overflowing narrow screens (360px-393px).
+        // On mobile, items in 1-column grids must span 1 column.
+        html = html.replace(/(?<![:\w-])col-span-(?:12|6|4|3|2)(?!\w)/g, 'col-span-1');
+
+        // 14. Deterministic Security Post-Processing (Zero-Vulnerability Guarantee)
         // A. Inject Strict Content-Security-Policy and Referrer-Policy into <head>
         const securityMetaTags = `
     <!-- ArcLane Zero-Vulnerability Security Headers -->
