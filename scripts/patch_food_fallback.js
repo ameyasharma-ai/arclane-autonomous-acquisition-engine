@@ -35,3 +35,4 @@ if (isCrlf) {
 
 fs.writeFileSync(builderPath, content, 'utf8');
 console.log('Updated defaultStockPhotos with food fallback!');
+
