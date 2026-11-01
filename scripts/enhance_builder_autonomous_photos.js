@@ -68,3 +68,4 @@ if (content.includes(checkTarget)) {
 } else {
     console.error('❌ checkTarget not found in src/builder.js');
 }
+

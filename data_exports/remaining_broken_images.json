@@ -1,0 +1,22 @@
+[
+  {
+    "url": "https://images.unsplash.com/photo-1625398407796-83650f7c617e?auto=format&fit=crop&w=400&q=80",
+    "sites": [
+      "golden-flavour",
+      "goldenflavour"
+    ],
+    "status": 404,
+    "contentType": "text/html,text/html",
+    "isImage": false
+  },
+  {
+    "url": "https://images.unsplash.com/photo-1599487488170-d33192248553?auto=format&fit=crop&w=600&q=80",
+    "sites": [
+      "la-fumee",
+      "lafumee"
+    ],
+    "status": 404,
+    "contentType": "text/html,text/html",
+    "isImage": false
+  }
+]

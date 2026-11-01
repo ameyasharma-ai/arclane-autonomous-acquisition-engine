@@ -56,3 +56,4 @@ if (!content.includes('handleVisionStream')) {
 } else {
     console.log('ℹ️ Vision AI commands already registered in controller_bot/index.js');
 }
+

@@ -1,0 +1,2978 @@
+{
+  "timestamp": "2026-11-01T07:18:30.502Z",
+  "totalRows": 500,
+  "schema": {
+    "currentHeaders": [
+      "Client ID",
+      "Date Added",
+      "Business Name",
+      "Industry/Niche",
+      "City/State",
+      "Phone/WhatsApp",
+      "Agency Hosted URL",
+      "Existing Website",
+      "AI Outreach Hook",
+      "Current Status",
+      "Priority Level",
+      "Ratings",
+      "Number Of Reviews",
+      "Timings",
+      "Socials",
+      "Address",
+      "Subdomain URL",
+      "Email",
+      "Instagram",
+      "Facebook",
+      "X (Twitter)",
+      "YouTube",
+      "TikTok",
+      "LinkedIn",
+      "Maps URL",
+      "Owner Name",
+      "Contact Person",
+      "Outreach Platform",
+      "Outreach Date",
+      "Follow-Up Date",
+      "Interested Services",
+      "Pain Points",
+      "Project Type",
+      "Estimated Budget",
+      "Quoted Price",
+      "Negotiation Status",
+      "Meeting Scheduled",
+      "Meeting Date",
+      "Proposal Sent",
+      "Contract Sent",
+      "Payment Status",
+      "Advance Received",
+      "Final Payment",
+      "Delivery Deadline",
+      "Project Status",
+      "Testimonials Received",
+      "Referral Potential",
+      "Notes",
+      "Email Status"
+    ],
+    "addedColumns": [],
+    "removedColumns": [],
+    "orderAlignment": [
+      {
+        "expected": "Client ID",
+        "actual": "Client ID",
+        "isMatch": true
+      },
+      {
+        "expected": "Date Added",
+        "actual": "Date Added",
+        "isMatch": true
+      },
+      {
+        "expected": "Business Name",
+        "actual": "Business Name",
+        "isMatch": true
+      },
+      {
+        "expected": "Industry/Niche",
+        "actual": "Industry/Niche",
+        "isMatch": true
+      },
+      {
+        "expected": "City/State",
+        "actual": "City/State",
+        "isMatch": true
+      },
+      {
+        "expected": "Phone/WhatsApp",
+        "actual": "Phone/WhatsApp",
+        "isMatch": true
+      },
+      {
+        "expected": "Agency Hosted URL",
+        "actual": "Agency Hosted URL",
+        "isMatch": true
+      },
+      {
+        "expected": "Existing Website",
+        "actual": "Existing Website",
+        "isMatch": true
+      },
+      {
+        "expected": "AI Outreach Hook",
+        "actual": "AI Outreach Hook",
+        "isMatch": true
+      },
+      {
+        "expected": "Current Status",
+        "actual": "Current Status",
+        "isMatch": true
+      },
+      {
+        "expected": "Priority Level",
+        "actual": "Priority Level",
+        "isMatch": true
+      },
+      {
+        "expected": "Ratings",
+        "actual": "Ratings",
+        "isMatch": true
+      },
+      {
+        "expected": "Number Of Reviews",
+        "actual": "Number Of Reviews",
+        "isMatch": true
+      },
+      {
+        "expected": "Timings",
+        "actual": "Timings",
+        "isMatch": true
+      },
+      {
+        "expected": "Socials",
+        "actual": "Socials",
+        "isMatch": true
+      },
+      {
+        "expected": "Address",
+        "actual": "Address",
+        "isMatch": true
+      }
+    ]
+  },
+  "userDiff": {
+    "totalRowsCompared": 500,
+    "modifiedRowsCount": 500,
+    "fieldChangeCounts": {
+      "Priority Level": 500,
+      "AI Outreach Hook": 1,
+      "Subdomain URL": 1
+    },
+    "sampleModifications": [
+      {
+        "clientId": "202",
+        "businessName": "La Fumee",
+        "changes": {
+          "Priority Level": {
+            "from": "",
+            "to": "1 - Red (High)"
+          }
+        }
+      },
+      {
+        "clientId": "486",
+        "businessName": "Manipal Dental Clinic",
+        "changes": {
+          "Priority Level": {
+            "from": "",
+            "to": "1 - Red (High)"
+          }
+        }
+      },
+      {
+        "clientId": "4",
+        "businessName": "Cross Fit Studio - Best Gym in Patna",
+        "changes": {
+          "Priority Level": {
+            "from": "",
+            "to": "1 - Red (High)"
+          }
+        }
+      },
+      {
+        "clientId": "130",
+        "businessName": "Bloom The Gym",
+        "changes": {
+          "Priority Level": {
+            "from": "",
+            "to": "1 - Red (High)"
+          }
+        }
+      },
+      {
+        "clientId": "338",
+        "businessName": "The Fifth Avenue Bakery & Cafe",
+        "changes": {
+          "Priority Level": {
+            "from": "",
+            "to": "1 - Red (High)"
+          }
+        }
+      },
+      {
+        "clientId": "2",
+        "businessName": "Cult Fraser Road, Patna | Fitness Center in Fraser Road, Patna",
+        "changes": {
+          "Priority Level": {
+            "from": "",
+            "to": "1 - Red (High)"
+          }
+        }
+      },
+      {
+        "clientId": "75",
+        "businessName": "Muscles Box Gym - Best gym in Patna",
+        "changes": {
+          "Priority Level": {
+            "from": "",
+            "to": "1 - Red (High)"
+          }
+        }
+      },
+      {
+        "clientId": "251",
+        "businessName": "Popular Dineout Cafe & Restaurant",
+        "changes": {
+          "Priority Level": {
+            "from": "",
+            "to": "1 - Red (High)"
+          }
+        }
+      },
+      {
+        "clientId": "10",
+        "businessName": "FIT BEAST GYM",
+        "changes": {
+          "Priority Level": {
+            "from": "",
+            "to": "1 - Red (High)"
+          }
+        }
+      },
+      {
+        "clientId": "490",
+        "businessName": "PRAKRITI DENTAL CARE cum ORAL & MAXILLOFACIAL SURGERY CENTER",
+        "changes": {
+          "Priority Level": {
+            "from": "",
+            "to": "1 - Red (High)"
+          }
+        }
+      },
+      {
+        "clientId": "19",
+        "businessName": "Fitnessvilla pro gym",
+        "changes": {
+          "Priority Level": {
+            "from": "",
+            "to": "1 - Red (High)"
+          }
+        }
+      },
+      {
+        "clientId": "429",
+        "businessName": "Haveli Restaurant",
+        "changes": {
+          "Priority Level": {
+            "from": "",
+            "to": "1 - Red (High)"
+          }
+        }
+      },
+      {
+        "clientId": "33",
+        "businessName": "Titan Pro Gym",
+        "changes": {
+          "Priority Level": {
+            "from": "",
+            "to": "1 - Red (High)"
+          }
+        }
+      },
+      {
+        "clientId": "70",
+        "businessName": "Hardcore Gym",
+        "changes": {
+          "Priority Level": {
+            "from": "",
+            "to": "1 - Red (High)"
+          }
+        }
+      },
+      {
+        "clientId": "497",
+        "businessName": "Patna Dental Clinic",
+        "changes": {
+          "Priority Level": {
+            "from": "",
+            "to": "1 - Red (High)"
+          }
+        }
+      }
+    ]
+  },
+  "hygieneAudit": {
+    "duplicateClientIds": [],
+    "duplicateBusinessNames": [
+      {
+        "name": "Muscle's Beach Gym",
+        "firstRow": 101,
+        "duplicateRow": 138,
+        "id": "150"
+      },
+      {
+        "name": "CROSSFIT GYM",
+        "firstRow": 121,
+        "duplicateRow": 161,
+        "id": "41"
+      },
+      {
+        "name": "Lounge Before Wicket",
+        "firstRow": 62,
+        "duplicateRow": 235,
+        "id": "262"
+      },
+      {
+        "name": "HARDCORE GYM",
+        "firstRow": 15,
+        "duplicateRow": 398,
+        "id": "178"
+      },
+      {
+        "name": "Davis The Gym",
+        "firstRow": 423,
+        "duplicateRow": 442,
+        "id": "160"
+      },
+      {
+        "name": "MANI MARTIAL ART'S ACADEMY",
+        "firstRow": 277,
+        "duplicateRow": 456,
+        "id": "196"
+      },
+      {
+        "name": "Alpha Gym",
+        "firstRow": 180,
+        "duplicateRow": 495,
+        "id": "123"
+      }
+    ],
+    "duplicatePhones": [
+      {
+        "phone": "917765090955",
+        "firstId": "345",
+        "duplicateId": "281",
+        "name": "ROOFTOPz Botanical Restaurant"
+      },
+      {
+        "phone": "919504799710",
+        "firstId": "71",
+        "duplicateId": "150",
+        "name": "Muscle's Beach Gym"
+      },
+      {
+        "phone": "918017177062",
+        "firstId": "317",
+        "duplicateId": "342",
+        "name": "Craft coffee"
+      },
+      {
+        "phone": "919576780805",
+        "firstId": "70",
+        "duplicateId": "178",
+        "name": "HARDCORE GYM"
+      },
+      {
+        "phone": "918210023641",
+        "firstId": "173",
+        "duplicateId": "196",
+        "name": "MANI MARTIAL ART'S ACADEMY"
+      },
+      {
+        "phone": "919155104888",
+        "firstId": "322",
+        "duplicateId": "480",
+        "name": "Suto jee bhar ke..."
+      }
+    ],
+    "missingCriticalFields": [
+      {
+        "row": 24,
+        "field": "Phone/WhatsApp",
+        "id": "299",
+        "name": "Casa Picolla"
+      },
+      {
+        "row": 38,
+        "field": "Phone/WhatsApp",
+        "id": "473",
+        "name": "Khatta Mitha Restaurant & Banquet"
+      },
+      {
+        "row": 52,
+        "field": "Phone/WhatsApp",
+        "id": "370",
+        "name": "BIHTA JUNCTION RESTAURANT"
+      },
+      {
+        "row": 54,
+        "field": "Phone/WhatsApp",
+        "id": "285",
+        "name": "Kallisto | Rooftop Restaurant & Cafe"
+      },
+      {
+        "row": 346,
+        "field": "Phone/WhatsApp",
+        "id": "236",
+        "name": "Kapil Dev's Elevens"
+      },
+      {
+        "row": 499,
+        "field": "Phone/WhatsApp",
+        "id": "125",
+        "name": "Rohisha dance & Fitness studio"
+      }
+    ],
+    "malformedPhones": [],
+    "malformedUrls": [],
+    "ratingsAnomalies": [],
+    "priorityAnomalies": [
+      {
+        "id": "202",
+        "name": "La Fumee",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "486",
+        "name": "Manipal Dental Clinic",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "4",
+        "name": "Cross Fit Studio - Best Gym in Patna",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "130",
+        "name": "Bloom The Gym",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "338",
+        "name": "The Fifth Avenue Bakery & Cafe",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "2",
+        "name": "Cult Fraser Road, Patna | Fitness Center in Fraser Road, Patna",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "75",
+        "name": "Muscles Box Gym - Best gym in Patna",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "251",
+        "name": "Popular Dineout Cafe & Restaurant",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "10",
+        "name": "FIT BEAST GYM",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "490",
+        "name": "PRAKRITI DENTAL CARE cum ORAL & MAXILLOFACIAL SURGERY CENTER",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "19",
+        "name": "Fitnessvilla pro gym",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "429",
+        "name": "Haveli Restaurant",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "33",
+        "name": "Titan Pro Gym",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "70",
+        "name": "Hardcore Gym",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "497",
+        "name": "Patna Dental Clinic",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "120",
+        "name": "THE FITNESS CONNECTION & WELLNESS CENTRE",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "37",
+        "name": "Knockout Fitness",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "131",
+        "name": "PRO FITNESS - KANKARBAGH",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "330",
+        "name": "Cafe Buddy's Espresso - Gola Road",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "121",
+        "name": "MARX FITNESS ( BASE )",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "356",
+        "name": "Yo! China",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "261",
+        "name": "Town Hall 29",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "299",
+        "name": "Casa Picolla",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "352",
+        "name": "Zaika Patna Ka Kitchen",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "487",
+        "name": "MEERA DENTAL CLINIC",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "290",
+        "name": "Tasty Treat Restro & Cafe",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "302",
+        "name": "Blue Mermaid Cafe & Kitchen",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "283",
+        "name": "Madhuram Restaurant & Cáfè",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "253",
+        "name": "Sanwara restaurant",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "452",
+        "name": "Ji Hujur",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "444",
+        "name": "Momo Nation Cafe & Family Restaurant Khagaul",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "351",
+        "name": "The Foodie Mall Restaurant & Banquet",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "428",
+        "name": "Secret Shawarma | Best Shawarma in Patna",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "301",
+        "name": "Roof top cafe",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "438",
+        "name": "Googly 11 Restaurant",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "313",
+        "name": "53 Cafe House",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "473",
+        "name": "Khatta Mitha Restaurant & Banquet",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "431",
+        "name": "Cafe 11 to 11",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "300",
+        "name": "Step Up - Luxury Lounge, Fitness & Dining",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "365",
+        "name": "Sagar fastfood and tandoor hut",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "345",
+        "name": "Tea Toast , Tea Bar & Cafe",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "332",
+        "name": "The 7th sense cafe",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "337",
+        "name": "Figtree Cafe",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "469",
+        "name": "Heaven Meal 24X7",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "479",
+        "name": "New Pal hotel Patna junction",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "445",
+        "name": "Certified Bawarchi",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "336",
+        "name": "BROCCOLI CAFE",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "281",
+        "name": "ROOFTOPz Botanical Restaurant",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "340",
+        "name": "MOMO MAGIC CAFE",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "284",
+        "name": "Z cafe Rooftop Restaurant and party Zone",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "370",
+        "name": "BIHTA JUNCTION RESTAURANT",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "453",
+        "name": "My Kitchen",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "285",
+        "name": "Kallisto | Rooftop Restaurant & Cafe",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "383",
+        "name": "BUTTER ME",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "465",
+        "name": "Road House Restro & Cafe",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "257",
+        "name": "Bawarchi Restaurant Hotel Patliputra",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "353",
+        "name": "Seven Spices Restaurant | Best 24*7 Multicuisine Restaurant in Patna",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "233",
+        "name": "Bansi Vihar Restaurant",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "210",
+        "name": "Afra Tafri Cafe & Restaurant",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "203",
+        "name": "HELLO RESTAURANT & CAFE",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "293",
+        "name": "Lounge Before Wicket",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "279",
+        "name": "Anmol Pal Hotel",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "239",
+        "name": "Sujata Restaurant",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "286",
+        "name": "The Grind House",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "294",
+        "name": "Pyne Square - Cafe & Dine in & Banquet",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "179",
+        "name": "Hulk Fitness Gym",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "306",
+        "name": "Koyla De barbeque",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "341",
+        "name": "Patna Cafe",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "250",
+        "name": "Bonkers Cafe & Restaurants",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "424",
+        "name": "RAM BABU HOTEL & RESTAURANT",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "405",
+        "name": "Sangita",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "204",
+        "name": "Mood Light Cafe",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "304",
+        "name": "The Picante",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "216",
+        "name": "Waffcha - The European Dessert",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "129",
+        "name": "Global Fitness (Aerofit Treadmills & Gym Equipment Store)",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "292",
+        "name": "Infinity Cafe",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "211",
+        "name": "La Casa cafe",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "208",
+        "name": "Hot and Red Cafe and Restaurant - Patna",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "311",
+        "name": "The Pacifique - Café & Lounge",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "212",
+        "name": "STRATOSPHERE",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "136",
+        "name": "Fit Planet Gym RPS More",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "245",
+        "name": "Palji's Restaurant",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "13",
+        "name": "GLOBAL GYM",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "16",
+        "name": "Fitness icon",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "167",
+        "name": "Lee Martial Art",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "91",
+        "name": "THE LORD’S GYM",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "274",
+        "name": "PANASIA Restaurant",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "367",
+        "name": "High-Q Food Court",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "366",
+        "name": "Lazeez - Multicuisine Family Restaurant [Near F.D.D.I Institute ]",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "68",
+        "name": "Star Gym (Vivek)",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "316",
+        "name": "The Atmos 3",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "207",
+        "name": "THE UNDERGROUND RESTAURANT",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "157",
+        "name": "The Universal Fitness",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "145",
+        "name": "Gold's Gym, Ashiana",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "76",
+        "name": "Kamla Fitness gym",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "222",
+        "name": "Wat-a-burger",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "223",
+        "name": "BTS DISC CAFE & RESTAURANT PVT.LTD.",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "374",
+        "name": "Bihari Thaath",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "188",
+        "name": "School of Martial Art India",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "71",
+        "name": "Muscles Beach Gym",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "289",
+        "name": "RAW Cafe & Lounge",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "317",
+        "name": "Craft Coffee City Centre Mall Patna",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "200",
+        "name": "HUNGRY SARDAR",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "360",
+        "name": "The Delhi Story",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "226",
+        "name": "Dine & Disc",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "260",
+        "name": "Patna Foodies Club",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "450",
+        "name": "Dhaba Estd 1986 Delhi, Patna",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "126",
+        "name": "Gold's Gym, Kankarbagh",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "143",
+        "name": "Fit Planet Gym Boring Road-Best Gym in Boring Road Patna. Biggest Gym in Boring Road Patna",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "247",
+        "name": "DESI TADKA FAMILY RESTAURANT",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "176",
+        "name": "Institute of Dynamic Martial Arts",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "24",
+        "name": "Tiger Fitness",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "135",
+        "name": "Fit Zone Gym",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "54",
+        "name": "BodyFit GYM",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "151",
+        "name": "Jersey Fitness Club",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "11",
+        "name": "HRX Gold Fitness",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "73",
+        "name": "Crown's gym",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "325",
+        "name": "Kaffa House",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "26",
+        "name": "Fizyk The Multi Gym & Self Defence Centre",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "36",
+        "name": "Crossfit gym",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "3",
+        "name": "DOYEN THE GYM",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "21",
+        "name": "Patna Gym",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "142",
+        "name": "Power House Fitness Ashiyana Nagar Phase 1",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "426",
+        "name": "The BR01 Restaurant",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "307",
+        "name": "Wisteria Cafe & Kitchen",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "474",
+        "name": "HAPPY HOURS",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "158",
+        "name": "Rock Fitness",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "255",
+        "name": "Purple Cafe",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "156",
+        "name": "Muscle Factory Gym",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "138",
+        "name": "THE NEXUS GYM",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "25",
+        "name": "Planet Gym",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "244",
+        "name": "Lazeez Restaurant",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "495",
+        "name": "Cosmetica Dental Clinic & Orthodontic Centre",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "15",
+        "name": "Indian's The Gym",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "77",
+        "name": "RoyalCore Gym",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "88",
+        "name": "Wellness Spring THE GYM",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "150",
+        "name": "Muscle's Beach Gym",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "28",
+        "name": "BEING TITAN GYM",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "159",
+        "name": "BE MONSTER GYM",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "12",
+        "name": "The Rock Gym",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "79",
+        "name": "AJ Fitness Hub",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "187",
+        "name": "Studio Of Martial Arts",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "201",
+        "name": "Tasty Treat Restro & Cafe best restaurant and cafe in boring road",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "89",
+        "name": "Arc Fitness centre",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "347",
+        "name": "Antisocial",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "83",
+        "name": "Flex Studio",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "342",
+        "name": "Craft coffee",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "153",
+        "name": "The Global Fitness Danapur",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "17",
+        "name": "The Gym Town",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "1",
+        "name": "FITNATION GYM",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "98",
+        "name": "Pulse 24x7 Unisex Fitness",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "111",
+        "name": "Aims physiotherapy clinic (Best physiotherapist in patna,Top physiotherapy centre in patna)",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "498",
+        "name": "Bhagalpur Dental Clinic",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "163",
+        "name": "POWER ZONE (THE FITNESS CLUB)",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "171",
+        "name": "The School Of Martial Arts",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "42",
+        "name": "Treadmill Shop In Patna - Makfitness",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "140",
+        "name": "FEMALE FITNESS ZONE",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "81",
+        "name": "B Fitt Gym",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "303",
+        "name": "Cafe Meet-Up",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "41",
+        "name": "CROSSFIT GYM",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "23",
+        "name": "FX Fitness Xtreme Gym",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "39",
+        "name": "9 Star Gym",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "96",
+        "name": "Ozone Fitness & Crossfit Hub",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "420",
+        "name": "Ridhvi's Restro",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "72",
+        "name": "Metal N Bars Gym & Fitness Centre",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "7",
+        "name": "FitBirds",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "45",
+        "name": "Fitness 24 Gym",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "288",
+        "name": "Mehfil - Hotel Vista Palace",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "100",
+        "name": "Raw Power Gym & Fitness",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "35",
+        "name": "Core X Fitness",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "312",
+        "name": "Yo’z pizza",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "113",
+        "name": "1M Dance Centre-Best Dance and Fitness Classes in Kankarbag Patna",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "144",
+        "name": "SHIVANGI FITNESS CLUB",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "147",
+        "name": "The Fitness Freak",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "491",
+        "name": "Kedia Orthodontics & Dental",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "49",
+        "name": "PRO FITNESS GYM",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "181",
+        "name": "Lee martial arts & play zone",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "186",
+        "name": "M-karate dojo 🥋",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "32",
+        "name": "ALPHA GYM",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "164",
+        "name": "MV pro fitness",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "170",
+        "name": "The Premier School of Arts",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "80",
+        "name": "Yoga Fitness gym || Best Gym in AG Colony Patna || Best Gym in Friends Colony Patna",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "190",
+        "name": "Institute Of Martial Arts",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "99",
+        "name": "Spartan Strength Studio",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "78",
+        "name": "Fitness Point Gym For Boys & Girls",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "110",
+        "name": "BE HAPPY NUTRITION & FITNESS CENTER",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "95",
+        "name": "Iron Temple Unisex Gym",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "272",
+        "name": "Lemon Chilli Restaurant",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "263",
+        "name": "Foodiegram",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "321",
+        "name": "A Thousand Cups",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "485",
+        "name": "PRABHA DENTAL HOSPITAL",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "117",
+        "name": "GLADIATORS",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "359",
+        "name": "Garage Kitchen",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "409",
+        "name": "Gokul cake shop",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "435",
+        "name": "Buddha Restaurant & cafe",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "62",
+        "name": "Raw Fitness",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "221",
+        "name": "Love bite 9 cafe and restaurant",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "103",
+        "name": "Fitness Empire",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "322",
+        "name": "Suto Cafe - PATNA",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "214",
+        "name": "PINK CUISINE CAFE",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "344",
+        "name": "Banwari Cafe & Restaurant",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "165",
+        "name": "Armstrong Nitrox Gym",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "373",
+        "name": "THE LIGHT HOUSE CAFE",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "381",
+        "name": "Annapurna restaurant",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "499",
+        "name": "Aura Dental Square",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "174",
+        "name": "Martial arts self defence institute",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "29",
+        "name": "Oxigym",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "5",
+        "name": "The Gym Paradox",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "161",
+        "name": "Lion Heart Gym",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "277",
+        "name": "Rasam & Swad Restaurant - Best Family Restaurants in Patna",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "280",
+        "name": "Pranjal Family Restaurant",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "391",
+        "name": "The Cake Boss",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "396",
+        "name": "The Cakery Nook",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "446",
+        "name": "Zayka Chicken Biryani",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "315",
+        "name": "REALE ! Explore The Originality",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "384",
+        "name": "Sugar Affair by Indu || Home Baker in Patna",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "327",
+        "name": "Food Heaven Cafe & Sudha ice parlour",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "398",
+        "name": "Downtown La Pasteleria",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "434",
+        "name": "Vyanjan Vihar",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "466",
+        "name": "SWAAD-E-PATNA (CAFE & RESTAURANT)",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "414",
+        "name": "House of chef",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "328",
+        "name": "Suto Cafe - Danapur Patna",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "462",
+        "name": "MR-CHANDAN",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "246",
+        "name": "SHREEJA FAMILY RESTAURANT",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "310",
+        "name": "Galangal Grill",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "308",
+        "name": "Chai34",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "406",
+        "name": "Mardi Bakery and Cafe",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "309",
+        "name": "Sora House | Rooftop Cafe Patna",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "415",
+        "name": "Bonkers Cakery",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "287",
+        "name": "FUSION ROOFTOP FAMILY RESTAURANT",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "471",
+        "name": "Family Restaurant",
+        "priority": "1 - Red (High)"
+      },
+      {
+        "id": "335",
+        "name": "The Downtown Cafe",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "449",
+        "name": "Tasty Kitchen",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "262",
+        "name": "Lounge Before Wicket",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "422",
+        "name": "Hariram's Sweets & Restaurant",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "447",
+        "name": "Biryani King A Family Restaurant",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "463",
+        "name": "Swadhh Restaurant & Cafe",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "392",
+        "name": "Sweet Home",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "270",
+        "name": "KRISHNASHREE",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "305",
+        "name": "D.Halloween Restro & Cafe",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "329",
+        "name": "The Sky Cafe",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "256",
+        "name": "Four Seasons",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "318",
+        "name": "Cafe The Cartel",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "419",
+        "name": "Paprika Pure Veg Restaurant",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "385",
+        "name": "Sugarbloom Bakery®️ ( Designer Cake Store )",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "379",
+        "name": "Pizza Enterprises",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "376",
+        "name": "Ayaan's Cafe & Restaurant",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "460",
+        "name": "MG CAFE & RESTRO SWAD-E- BIHAR",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "425",
+        "name": "Abhiruchi - Marwari Vaasa Bhojnalay (1940)",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "252",
+        "name": "The Potbelly – Patna",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "407",
+        "name": "Chocolina coffee",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "334",
+        "name": "Cafe DeLight",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "386",
+        "name": "Harvest Bakery",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "331",
+        "name": "The Dojo Cafe",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "439",
+        "name": "Biryani Mahal",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "372",
+        "name": "The SKY 4U Bihta",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "93",
+        "name": "MAXIMAL GYM - Best Unisex Gym in Anishabad Patna",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "416",
+        "name": "DIVA RESTAURANT & CAFE",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "94",
+        "name": "MuscleMania Fitness Club",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "47",
+        "name": "Stamina Hub",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "169",
+        "name": "FIGHTER MARTIAL ARTS",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "97",
+        "name": "Titan Pro Fitness Club",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "52",
+        "name": "6 To 9 Gym",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "66",
+        "name": "Barbell Fitness Studio",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "92",
+        "name": "Boogie Gym",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "430",
+        "name": "Mahfil Cafe & Restaurant",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "46",
+        "name": "FITNESS GURUKUL",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "172",
+        "name": "Rajan karate",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "85",
+        "name": "Inch By Inch unisex Gym",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "191",
+        "name": "Amit Martial Arts Academy",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "30",
+        "name": "Fitness Freak GYM",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "116",
+        "name": "Sri Sai Physio Fit And Rehabilitation Center",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "475",
+        "name": "Urban vada pav mithapur patna",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "128",
+        "name": "FITNESS ASYLUM",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "183",
+        "name": "Om Bihar Karate & Dance Academy",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "173",
+        "name": "MANI MARTIAL ART'S ACADEMY",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "141",
+        "name": "Fit Legends Gym",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "455",
+        "name": "Jay Matadi Bhojnalaya",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "213",
+        "name": "The Golden Spoon By Singhania",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "225",
+        "name": "Baithke bihari cafe",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "189",
+        "name": "JAGAT'S MARTIAL ARTS ACADEMY",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "388",
+        "name": "Cake Cafe Tales",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "134",
+        "name": "IronTurf Gym and Fitness",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "20",
+        "name": "X GYM",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "489",
+        "name": "Dental Square",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "122",
+        "name": "Airborne Stunts & calisthenics fitness academy",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "50",
+        "name": "Toronto Fitness",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "488",
+        "name": "Patna Dental Hospital",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "154",
+        "name": "Olympia fitness",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "276",
+        "name": "Fulltoss Restaurant",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "57",
+        "name": "FITNESS GARRAZ GYM",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "63",
+        "name": "Immunity fitness gym",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "137",
+        "name": "Zumba Studio",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "218",
+        "name": "R.R.Restaurant and cafe",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "477",
+        "name": "Tasty Hygienic Food",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "399",
+        "name": "Bakery Junction- Patna",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "403",
+        "name": "Sunny's Shakes & Cakes",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "8",
+        "name": "ICONIK7 - Best Gym in Kankarbagh | 24 Hours, Unisex, Weight Loss, Bodybuilding, Cardio, Abs Workout Center in Kankarbagh",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "9",
+        "name": "Commando Fit Gym",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "198",
+        "name": "Aatreya Yogshala and wellness center",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "149",
+        "name": "FIT FARM GYM & YOGA",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "86",
+        "name": "Mini Gym Health Club",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "155",
+        "name": "Forge & Flex",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "180",
+        "name": "Akshay karate Academy",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "104",
+        "name": "Yoga Classes Patna",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "53",
+        "name": "Gym-18",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "58",
+        "name": "Aryan Fitness",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "168",
+        "name": "MMA Arena",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "55",
+        "name": "Aesthetic Fitness Studio",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "74",
+        "name": "Prolifters gym",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "22",
+        "name": "KALKI FITNESS GYM",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "84",
+        "name": "Maa Shitla Fitness Gym",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "265",
+        "name": "Sarfaraz Hotel",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "197",
+        "name": "Xaviers Fire Safety Academy",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "195",
+        "name": "Khanak The Soul",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "27",
+        "name": "3D Fitness Club",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "443",
+        "name": "A V FOOD PLAZA",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "464",
+        "name": "BEST MEAL CAFE",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "397",
+        "name": "Duggu Bakery and Cafe",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "418",
+        "name": "High-Bae Patna",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "192",
+        "name": "फिट 2 फाइट इंटरनेशनल",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "184",
+        "name": "NISPA- Best Martial Arts & Dance Class in Kankarbagh, Patna",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "60",
+        "name": "Fitness world",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "107",
+        "name": "Nach-Le-Club Fitness Class",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "166",
+        "name": "Elev8 Fitness zone",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "69",
+        "name": "TEAM RUNNERS PATNA ACADEMY",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "461",
+        "name": "VISHAKHA BHOJNALAY exhibition road",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "400",
+        "name": "Cafe Network Dice n Dine",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "451",
+        "name": "10 Hour's Family Restaurant",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "387",
+        "name": "Mamta's Bakery Studio",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "390",
+        "name": "Kalkata Bakery",
+        "priority": "2 - Blue (Medium)"
+      },
+      {
+        "id": "237",
+        "name": "The Biryani Mall",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "454",
+        "name": "Old Champaran Meat House",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "209",
+        "name": "NIRVANA The Fine Dine",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "240",
+        "name": "Basant Vihar",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "227",
+        "name": "Cafe 13",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "205",
+        "name": "Somen19",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "297",
+        "name": "Cafe Skylite",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "440",
+        "name": "JASHN (Restaurant, Cafe & Banquet)",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "231",
+        "name": "Bluemoon",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "363",
+        "name": "WELL FOOD",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "271",
+        "name": "The Glass Box",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "361",
+        "name": "JUNGLE SAFARI",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "436",
+        "name": "Highway Junction Saguna More Danapur",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "236",
+        "name": "Kapil Dev's Elevens",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "219",
+        "name": "Roti Restaurant",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "377",
+        "name": "Hotel Picnic Garden",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "319",
+        "name": "The Capetown Cafe",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "427",
+        "name": "Royal Thali",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "44",
+        "name": "Gold’s Gym, Boring Road",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "266",
+        "name": "The Soda Fountain & Milk Bar",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "364",
+        "name": "Pour Tous",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "259",
+        "name": "Afraa",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "217",
+        "name": "Golden Flavour",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "382",
+        "name": "Sone Hotel",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "243",
+        "name": "Rajdarbar family Restaurant",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "224",
+        "name": "Rasoi Resturant",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "234",
+        "name": "The Dark Cafe & Restaurant",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "248",
+        "name": "Ghar Aangan Restaurant",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "249",
+        "name": "Angrezi Dhaba",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "481",
+        "name": "Hi Q Foods",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "458",
+        "name": "Daniyawan Fish Dhaba",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "206",
+        "name": "Chauka - Dil se Desi Restaurant",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "296",
+        "name": "The Artisan House Bakery, Cafe & Restaurant",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "482",
+        "name": "Chourasiya ji ki Purani Litti Dukan",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "220",
+        "name": "Regalia Restaurant",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "368",
+        "name": "Shahi Darbar [Raghopur - Bihta]",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "355",
+        "name": "Samsara Restaurant",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "146",
+        "name": "Gold's Gym, Rajendra Nagar",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "421",
+        "name": "Om Vihar Restaurant",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "402",
+        "name": "Cakes & Bakes",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "215",
+        "name": "Banjara Boring Road",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "380",
+        "name": "Food Court [IIT -Patna]",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "177",
+        "name": "Matrix",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "273",
+        "name": "Alpine Restaurant & Rooftop",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "357",
+        "name": "Flavor Town | Multi Cuisine Restaurant",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "278",
+        "name": "Rajdhani Hotel",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "314",
+        "name": "Young's hub cafe Hotel",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "232",
+        "name": "Austaara - Fine Dine & Cafe",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "267",
+        "name": "Bihar se by panache Patna",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "230",
+        "name": "Cafe The Dhaba",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "264",
+        "name": "Unplugged Dineout",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "323",
+        "name": "Dhaba Cafe & Lounge",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "457",
+        "name": "Vijay hotel",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "375",
+        "name": "Bihta Champaran Meat House",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "295",
+        "name": "MW Bistro ( Bus Cafe)",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "269",
+        "name": "Skyfall rooftop restaurant",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "320",
+        "name": "Cafe Buddy’s Espresso :- Best Cafe In Patna",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "241",
+        "name": "SYZYGIUM",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "124",
+        "name": "Gravity Fitness Gym",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "90",
+        "name": "Workout Zone",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "229",
+        "name": "ROMEO LANE PATNA",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "185",
+        "name": "Sumit and Sharma Sports",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "194",
+        "name": "FIT 2 FIGHT Gym",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "127",
+        "name": "Sweat Box Gym",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "326",
+        "name": "Alba beans & coffee",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "178",
+        "name": "HARDCORE GYM",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "14",
+        "name": "O2 Oxygen Gym",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "339",
+        "name": "Toscano Cafe & Restro",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "354",
+        "name": "KHATTA MEETHA RESTAURANT PATNA",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "395",
+        "name": "Coffee & Cravings",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "67",
+        "name": "The Gym City - Best Gym in Ashok Rajpath",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "371",
+        "name": "Vrindavan Bhog -Sweets Chaat &Restaurant",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "298",
+        "name": "Satrangi Dostana Restaurant",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "343",
+        "name": "Smookah Cafe N Lounge - BEST HOOKAH CAFE",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "43",
+        "name": "Dumbelldoor Fitness",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "362",
+        "name": "Chatkara Kitchen - A Multicuisine Restaurant",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "393",
+        "name": "Cake Bagicha",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "333",
+        "name": "The Waffle Co.",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "378",
+        "name": "The Green Resort & Restaurant",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "417",
+        "name": "TERA & MERA RESTAURANT",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "358",
+        "name": "Full Moon Multi Cuisine Restaurant Cafe & Hotel",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "258",
+        "name": "THE FOOD DUDE",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "87",
+        "name": "Maxwell Gym Fitness",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "442",
+        "name": "New Hungry Hope",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "412",
+        "name": "The Bakery Box",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "324",
+        "name": "Golpuri Cafe",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "235",
+        "name": "Vrindavan Kitchen",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "349",
+        "name": "Ace Of Spades Cafe n lounge",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "291",
+        "name": "Zest Roof",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "401",
+        "name": "Red Velvet Bakery",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "31",
+        "name": "Davis The Gym",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "413",
+        "name": "Cathy Confectioners",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "242",
+        "name": "Royal Rasoi Restaurant",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "433",
+        "name": "Kathi Nation, Khagaul",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "59",
+        "name": "Seven Steps Multy Zym",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "470",
+        "name": "THE FOOD PANDA CLOUD KITCHEN",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "106",
+        "name": "Muscle Factory",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "82",
+        "name": "Skyz The Gym",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "6",
+        "name": "Hercules Health Club",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "410",
+        "name": "Cake's world",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "238",
+        "name": "Restro & Cafe De'Laila - 2",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "437",
+        "name": "Retro restaurant & Banquet hall",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "228",
+        "name": "Ankur Restaurant",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "467",
+        "name": "Hungry house restaurant",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "408",
+        "name": "MANORMA CAKE & CAFE",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "268",
+        "name": "TASTY FOOD POINT VIJAY KUMAR",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "441",
+        "name": "Mansi Food",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "346",
+        "name": "Bauji Cafe",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "369",
+        "name": "Mom's restaurant party hall",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "160",
+        "name": "Davis The Gym",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "472",
+        "name": "Second home restaurant and mess",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "182",
+        "name": "Wushu Martial Arts Academy",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "404",
+        "name": "Basant Bahar",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "254",
+        "name": "Bell Pepper Restaurant",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "468",
+        "name": "DIGITAL FOOD MALL DFM",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "459",
+        "name": "Verma's Kitchen",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "350",
+        "name": "Battalion House The Multi cuisine",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "411",
+        "name": "Radhika Bakery & Cake Palace",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "48",
+        "name": "Dream Body Gym",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "275",
+        "name": "HOTEL NANDAN RESTAURANT",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "282",
+        "name": "Sangam Restaurant",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "175",
+        "name": "JST Institute of Martial Arts School - Expert Karate & Gymnastics Training in Patna",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "139",
+        "name": "The Barbell Gym",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "196",
+        "name": "MANI MARTIAL ART'S ACADEMY",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "38",
+        "name": "Pulse 8 gym the unisex",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "56",
+        "name": "Quad Fitness Gym",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "423",
+        "name": "Bawarchi Food & Restaurant",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "493",
+        "name": "Jai Mahavir Dental Hospital",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "394",
+        "name": "Patna Junction",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "480",
+        "name": "Suto jee bhar ke...",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "448",
+        "name": "Eatero",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "199",
+        "name": "LOA Fitness and Sports",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "162",
+        "name": "Saba Fitness",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "148",
+        "name": "Herbalife Fitness center Weight loss",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "483",
+        "name": "ADITI DENTAL CLINIC PATNA BIHAR",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "118",
+        "name": "Shiva Yoga",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "61",
+        "name": "IQ Fitness",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "18",
+        "name": "GYM ONE FITNESS",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "389",
+        "name": "Baked with Sneh",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "119",
+        "name": "The Fact Zone Multi Gym",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "34",
+        "name": "The Muscles blast gym the unisex",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "105",
+        "name": "Satvik Yoga Kendra, Patna",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "112",
+        "name": "Choo Mantar (we heal you feel)",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "109",
+        "name": "Gym Fitness",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "478",
+        "name": "Ahmadia Restaurant",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "500",
+        "name": "Dr. D.K. Singh Multi Speciality Dental Clinic fraud doctor not know doctor practices",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "51",
+        "name": "Fit 2 Pro",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "494",
+        "name": "DENTO MEDI CARE... Dental Studio : Redefining your smile",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "132",
+        "name": "Dance & Zumba Centre",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "102",
+        "name": "A1 FITNESS Gym&spa",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "101",
+        "name": "MUSCLES CRUSHER Studio",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "152",
+        "name": "THE FITHUB",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "348",
+        "name": "Patna Cyber Cafe",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "40",
+        "name": "JSFA - Jain Sahab Fitness Academy",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "114",
+        "name": "RM Dance & Fitness Studio",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "65",
+        "name": "A K Fitness Club",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "108",
+        "name": "Crazy For Fitness",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "193",
+        "name": "FIGHT AND FITNESS CLASSES",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "432",
+        "name": "KUSHUM HOTEL AND RESTAURANT",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "456",
+        "name": "White Chillies",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "484",
+        "name": "Green life dental care",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "64",
+        "name": "TITAN GYM",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "123",
+        "name": "Alpha Gym",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "476",
+        "name": "Nandani Sweets",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "492",
+        "name": "Mahaveer Dental Clinic",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "115",
+        "name": "FIT INDIA WELLNESS",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "125",
+        "name": "Rohisha dance & Fitness studio",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "133",
+        "name": "Best Yoga & Zumba, Dance Class",
+        "priority": "3 - Green (Low)"
+      },
+      {
+        "id": "496",
+        "name": "Dr Monika Multispeciality Dental Clinic",
+        "priority": "3 - Green (Low)"
+      }
+    ],
+    "missingHooks": [],
+    "emptyAddresses": [
+      {
+        "id": "199",
+        "name": "LOA Fitness and Sports"
+      }
+    ],
+    "industryDistribution": {
+      "Restaurants": 117,
+      "Dental Clinics": 18,
+      "Gyms": 67,
+      "Fitness Studios": 33,
+      "Cafes": 33,
+      "Dine Restaurants": 34,
+      "Crossfit Gyms": 33,
+      "Multi Cuisine Restaurants": 33,
+      "Rooftop Restaurants": 33,
+      "Bakeries And Cafes": 33,
+      "Mma Gyms": 33,
+      "Gyms And Fitness": 33
+    },
+    "priorityDistribution": {
+      "1 - RED (HIGH)": 231,
+      "2 - BLUE (MEDIUM)": 100,
+      "3 - GREEN (LOW)": 169
+    },
+    "statusDistribution": {
+      "Website Built": 497,
+      "Analyzed & Built": 3
+    },
+    "ratingsStats": {
+      "totalReviewsCounted": 242173,
+      "averageRating": 4.44,
+      "perfect5Count": 44,
+      "ratingBuckets": {
+        "5.0": 44,
+        "4.5-4.9": 232,
+        "4.0-4.4": 144,
+        "<4.0": 75,
+        "No Rating": 5
+      }
+    },
+    "contactCoverage": {
+      "withPhone": 494,
+      "withExistingWebsite": 57,
+      "pureNoWebsite": 443,
+      "withAgencyDemo": 500
+    }
+  }
+}

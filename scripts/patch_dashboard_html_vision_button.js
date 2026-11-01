@@ -117,3 +117,4 @@ if (!content.includes('id="modal-vision-pipeline"')) {
 
 fs.writeFileSync(htmlPath, content, 'utf8');
 console.log('✅ public/index.html fully patched with zero errors!');
+

@@ -29,3 +29,4 @@ if (content.includes(target) && !content.includes('Vision AI Scrape & Build (Goo
         console.log('✅ Added Vision AI quick trigger card with CRLF matching');
     }
 }
+
