@@ -62,6 +62,17 @@ export class VisualQualityGate {
         // 2. Strip client-side fallback error listeners from auditHtml so headless Chromium cannot mutate DOM
         let auditHtml = html.replace(/<script[^>]*>[\s\S]*?addEventListener\(['"]error['"][\s\S]*?<\/script>/gi, '');
 
+        // 3. Deduplicate redundant <style> blocks before loading into Playwright
+        const seenStyles = new Set();
+        auditHtml = auditHtml.replace(/<style\b[^>]*>([\s\S]*?)<\/style>/gi, (match, content) => {
+            const trimmed = content.trim();
+            if (seenStyles.has(trimmed)) {
+                return '';
+            }
+            seenStyles.add(trimmed);
+            return match;
+        });
+
         await this.init();
         const context = await this.browser.newContext({
             viewport: { width: 393, height: 852 }, // Audit on mobile viewport by default
@@ -82,7 +93,7 @@ export class VisualQualityGate {
                 });
             });
 
-            await page.setContent(auditHtml, { waitUntil: 'domcontentloaded', timeout: 15000 });
+            await page.setContent(auditHtml, { waitUntil: 'domcontentloaded', timeout: 30000 });
 
             // Run in-browser algorithmic audit and DOM surgery
             const auditResult = await page.evaluate((origSrcs) => {
@@ -105,6 +116,63 @@ export class VisualQualityGate {
                     banner.style.aspectRatio = 'auto';
                     banner.classList.add('h-auto', 'py-2.5', 'px-4');
                     logs.push('Normalized Announcement Bar to clean auto height ribbon');
+                }
+
+                // ========================================================
+                // 1B. Header & Navbar Anti-Collision & Premium Layout Guard
+                // ========================================================
+                const header = document.querySelector('header');
+                if (header) {
+                    // A. Restore corrupted CTA buttons in header or anywhere that caught announcement bar styles
+                    const allLinks = Array.from(document.querySelectorAll('a, button'));
+                    allLinks.forEach(el => {
+                        const href = el.getAttribute('href') || '';
+                        const text = (el.innerText || '').toLowerCase();
+                        if ((href.includes('wa.me') || href.includes('whatsapp') || text.includes('whatsapp') || text.includes('trial')) && el.className.includes('bg-zinc-950')) {
+                            el.className = 'whitespace-nowrap shrink-0 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#F59E0B] text-black font-bold text-sm hover:brightness-110 shadow-lg shadow-amber-500/20 transition-all flex items-center justify-center gap-2';
+                        }
+                    });
+
+                    // B. Enforce whitespace-nowrap and shrink-0 on all CTA buttons & actions inside header
+                    const headerActions = Array.from(header.querySelectorAll('a, button'));
+                    headerActions.forEach(action => {
+                        // Skip main brand logo wrapper so brand text can wrap if necessary
+                        if (action.querySelector('span.font-syne, span.font-extrabold')) return;
+                        action.classList.add('whitespace-nowrap', 'shrink-0');
+                        const spans = Array.from(action.querySelectorAll('span'));
+                        spans.forEach(s => s.classList.add('whitespace-nowrap'));
+                    });
+
+                    // C. Enforce responsive gap & fluid scaling on desktop <nav>
+                    const nav = header.querySelector('nav');
+                    if (nav) {
+                        nav.classList.remove('gap-8', 'gap-6');
+                        nav.classList.add('gap-3', 'lg:gap-4', 'xl:gap-8', 'shrink');
+                        
+                        // Enforce whitespace-nowrap on every nav link
+                        const links = Array.from(nav.querySelectorAll('a'));
+                        links.forEach(l => l.classList.add('whitespace-nowrap', 'shrink-0'));
+
+                        // Prevent link overflow from pushing CTAs on 1024px-1280px viewports
+                        if (links.length > 4) {
+                            links.forEach(l => {
+                                const text = l.innerText.trim().toLowerCase();
+                                if (['why us', 'faq', 'reviews'].includes(text)) {
+                                    l.classList.add('hidden', 'xl:inline-block');
+                                }
+                            });
+                        }
+                    }
+
+                    // D. Action buttons container guard
+                    const actionContainer = header.querySelector('.hidden.sm\\:flex, .hidden.md\\:flex, header > div > div:last-child');
+                    if (actionContainer && actionContainer.querySelector('a[href^="tel:"], a[href*="wa.me"], a[href^="#"]')) {
+                        actionContainer.classList.add('shrink-0', 'flex-nowrap');
+                        actionContainer.classList.remove('gap-4');
+                        actionContainer.classList.add('gap-2', 'sm:gap-3');
+                    }
+
+                    logs.push('Enforced Anti-Collision & No-Wrap Guard on Header & Navbar');
                 }
 
                 // ========================================================
@@ -316,6 +384,9 @@ export class VisualQualityGate {
                     try {
                         const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
                         if (manifest.hasRealPhotos) {
+                            // Strip stock onerror fallbacks so authentic photos are permanent and never mutated to stock photos
+                            finalHtml = finalHtml.replace(/\s*onerror=["']this\.onerror=null;\s*this\.src=['"]https:\/\/images\.unsplash\.com[^'"]+['"];?["']/gi, '');
+
                             if (manifest.hero && manifest.hero.src) {
                                 const heroFilename = manifest.hero.src.split('/').pop();
                                 const heroUrl = `/sites/${slug}/assets/${heroFilename}`;
@@ -342,6 +413,17 @@ export class VisualQualityGate {
 
             // Remove any leftover data-has-fallen-back attribute
             finalHtml = finalHtml.replace(/\s*data-has-fallen-back=["'][^"']*["']/gi, '');
+
+            // Deduplicate redundant <style> blocks in final output
+            const finalSeenStyles = new Set();
+            finalHtml = finalHtml.replace(/<style\b[^>]*>([\s\S]*?)<\/style>/gi, (match, content) => {
+                const trimmed = content.trim();
+                if (finalSeenStyles.has(trimmed)) {
+                    return '';
+                }
+                finalSeenStyles.add(trimmed);
+                return match;
+            });
 
             return {
                 passed: true,

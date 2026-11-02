@@ -481,6 +481,65 @@ export class WebsiteBuilder {
             return `${p1}${c}${p3}`;
         });
 
+        // 1B. Enforce Header & Navbar Anti-Collision & Whitespace-Nowrap Guard
+        html = html.replace(/(<header[\s\S]*?<\/header>)/gi, (headerHtml) => {
+            let h = headerHtml;
+
+            // Restore any corrupted CTA button classes in header that accidentally received announcement-bar styling
+            h = h.replace(/(<a[^>]*href=["'][^"']*(?:wa\.me|whatsapp|#trial)[^"']*["'][^>]*class=["'])[^"']*bg-zinc-950[^"']*(["'])/gi,
+                '$1whitespace-nowrap shrink-0 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#F59E0B] text-black font-bold text-sm hover:brightness-110 shadow-lg shadow-amber-500/20 transition-all flex items-center gap-2$2');
+
+            // Add whitespace-nowrap and shrink-0 to action buttons
+            h = h.replace(/(<(?:a|button)[^>]*class=["'][^"']*(?:rounded-xl|rounded-2xl|rounded-full|border|bg-gradient)[^"']*["'][^>]*>)/gi, (btnTag) => {
+                if (btnTag.includes('font-syne') || btnTag.includes('group') || btnTag.includes('menu-btn')) return btnTag; // skip logo and menu button
+                let b = btnTag;
+                if (!b.includes('whitespace-nowrap')) b = b.replace(/class=["']/, 'class="whitespace-nowrap shrink-0 ');
+                return b;
+            });
+
+            // Ensure gap is responsive in desktop nav
+            h = h.replace(/(<nav[^>]*class=["'][^"']*gap-)8([^"']*["'])/gi, '$13 lg:gap-4 xl:gap-8$2');
+
+            // Add whitespace-nowrap to all links inside <nav> and collapse secondary links on narrow desktops
+            h = h.replace(/(<nav[\s\S]*?<\/nav>)/gi, (navHtml) => {
+                let n = navHtml;
+                // Add whitespace-nowrap to every nav link
+                n = n.replace(/(<a\b[^>]*class=["'])([^"']*)(["'])/gi, (m, p1, cls, p3) => {
+                    let c = cls;
+                    if (!c.includes('whitespace-nowrap')) c = `${c} whitespace-nowrap`;
+                    return `${p1}${c.trim()}${p3}`;
+                });
+                // Ensure secondary links are hidden on lg (1024-1280px) and visible on xl
+                n = n.replace(/(<a\b[^>]*href=["']#(?:why-us|faq|reviews)["'][^>]*class=["'])([^"']*)(["'])/gi, (m, p1, cls, p3) => {
+                    let c = cls;
+                    if (!c.includes('hidden') && !c.includes('xl:inline-block') && !c.includes('xl:flex')) {
+                        c = `${c} hidden xl:inline-block`;
+                    }
+                    return `${p1}${c.trim()}${p3}`;
+                });
+                return n;
+            });
+
+            return h;
+        });
+
+        // 1C. Modernize Announcement Bar for Dark Aesthetic (Strictly scoped to the top announcement bar ribbon)
+        if (html.includes('bg-[#09090b]') || html.includes('bg-[#09090B]') || html.includes('bg-zinc-950') || html.includes('bg-black')) {
+            html = html.replace(/(<(?:div|aside)[^>]*?(?:id=["']announcement-bar["']|class=["'][^"']*sticky\s+top-0[^"']*["'])[^>]*class=["'])([^"']*bg-gradient-to-r\s+from-\[#D4AF37\][^"']*)(["'])/gi,
+                '$1bg-zinc-950 border-b border-zinc-800/80 text-zinc-300 font-medium text-xs sm:text-sm py-2 px-4 text-center sticky top-0 z-50 flex items-center justify-center gap-2 shadow-sm$3');
+        }
+
+        // Deduplicate redundant <style> blocks (e.g. Tailwind CSS outputs)
+        const seenStyles = new Set();
+        html = html.replace(/<style\b[^>]*>([\s\S]*?)<\/style>/gi, (match, content) => {
+            const trimmed = content.trim();
+            if (seenStyles.has(trimmed)) {
+                return '';
+            }
+            seenStyles.add(trimmed);
+            return match;
+        });
+
         // 2. Ensure bottom mobile sticky bar has z-40 and all buttons have whitespace-nowrap
         html = html.replace(/(<div[^>]*class=["'][^"']*fixed\s+bottom-0[^"']*["'][^>]*>)([\s\S]*?)(<\/div>)/gi, (fullMatch, openTag, content, closeTag) => {
             let updatedOpenTag = openTag.replace(/z-(?:50|40|30|20)/g, 'z-40');
@@ -752,6 +811,9 @@ export class WebsiteBuilder {
                 try {
                     const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
                     if (manifest.hasRealPhotos) {
+                        // Strip stock onerror fallbacks so authentic photos are permanent and never mutated to stock photos
+                        html = html.replace(/\s*onerror=["']this\.onerror=null;\s*this\.src=['"]https:\/\/images\.unsplash\.com[^'"]+['"];?["']/gi, '');
+
                         // 1. Restore Hero Image
                         if (manifest.hero && manifest.hero.src) {
                             const heroFilename = manifest.hero.src.split('/').pop();
