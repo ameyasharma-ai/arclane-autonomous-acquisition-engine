@@ -27,6 +27,7 @@ class WebUIServer {
         this.history = [];
         this.syncToTelegramHook = null;
         this.scheduler = null;
+        this.currentRunningTask = null;
 
         // Analytics & State instances
         this.auditLogger = new AuditLogger();
@@ -113,33 +114,53 @@ class WebUIServer {
                     answerCbQuery: async () => {}
                 };
 
-                let handled = false;
-                if (text.startsWith('action:')) {
-                    const actionName = text.replace('action:', '');
-                    try {
-                        fakeCtx.callbackQuery = { data: actionName };
-                        if (this.commandHandlers['__action']) {
-                            await this.commandHandlers['__action'](actionName, fakeCtx);
+                const isQuickQuery = ['status', 'help', 'metrics', 'today', 'coverage', 'view_plan'].includes(rawCmd);
+                if (!isQuickQuery && !text.startsWith('action:')) {
+                    this.currentRunningTask = text;
+                    this.io.emit('process_status', this.getBusyStatus());
+                }
+
+                try {
+                    let handled = false;
+                    if (text.startsWith('action:')) {
+                        const actionName = text.replace('action:', '');
+                        try {
+                            fakeCtx.callbackQuery = { data: actionName };
+                            if (this.commandHandlers['__action']) {
+                                await this.commandHandlers['__action'](actionName, fakeCtx);
+                                handled = true;
+                            }
+                        } catch (e) {
+                            fakeCtx.reply(`❌ Web UI Action Error: ${e.message}`);
                             handled = true;
                         }
-                    } catch (e) {
-                        fakeCtx.reply(`❌ Web UI Action Error: ${e.message}`);
-                        handled = true;
-                    }
-                } else {
-                    const cmdName = (rawCmd === 'stream_scrape') ? 'trigger_stream' : rawCmd;
-                    if (this.commandHandlers[cmdName]) {
-                        try {
-                            await this.commandHandlers[cmdName](fakeCtx);
-                        } catch (e) {
-                            fakeCtx.reply(`❌ Web UI Error: ${e.message}`);
+                    } else {
+                        const cmdName = (rawCmd === 'stream_scrape') ? 'trigger_stream' : rawCmd;
+                        if (this.commandHandlers[cmdName]) {
+                            try {
+                                await this.commandHandlers[cmdName](fakeCtx);
+                            } catch (e) {
+                                fakeCtx.reply(`❌ Web UI Error: ${e.message}`);
+                            }
+                            handled = true;
                         }
-                        handled = true;
                     }
-                }
-                
-                if (!handled && text.startsWith('/')) {
-                    fakeCtx.reply("Command not recognized by Web UI router.");
+                    
+                    if (!handled && text.startsWith('/')) {
+                        fakeCtx.reply("Command not recognized by Web UI router.");
+                    }
+                } finally {
+                    if (!isQuickQuery && !text.startsWith('action:')) {
+                        this.currentRunningTask = null;
+                        this.io.emit('process_status', this.getBusyStatus());
+                        this.io.emit('command_finished', { command: text });
+                        this.io.emit('queue_updated');
+                        this.io.emit('data_updated', { command: text });
+                        try {
+                            const m = await this.auditLogger.getAnalytics(true);
+                            this.io.emit('metrics_update', m);
+                        } catch (e) {}
+                    }
                 }
 
                 // Broadcast updated busy status after triggering
@@ -555,6 +576,9 @@ class WebUIServer {
     }
 
     getBusyStatus() {
+        if (this.currentRunningTask) {
+            return { isBusy: true, reason: `Active task: ${this.currentRunningTask}` };
+        }
         if (!this.scheduler) return { isBusy: false, reason: '' };
         const scraperBusy = Boolean(this.scheduler.scraperRunner && this.scheduler.scraperRunner.isRunning);
         const pipelineBusy = Boolean(this.scheduler.pipelineRunner && this.scheduler.pipelineRunner.isProcessing);

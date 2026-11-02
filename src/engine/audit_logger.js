@@ -17,6 +17,8 @@ export class AuditLogger {
     }
 
     initMetrics() {
+        this.lastSheetSync = 0;
+        this.cachedAnalytics = null;
         if (!fs.existsSync(this.metricsPath)) {
             const initialMetrics = {
                 leads_discovered: 0,
@@ -104,7 +106,10 @@ export class AuditLogger {
         }
     }
 
-    async getAnalytics() {
+    async getAnalytics(force = false) {
+        if (!force && this.cachedAnalytics && (Date.now() - this.lastSheetSync < 15000)) {
+            return this.cachedAnalytics;
+        }
         try {
             // Read base local metrics
             let metrics = fs.existsSync(this.metricsPath) 
@@ -165,6 +170,8 @@ export class AuditLogger {
 
             // Persist synced metrics
             fs.writeFileSync(this.metricsPath, JSON.stringify(metrics, null, 2), 'utf-8');
+            this.cachedAnalytics = metrics;
+            this.lastSheetSync = Date.now();
             return metrics;
         } catch (e) {
             // Fallback to local cache if Google Sheets query errors

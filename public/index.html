@@ -537,6 +537,34 @@
 
         socket.on('lead_photo_toggled', () => {
             fetchApprovalQueue();
+            fetchAnalytics();
+        });
+
+        socket.on('queue_updated', () => {
+            fetchApprovalQueue();
+        });
+
+        socket.on('data_updated', () => {
+            fetchAnalytics();
+            fetchApprovalQueue();
+            const activeApproval = document.getElementById('view-approval');
+            if (activeApproval && !activeApproval.classList.contains('hidden')) {
+                fetchApprovalQueue();
+            }
+            const activeFollow = document.getElementById('view-followups');
+            if (activeFollow && !activeFollow.classList.contains('hidden')) {
+                fetchFollowUps();
+            }
+            const activeEvents = document.getElementById('view-events');
+            if (activeEvents && !activeEvents.classList.contains('hidden')) {
+                fetchAuditLogs();
+            }
+        });
+
+        socket.on('command_finished', (data) => {
+            showToast(`✅ Command completed! Live dashboard updated.`);
+            fetchAnalytics();
+            fetchApprovalQueue();
         });
 
         socket.on('history', (history) => {
@@ -569,7 +597,28 @@
                 .catch(()=>{});
         }
         fetchAnalytics();
-        setInterval(fetchAnalytics, 10000);
+        fetchApprovalQueue();
+        setInterval(() => {
+            fetchAnalytics();
+            fetch('/api/approval-queue')
+                .then(r => r.json())
+                .then(d => {
+                    if (d.success && Array.isArray(d.queue)) {
+                        cachedQueue = d.queue;
+                        const pending = cachedQueue.filter(q => q.status === 'pending');
+                        const badge = document.getElementById('queue-badge');
+                        if (badge) badge.innerText = pending.length;
+                        const btnCount = document.getElementById('btn-approve-all-count');
+                        if (btnCount) btnCount.innerText = pending.length;
+                        
+                        const activeApproval = document.getElementById('view-approval');
+                        if (activeApproval && !activeApproval.classList.contains('hidden')) {
+                            renderQueueItems();
+                        }
+                    }
+                })
+                .catch(()=>{});
+        }, 5000);
 
         function syncCrmData() {
             const btn = document.getElementById('btn-sync-crm');
