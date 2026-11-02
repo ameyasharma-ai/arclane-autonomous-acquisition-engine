@@ -232,9 +232,10 @@ export class WebsiteBuilder {
 
         const navbarPromptRules = `\n\n## 🧭 MANDATORY HEADER & NAVBAR DESIGN STANDARDS:
 - BRAND LOGO MONOGRAM: The logo badge square MUST display the 2-letter monogram '${canonicalMonogram}' (e.g. '<div class="w-10 h-10 rounded-xl ... font-syne font-black text-xl">${canonicalMonogram}</div>'). NEVER use an isolated single letter like 'P'!
-- HIGH-INTENT NAVIGATION LINKS: The desktop navbar MUST include a link to '#pricing' (labeled 'Plans' or 'Pricing'). Keep nav links concise: at most 4-5 core links ('Programs' / 'Services', 'About', 'Plans' / 'Pricing', 'Gallery' / 'Facility', 'Contact').
-- ANTI-COLLISION SPACING: The <nav> element MUST have 'gap-3 lg:gap-4 xl:gap-5 mr-6' so links NEVER collide with the right CTA buttons!
-- CTAS: Always include Phone number CTA and WhatsApp Trial CTA with official WhatsApp green ('bg-emerald-600 hover:bg-emerald-500 text-white').
+- BRAND CONTAINER: The brand logo wrapper MUST have 'flex items-center gap-3 shrink-0 mr-4 lg:mr-8' to prevent collision with navigation links!
+- HIGH-INTENT NAVIGATION LINKS: The desktop navbar MUST include a link to '#pricing' (labeled 'Plans' or 'Pricing'). Keep nav links concise: at most 4-5 core links ('Programs' / 'Services', 'About', 'Plans' / 'Pricing', 'Gallery' / 'Facility', 'Contact'). Secondary links ('Why Us', 'Reviews', 'FAQ') must have 'hidden 2xl:inline-block'.
+- BALANCED CENTERED NAVBAR: The <nav> element MUST have 'hidden lg:flex items-center justify-center gap-3 lg:gap-4 xl:gap-6 2xl:gap-6 mx-auto px-2 lg:px-4 shrink-0'. NEVER stick <nav> directly against the brand logo or use 'mr-4/mr-6' with 'ml-auto'!
+- ACTION CTAS: The CTA buttons container MUST have 'hidden sm:flex items-center gap-2 sm:gap-3 shrink-0 flex-nowrap' (do NOT use 'ml-auto' which forces nav to stick to the brand logo). Always include Phone number CTA and WhatsApp Trial CTA with official WhatsApp green ('bg-emerald-600 hover:bg-emerald-500 text-white').
 `;
         antigravityPrompt += navbarPromptRules;
 
@@ -575,14 +576,41 @@ export class WebsiteBuilder {
                 return b;
             });
 
-            // Ensure gap is responsive in desktop nav (avoid oversized 32px gap that crashes into CTAs)
-            h = h.replace(/(<nav[^>]*class=["'][^"']*gap-)8([^"']*["'])/gi, '$13 lg:gap-4 xl:gap-5 2xl:gap-8 mr-4 lg:mr-6$2');
+            // Ensure brand logo wrapper has protective right margin and shrink-0
+            h = h.replace(/(<a\b[^>]*class=["'][^"']*(?:flex items-center|group)[^"']*["'][^>]*>[\s\S]*?(?:font-syne|font-bold|font-black)[\s\S]*?<\/a>)/gi, (brandHtml) => {
+                let b = brandHtml;
+                b = b.replace(/(class=["'][^"']*)(["'])/i, (m, cls, q) => {
+                    let c = cls;
+                    if (!c.includes('shrink-0')) c += ' shrink-0';
+                    if (!c.includes('mr-')) c += ' mr-4 lg:mr-8';
+                    return `${c}${q}`;
+                });
+                return b;
+            });
 
-            // Add margin buffer and push CTAs to right edge
+            // Ensure <nav> is centered with mx-auto, has responsive gap, and does NOT collide with brand or CTAs
+            h = h.replace(/(<nav\b[^>]*class=["'])([^"']*)(["'])/gi, (m, p1, cls, p3) => {
+                let c = cls;
+                // Strip colliding and obsolete classes
+                c = c.replace(/\bml-auto\b/g, '')
+                     .replace(/\b(?:lg:)?mr-[0-9]+\b/g, '')
+                     .replace(/\bshrink\b/g, '')
+                     .replace(/\b(?:lg:|xl:|2xl:)?gap-[0-9]+\b/g, '')
+                     .replace(/\bpx-[0-9]+\b/g, '')
+                     .replace(/\b(?:lg:)?px-[0-9]+\b/g, '');
+                if (!c.includes('mx-auto')) c += ' mx-auto';
+                if (!c.includes('justify-center')) c += ' justify-center';
+                if (!c.includes('shrink-0')) c += ' shrink-0';
+                c += ' gap-3 lg:gap-4 xl:gap-6 2xl:gap-6 px-2 lg:px-4';
+                return `${p1}${c.replace(/\s+/g, ' ').trim()}${p3}`;
+            });
+
+            // Remove ml-auto from CTAs container so it doesn't push nav into the brand logo, while keeping shrink-0
             h = h.replace(/(<div\b[^>]*class=["'][^"']*(?:sm:flex|md:flex)[^"']*)(["'])/gi, (m, p1, p2) => {
-                let c = p1;
-                if (!c.includes('ml-auto')) c = `${c} ml-auto pl-4 shrink-0 flex-nowrap`;
-                return `${c}${p2}`;
+                let c = p1.replace(/\bml-auto\b/g, '').replace(/\bpl-[0-9]+\b/g, '');
+                if (!c.includes('shrink-0')) c += ' shrink-0';
+                if (!c.includes('flex-nowrap')) c += ' flex-nowrap';
+                return `${c.replace(/\s+/g, ' ').trim()}${p2}`;
             });
 
             // Add whitespace-nowrap to all links inside <nav> and collapse secondary links on narrow desktops

@@ -149,6 +149,12 @@ export class VisualQualityGate {
                         }
                     });
 
+                    // B. Enforce Brand Logo protective margin and shrink-0
+                    const brandLogo = header.querySelector('a.flex, a.group');
+                    if (brandLogo) {
+                        brandLogo.classList.add('shrink-0', 'mr-4', 'lg:mr-8');
+                    }
+
                     // C. Enforce whitespace-nowrap and shrink-0 on all CTA buttons & actions inside header
                     const headerActions = Array.from(header.querySelectorAll('a, button'));
                     headerActions.forEach(action => {
@@ -159,11 +165,11 @@ export class VisualQualityGate {
                         spans.forEach(s => s.classList.add('whitespace-nowrap'));
                     });
 
-                    // D. Enforce responsive gap & fluid scaling on desktop <nav>
+                    // D. Enforce balanced, centered desktop <nav> with responsive fluid scaling
                     const nav = header.querySelector('nav');
                     if (nav) {
-                        nav.classList.remove('gap-8', 'gap-6');
-                        nav.classList.add('gap-3', 'lg:gap-4', 'xl:gap-5', '2xl:gap-8', 'shrink', 'mr-4', 'lg:mr-6');
+                        nav.classList.remove('gap-8', 'gap-6', 'gap-5', 'mr-4', 'mr-6', 'lg:mr-6', 'shrink', 'ml-auto');
+                        nav.classList.add('gap-3', 'lg:gap-4', 'xl:gap-6', '2xl:gap-6', 'mx-auto', 'justify-center', 'px-2', 'lg:px-4', 'shrink-0');
                         
                         // Enforce whitespace-nowrap on every nav link
                         const links = Array.from(nav.querySelectorAll('a'));
@@ -180,15 +186,14 @@ export class VisualQualityGate {
                         }
                     }
 
-                    // E. Action buttons container guard: enforce strict left margin and shrink-0
+                    // E. Action buttons container guard: remove ml-auto so it balances cleanly with mx-auto nav
                     const actionContainer = header.querySelector('.hidden.sm\\:flex, .hidden.md\\:flex, header > div > div:last-child');
                     if (actionContainer && actionContainer.querySelector('a[href^="tel:"], a[href*="wa.me"], a[href^="#"]')) {
-                        actionContainer.classList.add('shrink-0', 'flex-nowrap', 'ml-auto', 'pl-4');
-                        actionContainer.classList.remove('gap-4');
-                        actionContainer.classList.add('gap-2', 'sm:gap-3');
+                        actionContainer.classList.remove('ml-auto', 'pl-4', 'gap-4');
+                        actionContainer.classList.add('shrink-0', 'flex-nowrap', 'gap-2', 'sm:gap-3');
                     }
 
-                    logs.push('Enforced Anti-Collision & No-Wrap Guard on Header & Navbar');
+                    logs.push('Enforced Balanced Centered Layout & Anti-Collision Guard on Header & Navbar');
                 }
 
                 // ========================================================
