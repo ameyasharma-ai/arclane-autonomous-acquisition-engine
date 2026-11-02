@@ -290,13 +290,13 @@ export class VisualQualityGate {
                 });
 
                 // B. Comprehensive Layout Sanity Guard:
-                // Any card containing a form, details card, modal dialog, section, or footer
+                // Any card containing a form, details card, or modal dialog
                 // MUST NEVER have horizontal flex layout injected into its root container!
-                const nonFlexContainers = Array.from(document.querySelectorAll('section, form, footer, [class*="space-y-"], #success-modal, #success-modal > div, div:has(> form), div:has(> #trial-form)'));
+                const nonFlexContainers = Array.from(document.querySelectorAll('form, [class*="space-y-"], #success-modal, #success-modal > div, div:has(> form), div:has(> #trial-form)'));
                 nonFlexContainers.forEach(vc => {
                     const hasSpaceY = Array.from(vc.classList).some(c => c.startsWith('space-y-'));
                     const isPureVertical = hasSpaceY ||
-                        ['SECTION', 'FORM', 'FOOTER'].includes(vc.tagName) ||
+                        vc.tagName === 'FORM' ||
                         vc.id === 'success-modal' ||
                         vc.closest('#success-modal') ||
                         vc.querySelector('form');
@@ -352,10 +352,12 @@ export class VisualQualityGate {
                 const headings = Array.from(document.querySelectorAll('h1, h2, h3'));
                 headings.forEach(h => {
                     h.classList.add('break-words');
+                    // Enforce CSS word-breaking without injecting hardcoded inline clamp font-size,
+                    // preserving responsive Tailwind classes (e.g. sm:text-5xl, lg:text-7xl) on desktop!
                     if (h.scrollWidth > h.clientWidth + 2) {
-                        h.style.fontSize = 'clamp(1.1rem, 4vw, 1.75rem)';
+                        h.style.overflowWrap = 'break-word';
                         h.style.wordBreak = 'break-word';
-                        logs.push(`Auto-scaled overflowing heading "${h.innerText.slice(0, 20)}..."`);
+                        logs.push(`Applied word break to wide heading "${h.innerText.slice(0, 20)}..."`);
                     }
                 });
 
@@ -377,6 +379,17 @@ export class VisualQualityGate {
             await context.close();
 
             let finalHtml = auditResult.cleanedHtml;
+
+            // Strip deprecated X-Frame-Options meta tag (modern browsers only allow via HTTP response headers)
+            finalHtml = finalHtml.replace(/<meta\s+http-equiv=["']X-Frame-Options["'][^>]*>\s*/gi, '');
+
+            // Strip mobile-generated Tailwind CDN inline <style> block so client browser compiles dynamically for actual desktop/mobile viewport
+            finalHtml = finalHtml.replace(/<style\b[^>]*>([\s\S]*?)<\/style>/gi, (match, content) => {
+                if (content.includes('/* ! tailwindcss') || content.includes('--tw-border-spacing-x')) {
+                    return '';
+                }
+                return match;
+            });
 
             // 9. Authentic Photos Manifest Enforcement (Restores real Google Maps photos)
             if (slug) {
