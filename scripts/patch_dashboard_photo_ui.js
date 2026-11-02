@@ -98,3 +98,4 @@ if (!html.includes('function fetchPhotoPolicy()')) {
 
 fs.writeFileSync(htmlPath, html, 'utf8');
 console.log('public/index.html patched successfully!');
+

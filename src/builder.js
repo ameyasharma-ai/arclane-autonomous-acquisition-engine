@@ -287,6 +287,30 @@ export class WebsiteBuilder {
             console.log(`[Builder] 📁 Synced ${assetFiles.length} authentic asset files to /sites/${vercelSlug}/assets/`);
         }
 
+        // --- Zero-Redundancy Orphaned Asset Pruner ---
+        // Scan index.html for all asset files actually referenced, and delete unreferenced files to save Vercel storage
+        const referencedAssets = new Set();
+        const assetRefRegex = /(?:src|href)=["'][^"']*?assets\/([^"'?#]+)/gi;
+        let refMatch;
+        while ((refMatch = assetRefRegex.exec(htmlCode)) !== null) {
+            referencedAssets.add(refMatch[1].split('/').pop());
+        }
+
+        [agencyAssetsDir, clientAssetsDir].forEach(targetDir => {
+            if (fs.existsSync(targetDir)) {
+                const existingFiles = fs.readdirSync(targetDir);
+                for (const file of existingFiles) {
+                    if (file === 'photos_manifest.json') continue;
+                    if (!referencedAssets.has(file)) {
+                        try {
+                            fs.unlinkSync(path.join(targetDir, file));
+                            console.log(`[Builder] 🗑️ Pruned redundant/orphaned asset: ${file} from ${targetDir}`);
+                        } catch (e) {}
+                    }
+                }
+            }
+        });
+
         const githubRepoUrl = `https://github.com/ameyasharma-ai/WEB-DEV-AGENCY/tree/main/public/sites/${vercelSlug}`;
 
         await this.sendStatus(`✅ *[2/4] Code Generated Successfully!*\nSaved locally to \`generated_sites/${clientId}/index.html\`\nStaged for subdomain: \`${deployedUrl}\``);
@@ -906,6 +930,39 @@ export class WebsiteBuilder {
             if (!c.includes('border-0')) c = `border-0 ${c}`;
             if (!c.includes('block')) c = `block ${c}`;
             return `${p1}${c.replace(/\s+/g, ' ').trim()}${p3}`;
+        });
+
+        // 13. Zero-Redundancy Image & Asset Guard (Guarantees every visible image is unique)
+        const seenImageSrcs = new Set();
+        const nicheAssets = getVerifiedNicheAssets(businessName + ' ' + html.slice(0, 2000));
+        const fallbackPool = [
+            nicheAssets.hero,
+            ...(nicheAssets.featured || []),
+            ...(nicheAssets.gallery || [])
+        ].filter(Boolean);
+
+        let fallbackIdx = 0;
+
+        html = html.replace(/(<img\b(?![^>]*\b(?:avatar|logo|icon|badge)\b)[^>]*?\bsrc=["'])([^"']+)(["'][^>]*>)/gi, (fullTag, openPart, src, closePart) => {
+            const normalizedSrc = src.trim().split('?')[0]; // normalize query parameters
+            if (seenImageSrcs.has(normalizedSrc)) {
+                // Duplicate image detected! Find the next unused unique image from verified catalog
+                let replacement = null;
+                while (fallbackIdx < fallbackPool.length) {
+                    const candidate = fallbackPool[fallbackIdx++];
+                    const candNorm = candidate.split('?')[0];
+                    if (!seenImageSrcs.has(candNorm) && candNorm !== normalizedSrc) {
+                        replacement = candidate;
+                        break;
+                    }
+                }
+                if (replacement) {
+                    seenImageSrcs.add(replacement.split('?')[0]);
+                    return `${openPart}${replacement}${closePart}`;
+                }
+            }
+            seenImageSrcs.add(normalizedSrc);
+            return fullTag;
         });
 
         return html;

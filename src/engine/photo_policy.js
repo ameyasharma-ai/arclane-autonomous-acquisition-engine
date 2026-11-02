@@ -97,3 +97,4 @@ export class PhotoPolicyManager {
 }
 
 export const photoPolicy = new PhotoPolicyManager();
+

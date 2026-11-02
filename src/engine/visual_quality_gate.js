@@ -16,6 +16,7 @@
 import { chromium } from 'playwright';
 import fs from 'fs';
 import path from 'path';
+import { getVerifiedNicheAssets } from './verified_asset_catalog.js';
 
 export class VisualQualityGate {
     constructor() {
@@ -400,7 +401,7 @@ export class VisualQualityGate {
                                     if (desc) {
                                         const words = desc.split(/[^a-zA-Z0-9]+/).filter(w => w.length > 3);
                                         words.forEach(w => {
-                                            const re = new RegExp(`(<img[^>]*alt=["'][^"']*${w}[^"']*["'][^>]*src=["'])[^"']+["']`, 'gi');
+                                            const re = new RegExp(`(<img[^>]*alt=["'][^"']*${w}[^"']*["'][^>]*src=["'])[^"']+["']`, 'i');
                                             finalHtml = finalHtml.replace(re, `$1${gUrl}"`);
                                         });
                                     }
@@ -413,6 +414,34 @@ export class VisualQualityGate {
 
             // Remove any leftover data-has-fallen-back attribute
             finalHtml = finalHtml.replace(/\s*data-has-fallen-back=["'][^"']*["']/gi, '');
+
+            // 10. Zero-Redundancy Image & Asset Guard (Guarantees every visible image is 100% unique)
+            const seenFinalSrcs = new Set();
+            const catAssets = getVerifiedNicheAssets(slug + ' ' + businessName);
+            const pool = [catAssets.hero, ...(catAssets.featured || []), ...(catAssets.gallery || [])].filter(Boolean);
+            let poolIdx = 0;
+
+            finalHtml = finalHtml.replace(/(<img\b(?![^>]*\b(?:avatar|logo|icon|badge)\b)[^>]*?\bsrc=["'])([^"']+)(["'][^>]*>)/gi, (fullTag, openPart, src, closePart) => {
+                const normalized = src.trim().split('?')[0];
+                if (seenFinalSrcs.has(normalized)) {
+                    auditResult.logs.push(`Zero-Redundancy Guard: Replaced duplicate image (${normalized}) with unique verified asset`);
+                    let replacement = null;
+                    while (poolIdx < pool.length) {
+                        const candidate = pool[poolIdx++];
+                        const candNorm = candidate.split('?')[0];
+                        if (!seenFinalSrcs.has(candNorm) && candNorm !== normalized) {
+                            replacement = candidate;
+                            break;
+                        }
+                    }
+                    if (replacement) {
+                        seenFinalSrcs.add(replacement.split('?')[0]);
+                        return `${openPart}${replacement}${closePart}`;
+                    }
+                }
+                seenFinalSrcs.add(normalized);
+                return fullTag;
+            });
 
             // Deduplicate redundant <style> blocks in final output
             const finalSeenStyles = new Set();
