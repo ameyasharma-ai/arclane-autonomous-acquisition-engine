@@ -1,4 +1,5 @@
-import { resolveVerifiedFoodImage, VERIFIED_IMAGE_CATALOG } from './engine/verified_asset_catalog.js';
+import { resolveVerifiedFoodImage, VERIFIED_IMAGE_CATALOG, getVerifiedNicheAssets } from './engine/verified_asset_catalog.js';
+import { photoPolicy } from './engine/photo_policy.js';
 import fs from 'fs';
 import path from 'path';
 import { exec } from 'child_process';
@@ -120,8 +121,29 @@ export class WebsiteBuilder {
         const photosManifestPath = path.join(clientReportsDir, 'photos_manifest.json');
         let hasAuthenticPhotos = false;
 
-        // Autonomous Google Maps Photo Extraction & Vision Classification for any new lead
-        if (!fs.existsSync(photosManifestPath)) {
+        // Check persistent Photo Policy mode & per-lead overrides
+        const leadPhotoPref = photoPolicy.getLeadPhotoSource(clientId);
+        const globalPhotoPolicy = photoPolicy.getMode();
+        const forceStock = leadPhotoPref === 'stock' || globalPhotoPolicy === 'stock_only';
+
+        let industry = 'Commercial';
+        const indMatch = reportContent.match(/(?:Industry|Niche|Vertical):\s*([^\n\r]+)/i);
+        if (indMatch) industry = indMatch[1].trim();
+
+        // Autonomous Google Maps Photo Extraction & Vision Classification (or Verified Stock Policy)
+        if (forceStock) {
+            console.log(`[Builder] 🖼️ Photo Policy active: Using verified curated stock library for Lead #${clientId} (${businessName})...`);
+            const stockAssets = getVerifiedNicheAssets(industry + ' ' + businessName);
+            const stockManifest = {
+                hasRealPhotos: false,
+                useStockForHero: true,
+                photoSource: 'verified_stock',
+                hero: { src: stockAssets.hero, description: `${businessName} verified ambiance` },
+                featured: (stockAssets.featured || []).map((src, i) => ({ src, description: `Signature highlight ${i + 1}` })),
+                gallery: (stockAssets.gallery || []).map((src, i) => ({ src, description: `Facility ambiance ${i + 1}` }))
+            };
+            fs.writeFileSync(photosManifestPath, JSON.stringify(stockManifest, null, 2), 'utf8');
+        } else if (!fs.existsSync(photosManifestPath)) {
             try {
                 let mapsUrl = '';
                 const mapsMatch = reportContent.match(/(?:Google Maps URL|Maps URL|Listing URL):\s*([^\n\r]+)/i);
@@ -130,10 +152,6 @@ export class WebsiteBuilder {
                 let address = '';
                 const addrMatch = reportContent.match(/(?:Address|Full Address):\s*([^\n\r]+)/i);
                 if (addrMatch) address = addrMatch[1].trim();
-
-                let industry = 'Commercial';
-                const indMatch = reportContent.match(/(?:Industry|Niche|Vertical):\s*([^\n\r]+)/i);
-                if (indMatch) industry = indMatch[1].trim();
 
                 console.log(`[Builder] 📸 Autonomous Google Maps Photo Pipeline running for "${businessName}"...`);
                 await this.sendStatus(`📸 *Extracting real Google Maps photos for ${businessName}...*`);
@@ -154,7 +172,17 @@ export class WebsiteBuilder {
                     await mapsPhotoPipeline.downloadAndStageAssets(classified, clientSiteDir);
                     console.log(`[Builder] ✅ Real photos extracted & staged for ${businessName}`);
                 } else {
-                    console.log(`[Builder] ℹ️ Zero Maps photos found for ${businessName}, falling back to verified stock.`);
+                    console.log(`[Builder] ℹ️ Zero Maps photos found for ${businessName}, seamlessly falling back to verified curated stock.`);
+                    const stockAssets = getVerifiedNicheAssets(industry + ' ' + businessName);
+                    const stockManifest = {
+                        hasRealPhotos: false,
+                        useStockForHero: true,
+                        photoSource: 'verified_stock',
+                        hero: { src: stockAssets.hero, description: `${businessName} verified ambiance` },
+                        featured: (stockAssets.featured || []).map((src, i) => ({ src, description: `Signature highlight ${i + 1}` })),
+                        gallery: (stockAssets.gallery || []).map((src, i) => ({ src, description: `Facility ambiance ${i + 1}` }))
+                    };
+                    fs.writeFileSync(photosManifestPath, JSON.stringify(stockManifest, null, 2), 'utf8');
                 }
             } catch (crawlErr) {
                 console.warn(`[Builder] Auto-crawl photo notice: ${crawlErr.message}`);

@@ -10,6 +10,8 @@ import { DeduplicationEngine } from './engine/deduplication.js';
 import { FollowUpEngine } from './engine/follow_up.js';
 import { loadGoogleSheet, clearCrmSheet, clearHostedCrmFields } from './sheets.js';
 import { agencyPublisher } from './agency_publisher.js';
+import { photoPolicy } from './engine/photo_policy.js';
+import { WebsiteBuilder } from './builder.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -246,6 +248,45 @@ class WebUIServer {
                 }
             } catch (e) {}
             res.json({ success: true, isAutoRunning });
+        });
+
+        // 6a. Persistent Photo Policy Strategy API
+        this.app.get('/api/photo-policy', (req, res) => {
+            res.json({
+                success: true,
+                mode: photoPolicy.getMode(),
+                leadOverrides: photoPolicy.leadOverrides
+            });
+        });
+
+        this.app.post('/api/photo-policy/toggle', (req, res) => {
+            const { mode } = req.body;
+            try {
+                const updatedMode = photoPolicy.setMode(mode);
+                this.io.emit('photo_policy_changed', { mode: updatedMode });
+                this.broadcast(`📸 *[Photo Policy]* Global image sourcing set to: \`${updatedMode}\``);
+                res.json({ success: true, mode: updatedMode });
+            } catch (e) {
+                res.status(400).json({ success: false, error: e.message });
+            }
+        });
+
+        this.app.post('/api/photo-policy/lead-toggle', async (req, res) => {
+            const { clientId, source } = req.body;
+            try {
+                if (!clientId) return res.status(400).json({ success: false, error: 'clientId is required' });
+                const updatedSource = photoPolicy.setLeadPhotoOverride(clientId, source);
+                
+                // Re-build lead website with the updated photo preference
+                this.broadcast(`🔄 *[Photo Policy]* Rebuilding Lead #${clientId} with ${updatedSource === 'stock' ? 'Curated Stock' : 'Authentic Maps'} photos...`);
+                const builder = new WebsiteBuilder();
+                const buildRes = await builder.buildClientWebsite(Number(clientId), true);
+                
+                this.io.emit('lead_photo_toggled', { clientId, source: updatedSource, deployedUrl: buildRes.deployedUrl });
+                res.json({ success: true, clientId, source: updatedSource, deployedUrl: buildRes.deployedUrl });
+            } catch (e) {
+                res.status(500).json({ success: false, error: e.message });
+            }
         });
 
         this.app.post('/api/scheduler/toggle', async (req, res) => {
