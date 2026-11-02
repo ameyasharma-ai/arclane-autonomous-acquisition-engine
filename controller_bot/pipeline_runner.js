@@ -685,61 +685,24 @@ export class PipelineRunner {
         this.isProcessing = true;
         this.isAborted = false;
 
-        await this.sendTelegram(
-            `🎯 *[Instant Builder] Processing Custom Google Maps Link...*\n\n` +
-            `🔗 URL: \`${mapsUrl}\`\n` +
-            `⚡ Scraping details, synthesizing audit, and building custom website...`
-        );
-
         try {
-            const { sheet } = await loadGoogleSheet();
-            const rows = await sheet.getRows();
-            const nextClientId = rows.length + 1;
-
-            const scraper = new Scraper();
-            await scraper.init();
-            const rawLeadData = {
-                'Client ID': nextClientId,
-                'Business Name': 'Direct Maps Target',
-                'Existing Website': '',
-                'Agency Hosted URL': '',
-                'Website URL': '',
-                'Maps URL': mapsUrl
-            };
-            const scrapedData = await scraper.scrapeLead(rawLeadData);
-            await scraper.close();
-
-            const leadObj = {
-                clientId: nextClientId,
-                businessName: 'Custom Target ' + nextClientId,
-                phone: scrapedData.extractedPhones?.[0] || '',
-                whatsapp: scrapedData.extractedPhones?.[0] || '',
-                website: '',
-                address: 'Patna, Bihar'
-            };
-
-            const result = await this.processSingleLead(leadObj, sheet);
-            if (agencyPublisher.batchQueue.length > 0) {
-                await agencyPublisher.deployBatch(async (msg) => this.sendTelegram(msg));
-            }
+            const { instantMapsBuilder } = await import('../src/engine/instant_maps_builder.js');
+            const result = await instantMapsBuilder.processMapsUrl(mapsUrl, {
+                notify: (msg) => this.sendTelegram(msg),
+                bot: this.telegramBot,
+                chatId: this.chatId
+            });
 
             this.isProcessing = false;
-            await this.sendTelegram(
-                `🎉 *[Instant Builder Complete!]*\n\n` +
-                `🏢 *Business:* ${result.businessName}\n` +
-                `🔗 *Live Website:* ${result.deployedUrl}\n` +
-                `📄 *Audit Link:* https://www.arclanestudios.space/reports/${nextClientId}`
-            );
             return result;
         } catch (e) {
             this.isProcessing = false;
-            await this.sendTelegram(`❌ *[Instant Builder Error]:* ${e.message}`);
             throw e;
         }
     }
 
     /**
-     * Autonomous Chained Locality Scrape: Solves boundary exhaustion by hopping micro-localities
+     * Autonomously hops localities to fulfill target leads
      */
     async runLocalityChain({ query, city = 'Patna', state = 'Bihar', targetTotal = 100, scraperRunner }) {
         if (this.isProcessing) {

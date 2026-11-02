@@ -78,7 +78,7 @@ class WebUIServer {
                 console.log(`[WebUI] Command received: ${text}`);
 
                 const rawCmd = text.split(' ')[0].replace('/', '').trim().toLowerCase();
-                const isControlOrStatus = ['status', 'today', 'help', 'start', 'abort', 'stop', 'reset_plan', 'resume_plan', 'coverage', 'view_plan', 'metrics', 'fix', 'build', 'fix_lead', 'build_lead', 'rebuild'].includes(rawCmd);
+                const isControlOrStatus = ['status', 'today', 'help', 'start', 'abort', 'stop', 'reset_plan', 'resume_plan', 'coverage', 'view_plan', 'metrics', 'fix', 'build', 'fix_lead', 'build_lead', 'rebuild', 'build_url'].includes(rawCmd);
                 const isHeavyTask = !text.startsWith('action:') && !isControlOrStatus && text.startsWith('/');
 
                 const busyInfo = this.getBusyStatus();
@@ -122,7 +122,22 @@ class WebUIServer {
 
                 try {
                     let handled = false;
-                    if (text.startsWith('action:')) {
+                    const mapsRegex = /(https?:\/\/(?:www\.)?(?:google\.com\/maps|maps\.app\.goo\.gl|goo\.gl\/maps)[^\s]+)/i;
+                    const mapsMatch = text.match(mapsRegex);
+
+                    if (mapsMatch) {
+                        try {
+                            const { instantMapsBuilder } = await import('./engine/instant_maps_builder.js');
+                            await instantMapsBuilder.processMapsUrl(mapsMatch[1], {
+                                notify: (msg) => fakeCtx.reply(msg),
+                                bot: this.telegramBot,
+                                chatId: 'local-web-ui'
+                            });
+                        } catch (mapsErr) {
+                            fakeCtx.reply(`❌ Build from URL failed: ${mapsErr.message}`);
+                        }
+                        handled = true;
+                    } else if (text.startsWith('action:')) {
                         const actionName = text.replace('action:', '');
                         try {
                             fakeCtx.callbackQuery = { data: actionName };
