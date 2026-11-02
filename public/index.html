@@ -496,6 +496,8 @@
         const socket = io();
         const messagesDiv = document.getElementById('messages');
         const cmdInput = document.getElementById('cmdInput');
+        var isProcessRunning = false;
+
 
         // View Switching
         function switchView(viewName) {
@@ -524,6 +526,17 @@
             if (data && typeof data.isAutoRunning === 'boolean') {
                 updateSchedulerUI(data.isAutoRunning);
             }
+        });
+
+        socket.on('photo_policy_changed', (data) => {
+            if (data && data.mode) {
+                const sel = document.getElementById('select-photo-policy');
+                if (sel) sel.value = data.mode;
+            }
+        });
+
+        socket.on('lead_photo_toggled', () => {
+            fetchApprovalQueue();
         });
 
         socket.on('history', (history) => {
@@ -626,7 +639,59 @@
                 .catch(()=>{});
         }
         fetchSchedulerStatus();
-            fetchPhotoPolicy();
+        // Persistent Photo Policy Management
+        function fetchPhotoPolicy() {
+            fetch('/api/photo-policy')
+                .then(r => r.json())
+                .then(d => {
+                    if (d && d.success && d.mode) {
+                        const sel = document.getElementById('select-photo-policy');
+                        if (sel) sel.value = d.mode;
+                    }
+                })
+                .catch(() => {});
+        }
+        fetchPhotoPolicy();
+
+        function changePhotoPolicy(newMode) {
+            showToast(`📸 Updating photo policy to: ${newMode}...`);
+            fetch('/api/photo-policy/toggle', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mode: newMode })
+            })
+            .then(r => r.json())
+            .then(d => {
+                if (d && d.success) {
+                    showToast(`✅ Photo sourcing policy saved: ${d.mode}`);
+                } else {
+                    showToast('❌ Failed to update photo policy: ' + (d?.error || 'Unknown error'));
+                }
+            })
+            .catch(err => {
+                showToast(`❌ Failed to update photo policy: ${err.message}`);
+            });
+        }
+
+        async function toggleLeadPhotoSource(clientId, source) {
+            showToast(`🔄 Rebuilding Lead #${clientId} with ${source === 'stock' ? 'Curated Stock' : 'Authentic Maps'}...`);
+            try {
+                const res = await fetch('/api/photo-policy/lead-toggle', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ clientId, source })
+                });
+                const d = await res.json();
+                if (d && d.success) {
+                    showToast(`✅ Lead #${clientId} rebuilt & deployed live!`);
+                    fetchApprovalQueue();
+                } else {
+                    showToast(`⚠️ Rebuild notice: ${d?.error || 'Failed to update'}`);
+                }
+            } catch (e) {
+                showToast(`❌ Rebuild error: ${e.message}`);
+            }
+        }
 
         function toggleSchedulerAutomation() {
             const nextState = !isAutoRunning;
@@ -1070,7 +1135,7 @@
             messagesDiv.appendChild(div);
         }
 
-        let isProcessRunning = false;
+
 
         function updateProcessLockUI(status) {
             const isBusy = status && Boolean(status.isBusy);
@@ -1166,7 +1231,7 @@
         if (messagesDiv) {
             messagesDiv.addEventListener('scroll', () => {
                 const distanceToBottom = messagesDiv.scrollHeight - messagesDiv.scrollTop - messagesDiv.clientHeight;
-                if (distanceToBottom > 120) {
+                if (distanceToBottom > 40) {
                     if (scrollBtn) scrollBtn.classList.remove('hidden');
                 } else {
                     if (scrollBtn) scrollBtn.classList.add('hidden');
