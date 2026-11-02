@@ -97,14 +97,14 @@ export class VisualQualityGate {
             await page.setContent(auditHtml, { waitUntil: 'domcontentloaded', timeout: 30000 });
 
             // Run in-browser algorithmic audit and DOM surgery
-            const auditResult = await page.evaluate((origSrcs) => {
+            const auditResult = await page.evaluate(({ origSrcs, bName }) => {
                 const logs = [];
 
                 // ========================================================
                 // 1. Announcement Bar Ribbon Guard (Prevents 1080px Screen Wall)
                 // ========================================================
                 const banner = document.querySelector('#announcement-bar, body > div:first-child');
-                if (banner && (banner.id === 'announcement-bar' || banner.innerText.includes('OFFER') || banner.innerText.includes('LIMITED') || banner.className.includes('amber'))) {
+                if (banner && (banner.id === 'announcement-bar' || banner.innerText.includes('OFFER') || banner.innerText.includes('LIMITED') || banner.innerText.includes('Limited') || banner.className.includes('amber') || banner.className.includes('primary'))) {
                     // Strip aspect-ratio, arbitrary heights, and border radiuses (including responsive variants like sm:aspect-[16/9])
                     Array.from(banner.classList).forEach(cls => {
                         if (/(?:^|:)(?:aspect-|h-(?:\[[^\]]+\]|[0-9]+)|rounded-)/.test(cls)) {
@@ -115,7 +115,7 @@ export class VisualQualityGate {
                     banner.style.minHeight = 'auto';
                     banner.style.maxHeight = '';
                     banner.style.aspectRatio = 'auto';
-                    banner.classList.add('h-auto', 'py-2.5', 'px-4');
+                    banner.classList.add('h-auto', 'py-2.5', 'px-4', 'w-full', 'relative', 'z-50');
                     logs.push('Normalized Announcement Bar to clean auto height ribbon');
                 }
 
@@ -124,7 +124,22 @@ export class VisualQualityGate {
                 // ========================================================
                 const header = document.querySelector('header');
                 if (header) {
-                    // A. Restore corrupted CTA buttons in header or anywhere that caught announcement bar styles
+                    // A. Smart 2-Letter Monogram Guard (Prevents single-letter "P" parking logos)
+                    if (bName) {
+                        const cleanName = bName.replace(/^(?:The|A|An)\s+/i, '').replace(/[^a-zA-Z0-9\s]/g, '').trim();
+                        const words = cleanName.split(/\s+/).filter(w => w.length > 0);
+                        const mono = words.length >= 2 ? (words[0][0] + words[1][0]).toUpperCase() : cleanName.slice(0, 2).toUpperCase();
+
+                        if (mono && mono.length >= 2) {
+                            const logoBox = header.querySelector('a:first-child > div:first-child');
+                            if (logoBox && logoBox.innerText.trim().length === 1) {
+                                logoBox.innerText = mono;
+                                logs.push(`Auto-upgraded logo monogram from "${logoBox.innerText.trim()}" to "${mono}"`);
+                            }
+                        }
+                    }
+
+                    // B. Restore corrupted CTA buttons in header or anywhere that caught announcement bar styles
                     const allLinks = Array.from(document.querySelectorAll('a, button'));
                     allLinks.forEach(el => {
                         const href = el.getAttribute('href') || '';
@@ -134,7 +149,7 @@ export class VisualQualityGate {
                         }
                     });
 
-                    // B. Enforce whitespace-nowrap and shrink-0 on all CTA buttons & actions inside header
+                    // C. Enforce whitespace-nowrap and shrink-0 on all CTA buttons & actions inside header
                     const headerActions = Array.from(header.querySelectorAll('a, button'));
                     headerActions.forEach(action => {
                         // Skip main brand logo wrapper so brand text can wrap if necessary
@@ -144,31 +159,31 @@ export class VisualQualityGate {
                         spans.forEach(s => s.classList.add('whitespace-nowrap'));
                     });
 
-                    // C. Enforce responsive gap & fluid scaling on desktop <nav>
+                    // D. Enforce responsive gap & fluid scaling on desktop <nav>
                     const nav = header.querySelector('nav');
                     if (nav) {
                         nav.classList.remove('gap-8', 'gap-6');
-                        nav.classList.add('gap-3', 'lg:gap-4', 'xl:gap-8', 'shrink');
+                        nav.classList.add('gap-3', 'lg:gap-4', 'xl:gap-5', '2xl:gap-8', 'shrink', 'mr-4', 'lg:mr-6');
                         
                         // Enforce whitespace-nowrap on every nav link
                         const links = Array.from(nav.querySelectorAll('a'));
                         links.forEach(l => l.classList.add('whitespace-nowrap', 'shrink-0'));
 
-                        // Prevent link overflow from pushing CTAs on 1024px-1280px viewports
+                        // Prevent link overflow from pushing CTAs on 1024px-1366px viewports
                         if (links.length > 4) {
                             links.forEach(l => {
                                 const text = l.innerText.trim().toLowerCase();
-                                if (['why us', 'faq', 'reviews'].includes(text)) {
-                                    l.classList.add('hidden', 'xl:inline-block');
+                                if (['why us', 'faq', 'reviews', 'location'].includes(text)) {
+                                    l.classList.add('hidden', '2xl:inline-block');
                                 }
                             });
                         }
                     }
 
-                    // D. Action buttons container guard
+                    // E. Action buttons container guard: enforce strict left margin and shrink-0
                     const actionContainer = header.querySelector('.hidden.sm\\:flex, .hidden.md\\:flex, header > div > div:last-child');
                     if (actionContainer && actionContainer.querySelector('a[href^="tel:"], a[href*="wa.me"], a[href^="#"]')) {
-                        actionContainer.classList.add('shrink-0', 'flex-nowrap');
+                        actionContainer.classList.add('shrink-0', 'flex-nowrap', 'ml-auto', 'pl-4');
                         actionContainer.classList.remove('gap-4');
                         actionContainer.classList.add('gap-2', 'sm:gap-3');
                     }
@@ -374,7 +389,7 @@ export class VisualQualityGate {
                     logs,
                     cleanedHtml: '<!DOCTYPE html>\n' + document.documentElement.outerHTML
                 };
-            }, originalImageSrcs);
+            }, { origSrcs: originalImageSrcs, bName: businessName });
 
             await context.close();
 

@@ -225,6 +225,19 @@ export class WebsiteBuilder {
             }
         }
 
+        // Injected Mandatory Header, Monogram & Navbar Anti-Collision Standards
+        const cleanNameForMonogram = businessName.replace(/^(?:The|A|An)\s+/i, '').replace(/[^a-zA-Z0-9\s]/g, '').trim();
+        const wordsForMonogram = cleanNameForMonogram.split(/\s+/).filter(w => w.length > 0);
+        let canonicalMonogram = wordsForMonogram.length >= 2 ? (wordsForMonogram[0][0] + wordsForMonogram[1][0]).toUpperCase() : cleanNameForMonogram.slice(0, 2).toUpperCase();
+
+        const navbarPromptRules = `\n\n## 🧭 MANDATORY HEADER & NAVBAR DESIGN STANDARDS:
+- BRAND LOGO MONOGRAM: The logo badge square MUST display the 2-letter monogram '${canonicalMonogram}' (e.g. '<div class="w-10 h-10 rounded-xl ... font-syne font-black text-xl">${canonicalMonogram}</div>'). NEVER use an isolated single letter like 'P'!
+- HIGH-INTENT NAVIGATION LINKS: The desktop navbar MUST include a link to '#pricing' (labeled 'Plans' or 'Pricing'). Keep nav links concise: at most 4-5 core links ('Programs' / 'Services', 'About', 'Plans' / 'Pricing', 'Gallery' / 'Facility', 'Contact').
+- ANTI-COLLISION SPACING: The <nav> element MUST have 'gap-3 lg:gap-4 xl:gap-5 mr-6' so links NEVER collide with the right CTA buttons!
+- CTAS: Always include Phone number CTA and WhatsApp Trial CTA with official WhatsApp green ('bg-emerald-600 hover:bg-emerald-500 text-white').
+`;
+        antigravityPrompt += navbarPromptRules;
+
         await this.sendStatus(`🚀 *[1/4] Generating Website Code for ${businessName}...*\nUsing Antigravity Prompt from reports/${clientId}`);
 
         // 2. Generate Code using LLM
@@ -533,9 +546,22 @@ export class WebsiteBuilder {
             return `${p1}${c}${p3}`;
         });
 
-        // 1B. Enforce Header & Navbar Anti-Collision & Whitespace-Nowrap Guard
+        // 1B. Enforce Header & Navbar Anti-Collision, Monogram Guard & Whitespace-Nowrap
         html = html.replace(/(<header[\s\S]*?<\/header>)/gi, (headerHtml) => {
             let h = headerHtml;
+
+            // Smart 2-Letter Monogram Guard (Prevents awkward single-letter "P" parking logos)
+            if (businessName) {
+                const cleanName = businessName.replace(/^(?:The|A|An)\s+/i, '').replace(/[^a-zA-Z0-9\s]/g, '').trim();
+                const words = cleanName.split(/\s+/).filter(w => w.length > 0);
+                const monogram = words.length >= 2 ? (words[0][0] + words[1][0]).toUpperCase() : cleanName.slice(0, 2).toUpperCase();
+
+                if (monogram && monogram.length >= 2) {
+                    h = h.replace(/(<a\b[^>]*>[\s\S]*?<div\b[^>]*class=["'][^"']*(?:rounded-xl|rounded-2xl|rounded-lg)[^"']*["'][^>]*>)\s*([A-Za-z])\s*(<\/div>)/i, (m, openDiv, singleLetter, closeDiv) => {
+                        return `${openDiv}${monogram}${closeDiv}`;
+                    });
+                }
+            }
 
             // Restore any corrupted CTA button classes in header that accidentally received announcement-bar styling
             h = h.replace(/(<a[^>]*href=["'][^"']*(?:wa\.me|whatsapp|#trial)[^"']*["'][^>]*class=["'])[^"']*bg-zinc-950[^"']*(["'])/gi,
@@ -543,14 +569,21 @@ export class WebsiteBuilder {
 
             // Add whitespace-nowrap and shrink-0 to action buttons
             h = h.replace(/(<(?:a|button)[^>]*class=["'][^"']*(?:rounded-xl|rounded-2xl|rounded-full|border|bg-gradient)[^"']*["'][^>]*>)/gi, (btnTag) => {
-                if (btnTag.includes('font-syne') || btnTag.includes('group') || btnTag.includes('menu-btn')) return btnTag; // skip logo and menu button
+                if (btnTag.includes('font-syne') || btnTag.includes('group') || btnTag.includes('menu-btn') || btnTag.includes('menu-toggle')) return btnTag; // skip logo and menu button
                 let b = btnTag;
                 if (!b.includes('whitespace-nowrap')) b = b.replace(/class=["']/, 'class="whitespace-nowrap shrink-0 ');
                 return b;
             });
 
-            // Ensure gap is responsive in desktop nav
-            h = h.replace(/(<nav[^>]*class=["'][^"']*gap-)8([^"']*["'])/gi, '$13 lg:gap-4 xl:gap-8$2');
+            // Ensure gap is responsive in desktop nav (avoid oversized 32px gap that crashes into CTAs)
+            h = h.replace(/(<nav[^>]*class=["'][^"']*gap-)8([^"']*["'])/gi, '$13 lg:gap-4 xl:gap-5 2xl:gap-8 mr-4 lg:mr-6$2');
+
+            // Add margin buffer and push CTAs to right edge
+            h = h.replace(/(<div\b[^>]*class=["'][^"']*(?:sm:flex|md:flex)[^"']*)(["'])/gi, (m, p1, p2) => {
+                let c = p1;
+                if (!c.includes('ml-auto')) c = `${c} ml-auto pl-4 shrink-0 flex-nowrap`;
+                return `${c}${p2}`;
+            });
 
             // Add whitespace-nowrap to all links inside <nav> and collapse secondary links on narrow desktops
             h = h.replace(/(<nav[\s\S]*?<\/nav>)/gi, (navHtml) => {
@@ -558,14 +591,14 @@ export class WebsiteBuilder {
                 // Add whitespace-nowrap to every nav link
                 n = n.replace(/(<a\b[^>]*class=["'])([^"']*)(["'])/gi, (m, p1, cls, p3) => {
                     let c = cls;
-                    if (!c.includes('whitespace-nowrap')) c = `${c} whitespace-nowrap`;
+                    if (!c.includes('whitespace-nowrap')) c = `${c} whitespace-nowrap shrink-0`;
                     return `${p1}${c.trim()}${p3}`;
                 });
-                // Ensure secondary links are hidden on lg (1024-1280px) and visible on xl
-                n = n.replace(/(<a\b[^>]*href=["']#(?:why-us|faq|reviews)["'][^>]*class=["'])([^"']*)(["'])/gi, (m, p1, cls, p3) => {
+                // Ensure secondary links (why-us, faq, reviews, location) are hidden on lg/xl and visible only on 2xl
+                n = n.replace(/(<a\b[^>]*href=["']#(?:why-us|faq|reviews|location)["'][^>]*class=["'])([^"']*)(["'])/gi, (m, p1, cls, p3) => {
                     let c = cls;
-                    if (!c.includes('hidden') && !c.includes('xl:inline-block') && !c.includes('xl:flex')) {
-                        c = `${c} hidden xl:inline-block`;
+                    if (!c.includes('hidden') && !c.includes('2xl:inline-block')) {
+                        c = `${c} hidden 2xl:inline-block`;
                     }
                     return `${p1}${c.trim()}${p3}`;
                 });
@@ -576,10 +609,12 @@ export class WebsiteBuilder {
         });
 
         // 1C. Modernize Announcement Bar for Dark Aesthetic (Strictly scoped to the top announcement bar ribbon)
-        if (html.includes('bg-[#09090b]') || html.includes('bg-[#09090B]') || html.includes('bg-zinc-950') || html.includes('bg-black')) {
-            html = html.replace(/(<(?:div|aside)[^>]*?(?:id=["']announcement-bar["']|class=["'][^"']*sticky\s+top-0[^"']*["'])[^>]*class=["'])([^"']*bg-gradient-to-r\s+from-\[#D4AF37\][^"']*)(["'])/gi,
-                '$1bg-zinc-950 border-b border-zinc-800/80 text-zinc-300 font-medium text-xs sm:text-sm py-2 px-4 text-center sticky top-0 z-50 flex items-center justify-center gap-2 shadow-sm$3');
-        }
+        html = html.replace(/(<(?:div|aside)[^>]*?(?:id=["']announcement-bar["']|class=["'][^"']*(?:text-xs|text-sm)[^"']*(?:LIMITED|OFFER|Limited|Offer)[^"']*["'])[^>]*class=["'])([^"']*)(["'])/gi, (m, p1, cls, p3) => {
+            let c = cls;
+            if (!c.includes('w-full')) c = `w-full ${c}`;
+            if (!c.includes('relative') && !c.includes('sticky')) c = `relative z-50 ${c}`;
+            return `${p1}${c.trim()}${p3}`;
+        });
 
         // Deduplicate redundant <style> blocks (e.g. Tailwind CSS outputs)
         const seenStyles = new Set();
