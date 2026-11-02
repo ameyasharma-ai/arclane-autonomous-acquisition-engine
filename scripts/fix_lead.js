@@ -17,7 +17,7 @@ const __dirname = path.dirname(__filename);
 async function fixLead() {
     const args = process.argv.slice(2);
     const clientId = Number(args[0] || '4');
-    const rebuild = args.includes('--rebuild');
+    const rebuild = !args.includes('--no-rebuild');
 
     console.log('===========================================================');
     console.log(`🔧 RUNNING VISUAL FIXER FOR LEAD #${clientId}`);
