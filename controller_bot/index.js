@@ -318,10 +318,14 @@ bot.command('reset_plan', handleResetResumePlan);
 bot.command('resume_plan', handleResetResumePlan);
 bot.command('abort_and_resume', handleResetResumePlan);
 
+// Flag for user-requested cancellation of manual batch fix jobs
+let isFixLeadAborted = false;
+
 // Command: /abort and /stop
 async function handleAbort(ctx) {
     if (!scheduler) scheduler = new Scheduler(bot, ctx.chat.id);
     scheduler.setChatId(ctx.chat.id);
+    isFixLeadAborted = true;
 
     const wasScraperRunning = scheduler.scraperRunner.isRunning;
     const wasPipelineRunning = scheduler.pipelineRunner.isProcessing;
@@ -775,33 +779,23 @@ bot.command('build_url', async (ctx) => {
 
 
 // ==========================================
-// Command: /fix <clientId> or /build <clientId>
-// Fixes or builds a specific lead with the new Vision AI & Verified Asset Engine
+// Core Lead Fix & Rebuild Worker
 // ==========================================
-async function handleFixLead(ctx) {
-    if (!scheduler) scheduler = new Scheduler(bot, ctx.chat.id);
-    if (ctx.chat?.id) scheduler.setChatId(ctx.chat.id);
+async function fixLeadCore(clientId, ctx, { isBatch = false, allLeadsCache = null } = {}) {
+    const { loadGoogleSheet } = await import('../src/sheets.js');
+    const { mapsPhotoCrawler } = await import('../src/engine/maps_photo_crawler.js');
+    const { mapsPhotoPipeline } = await import('../src/engine/maps_photo_pipeline.js');
+    const { agencyPublisher } = await import('../src/agency_publisher.js');
+    const { WebsiteBuilder } = await import('../src/builder.js');
+    const fsMod = await import('fs');
+    const pathMod = await import('path');
 
-    const text = ctx.message?.text || '';
-    const match = text.match(/(?:\/fix|\/build|\/build_lead|\/rebuild|fix|build)\s+(\d+)/i);
-    const clientId = match ? parseInt(match[1], 10) : parseInt(text.split(' ')[1], 10);
-
-    if (!clientId || isNaN(clientId)) {
-        return ctx.reply("❌ Please provide a valid Client ID.\n\nExample: `/fix 202` or `/build 202`", { parse_mode: 'Markdown' });
+    let lead = null;
+    if (allLeadsCache && Array.isArray(allLeadsCache)) {
+        lead = allLeadsCache.find(l => Number(l['Client ID']) === clientId);
     }
 
-    await ctx.reply(`🧠 *Starting Vision AI Fix for Lead #${clientId}...*\n_Extracting photos, running Gemini Vision filtering, and rebuilding with verified design standards._`, { parse_mode: 'Markdown' });
-
-    try {
-        const { loadGoogleSheet } = await import('../src/sheets.js');
-        const { mapsPhotoCrawler } = await import('../src/engine/maps_photo_crawler.js');
-        const { mapsPhotoPipeline } = await import('../src/engine/maps_photo_pipeline.js');
-        const { agencyPublisher } = await import('../src/agency_publisher.js');
-        const { WebsiteBuilder } = await import('../src/builder.js');
-        const fsMod = await import('fs');
-        const pathMod = await import('path');
-
-        let lead = null;
+    if (!lead) {
         const latestJsonPath = pathMod.join(process.cwd(), 'data_exports', 'crm_leads_latest.json');
         if (fsMod.existsSync(latestJsonPath)) {
             try {
@@ -809,84 +803,237 @@ async function handleFixLead(ctx) {
                 lead = allLeads.find(l => Number(l['Client ID']) === clientId);
             } catch (e) {}
         }
+    }
 
-        if (!lead) {
-            try {
-                const { sheet } = await loadGoogleSheet();
-                const rows = await sheet.getRows();
-                const r = rows.find(row => Number(row.get('Client ID')) === clientId);
-                if (r) {
-                    lead = {
-                        'Client ID': clientId,
-                        'Business Name': r.get('Business Name'),
-                        'Industry/Niche': r.get('Industry/Niche'),
-                        'Address': r.get('Address'),
-                        'Google Maps URL': r.get('Google Maps URL') || r.get('Maps URL') || r.get('URL')
-                    };
+    if (!lead) {
+        try {
+            const { sheet } = await loadGoogleSheet();
+            const rows = await sheet.getRows();
+            const r = rows.find(row => Number(row.get('Client ID')) === clientId);
+            if (r) {
+                lead = {
+                    'Client ID': clientId,
+                    'Business Name': r.get('Business Name'),
+                    'Industry/Niche': r.get('Industry/Niche'),
+                    'Address': r.get('Address'),
+                    'Google Maps URL': r.get('Google Maps URL') || r.get('Maps URL') || r.get('URL')
+                };
+            }
+        } catch (e) {}
+    }
+
+    if (!lead) {
+        throw new Error(`Lead #${clientId} not found in CRM leads or Google Sheets.`);
+    }
+
+    const businessName = lead?.['Business Name'] || `Lead ${clientId}`;
+    const industry = lead?.['Industry/Niche'] || 'Commercial';
+    const address = lead?.['Address'] || '';
+    const mapsUrl = lead?.['Google Maps URL'] || '';
+
+    if (!isBatch) {
+        await ctx.reply(`📍 *Business:* \`${businessName}\` (${industry})\n👀 *[Visual Bot Active]* Crawling Google Maps photos...`, { parse_mode: 'Markdown' });
+    }
+
+    // Crawl candidate photos in visual mode
+    let candidateUrls = [];
+    try {
+        candidateUrls = await mapsPhotoCrawler.fetchPhotosForBusiness(businessName, mapsUrl, address);
+        await mapsPhotoCrawler.close();
+    } catch (crawlErr) {
+        console.warn(`[FixLead #${clientId}] Crawl notice:`, crawlErr.message);
+    }
+
+    // Classify with Gemini Vision
+    if (!isBatch) {
+        await ctx.reply(`📸 Analyzing ${candidateUrls.length} candidate photos with Gemini Vision...`);
+    }
+    const classified = await mapsPhotoPipeline.classifyPhotos(candidateUrls, businessName, industry);
+
+    // Stage clean assets
+    const slug = await agencyPublisher.getSlug(businessName);
+    const agencySiteDir = pathMod.join(agencyPublisher.agencyPublicSitesDir, slug);
+    const clientSiteDir = pathMod.join(process.cwd(), 'generated_sites', String(clientId));
+    const reportsClientDir = pathMod.join(process.cwd(), 'reports', String(clientId));
+
+    // Purge old discarded assets
+    [agencySiteDir, clientSiteDir, reportsClientDir].forEach(dir => {
+        const assetsDir = pathMod.join(dir, 'assets');
+        if (fsMod.existsSync(assetsDir)) {
+            ['hero.jpg', 'gallery-1.jpg'].forEach(badFile => {
+                const p = pathMod.join(assetsDir, badFile);
+                if (fsMod.existsSync(p) && classified.useStockForHero) {
+                    try { fsMod.unlinkSync(p); } catch (e) {}
                 }
+            });
+        }
+    });
+
+    await mapsPhotoPipeline.downloadAndStageAssets(classified, agencySiteDir);
+    await mapsPhotoPipeline.downloadAndStageAssets(classified, clientSiteDir);
+    const stagedManifest = await mapsPhotoPipeline.downloadAndStageAssets(classified, reportsClientDir);
+
+    fsMod.writeFileSync(pathMod.join(reportsClientDir, 'photos_manifest.json'), JSON.stringify(stagedManifest, null, 2), 'utf8');
+
+    // Rebuild website (in batch mode, forceDeployImmediate=false so agencyPublisher batches up to 5 for deployment)
+    const forceDeployImmediate = !isBatch;
+    const builder = new WebsiteBuilder(bot, ctx.chat.id);
+    const result = await builder.buildClientWebsite(clientId, forceDeployImmediate);
+
+    return {
+        clientId,
+        businessName,
+        industry,
+        slug,
+        deployedUrl: result.deployedUrl,
+        photosCount: stagedManifest.featured?.length || 0
+    };
+}
+
+// ==========================================
+// Command: /fix <clientId> OR /fix {x:y} (Range)
+// Fixes, rebuilds, and verifies leads individually or in safe batches
+// ==========================================
+async function handleFixLead(ctx) {
+    if (!scheduler) scheduler = new Scheduler(bot, ctx.chat.id);
+    if (ctx.chat?.id) scheduler.setChatId(ctx.chat.id);
+    isFixLeadAborted = false;
+
+    const text = ctx.message?.text || '';
+    const rangeMatch = text.match(/(?:\/fix|\/build|\/build_lead|\/rebuild|fix|build)\s+[\{\[]?\s*(\d+)\s*(?:[:\-]|\s+to\s+)\s*(\d+)\s*[\}\]]?/i);
+    const singleMatch = text.match(/(?:\/fix|\/build|\/build_lead|\/rebuild|fix|build)\s+(\d+)/i);
+
+    // Case 1: Batch Range Execution (/fix {x:y} or /fix x:y)
+    if (rangeMatch) {
+        const rawStart = parseInt(rangeMatch[1], 10);
+        const rawEnd = parseInt(rangeMatch[2], 10);
+        const startId = Math.min(rawStart, rawEnd);
+        const endId = Math.max(rawStart, rawEnd);
+        const count = endId - startId + 1;
+
+        if (count > 30) {
+            return ctx.reply(
+                `⚠️ *[Safety Guard Triggered]* Range \`${startId}:${endId}\` (${count} leads) exceeds the maximum safe batch size of *30 leads*.\n\n` +
+                `• *Why?* Running >30 leads risks Vercel daily deployment quota lockout (100/day) and Google Maps anti-bot IP blocks.\n` +
+                `• *Recommended:* Process in daily waves of up to 30 leads (e.g. \`/fix {${startId}:${startId + 29}}\`).\n\n` +
+                `_Please specify a batch of 30 leads or fewer._`,
+                { parse_mode: 'Markdown' }
+            );
+        }
+
+        await ctx.reply(
+            `🚀 *Starting Batch Vision AI Fix for Leads #${startId} to #${endId} (${count} leads)...*\n` +
+            `_Safety pacing: 5s pause between builds, batching Vercel deployments every 5 leads._\n` +
+            `💡 _Send \`/abort\` at any time to halt the batch._`,
+            { parse_mode: 'Markdown' }
+        );
+
+        const fsMod = await import('fs');
+        const pathMod = await import('path');
+        const { agencyPublisher } = await import('../src/agency_publisher.js');
+
+        let allLeadsCache = [];
+        const latestJsonPath = pathMod.join(process.cwd(), 'data_exports', 'crm_leads_latest.json');
+        if (fsMod.existsSync(latestJsonPath)) {
+            try {
+                allLeadsCache = JSON.parse(fsMod.readFileSync(latestJsonPath, 'utf8'));
             } catch (e) {}
         }
 
-        const businessName = lead?.['Business Name'] || `Lead ${clientId}`;
-        const industry = lead?.['Industry/Niche'] || 'Commercial';
-        const address = lead?.['Address'] || '';
-        const mapsUrl = lead?.['Google Maps URL'] || '';
+        const successList = [];
+        const failedList = [];
+        const skippedList = [];
 
-        await ctx.reply(`📍 *Business:* \`${businessName}\` (${industry})\n👀 *[Visual Bot Active]* Opening live Chromium browser window on your screen to crawl Google Maps photos...`, { parse_mode: 'Markdown' });
+        for (let currentId = startId; currentId <= endId; currentId++) {
+            if (isFixLeadAborted) {
+                await ctx.reply(`🛑 *[Batch Fix Aborted]* Halting at Lead #${currentId} per user abort signal.`);
+                break;
+            }
 
-        // Crawl candidate photos in visual mode
-        let candidateUrls = [];
-        try {
-            candidateUrls = await mapsPhotoCrawler.fetchPhotosForBusiness(businessName, mapsUrl, address);
-            await mapsPhotoCrawler.close();
-        } catch (crawlErr) {
-            console.warn('[FixLead] Crawl notice:', crawlErr.message);
+            const progressIdx = currentId - startId + 1;
+            const targetLead = allLeadsCache.find(l => Number(l['Client ID']) === currentId);
+            const leadName = targetLead ? targetLead['Business Name'] : `Lead #${currentId}`;
+
+            await ctx.reply(`🔨 *[${progressIdx}/${count}] Fixing Lead #${currentId} (${leadName})...*`, { parse_mode: 'Markdown' });
+
+            try {
+                const res = await fixLeadCore(currentId, ctx, { isBatch: true, allLeadsCache });
+                successList.push(res);
+                console.log(`[BatchFix] ✅ Lead #${currentId} (${res.businessName}) completed.`);
+            } catch (err) {
+                if (err.message.includes('not found in CRM')) {
+                    skippedList.push({ id: currentId, reason: 'Not found in CRM' });
+                    await ctx.reply(`⏭️ _Lead #${currentId} skipped (not found in CRM)._`, { parse_mode: 'Markdown' });
+                } else {
+                    failedList.push({ id: currentId, error: err.message });
+                    console.error(`[BatchFix] ❌ Lead #${currentId} failed:`, err.message);
+                    await ctx.reply(`⚠️ _Lead #${currentId} error: ${err.message}_`, { parse_mode: 'Markdown' });
+                }
+            }
+
+            // 5-second rate-limit cooling pause between items
+            if (currentId < endId && !isFixLeadAborted) {
+                await new Promise(r => setTimeout(r, 5000));
+            }
         }
 
-        // Classify with Gemini Vision
-        await ctx.reply(`📸 Analyzing ${candidateUrls.length} candidate photos with Gemini Vision...`);
-        const classified = await mapsPhotoPipeline.classifyPhotos(candidateUrls, businessName, industry);
-
-        // Stage clean assets
-        const slug = await agencyPublisher.getSlug(businessName);
-        const agencySiteDir = pathMod.join(agencyPublisher.agencyPublicSitesDir, slug);
-        const clientSiteDir = pathMod.join(process.cwd(), 'generated_sites', String(clientId));
-        const reportsClientDir = pathMod.join(process.cwd(), 'reports', String(clientId));
-
-        // Purge old discarded assets
-        [agencySiteDir, clientSiteDir, reportsClientDir].forEach(dir => {
-            const assetsDir = pathMod.join(dir, 'assets');
-            if (fsMod.existsSync(assetsDir)) {
-                ['hero.jpg', 'gallery-1.jpg'].forEach(badFile => {
-                    const p = pathMod.join(assetsDir, badFile);
-                    if (fsMod.existsSync(p) && classified.useStockForHero) {
-                        try { fsMod.unlinkSync(p); } catch (e) {}
-                    }
-                });
+        // Deploy any remaining items left in agencyPublisher queue
+        if (agencyPublisher.batchQueue.length > 0 && !isFixLeadAborted) {
+            await ctx.reply(`📦 *Deploying final batch of ${agencyPublisher.batchQueue.length} leads to Vercel...*`, { parse_mode: 'Markdown' });
+            try {
+                await agencyPublisher.deployBatch(async (msg) => ctx.reply(msg));
+            } catch (deployErr) {
+                console.error('[BatchFix] Final deploy notice:', deployErr.message);
             }
-        });
+        }
 
-        await mapsPhotoPipeline.downloadAndStageAssets(classified, agencySiteDir);
-        await mapsPhotoPipeline.downloadAndStageAssets(classified, clientSiteDir);
-        const stagedManifest = await mapsPhotoPipeline.downloadAndStageAssets(classified, reportsClientDir);
-
-        fsMod.writeFileSync(pathMod.join(reportsClientDir, 'photos_manifest.json'), JSON.stringify(stagedManifest, null, 2), 'utf8');
-
-        // Rebuild website
-        await ctx.reply(`🔨 Rebuilding website with Split-Hero Showcase, 2-Button Mobile Bar & Verified Assets...`);
-        const builder = new WebsiteBuilder(bot, ctx.chat.id);
-        const result = await builder.buildClientWebsite(clientId, true);
-
-        await ctx.reply(`🎉 *Lead #${clientId} (${businessName}) Fixed Successfully!*\n\n` +
-            `🔗 *Live Agency URL:* ${result.deployedUrl}\n` +
-            `📦 *Local Directory:* \`web-dev-agency/public/sites/${slug}/index.html\`\n` +
-            `📸 *Authentic Assets:* ${stagedManifest.featured?.length || 0} verified photos staged.`,
+        // Send Final Summary Report
+        await ctx.reply(
+            `🎉 *Batch Fix Completed for Range #${startId} to #${endId}!*\n\n` +
+            `• *Total Processed:* ${count}\n` +
+            `• ✅ *Successfully Rebuilt:* ${successList.length}\n` +
+            `• ❌ *Failed:* ${failedList.length}\n` +
+            `• ⏭️ *Skipped / Not in CRM:* ${skippedList.length}\n\n` +
+            (successList.length > 0 ? `🔗 *Sample Deployed URL:* ${successList[0].deployedUrl}\n` : '') +
+            (failedList.length > 0 ? `⚠️ *Failed Lead IDs:* ${failedList.map(f => `#${f.id}`).join(', ')}` : ''),
             { parse_mode: 'Markdown' }
         );
-    } catch (err) {
-        console.error('[FixLead] Error:', err);
-        ctx.reply(`❌ Failed to fix Lead #${clientId}: ${err.message}`);
+        return;
     }
+
+    // Case 2: Single Lead Execution (/fix <clientId>)
+    if (singleMatch) {
+        const clientId = parseInt(singleMatch[1], 10);
+        if (!clientId || isNaN(clientId)) {
+            return ctx.reply("❌ Please provide a valid Client ID.\n\nExample: `/fix 202` or `/fix {1:10}`", { parse_mode: 'Markdown' });
+        }
+
+        await ctx.reply(`🧠 *Starting Vision AI Fix for Lead #${clientId}...*\n_Extracting photos, running Gemini Vision filtering, and rebuilding with verified design standards._`, { parse_mode: 'Markdown' });
+
+        try {
+            const res = await fixLeadCore(clientId, ctx, { isBatch: false });
+            await ctx.reply(
+                `🎉 *Lead #${clientId} (${res.businessName}) Fixed Successfully!*\n\n` +
+                `🔗 *Live Agency URL:* ${res.deployedUrl}\n` +
+                `📦 *Local Directory:* \`web-dev-agency/public/sites/${res.slug}/index.html\`\n` +
+                `📸 *Authentic Assets:* ${res.photosCount} verified photos staged.`,
+                { parse_mode: 'Markdown' }
+            );
+        } catch (err) {
+            console.error('[FixLead] Error:', err);
+            ctx.reply(`❌ Failed to fix Lead #${clientId}: ${err.message}`);
+        }
+        return;
+    }
+
+    // Case 3: Missing Argument / Help
+    return ctx.reply(
+        `❌ *Please provide a valid Client ID or Range.*\n\n` +
+        `Examples:\n` +
+        `• *Single Lead:* \`/fix 202\` or \`/build 202\`\n` +
+        `• *Range Batch:* \`/fix {1:10}\`, \`/fix 1:10\`, or \`/fix 20-30\` (max 30 per batch)`,
+        { parse_mode: 'Markdown' }
+    );
 }
 
 bot.command('fix', handleFixLead);
