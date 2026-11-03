@@ -77,6 +77,27 @@ export class AuditLogger {
         console.log(`[AuditLog] 📝 [${entry.timestamp.slice(11, 19)}] ${eventName} (${leadId || 'GLOBAL'}) via ${component}`);
     }
 
+    /**
+     * Reads recent structured audit events in reverse-chronological order.
+     */
+    getLogs(limit = 100) {
+        try {
+            if (!fs.existsSync(this.auditLogPath)) return [];
+            const content = fs.readFileSync(this.auditLogPath, "utf-8");
+            const lines = content.trim().split(/\r?\n/).filter(Boolean);
+            const events = [];
+            for (let i = lines.length - 1; i >= 0 && events.length < limit; i--) {
+                try {
+                    events.push(JSON.parse(lines[i]));
+                } catch (err) {}
+            }
+            return events;
+        } catch (e) {
+            console.error("[AuditLog] Error reading logs:", e.message);
+            return [];
+        }
+    }
+
     updateFunnelMetrics(eventName) {
         try {
             const metrics = JSON.parse(fs.readFileSync(this.metricsPath, 'utf-8'));

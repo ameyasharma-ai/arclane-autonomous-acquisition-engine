@@ -271,6 +271,12 @@ class WebUIServer {
             res.json({ success: true, schedules });
         });
 
+        // 5b. Immutable Event Audit Trail API
+        this.app.get('/api/audit-logs', (req, res) => {
+            const events = this.auditLogger.getLogs(100);
+            res.json({ success: true, events });
+        });
+
         // 6. Scheduler Automation Persistent State API
         this.app.get('/api/scheduler/status', (req, res) => {
             let isAutoRunning = true;
