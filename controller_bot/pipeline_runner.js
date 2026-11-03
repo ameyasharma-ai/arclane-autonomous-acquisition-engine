@@ -313,7 +313,7 @@ export class PipelineRunner {
                 `📊 *Summary:*\n` +
                 `• Total Leads Scraped: ${streamedCount}\n` +
                 `• Websites Built & Hosted: ${processedCount}\n` +
-                `• Subdomains Active: \`*.arclanestudios.space\`\n` +
+                `• Live Sites Active: \`arclanestudios.space/sites/*\`\n` +
                 `⏱️ *Total Duration:* ${totalDurationMin} min`
             );
 
@@ -766,7 +766,7 @@ export class PipelineRunner {
             `🎯 Total Target: ${targetTotal}\n` +
             `✅ Total Leads Secured: ${totalLeadsAccumulated}\n` +
             `⏱️ Total Exploration Duration: ${totalMins} min\n` +
-            `🌐 All sites staged & active under \`*.arclanestudios.space\``
+            `🌐 All sites staged & active under \`arclanestudios.space/sites/*\``
         );
 
         return { totalLeadsAccumulated, totalMins };

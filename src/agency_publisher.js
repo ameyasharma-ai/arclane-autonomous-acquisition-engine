@@ -147,8 +147,9 @@ Rules:
         const targetHtmlPath = path.join(targetDir, 'index.html');
         fs.writeFileSync(targetHtmlPath, htmlCode, 'utf-8');
 
-        const deployedUrl = this.getSubdomainUrl(slug);
+        const subdomainUrl = this.getSubdomainUrl(slug);
         const agencyPathUrl = this.getAgencyPathUrl(slug);
+        const deployedUrl = agencyPathUrl; // Canonical working URL on Vercel
 
         // Add to batch tracking
         this.batchQueue.push({
@@ -156,6 +157,7 @@ Rules:
             businessName,
             slug,
             deployedUrl,
+            subdomainUrl,
             agencyPathUrl
         });
 
@@ -163,6 +165,7 @@ Rules:
         return {
             slug,
             deployedUrl,
+            subdomainUrl,
             agencyPathUrl,
             stagedPath: targetHtmlPath
         };
@@ -280,7 +283,7 @@ Rules:
 
             if (statusCallback) {
                 await statusCallback(`✅ *[Batch Deployer] ${count} client sites pushed live!*\n` +
-                    `🌐 Domains active under \`*.arclanestudios.space\``);
+                    `🌐 Sites active under \`https://www.arclanestudios.space/sites/*\``);
             }
 
             return {

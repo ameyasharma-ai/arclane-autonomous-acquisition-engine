@@ -56,10 +56,10 @@ export class ScraperRunner {
                 '--leads', String(targetLeads)
             ];
 
-            // Robust Python resolution: prefer Anaconda python where playwright is installed
-            let pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
+            // Robust Python resolution: prefer environment variable or Anaconda python where playwright is installed
+            let pythonCmd = process.env.PYTHON_BIN || process.env.PYTHON_PATH || (process.platform === 'win32' ? 'python' : 'python3');
             const anacondaPath = 'C:\\Users\\Ameya Sharma\\anaconda3\\python.exe';
-            if (process.platform === 'win32' && fs.existsSync(anacondaPath)) {
+            if (process.platform === 'win32' && !process.env.PYTHON_BIN && !process.env.PYTHON_PATH && fs.existsSync(anacondaPath)) {
                 pythonCmd = anacondaPath;
             }
             

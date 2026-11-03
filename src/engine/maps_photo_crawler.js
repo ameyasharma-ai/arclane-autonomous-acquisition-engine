@@ -55,7 +55,11 @@ export class MapsPhotoCrawler {
                     '--no-sandbox',
                     '--disable-dev-shm-usage',
                     '--disable-infobars',
-                    '--window-size=1280,850'
+                    '--window-size=1280,850',
+                    '--dns-result-order=ipv4first',
+                    '--enable-features=DnsOverHttps',
+                    '--dns-over-https-mode=secure',
+                    '--dns-over-https-templates=https://dns.google/dns-query{?dns}'
                 ]
             };
             try {
@@ -92,6 +96,15 @@ export class MapsPhotoCrawler {
 
         try {
             let targetUrl = mapsUrl;
+            if (targetUrl && (targetUrl.includes('goo.gl') || targetUrl.includes('g.co') || targetUrl.includes('g.page'))) {
+                try {
+                    const { instantMapsBuilder } = await import('./instant_maps_builder.js');
+                    targetUrl = await instantMapsBuilder.expandShortUrl(targetUrl);
+                } catch (expErr) {
+                    console.warn(`[MapsPhotoCrawler] Shortlink expansion notice:`, expErr.message);
+                }
+            }
+
             if (!targetUrl) {
                 const query = `${businessName} ${address}`.trim();
                 targetUrl = `https://www.google.com/maps/search/${encodeURIComponent(query)}`;
