@@ -8,7 +8,14 @@
 
 An enterprise-grade, multi-agent autonomous system built specifically to capture, enrich, convert, and onboard Indian local businesses (Gyms, Salons, Spas, Clinics, Cafes) on 100% autopilot.
 
-> 📘 **Free Cloud Hosting & Low-Memory Architecture:** See [`FREE_CLOUD_DEPLOYMENT_PLAN.md`](FREE_CLOUD_DEPLOYMENT_PLAN.md) for hosting on Render / Oracle Cloud with SerpApi integration.
+> 📚 **Official Documentation Hub:**
+> - [**ArcLane Business Understanding & Intelligence**](docs/ARCLANE_BUSINESS_UNDERSTANDING.md) — Comprehensive business model, unit economics, value-first framework, and 100-day targets.
+> - [**Revenue Generation Playbook**](docs/ARCLANE_REVENUE_PLAYBOOK.md) — Service pillars, pricing packages, case studies, and closing psychology.
+> - [**Outreach Strategy & Commercial Offers**](docs/OUTREACH_OFFERS_INDIA.md) — 10 tailored commercial offers for Indian SMBs.
+> - [**Full System Architecture**](docs/ARCHITECTURE.md) — End-to-end multi-agent subsystem blueprint.
+> - [**Free Cloud Deployment Guide**](docs/FREE_CLOUD_DEPLOYMENT_PLAN.md) — Render & Oracle Cloud deployment plan.
+> - [**Server Deployment & PM2 Setup**](docs/SERVER_DEPLOYMENT_GUIDE.txt) — 24/7 Linux server deployment instructions.
+> - [**Security & Secrets Policy**](docs/SECURITY.md) — Redaction standards, CSP rules, and secret protection.
 
 This comprehensive manual covers **the entire unified system:** from Google Maps scraping mechanics (now directly housed under `scraper/`) and real-time streaming architectures to website generation, Vercel deployments, WhatsApp automation, dual Telegram + Web UI control channels, and 24/7 server operations.
 

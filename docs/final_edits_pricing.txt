@@ -1,0 +1,590 @@
+I want you to add a completely new, standalone PRICING page to the existing agency website.
+
+IMPORTANT:
+- Do NOT put the pricing section on the homepage.
+- Pricing must have its own dedicated route/page, e.g. /pricing.
+- Preserve the existing homepage and all existing functionality.
+- Do not redesign the entire website.
+- Reuse the existing design system, typography, spacing, colors, buttons, animations, navigation, footer, and visual language wherever appropriate.
+- The new page should feel like it was designed as part of the same website, not like a separate template.
+- Make the page fully responsive for desktop, tablet, and mobile.
+- Do not use fake testimonials, fake client logos, fake statistics, or invented social proof.
+- Do not invent additional services or claims that aren't specified below.
+
+==================================================
+1. PAGE PURPOSE
+==================================================
+
+The purpose of this page is to clearly communicate our pricing, qualify prospects, and make it easy for a potential client to choose the appropriate level of service.
+
+Our positioning is NOT:
+"We are the cheapest website developer."
+
+Our positioning is:
+"We build exceptional digital experiences that make businesses look better, perform better, and generate more opportunities."
+
+The pricing page should therefore communicate VALUE, not compete with ₹5,000 website providers.
+
+The page should make it immediately clear that:
+- There are different levels of engagement.
+- A basic website can be inexpensive, but our higher-tier work is designed around business outcomes.
+- The Growth package is our primary/recommended offer.
+- Complex requirements should use the Premium/Custom option.
+- Pricing is transparent but final pricing can depend on scope.
+
+==================================================
+2. PAGE ROUTE
+==================================================
+
+Create:
+
+/pricing
+
+Do not embed the pricing cards directly into the homepage.
+
+Add a "Pricing" link to the existing website navigation.
+
+If the website already has a mobile navigation menu, make sure Pricing appears there as well.
+
+The existing homepage should remain intact.
+
+==================================================
+3. HERO SECTION
+==================================================
+
+Create a premium, minimal hero section.
+
+Headline:
+
+"Simple pricing. Serious websites."
+
+Supporting copy:
+
+"Choose the level of website experience your business needs. From focused starter sites to fully custom digital experiences, we build around your goals—not just a list of pages."
+
+Include a subtle eyebrow above the headline:
+
+"PRICING"
+
+Primary CTA:
+
+"Get a Free Website Audit"
+
+Secondary CTA:
+
+"View Our Work"
+
+The primary CTA should lead to the existing audit/contact flow on the website.
+
+The secondary CTA should lead to the existing work/portfolio section or page.
+
+Do not introduce a completely new CTA destination if an existing one already exists.
+
+==================================================
+4. PRICING CARDS
+==================================================
+
+Create three main pricing tiers.
+
+The three cards should be visually distinct but part of the same design system.
+
+Pricing:
+
+--------------------------------
+STARTER
+₹7,500 – ₹10,000
+--------------------------------
+
+Positioning:
+
+"For businesses that need a clean, professional online presence."
+
+Include:
+
+- 1–3 pages
+- Responsive design
+- Template-based/customized design
+- WhatsApp / contact CTA
+- Basic deployment
+- Client-provided content
+- Limited revisions
+- Basic setup
+
+Add a small note:
+
+"Best for getting your business online quickly."
+
+CTA:
+
+"Start with Starter"
+
+--------------------------------
+GROWTH
+₹35,000 – ₹50,000
+--------------------------------
+
+This is the PRIMARY / RECOMMENDED package.
+
+Make this card visually prominent.
+
+Add a badge:
+
+"RECOMMENDED"
+
+Positioning:
+
+"For businesses that want their website to actively support growth."
+
+Include:
+
+- Custom UI design
+- 5–7 pages
+- Conversion-focused structure
+- Mobile optimization
+- Performance optimization
+- SEO fundamentals
+- Analytics setup
+- Lead/contact forms
+- CTA and conversion optimization
+- Deployment
+- 30 days post-launch support
+
+Add a small note:
+
+"Our most popular starting point for businesses serious about their digital presence."
+
+CTA:
+
+"Choose Growth"
+
+--------------------------------
+PREMIUM
+₹75,000 – ₹1,50,000+
+--------------------------------
+
+Positioning:
+
+"For businesses that need a highly customized digital experience."
+
+Include:
+
+- Deep discovery
+- Custom design system
+- Advanced interactions
+- Advanced conversion optimization
+- Analytics / BI integration
+- Custom integrations
+- Advanced SEO foundations
+- Complex functionality
+- Deployment
+- Post-launch support
+
+Add a small note:
+
+"Final pricing depends on scope, integrations, and complexity."
+
+CTA:
+
+"Discuss Your Project"
+
+==================================================
+5. PRICING DESIGN
+==================================================
+
+The Growth card must be visually emphasized without becoming obnoxious.
+
+Use:
+- A subtle "Recommended" badge
+- Slightly stronger visual hierarchy
+- Potentially a slightly larger card or elevated treatment
+- Clear CTA
+
+Do NOT make the Starter card look intentionally bad.
+
+Do NOT use fake "original price / discounted price" tactics.
+
+Do NOT use fake urgency such as:
+"Only 2 slots left"
+"Offer ends tonight"
+"Limited-time 50% discount"
+
+Do NOT use aggressive SaaS-style pricing language.
+
+The design should feel like a premium digital agency.
+
+==================================================
+6. "NOT SURE WHICH PLAN?" SECTION
+==================================================
+
+After the pricing cards, add a section helping visitors choose.
+
+Headline:
+
+"Not sure which one is right for you?"
+
+Copy:
+
+"Tell us what you're trying to accomplish. We'll recommend the right level of solution based on your business, goals, and requirements."
+
+CTA:
+
+"Get a Free Website Audit"
+
+This should lead to the existing audit/contact mechanism.
+
+==================================================
+7. VALUE / DIFFERENTIATION SECTION
+==================================================
+
+Add a section explaining why our pricing is different from ultra-low-cost website providers.
+
+Do NOT attack competitors.
+
+Do NOT say cheap providers are bad.
+
+Instead communicate that different price points represent different scopes and outcomes.
+
+Headline:
+
+"You're not just paying for pages."
+
+Supporting copy:
+
+"A website can simply exist—or it can work as part of your business. Our higher-tier projects combine design, performance, conversion thinking, analytics, and technical execution to create a stronger digital experience."
+
+Create 4 concise value blocks:
+
+1. DESIGN
+"Interfaces designed to make your business look credible and memorable."
+
+2. PERFORMANCE
+"Fast, responsive experiences built for real users and real devices."
+
+3. CONVERSION
+"Clearer journeys, stronger calls to action, and fewer points of friction."
+
+4. DATA
+"Analytics and measurement that help you understand what your website is actually doing."
+
+Keep these concise and visually elegant.
+
+==================================================
+8. CUSTOM PROJECT SECTION
+==================================================
+
+Add a section for clients whose requirements don't fit neatly into the three packages.
+
+Headline:
+
+"Have something more complex?"
+
+Copy:
+
+"Not every project fits into a package. If you need a custom web application, advanced integrations, dashboards, e-commerce functionality, or a more involved digital experience, we'll scope the project around your requirements."
+
+CTA:
+
+"Discuss a Custom Project"
+
+Do not display a fake price here.
+
+Use:
+
+"Custom pricing based on scope"
+
+==================================================
+9. FAQ SECTION
+==================================================
+
+Add a clean FAQ section.
+
+Use these questions:
+
+1. "Why don't you offer a ₹5,000 website?"
+
+Answer:
+
+"We can build a simple website at a lower scope, which is why our Starter package exists. Our Growth and Premium projects go beyond simply putting pages online—they focus on design quality, performance, conversion, analytics, and the specific goals of the business."
+
+2. "Can I request changes to a package?"
+
+Answer:
+
+"Yes. Packages provide a starting scope, but projects can be customized based on your requirements. Additional functionality or scope may change the final price."
+
+3. "Do you provide website hosting?"
+
+Answer:
+
+"Hosting and deployment can be included depending on the project requirements. We'll recommend the appropriate setup during the project."
+
+4. "Do you provide SEO?"
+
+Answer:
+
+"Our Growth and Premium projects include foundational SEO considerations such as technical structure, performance, metadata, and search-friendly implementation. Ongoing SEO campaigns can be scoped separately."
+
+5. "Do you provide website maintenance?"
+
+Answer:
+
+"Yes. Post-launch support is included according to the selected package, and ongoing maintenance or growth support can be arranged separately."
+
+6. "How long does a website take?"
+
+Answer:
+
+"Timeline depends on the scope, content readiness, feedback cycles, and technical requirements. We'll provide an estimated timeline before the project begins."
+
+7. "Can you build something completely custom?"
+
+Answer:
+
+"Yes. Custom projects can be scoped around advanced functionality, integrations, dashboards, e-commerce, and other requirements."
+
+Do not invent exact delivery times.
+
+==================================================
+10. FINAL CTA
+==================================================
+
+End the page with a strong but minimal CTA.
+
+Headline:
+
+"Your website should do more than exist."
+
+Supporting copy:
+
+"Let's find out what your current digital presence could be doing better."
+
+Primary CTA:
+
+"Get a Free Website Audit"
+
+Secondary CTA:
+
+"Contact Us"
+
+Use the existing contact/audit functionality wherever possible.
+
+==================================================
+11. NAVIGATION
+==================================================
+
+Update the existing navigation to include:
+
+- Home
+- Services
+- Work
+- Process
+- Pricing
+- Contact / Get Started
+
+Do not unnecessarily restructure the existing navigation if some of these pages already use different names.
+
+Pricing must be clearly accessible from the navigation.
+
+On mobile, ensure Pricing appears in the mobile navigation menu.
+
+==================================================
+12. FOOTER
+==================================================
+
+Reuse the existing footer design.
+
+Do not create a new unrelated footer.
+
+Add Pricing to the appropriate footer navigation if the footer contains navigation links.
+
+IMPORTANT:
+If the existing footer still contains placeholder information such as:
+- hello@agency.com
+- +1 (555) 123-4567
+- 123 Innovation Drive
+- "Vanguard Digital"
+
+DO NOT invent replacement information.
+
+Instead, preserve the current site's actual branding/contact information if it has already been updated.
+
+==================================================
+13. VISUAL DESIGN
+==================================================
+
+The pricing page should feel:
+
+- Premium
+- Modern
+- Technical
+- Clean
+- Confident
+- Minimal
+- Conversion-focused
+- Professional
+
+Avoid:
+- Generic SaaS pricing templates
+- Excessive gradients
+- Excessive glassmorphism
+- Huge amounts of text
+- Cartoonish illustrations
+- Cheap-looking badges
+- Fake trust indicators
+- Countdown timers
+- Excessive animations
+- Overly rounded cards if inconsistent with the existing design
+
+Use the existing website's visual language.
+
+The pricing cards should have excellent hierarchy:
+
+PLAN
+↓
+PRICE
+↓
+WHO IT'S FOR
+↓
+FEATURES
+↓
+CTA
+
+Make the price extremely easy to scan.
+
+==================================================
+14. RESPONSIVENESS
+==================================================
+
+Desktop:
+- Three pricing cards in a horizontal layout.
+- Growth card highlighted.
+
+Tablet:
+- Maintain good spacing.
+- Cards may remain horizontal if space permits, otherwise stack intelligently.
+
+Mobile:
+- Stack cards vertically.
+- Growth should remain clearly marked as Recommended.
+- Ensure prices and feature lists are readable.
+- CTAs should be large enough to tap comfortably.
+- Avoid horizontal scrolling.
+- Do not allow pricing cards to overflow the viewport.
+
+==================================================
+15. ACCESSIBILITY
+==================================================
+
+Ensure:
+
+- Good text/background contrast
+- Keyboard navigability
+- Visible focus states
+- Semantic headings
+- Proper button/link semantics
+- Accessible labels
+- No important information conveyed only through color
+- Mobile tap targets are sufficiently large
+
+==================================================
+16. SEO
+==================================================
+
+Add appropriate page metadata.
+
+Title:
+
+"Pricing | [Existing Agency Name]"
+
+Description:
+
+"Explore our website design and development pricing, from focused starter websites to custom digital experiences."
+
+Use a single H1:
+
+"Simple pricing. Serious websites."
+
+Use logical H2/H3 hierarchy throughout.
+
+The page should be indexable.
+
+If the existing project has a sitemap, add /pricing to it.
+
+==================================================
+17. TECHNICAL REQUIREMENTS
+==================================================
+
+Before implementing:
+
+1. Inspect the existing codebase.
+2. Identify the existing design system/components.
+3. Reuse existing:
+   - Navbar
+   - Footer
+   - Buttons
+   - Typography
+   - Colors
+   - Cards
+   - Animations
+   - Spacing system
+4. Do not duplicate components unnecessarily.
+5. Follow the existing project's architecture and conventions.
+6. Do not break existing routes.
+7. Do not remove existing homepage content.
+8. Do not introduce unnecessary dependencies.
+9. Make sure /pricing works on direct navigation and refresh.
+10. Make sure all CTA links work.
+11. Test desktop and mobile layouts.
+
+==================================================
+18. IMPORTANT BRAND PRINCIPLE
+==================================================
+
+The page should NOT communicate:
+
+"We are cheap."
+
+It should communicate:
+
+"We have clear pricing, we understand different business needs, and we build at different levels of complexity."
+
+The Starter package accommodates price-sensitive businesses.
+
+The Growth package is the core agency offer.
+
+The Premium package establishes a higher-value ceiling and accommodates complex work.
+
+The page should make the visitor feel that choosing a higher tier means getting a more sophisticated solution—not simply buying more pages.
+
+==================================================
+19. FINAL QUALITY CHECK
+==================================================
+
+Before finishing, verify:
+
+[ ] /pricing exists
+[ ] Pricing is NOT on the homepage
+[ ] Pricing is in the navbar
+[ ] Pricing appears in mobile navigation
+[ ] Three pricing tiers exist
+[ ] Growth is marked Recommended
+[ ] Indian pricing is displayed in INR
+[ ] No fake testimonials/social proof
+[ ] No fake urgency
+[ ] No fake discounts
+[ ] No invented contact information
+[ ] Existing homepage remains unchanged
+[ ] Existing footer is preserved
+[ ] All CTA buttons work
+[ ] Mobile layout is excellent
+[ ] Desktop layout is excellent
+[ ] Page has proper SEO metadata
+[ ] Page matches the existing website visually
+[ ] No console errors
+[ ] No broken links
+[ ] No unnecessary dependencies
+[ ] The page feels like a premium agency pricing page rather than a generic template
+
+Most importantly:
+
+**Build this as a polished, production-ready standalone pricing page that looks like a natural extension of the existing agency website.**

@@ -10,7 +10,11 @@ export class LLMClient {
             apiKey: process.env.OPENROUTER_API_KEY,
         });
         this.model = 'openai/gpt-oss-120b';
-        this.systemPrompt = fs.readFileSync(path.join(process.cwd(), 'src', 'system_prompt.txt'), 'utf-8');
+        const docPromptPath = path.join(process.cwd(), 'docs', 'system_prompt.txt');
+        const srcPromptPath = path.join(process.cwd(), 'src', 'system_prompt.txt');
+        this.systemPrompt = fs.existsSync(docPromptPath)
+            ? fs.readFileSync(docPromptPath, 'utf-8')
+            : (fs.existsSync(srcPromptPath) ? fs.readFileSync(srcPromptPath, 'utf-8') : '');
     }
 
     async generateSummary(prompt) {
