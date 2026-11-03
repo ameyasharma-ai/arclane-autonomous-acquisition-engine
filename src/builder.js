@@ -10,6 +10,7 @@ import { agencyPublisher } from './agency_publisher.js';
 import { mapsPhotoCrawler } from './engine/maps_photo_crawler.js';
 import { mapsPhotoPipeline } from './engine/maps_photo_pipeline.js';
 import { visualQualityGate } from './engine/visual_quality_gate.js';
+import { injectAgencyCredit } from './engine/agency_branding.js';
 
 const execAsync = util.promisify(exec);
 
@@ -1028,6 +1029,9 @@ export class WebsiteBuilder {
             seenImageSrcs.add(normalizedSrc);
             return fullTag;
         });
+
+        // 11. Enforce ArcLane Studios Agency Courtesy Credit (Brand Signature)
+        html = injectAgencyCredit(html, businessName);
 
         return html;
     }
