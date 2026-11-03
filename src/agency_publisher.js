@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { exec } from 'child_process';
 import util from 'util';
+import { injectAgencyCredit } from './engine/agency_branding.js';
 
 const execAsync = util.promisify(exec);
 
@@ -145,7 +146,9 @@ Rules:
         }
 
         const targetHtmlPath = path.join(targetDir, 'index.html');
-        fs.writeFileSync(targetHtmlPath, htmlCode, 'utf-8');
+        // Permanently stamp ArcLane agency courtesy credit in footer
+        const finalHtml = injectAgencyCredit(htmlCode, businessName);
+        fs.writeFileSync(targetHtmlPath, finalHtml, 'utf-8');
 
         const subdomainUrl = this.getSubdomainUrl(slug);
         const agencyPathUrl = this.getAgencyPathUrl(slug);

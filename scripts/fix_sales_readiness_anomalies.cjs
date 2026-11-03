@@ -157,3 +157,4 @@ console.log(`✅ Fixed phone numbers & CTAs on: ${phonesFixed} sites`);
 console.log(`✅ Fixed dead menu anchor targets on: ${anchorsFixed} sites`);
 console.log(`✅ Injected rich WhatsApp OpenGraph cards into: ${ogTagsInjected} sites`);
 console.log('\n🎉 Repair complete! Running verification pass...');
+

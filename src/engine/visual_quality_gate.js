@@ -17,6 +17,7 @@ import { chromium } from 'playwright';
 import fs from 'fs';
 import path from 'path';
 import { getVerifiedNicheAssets } from './verified_asset_catalog.js';
+import { injectAgencyCredit } from './agency_branding.js';
 
 export class VisualQualityGate {
     constructor() {
@@ -487,6 +488,9 @@ export class VisualQualityGate {
                 return match;
             });
 
+            // Guarantee ArcLane agency courtesy credit stamped in footer
+            finalHtml = injectAgencyCredit(finalHtml, businessName);
+
             return {
                 passed: true,
                 cleanHtml: finalHtml,
@@ -497,7 +501,7 @@ export class VisualQualityGate {
             try { await context.close(); } catch (e) {}
             return {
                 passed: false,
-                cleanHtml: html,
+                cleanHtml: injectAgencyCredit(html, businessName),
                 issuesFixed: []
             };
         }
