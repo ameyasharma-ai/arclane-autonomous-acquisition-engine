@@ -352,6 +352,7 @@ export class InstantMapsBuilder {
 
             // 6. Update Row Status in Google Sheet
             addedRow.set('Agency Hosted URL', result.deployedUrl);
+            addedRow.set('Subdomain URL', result.subdomainUrl || '');
             addedRow.set('Current Status', 'Website Built');
             addedRow.set('Notes', `reports/${nextClientId}/audit.md`);
             if (waMessage) {

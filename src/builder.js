@@ -502,7 +502,9 @@ export class WebsiteBuilder {
         return {
             clientId,
             businessName,
-            deployedUrl,
+            deployedUrl: primaryLiveUrl,
+            agencyPathUrl,
+            subdomainUrl: subdomainVerified ? deployedUrl : '',
             githubRepoUrl,
             outreachJsonPath
         };
