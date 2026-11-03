@@ -7,6 +7,8 @@
  */
 import fs from 'fs';
 import path from 'path';
+import https from 'https';
+import dns from 'dns';
 import { chromium } from 'playwright';
 import { loadGoogleSheet } from '../sheets.js';
 import { mapsPhotoCrawler } from './maps_photo_crawler.js';
@@ -18,20 +20,94 @@ import { agencyPublisher } from '../agency_publisher.js';
 export class InstantMapsBuilder {
     constructor() {
         this.isProcessing = false;
+        this.dnsResolver = new dns.Resolver();
+        this.dnsResolver.setServers(['8.8.8.8', '1.1.1.1']);
+    }
+
+    /**
+     * Resiliently expands short Google Maps URLs (e.g. maps.app.goo.gl)
+     * using Google/Cloudflare DNS to bypass local ISP/Hotspot DNS timeouts
+     */
+    async expandShortUrl(shortUrl) {
+        if (!shortUrl || (!shortUrl.includes('goo.gl') && !shortUrl.includes('g.co') && !shortUrl.includes('g.page'))) {
+            return shortUrl;
+        }
+
+        const customLookup = (hostname, options, callback) => {
+            let cb = callback;
+            let opts = options;
+            if (typeof options === 'function') {
+                cb = options;
+                opts = {};
+            }
+
+            this.dnsResolver.resolve4(hostname, (err, addresses) => {
+                if (err || !addresses || addresses.length === 0) {
+                    return dns.lookup(hostname, opts, cb);
+                }
+                if (opts && opts.all) {
+                    cb(null, addresses.map(a => ({ address: a, family: 4 })));
+                } else {
+                    cb(null, addresses[0], 4);
+                }
+            });
+        };
+
+        return new Promise((resolve) => {
+            try {
+                const parsed = new URL(shortUrl);
+                const req = https.request({
+                    hostname: parsed.hostname,
+                    path: parsed.pathname + parsed.search,
+                    method: 'HEAD',
+                    lookup: customLookup,
+                    headers: {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                    }
+                }, (res) => {
+                    const loc = res.headers.location;
+                    if (loc && loc.startsWith('http')) {
+                        console.log(`[InstantMapsBuilder] 🔗 Expanded shortlink to: ${loc}`);
+                        resolve(loc);
+                    } else {
+                        resolve(shortUrl);
+                    }
+                });
+
+                req.on('error', (e) => {
+                    console.warn(`[InstantMapsBuilder] Shortlink resolution fallback: ${e.message}`);
+                    resolve(shortUrl);
+                });
+
+                req.setTimeout(8000, () => {
+                    req.destroy();
+                    resolve(shortUrl);
+                });
+
+                req.end();
+            } catch (e) {
+                resolve(shortUrl);
+            }
+        });
     }
 
     /**
      * Extracts full place details from any Google Maps URL using Playwright
      */
     async extractPlaceDetails(mapsUrl) {
-        console.log(`[InstantMapsBuilder] 🧭 Opening Maps URL: ${mapsUrl}`);
+        const effectiveUrl = await this.expandShortUrl(mapsUrl);
+        console.log(`[InstantMapsBuilder] 🧭 Opening Maps URL: ${effectiveUrl}`);
         const browser = await chromium.launch({
             headless: true,
             args: [
                 '--disable-blink-features=AutomationControlled',
                 '--no-sandbox',
                 '--disable-dev-shm-usage',
-                '--disable-infobars'
+                '--disable-infobars',
+                '--dns-result-order=ipv4first',
+                '--enable-features=DnsOverHttps',
+                '--dns-over-https-mode=secure',
+                '--dns-over-https-templates=https://dns.google/dns-query{?dns}'
             ]
         });
 
@@ -46,7 +122,7 @@ export class InstantMapsBuilder {
         });
 
         try {
-            await page.goto(mapsUrl, { waitUntil: 'domcontentloaded', timeout: 35000 });
+            await page.goto(effectiveUrl, { waitUntil: 'domcontentloaded', timeout: 35000 });
             await page.waitForTimeout(3500);
 
             // If it's a search result list, click top place card
