@@ -2,7 +2,7 @@
  * ArcLane Studios Agency Branding & Courtesy Credit Utility
  * 
  * Unifies the footer into a single, high-converting, pristine signature strip
- * with zero dual footers and zero duplicate copyright statements.
+ * with zero dual footers, zero duplicate copyright statements, and safe current-year anchor.
  */
 
 export function injectAgencyCredit(html, businessName = '') {
@@ -19,7 +19,7 @@ export function injectAgencyCredit(html, businessName = '') {
     const unifiedBottomBar = `
             <!-- Unified ArcLane Verified Footer Signature -->
             <div class="pt-8 mt-8 border-t border-zinc-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-zinc-500 gap-4">
-                <p>&copy; 2026 ${cleanName}. All rights reserved.</p>
+                <p>&copy; <span id="current-year">2026</span> ${cleanName}. All rights reserved.</p>
                 <a href="https://www.arclanestudios.space" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 font-medium text-zinc-400 hover:text-white transition-colors group">
                     <span>Concept &amp; Digital Architecture by</span>
                     <span class="text-white font-bold tracking-tight group-hover:text-amber-400 transition-colors">ArcLane Studios</span>
