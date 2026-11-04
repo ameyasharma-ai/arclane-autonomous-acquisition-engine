@@ -66,7 +66,21 @@ function cleanHtmlTags(html) {
     return `const cyEl = document.getElementById('current-year'); if (cyEl) cyEl.textContent = new Date().getFullYear();`;
   });
 
-  // 9. Fix conflicting duplicate responsive font sizes (e.g. text-2xl sm:text-3xl md:text-2xl sm:text-3xl md:text-4xl)
+  // 9. Fix unclosed opening tags followed by inner text and unclosed closing tag:
+  // e.g. <span class="..."text</span -> <span class="...">text</span>
+  cleaned = cleaned.replace(/<([a-zA-Z0-9-]+)(\s+[^>]*?=["'][^"']*?["'])([^<>]*?)<\/\1(?![a-zA-Z0-9_>-])>?/gi, (m, tag, attrs, text) => {
+    return `<${tag}${attrs}>${text}</${tag}>`;
+  });
+
+  // 10. Fix empty tag matches: e.g. <i class="..."</i -> <i class="..."></i>
+  cleaned = cleaned.replace(/<([a-zA-Z0-9-]+)(\s+[^>]*?=["'][^"']*?["'])<\/\1(?![a-zA-Z0-9_>-])>?/gi, (m, tag, attrs) => {
+    return `<${tag}${attrs}></${tag}>`;
+  });
+
+  // 11. Fix empty responsive prefixes: e.g. text-2xl sm: md: lg: xl:
+  cleaned = cleaned.replace(/\b(?:sm|md|lg|xl|2xl):\s+/g, '');
+
+  // 12. Fix conflicting duplicate responsive font sizes (e.g. text-2xl sm:text-3xl md:text-2xl sm:text-3xl md:text-4xl)
   cleaned = cleaned.replace(/\btext-2xl\s+sm:text-3xl\s+md:text-2xl\s+sm:text-3xl\s+md:text-4xl\b/g, 'text-2xl sm:text-3xl lg:text-4xl');
 
   return cleaned;

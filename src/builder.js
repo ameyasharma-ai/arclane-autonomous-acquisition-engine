@@ -742,10 +742,10 @@ export class WebsiteBuilder {
                 .trim();
         };
 
-        // 7. Enforce Fluid Mobile Typography on H1 (Hero Headlines)
+        // 7. Enforce Fluid Mobile & Desktop Typography on H1 (Hero Headlines)
         html = html.replace(/(<h1\b[^>]*class=["'])([^"']*)(["'])/gi, (m, p1, classes, p3) => {
             const clean = cleanFontAndSpacing(classes);
-            return `${p1}text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold leading-[1.15] tracking-tight break-words ${clean}${p3}`;
+            return `${p1}text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-tight tracking-tight break-words ${clean}${p3}`;
         });
 
         // 8. Enforce Wrap-Safe Fluid Mobile Typography on H2 (Section Headings)
@@ -1066,7 +1066,20 @@ export class WebsiteBuilder {
             return `onerror="this.onerror=null; this.src='${url}';"`;
         });
 
-        // F. Balance Div tags: ensure open divs match close divs
+        // F. Fix unclosed opening tags followed by inner text and unclosed closing tag (e.g. <span class="..."text</span)
+        html = html.replace(/<([a-zA-Z0-9-]+)(\s+[^>]*?=["'][^"']*?["'])([^<>]*?)<\/\1(?![a-zA-Z0-9_>-])>?/gi, (m, tag, attrs, text) => {
+            return `<${tag}${attrs}>${text}</${tag}>`;
+        });
+
+        // G. Fix empty unclosed tags (e.g. <i class="..."</i)
+        html = html.replace(/<([a-zA-Z0-9-]+)(\s+[^>]*?=["'][^"']*?["'])<\/\1(?![a-zA-Z0-9_>-])>?/gi, (m, tag, attrs) => {
+            return `<${tag}${attrs}></${tag}>`;
+        });
+
+        // H. Fix stray > after closing tags: e.g. </div>> -> </div>
+        html = html.replace(/<\/(div|section|span|p|a|h[1-6]|header|footer|ul|li)>>+/gi, '</$1>');
+
+        // I. Balance Div tags: ensure open divs match close divs
         const openDivs = (html.match(/<div\b/gi) || []).length;
         const closeDivs = (html.match(/<\/div>/gi) || []).length;
         const divDiff = openDivs - closeDivs;
