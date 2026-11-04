@@ -1079,7 +1079,15 @@ export class WebsiteBuilder {
         // H. Fix stray > after closing tags: e.g. </div>> -> </div>
         html = html.replace(/<\/(div|section|span|p|a|h[1-6]|header|footer|ul|li)>>+/gi, '</$1>');
 
-        // I. Balance Div tags: ensure open divs match close divs
+        // I. Purge any orphaned empty responsive prefixes: e.g. sm: md: lg: xl: 2xl:
+        html = html.replace(/\b(?:sm|md|lg|xl|2xl):\s+/g, '');
+
+        // J. Protect script current-year textContent from throwing TypeError
+        html = html.replace(/document\.getElementById\(['"]current-year['"]\)\.textContent\s*=\s*[^;]+;/gi, (m) => {
+            return `const cyEl = document.getElementById('current-year'); if (cyEl) cyEl.textContent = new Date().getFullYear();`;
+        });
+
+        // K. Balance Div tags: ensure open divs match close divs
         const openDivs = (html.match(/<div\b/gi) || []).length;
         const closeDivs = (html.match(/<\/div>/gi) || []).length;
         const divDiff = openDivs - closeDivs;

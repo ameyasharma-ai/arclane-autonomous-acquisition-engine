@@ -141,11 +141,17 @@ function repairHtml(rawHtml, businessName = '') {
     return `${p1}${c.trim()}${p3}`;
   });
 
-  // Step 4: Unify Footer into a single, elegant signature strip (with valid current-year id)
+  // Step 4: Adjust footer tag padding: pt-12 sm:pt-16 pb-28 md:pb-16 (clears sticky mobile action bar)
+  html = html.replace(/(<footer\b[^>]*class=["'])([^"']*)(["'])/gi, (m, p1, classes, p3) => {
+    let c = classes.replace(/\bpy-\d+\b/g, '').replace(/\bpb-\d+\b/g, '').replace(/\bpt-\d+\b/g, '').replace(/\bmd:pb-\d+\b/g, '').trim();
+    return `${p1}${c} pt-12 sm:pt-16 pb-28 md:pb-16${p3}`;
+  });
+
+  // Step 5: Unify Footer into a single, elegant signature strip INSIDE the footer max-w container
   const cleanName = (businessName || 'All Rights Reserved').replace(/"/g, '&quot;');
-  const unifiedBottomBar = `
+  const signatureInner = `
             <!-- Unified ArcLane Verified Footer Signature -->
-            <div class="pt-8 mt-8 border-t border-zinc-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-zinc-500 gap-4">
+            <div class="pt-8 mt-8 sm:mt-12 border-t border-zinc-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-zinc-500 gap-4">
                 <p>&copy; <span id="current-year">2026</span> ${cleanName}. All rights reserved.</p>
                 <a href="https://www.arclanestudios.space" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 font-medium text-zinc-400 hover:text-white transition-colors group">
                     <span>Concept &amp; Digital Architecture by</span>
@@ -162,10 +168,19 @@ function repairHtml(rawHtml, businessName = '') {
 
   const footerMatch = html.match(/<footer[\s\S]*?<\/footer>/i);
   if (footerMatch) {
-    const newFooter = replaceBottomBarWithBalancing(footerMatch[0], unifiedBottomBar);
-    html = html.replace(footerMatch[0], newFooter);
+    let f = footerMatch[0];
+    const bottomBarRegex = /<(?:div|section)[^>]*class=["'][^"']*(?:pt-8|border-t|mt-8|text-center|justify-between)[^"']*["'][^>]*>[\s\S]*?(?:&copy;|©|current-year|All rights reserved)[\s\S]*?<\/(?:div|section)>/i;
+    f = f.replace(bottomBarRegex, '');
+
+    const lastDivIdx = f.lastIndexOf('</div>');
+    if (lastDivIdx !== -1) {
+      f = f.slice(0, lastDivIdx) + signatureInner + '\n        </div>\n    </footer>';
+    } else {
+      f = f.replace(/<\/footer>/i, `<div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">${signatureInner}</div>\n</footer>`);
+    }
+    html = html.replace(footerMatch[0], f);
   } else if (html.includes('</body>')) {
-    html = html.replace('</body>', `${unifiedBottomBar}\n</body>`);
+    html = html.replace('</body>', `<div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-28 md:pb-16">${signatureInner}</div>\n</body>`);
   }
 
   // Step 5: Final Div Balancing Safeguard
