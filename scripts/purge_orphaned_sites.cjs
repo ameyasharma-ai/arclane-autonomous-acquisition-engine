@@ -35,3 +35,4 @@ for (const d of orphaned) {
 console.log(`Successfully purged ${count} orphaned directories.`);
 const remaining = fs.readdirSync(sitesDir).filter(d => d !== '.gitkeep');
 console.log(`Remaining directories in web-dev-agency/public/sites: ${remaining.length} (Expected: 501)`);
+

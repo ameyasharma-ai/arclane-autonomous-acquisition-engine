@@ -171,13 +171,20 @@ for (let i = 1; i <= 501; i++) {
 
     seenUrls.add(finalSrc);
 
-    // Inject self-healing onerror fallback
-    const fallbackUrl = pool[0];
-    let tag = `<img${prefix}src="${finalSrc}"${suffix}`;
+    // Clean prefix and suffix to avoid quote corruption
+    let cleanPrefix = prefix;
+    let cleanSuffix = suffix;
 
-    // Ensure onerror is present
+    // Build properly closed tag with valid closing bracket
+    let tag = `<img${cleanPrefix}src="${finalSrc}"${cleanSuffix}`;
+    if (!tag.endsWith('>')) tag += '>';
+
+    // Inject self-healing onerror fallback with single quotes
+    const fallbackUrl = pool[0];
     if (!tag.includes('onerror=')) {
       tag = tag.replace(/>$/, ` onerror="this.onerror=null; this.src='${fallbackUrl}';">`);
+    } else {
+      tag = tag.replace(/onerror=["']this\.onerror=null;\s*this\.src=["']([^"']+)["'];?["']/gi, `onerror="this.onerror=null; this.src='$1';"`);
     }
 
     // Ensure object-cover is present for distortion prevention
@@ -210,9 +217,40 @@ for (let i = 1; i <= 501; i++) {
     totalDistortionsFixed++;
   }
 
-  // 4. Ensure mobile sticky conversion bar padding
-  if (!html.includes('pb-20') && !html.includes('pb-24')) {
-    html = html.replace(/<body([^>]*)class="([^"]*)"/i, '<body$1class="$2 pb-24"');
+  // 4. Ensure mobile sticky conversion bar padding without desktop conflicts
+  html = html.replace(/(<body\b[^>]*class=["'])([^"']*)(["'])/gi, (m, p1, classes, p3) => {
+    let c = classes;
+    if (c.includes('pb-28') && (c.includes('md:pb-0') || c.includes('lg:pb-0'))) {
+      c = c.replace(/\s*\bpb-24\b/g, '').replace(/\s*\bpb-20\b/g, '');
+    } else if (!c.includes('pb-28') && !c.includes('pb-24') && !c.includes('pb-20')) {
+      c = `pb-28 lg:pb-0 ${c}`;
+    }
+    return `${p1}${c.trim()}${p3}`;
+  });
+
+  // 5. Enforce HTML tag cleanliness and structural balance
+  html = html.replace(/<\/div(?![a-zA-Z0-9_>-])/gi, '</div>');
+  html = html.replace(/(class=["'][^"']*?["'])\s*<\/div/gi, '$1></div>');
+  html = html.replace(/(<[a-zA-Z0-9-]+(?:\s+[^>]*?)?["'])(?=\s*\r?\n\s*<)/gi, (match) => {
+    if (!match.includes('>')) return match + '>';
+    return match;
+  });
+
+  // 6. Balance open vs close divs
+  const openDivs = (html.match(/<div\b/gi) || []).length;
+  const closeDivs = (html.match(/<\/div>/gi) || []).length;
+  const divDiff = openDivs - closeDivs;
+  if (divDiff > 0) {
+    const closingDivs = '</div>\n'.repeat(divDiff);
+    if (html.includes('</body>')) {
+      html = html.replace('</body>', `${closingDivs}</body>`);
+    } else {
+      html += closingDivs;
+    }
+  } else if (divDiff < 0) {
+    for (let k = 0; k < Math.abs(divDiff); k++) {
+      html = html.replace(/<\/div>(?=\s*<\/body>)/i, '');
+    }
   }
 
   fs.writeFileSync(htmlPath, html, 'utf8');

@@ -807,15 +807,20 @@ export class WebsiteBuilder {
         // 12. Ensure Body and HTML have zero horizontal overflow and ample bottom padding for mobile sticky action bar
         html = html.replace(/(<body\s+[^>]*class=["'])([^"']*)(["'])/gi, (m, p1, classes, p3) => {
             let c = classes;
-            if (!c.includes('pb-28') && !c.includes('pb-24') && !c.includes('pb-20')) c = `pb-28 lg:pb-0 ${c}`;
+            // Strip conflicting duplicate paddings
+            if (c.includes('pb-28') && (c.includes('lg:pb-0') || c.includes('md:pb-0'))) {
+                c = c.replace(/\s*\bpb-24\b/g, '').replace(/\s*\bpb-20\b/g, '');
+            } else if (!c.includes('pb-28') && !c.includes('pb-24') && !c.includes('pb-20')) {
+                c = `pb-28 lg:pb-0 ${c}`;
+            }
             if (!c.includes('overflow-x-hidden')) c = `overflow-x-hidden ${c}`;
-            return `${p1}${c}${p3}`;
+            return `${p1}${c.trim()}${p3}`;
         });
 
         html = html.replace(/(<html\s+[^>]*class=["'])([^"']*)(["'])/gi, (m, p1, classes, p3) => {
             let c = classes;
             if (!c.includes('overflow-x-hidden')) c = `overflow-x-hidden ${c}`;
-            return `${p1}${c}${p3}`;
+            return `${p1}${c.trim()}${p3}`;
         });
 
         // 13. Fix Grid Column Overflow on Mobile
@@ -1032,6 +1037,47 @@ export class WebsiteBuilder {
 
         // 11. Enforce ArcLane Studios Agency Courtesy Credit (Brand Signature)
         html = injectAgencyCredit(html, businessName);
+
+        // 12. Enforce Strict HTML Tag Closure & Structural Balancing
+        // A. Repair broken </div without >
+        html = html.replace(/<\/div(?![a-zA-Z0-9_>-])/gi, '</div>');
+
+        // B. Repair inline mangled class="..."</div
+        html = html.replace(/(class=["'][^"']*?["'])\s*<\/div/gi, '$1></div>');
+
+        // C. Repair unclosed opening tags at line boundaries (<img ... or <div ...)
+        html = html.replace(/(<[a-zA-Z0-9-]+(?:\s+[^>]*?)?["'])(?=\s*\r?\n\s*<)/gi, (match) => {
+            if (!match.includes('>')) return match + '>';
+            return match;
+        });
+
+        // D. Ensure all <img tags are closed with > before any child/sibling tag
+        html = html.replace(/<img\b([^>]*?)(?=\s*<\/?(?:div|span|p|section|a|h[1-6]|ul|li|footer|header|aside)\b)/gi, (m, attrs) => {
+            let a = attrs.trim();
+            if (!a.endsWith('>')) {
+                if ((a.match(/"/g) || []).length % 2 !== 0) a += '"';
+                return `<img ${a}>`;
+            }
+            return m;
+        });
+
+        // E. Fix corrupted onerror double-quote nesting
+        html = html.replace(/onerror=["']this\.onerror=null;\s*this\.src=["']([^"']+)["'];?["']/gi, (m, url) => {
+            return `onerror="this.onerror=null; this.src='${url}';"`;
+        });
+
+        // F. Balance Div tags: ensure open divs match close divs
+        const openDivs = (html.match(/<div\b/gi) || []).length;
+        const closeDivs = (html.match(/<\/div>/gi) || []).length;
+        const divDiff = openDivs - closeDivs;
+        if (divDiff > 0) {
+            const closingDivs = '</div>\n'.repeat(divDiff);
+            if (html.includes('</body>')) {
+                html = html.replace('</body>', `${closingDivs}</body>`);
+            } else {
+                html += closingDivs;
+            }
+        }
 
         return html;
     }
