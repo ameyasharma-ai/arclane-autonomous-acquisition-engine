@@ -164,7 +164,12 @@ STRICT EXCLUSION RULES (MANDATORY):
             });
 
             const content = response.choices[0].message.content.trim();
-            const cleanJson = content.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
+            let cleanJson = content.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
+            const firstBrace = cleanJson.indexOf('{');
+            const lastBrace = cleanJson.lastIndexOf('}');
+            if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+                cleanJson = cleanJson.slice(firstBrace, lastBrace + 1);
+            }
             const parsed = JSON.parse(cleanJson);
 
             const result = {

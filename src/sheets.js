@@ -30,6 +30,25 @@ async function ensureGoogleClockSync() {
     isClockSynced = true;
 }
 
+const RealDate = global.Date;
+let isDatePatched = false;
+
+function patchGlobalDateOnce(driftMs) {
+    if (isDatePatched || Math.abs(driftMs) <= 1000) return;
+    function SyncedDate(...args) {
+        if (args.length === 0) {
+            return new RealDate(RealDate.now() + driftMs);
+        }
+        return new RealDate(...args);
+    }
+    SyncedDate.prototype = RealDate.prototype;
+    SyncedDate.now = () => RealDate.now() + driftMs;
+    SyncedDate.parse = RealDate.parse;
+    SyncedDate.UTC = RealDate.UTC;
+    global.Date = SyncedDate;
+    isDatePatched = true;
+}
+
 export async function getSpreadsheetId(authClient, name) {
     const drive = google.drive({ version: 'v3', auth: authClient });
     const res = await drive.files.list({
@@ -45,21 +64,8 @@ export async function getSpreadsheetId(authClient, name) {
 export async function loadGoogleSheet() {
     await ensureGoogleClockSync();
 
-    // Wrap Date during JWT signing so `new Date().getTime()` in gtoken matches Google server time
-    const OrigDate = global.Date;
-    if (Math.abs(clockDriftMs) > 1000) {
-        function SyncedDate(...args) {
-            if (args.length === 0) {
-                return new OrigDate(OrigDate.now() + clockDriftMs);
-            }
-            return new OrigDate(...args);
-        }
-        SyncedDate.prototype = OrigDate.prototype;
-        SyncedDate.now = () => OrigDate.now() + clockDriftMs;
-        SyncedDate.parse = OrigDate.parse;
-        SyncedDate.UTC = OrigDate.UTC;
-        global.Date = SyncedDate;
-    }
+    // Wrap Date once during JWT signing so `new Date().getTime()` in gtoken matches Google server time
+    patchGlobalDateOnce(clockDriftMs);
 
     try {
         const credentials = JSON.parse(fs.readFileSync(process.env.SERVICE_ACCOUNT_FILE));
@@ -128,7 +134,8 @@ export async function loadGoogleSheet() {
         }
         return { sheet, doc };
     } finally {
-        global.Date = OrigDate;
+        global.Date = RealDate;
+        isDatePatched = false;
     }
 }
 
@@ -195,20 +202,41 @@ export async function updateLeadField(sheet, clientId, field, value) {
     return updateLeadFields(sheet, clientId, { [field]: value });
 }
 
-export async function updateLeadFields(sheet, clientId, fieldsToUpdate) {
-    const rows = await sheet.getRows();
-    const row = rows.find(r => r.get('Client ID') == String(clientId));
+export async function updateLeadFields(sheet, clientId, fieldsToUpdate, cachedRow = null) {
+    let retries = 3;
+    let delay = 1000;
 
-    if (!row) {
-        console.warn(`Lead ${clientId} not found in sheet for updating fields:`, Object.keys(fieldsToUpdate));
-        return false;
-    }
+    while (retries > 0) {
+        try {
+            let row = cachedRow;
+            if (!row) {
+                const rows = await sheet.getRows();
+                row = rows.find(r => r.get('Client ID') == String(clientId));
+            }
 
-    for (const [key, value] of Object.entries(fieldsToUpdate)) {
-        row.set(key, value);
+            if (!row) {
+                console.warn(`Lead ${clientId} not found in sheet for updating fields:`, Object.keys(fieldsToUpdate));
+                return false;
+            }
+
+            for (const [key, value] of Object.entries(fieldsToUpdate)) {
+                row.set(key, value);
+            }
+            await row.save();
+            return true;
+        } catch (err) {
+            retries--;
+            if (retries === 0) {
+                console.error(`[GoogleSheet] Failed to update lead ${clientId} after retries:`, err.message);
+                throw err;
+            }
+            console.warn(`[GoogleSheet] Rate limit or transient error updating lead ${clientId} (${err.message}). Retrying in ${delay}ms...`);
+            await new Promise(r => setTimeout(r, delay));
+            delay *= 2;
+            cachedRow = null; // Re-fetch on retry
+        }
     }
-    await row.save();
-    return true;
+    return false;
 }
 
 /**

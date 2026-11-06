@@ -245,11 +245,18 @@ Rules:
                 console.log(`[AgencyPublisher] Commit note:`, commitErr.message);
             }
 
-            // 2. Push to GitHub
+            // 2. Pull remote changes with rebase first to guarantee clean non-fast-forward push
+            try {
+                await execAsync(`git pull --rebase origin main`, { cwd: this.agencyDir });
+            } catch (pullErr) {
+                console.warn(`[AgencyPublisher] Pull rebase note:`, pullErr.message);
+            }
+
+            // 3. Push to GitHub
             await execAsync(`git push origin main`, { cwd: this.agencyDir });
             console.log(`[AgencyPublisher] Successfully pushed batch of ${count} sites to GitHub!`);
 
-            // 3. Instant SSL Guarantee: Register specific subdomains with Vercel API
+            // 4. Instant SSL Guarantee: Register specific subdomains with Vercel API
             const vercelToken = process.env.VERCEL_TOKEN;
             if (vercelToken && !this.domainLimitReached) {
                 const projectId = 'prj_bDQewUJReqeKlYBNwvDPcO6vamOZ';

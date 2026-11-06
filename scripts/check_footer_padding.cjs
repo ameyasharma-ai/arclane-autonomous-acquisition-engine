@@ -17,3 +17,4 @@ sites.forEach(s => {
 });
 
 console.log('Sites with pb-28 md:pb-16 footer padding:', correctPaddingCount);
+

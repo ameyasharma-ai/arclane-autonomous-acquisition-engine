@@ -71,6 +71,11 @@ Example: ["Boring Canal Road", "SK Puri", "Nageshwar Colony", "Harding Road"]`;
 
                 let text = res.choices[0].message.content.trim();
                 text = text.replace(/```json/gi, '').replace(/```/g, '').trim();
+                const firstBracket = text.indexOf('[');
+                const lastBracket = text.lastIndexOf(']');
+                if (firstBracket !== -1 && lastBracket !== -1 && lastBracket > firstBracket) {
+                    text = text.slice(firstBracket, lastBracket + 1);
+                }
                 const parsed = JSON.parse(text);
 
                 if (Array.isArray(parsed) && parsed.length > 0) {
@@ -154,6 +159,11 @@ Example: ["Nearby Market 1", "Nearby Main Road", "Adjacent Colony"]`;
 
                 let text = res.choices[0].message.content.trim();
                 text = text.replace(/```json/gi, '').replace(/```/g, '').trim();
+                const firstBracket = text.indexOf('[');
+                const lastBracket = text.lastIndexOf(']');
+                if (firstBracket !== -1 && lastBracket !== -1 && lastBracket > firstBracket) {
+                    text = text.slice(firstBracket, lastBracket + 1);
+                }
                 const parsed = JSON.parse(text);
 
                 if (Array.isArray(parsed) && parsed.length > 0) {

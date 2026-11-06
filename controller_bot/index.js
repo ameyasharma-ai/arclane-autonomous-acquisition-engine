@@ -80,8 +80,16 @@ function getMainKeyboard(isAuto = true) {
 // Global logger & chat ID detector middleware
 bot.use(async (ctx, next) => {
     const text = ctx.message?.text || ctx.callbackQuery?.data || '';
+    const senderId = String(ctx.from?.id || ctx.chat?.id || '');
     console.log(`[ControllerBot] 📩 Update: ${ctx.updateType} from chat ${ctx.chat?.id} (@${ctx.from?.username || ctx.from?.first_name || 'User'}): "${text}"`);
     
+    // Security Access Whitelist Guard
+    const allowedUsers = (process.env.ALLOWED_TELEGRAM_USER_IDS || '').split(',').map(s => s.trim()).filter(Boolean);
+    if (allowedUsers.length > 0 && !allowedUsers.includes(senderId) && ctx.chat?.id !== 'local-web-ui') {
+        console.warn(`[ControllerBot] 🚫 Unauthorized access attempt from ID ${senderId} (@${ctx.from?.username || 'unknown'})`);
+        return ctx.reply("⛔ *Access Denied:* You are not authorized to control the Arclane Autonomous Acquisition Engine.", { parse_mode: 'Markdown' });
+    }
+
     if (ctx.chat?.id) {
         masterChatId = ctx.chat.id;
         if (!scheduler) {

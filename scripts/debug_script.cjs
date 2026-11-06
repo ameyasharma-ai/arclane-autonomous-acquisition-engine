@@ -16,3 +16,4 @@ const dirtyHtml = `<!DOCTYPE html>
 
 const cleaned = builder.enforceDesignQualityStandards(dirtyHtml, 'test-slug', 'Test Business');
 console.log('Resulting HTML:\n', cleaned);
+

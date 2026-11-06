@@ -108,8 +108,9 @@ export class Scheduler {
         this.stop(); // Clear any existing cron jobs
         this.isAutoRunning = this.loadPersistentAutoRunning();
 
-        console.log(`[Scheduler] 🚀 Starting 24/7 Automation Scheduler (Timezone: ${CONFIG.TIMEZONE}, State: ${this.isAutoRunning ? 'ACTIVE' : 'PAUSED'})...`);
-        import('../src/web_ui.js').then(({ webUI }) => webUI.broadcast(msg)).catch(()=>{});
+        const statusMsg = `🚀 Starting 24/7 Automation Scheduler (Timezone: ${CONFIG.TIMEZONE}, State: ${this.isAutoRunning ? 'ACTIVE' : 'PAUSED'})...`;
+        console.log(`[Scheduler] ${statusMsg}`);
+        import('../src/web_ui.js').then(({ webUI }) => webUI.broadcast(statusMsg)).catch(()=>{});
 
         // 1. Daily Real-Time Streaming Scrape & Build Job (06:00 AM every morning)
         // Concurrently streams each scraped lead directly into the website builder & deployer!

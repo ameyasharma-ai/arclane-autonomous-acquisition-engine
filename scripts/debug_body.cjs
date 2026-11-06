@@ -20,3 +20,4 @@ const dirtyHtml = `<!DOCTYPE html>
 
 const cleanedHtml = builder.enforceDesignQualityStandards(dirtyHtml, 'test-slug', 'Test Business');
 console.log('Resulting HTML body:\n', cleanedHtml.slice(cleanedHtml.indexOf('<body>')));
+

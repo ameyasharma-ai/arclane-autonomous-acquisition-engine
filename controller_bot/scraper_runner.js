@@ -1,4 +1,4 @@
-import { spawn } from 'child_process';
+import { spawn, exec } from 'child_process';
 import path from 'path';
 import fs from 'fs';
 import { CONFIG } from './config.js';
@@ -56,11 +56,15 @@ export class ScraperRunner {
                 '--leads', String(targetLeads)
             ];
 
-            // Robust Python resolution: prefer environment variable or Anaconda python where playwright is installed
-            let pythonCmd = process.env.PYTHON_BIN || process.env.PYTHON_PATH || (process.platform === 'win32' ? 'python' : 'python3');
-            const anacondaPath = 'C:\\Users\\Ameya Sharma\\anaconda3\\python.exe';
-            if (process.platform === 'win32' && !process.env.PYTHON_BIN && !process.env.PYTHON_PATH && fs.existsSync(anacondaPath)) {
-                pythonCmd = anacondaPath;
+            // Robust Python resolution: prefer environment variable, virtualenv, or standard python
+            let pythonCmd = process.env.PYTHON_BIN || process.env.PYTHON_PATH;
+            if (!pythonCmd) {
+                const anacondaPath = 'C:\\Users\\Ameya Sharma\\anaconda3\\python.exe';
+                if (process.platform === 'win32' && fs.existsSync(anacondaPath)) {
+                    pythonCmd = anacondaPath;
+                } else {
+                    pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
+                }
             }
             
             console.log(`[ScraperRunner] Spawning: ${pythonCmd} ${args.join(' ')} in ${CONFIG.SCRAPER_DIR}`);
@@ -136,7 +140,18 @@ export class ScraperRunner {
 
     stop() {
         if (this.activeProcess) {
-            this.activeProcess.kill('SIGTERM');
+            const pid = this.activeProcess.pid;
+            try {
+                if (process.platform === 'win32' && pid) {
+                    exec(`taskkill /pid ${pid} /T /F`, (err) => {
+                        if (err) console.warn(`[ScraperRunner] taskkill notice for pid ${pid}:`, err.message);
+                    });
+                } else {
+                    this.activeProcess.kill('SIGTERM');
+                }
+            } catch (e) {
+                try { this.activeProcess.kill('SIGKILL'); } catch (err) {}
+            }
             this.isRunning = false;
             this.activeProcess = null;
             return true;

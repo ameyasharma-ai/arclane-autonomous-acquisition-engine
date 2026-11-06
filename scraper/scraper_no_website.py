@@ -2109,6 +2109,10 @@ async def main(search_query, locality, city, num_of_leads, end_date="", end_time
                 df = pd.concat([existing_df, df], ignore_index=True)
             except Exception:
                 pass
+        if not df.empty:
+            dedup_cols = [c for c in ['Business Name', 'Phone/WhatsApp', 'Google Maps URL'] if c in df.columns]
+            if dedup_cols:
+                df = df.drop_duplicates(subset=dedup_cols, keep='last')
         df.to_excel('google_maps_leads.xlsx', index=False)
     except Exception as e:
         print(f"[ERROR] Could not save to Excel: {e}")

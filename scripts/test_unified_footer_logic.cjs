@@ -77,3 +77,4 @@ testSites.forEach(s => {
     console.log(`Site: ${s} | openDivs: ${openDivs}, closeDivs: ${closeDivs}, diff: ${openDivs - closeDivs}`);
   }
 });
+

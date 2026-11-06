@@ -230,19 +230,21 @@ export class VisualQualityGate {
                 // ========================================================
                 // 3. Floating Badge & Absolute Positioning Collision Guard
                 // ========================================================
-                const cards = Array.from(document.querySelectorAll('.rounded-3xl, .rounded-2xl, .group'));
+                const cards = Array.from(document.querySelectorAll('.rounded-3xl, .rounded-2xl, .rounded-xl, .group, section'));
                 cards.forEach(card => {
                     const img = card.querySelector('img');
                     if (!img) return;
 
-                    // Locate any absolute badge inside this card, excluding svg, hidden overlays, and background pattern divs
+                    // Locate any absolute badge or promo overlay inside this card, excluding svg and background pattern divs
                     const badges = Array.from(card.querySelectorAll('.absolute')).filter(b => {
                         if (b.closest('svg')) return false;
                         if (b.classList.contains('pointer-events-none')) return false;
-                        if (b.classList.contains('inset-0')) return false;
-                        if (b.querySelector('h1, h2, h3, h4, h5, h6')) return false;
-                        // Must be a compact badge/chip (e.g. rounded-full, rounded-md, or small pill)
-                        const isBadge = b.tagName === 'SPAN' || b.classList.contains('rounded-full') || b.classList.contains('rounded-md') || b.classList.contains('rounded-lg');
+                        if (b.classList.contains('inset-0') && !b.innerText.trim()) return false;
+                        if (b.querySelector('h1, h2')) return false;
+                        
+                        const textLower = (b.innerText || '').toLowerCase();
+                        const isPromo = textLower.includes('save ') || textLower.includes('offer') || textLower.includes('discount') || textLower.includes('free ') || textLower.includes('% off') || textLower.includes('today');
+                        const isBadge = b.tagName === 'SPAN' || isPromo || Array.from(b.classList).some(c => c.startsWith('rounded-'));
                         return isBadge;
                     });
                     const hasTextContent = card.querySelector('h3, h4, p, a, button');
@@ -259,10 +261,15 @@ export class VisualQualityGate {
                             photoWrapper.classList.add('relative');
                         }
 
-                        // Re-parent all badges strictly inside photoWrapper
+                        // Re-parent all badges strictly inside photoWrapper and strip negative margins
                         badges.forEach(b => {
+                            Array.from(b.classList).forEach(c => {
+                                if (/^-(?:mt|mb|top|bottom)/.test(c)) {
+                                    b.classList.remove(c);
+                                }
+                            });
                             if (b.parentElement !== photoWrapper) {
-                                b.classList.remove('top-6', 'bottom-6', 'left-6', 'right-6', 'top-8', 'bottom-8');
+                                b.classList.remove('top-6', 'bottom-6', 'left-6', 'right-6', 'top-8', 'bottom-8', 'bottom-0', '-bottom-4', '-bottom-6');
                                 if (b.className.includes('top-') || b.innerText.includes('Signature') || b.innerText.includes('Featured') || b.innerText.includes('Best')) {
                                     b.classList.add('top-4', 'left-4');
                                 } else {
@@ -498,12 +505,15 @@ export class VisualQualityGate {
             };
         } catch (err) {
             console.warn('[VisualQualityGate] Audit notice:', err.message);
-            try { await context.close(); } catch (e) {}
             return {
                 passed: false,
                 cleanHtml: injectAgencyCredit(html, businessName),
                 issuesFixed: []
             };
+        } finally {
+            if (context) {
+                try { await context.close(); } catch (e) {}
+            }
         }
     }
 }
