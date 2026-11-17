@@ -73,6 +73,10 @@ function getMainKeyboard(isAuto = true) {
                 ? Markup.button.callback('⏸ Pause Automation', 'cmd_pause_auto')
                 : Markup.button.callback('▶️ Resume Automation', 'cmd_resume_auto'),
             Markup.button.callback('📜 View Schedule JSON', 'cmd_view_plan')
+        ],
+        [
+            Markup.button.callback('❓ All Help Commands', 'cmd_help'),
+            Markup.button.callback('🗺️ Locality Coverage', 'cmd_coverage')
         ]
     ]);
 }
@@ -207,6 +211,64 @@ bot.command('today', async (ctx) => {
         `_"${CONFIG.loadPlan()?.phoneScriptTemplates?.courtesyOpener || 'Hi [Owner], Ameya here from Arclane Studios. Maine aapke business ke liye ek custom website banakar WhatsApp par link share kiya hai. Ye completely free gift hai — agar pasand aaye toh aage baat karenge, nahi toh aap permanently free rakh sakte hain!'}"_`;
 
     await ctx.reply(msg, { parse_mode: 'Markdown' });
+});
+
+// Command: /help, /commands, /cmd
+async function handleHelp(ctx) {
+    masterChatId = ctx.chat?.id || masterChatId;
+    if (!scheduler && bot && masterChatId && masterChatId !== 'local-web-ui') {
+        scheduler = new Scheduler(bot, masterChatId);
+    }
+    if (scheduler && masterChatId && masterChatId !== 'local-web-ui') {
+        scheduler.setChatId(masterChatId);
+    }
+
+    const isAuto = scheduler ? scheduler.getStatus().isAutoRunning : true;
+
+    const helpMsg = 
+        `📖 *Arclane Controller Bot — Command Manual*\n\n` +
+        `*🚀 Autonomous & Streaming Pipelines:*\n` +
+        `• \`/run_full [query] [city] [count]\` — Complete 360° pipeline: Scrape ➔ 14-pt Audit ➔ Tailwind Site ➔ Subdomain Deploy ➔ WhatsApp curiosity hook.\n` +
+        `  _Example:_ \`/run_full Gyms Patna 1\`\n` +
+        `• \`/trigger_stream [query] [city] [count]\` — Concurrent real-time scrape & build. Streams leads from Google Maps straight into the builder.\n` +
+        `  _Example:_ \`/trigger_stream "Gyms" "Patna" 10\`\n` +
+        `• \`/stream_scrape_vision [query] [locality] [city] [count]\` — Vision AI pipeline. Scrapes authentic Maps photos, classifies with Gemini Vision, downloads HD assets, and synthesizes prototype.\n` +
+        `• \`/auto_explore [query] [city] [count]\` — Autonomous multi-locality hopping chain across city commercial sectors.\n` +
+        `  _Example:_ \`/auto_explore "Gyms" "Patna" 33\`\n\n` +
+        `*🎯 Targeted Actions & Lead Fixes:*\n` +
+        `• \`/build_url <maps_url>\` — Instantly scrape, audit, and build a site from any Google Maps link (or simply paste the URL into chat!).\n` +
+        `• \`/fix <id>\` or \`/build <id>\` — Fix or rebuild specific lead by ID or range.\n` +
+        `  _Examples:_ \`/fix 202\` or \`/fix 1:10\` (batch up to 30)\n` +
+        `• \`/trigger_scrape [query] [city] [count]\` — Scrapes Google Maps leads directly into Sheet1 without building websites.\n` +
+        `• \`/trigger_analyse [count]\` — AI audits and builds websites for pending scraped leads in Sheet1.\n` +
+        `• \`/trigger_send [count]\` — Dispatches WhatsApp curiosity messages to leads with built sites.\n` +
+        `• \`/approve\` or \`/launch\` — Confirms and launches queued WhatsApp outreach wave.\n\n` +
+        `*📊 System Status & Strategy:*\n` +
+        `• \`/status\` — Live bot state, active task, current IST time, and scheduled cron jobs.\n` +
+        `• \`/today\` — Today's designated niche, target city, and planned schedule.\n` +
+        `• \`/coverage [query] [city]\` — View micro-locality exploration saturation and lead distribution.\n` +
+        `• \`/view_plan\` — View active 100-day schedule configuration JSON.\n\n` +
+        `*🛑 Safeguards & Session Controls:*\n` +
+        `• \`/abort\` or \`/stop\` — Emergency Kill Switch: immediately halts all active scraping and building child processes.\n` +
+        `• \`/pause_auto\` — Pauses 24/7 background cron automation.\n` +
+        `• \`/start_auto\` — Resumes 24/7 background cron automation.\n` +
+        `• \`/reset_plan\` — Aborts current manual tasks and resets to automated daily timetable.\n` +
+        `• \`/login\` — Opens headed browser to scan WhatsApp Web QR code session.\n` +
+        `• \`/help\` — Display this command manual.`;
+
+    await ctx.reply(helpMsg, {
+        parse_mode: 'Markdown',
+        ...getMainKeyboard(isAuto)
+    });
+}
+
+bot.command('help', handleHelp);
+bot.command('commands', handleHelp);
+bot.command('cmd', handleHelp);
+
+bot.action('cmd_help', async (ctx) => {
+    try { await ctx.answerCbQuery('📖 Loading Help Manual...'); } catch (e) {}
+    await handleHelp(ctx);
 });
 
 // Command: /start_auto
@@ -725,6 +787,23 @@ bot.command('coverage', async (ctx) => {
     const report = localityEngine.getCoverageReport(niche, 'Bihar', city);
 
     let text = `🗺️ *Locality Coverage Matrix for ${niche} (${city}, ${report.state})*\n\n` +
+               `• *Coverage Rate:* ${report.coveredLocalities}/${report.totalLocalities} Localities (${report.coveragePercentage}%)\n` +
+               `• *Total Leads Gathered:* ${report.totalLeads} leads\n\n` +
+               `*Breakdown by Area:*\n`;
+    report.breakdown.forEach(b => {
+        const icon = b.status === 'COMPLETED' ? '✅' : '⚪';
+        text += `${icon} *${b.locality}:* ${b.leads} leads ${b.lastScraped ? `(\`${new Date(b.lastScraped).toLocaleDateString()}\`)` : ''}\n`;
+    });
+
+    await ctx.reply(text, { parse_mode: 'Markdown' });
+});
+
+bot.action('cmd_coverage', async (ctx) => {
+    try { await ctx.answerCbQuery('🗺️ Loading Coverage Matrix...'); } catch (e) {}
+    const { localityEngine } = await import('../src/engine/locality_engine.js');
+    const report = localityEngine.getCoverageReport("Gyms", 'Bihar', "Patna");
+
+    let text = `🗺️ *Locality Coverage Matrix for Gyms (Patna, ${report.state})*\n\n` +
                `• *Coverage Rate:* ${report.coveredLocalities}/${report.totalLocalities} Localities (${report.coveragePercentage}%)\n` +
                `• *Total Leads Gathered:* ${report.totalLeads} leads\n\n` +
                `*Breakdown by Area:*\n`;

@@ -202,30 +202,45 @@ A stateless Python Telegram bot for email-based outreach:
 
 ## 8. Complete Command & CLI Reference
 
-### 🎯 Fast Test Run: 10 Gyms in Patna
+### 🚀 A. Quick-Start & Daily Run Commands
+
+| Command / Script | Environment / Runtime | Operational Action |
+| :--- | :--- | :--- |
+| `npm start` or `npm run controller` | Node.js / Express / Socket.io | Launches the Master Controller Bot and boots the Local Web UI on `http://localhost:3000`. |
+| `npm run fix -- <id>` | Node.js | Re-audits, regenerates assets, and rebuilds a specific client website by Client ID (e.g. `npm run fix -- 202`). |
+| `npm run prune` | Node.js / Vercel API | Prunes stale or redundant preview deployments on Vercel to preserve deployment slots. |
+| `npm run whatsapp` | Node.js / Playwright | Launches the standalone WhatsApp Web automation and contact sync engine. |
+| `python scraper/telegram_bot.py` | Python 3.10+ | Starts the standalone Google Maps Scraper Command Center Telegram bot. |
+| `python scripts/sales_bot.py` | Python 3.10+ | Starts the rich HTML sales email dispatcher bot with inline Telegram lead inspection. |
+| `fix_clock.bat` | Windows CMD / PowerShell | Synchronizes local system clock against Google servers to prevent JWT expiration errors on Google Sheets API. |
+
+---
+
+### 🎯 B. Fast Test Run: 10 Gyms in Patna
 
 To run an autonomous test batch of **10 Gyms in Patna** with real-time scraping, website building, and agency subdomain batch deployment:
 
 #### Method 1: Via Local Web UI (Port 3000)
 1. Start the controller bot & Web UI server:
    ```powershell
-   node controller_bot/index.js
+   npm start
    ```
-2. Open your browser to `http://localhost:3000`.
-3. In the chat command box, send:
+2. Open your browser to `http://localhost:3000` and navigate to the **💬 Bot Terminal** tab.
+3. Tap the **⚡ /trigger_stream** quick pill or send into the command bar:
    ```text
    /trigger_stream Gyms Patna 10
    ```
    *(Or for full pipeline with automated WhatsApp curiosity pitch: `/run_full Gyms Patna 10`)*.
 
 #### Method 2: Via Telegram Controller Bot
-Send to `@ArclaneControllerBot`:
+Send directly to `@ArclaneControllerBot`:
 ```text
 /trigger_stream Gyms Patna 10
 ```
 
-#### Method 3: Direct CLI Stream Command
+#### Method 3: Direct CLI Invocations
 ```powershell
+# Real-Time Stream Scrape & Build
 node -e "
 import('./controller_bot/pipeline_runner.js').then(async ({ PipelineRunner }) => {
     const { ScraperRunner } = await import('./controller_bot/scraper_runner.js');
@@ -240,35 +255,64 @@ import('./controller_bot/pipeline_runner.js').then(async ({ PipelineRunner }) =>
     });
 });
 "
+
+# Instant Website Synthesis from Google Maps Link
+node -e "
+import('./src/engine/instant_maps_builder.js').then(async ({ instantMapsBuilder }) => {
+    await instantMapsBuilder.processMapsUrl('https://maps.app.goo.gl/...', {
+        notify: (msg) => console.log(msg)
+    });
+});
+"
 ```
 
 ---
 
-### 🤖 A. Master Controller Bot & Web UI Interactive Buttons Reference
+### 🤖 C. Master Controller Bot & Chat UI Commands Manual
 
-The interactive dashboard (available both in Telegram and at `http://localhost:3000`) provides 1-tap execution buttons:
+The Controller Bot (accessible in Telegram and at `http://localhost:3000`) provides comprehensive pipeline control:
 
-| Button / UI Control | Underlying Command / Action | Detailed Operational Function |
-| :--- | :--- | :--- |
-| **Live Status** | `/status` | **Health & Schedule Monitor:** Queries operational state, reporting whether Scraper or Pipeline Builder processes are active/idle, displays current IST time, and outlines today's cron executions. |
-| **Today's Plan** | `/today` | **Daily Strategic Brief:** Reads `plan/week_1_plan.json`. Displays targeted niche, target lead quota, batch wave dispatches, and deal-closing phone scripts. |
-| **360° Full Pipeline (1-10 Leads)** | `/run_full [query] [city] [count]` | **End-to-End Autonomous Pipeline:** Extracts qualified leads from Google Maps, conducts 14-point AI audit, generates custom Tailwind CSS websites, deploys live to agency subdomains in batches of 5, and sends curiosity WhatsApp pitches. |
-| **Stream Scrape & Build** | `/trigger_stream [query] [city] [count]` or `/stream_scrape [query] [locality] [city] [count]` | **Concurrent Streaming Pipeline:** Launches Playwright scraper for today's niche. As each lead is extracted, it streams into the builder queue and stages to `arclanestudios.space`. Deploys every 5 leads + remaining. Auto-hops to adjacent micro-localities if listings exhaust! |
-| **Reset & Resume 24/7 Plan** | `/reset_plan` | **State Reset:** Aborts active manual pipeline, flushes task queues, and restores autonomous 24/7 timetable. |
-| **Abort Active Task** | `/abort` or `/stop` | **Emergency Halt:** Immediately transmits `SIGTERM` kill signal to all active Playwright, Puppeteer, and website builder child processes. |
-| **WhatsApp Dispatch** | `/trigger_send [count]` | **Outreach Wave:** Connects to WhatsApp Web via persistent session (`whatsapp_user_session/`), retrieves next pending batch of leads with built sites, and messages them with 30-75s safe delays. |
-| **🟢 Green Signal Gate** | Inline Button: `cmd_approve_dispatch` | **2-Step Safe Dispatch Approval:** At scheduled times (12:00 PM & 04:30 PM), the bot generates and exports a `.vcf` contact book to your Telegram/Web UI first, then pauses. WhatsApp messages are only sent once you tap **[🟢 Approve & Launch Wave]**. |
-| **Scrape Only** | `/trigger_scrape [query] [city] [count]` | **Lead Extraction Only:** Scrapes Google Maps listings and writes them into Google Sheets (`Sheet1`). Does not trigger website builds or messaging. |
-| **Build Only** | `/trigger_analyse [maxLeads]` | **Batch Site Generation:** Scans Google Sheets for unprocessed leads, executes 14-point AI SWOT audit, generates mobile-first sites, and deploys to subdomains. |
-| **Pause / Resume Automation** | `/pause_auto` / `/start_auto` | **Cron Master Switch:** Toggles 24/7 autonomous cron schedule on or off without halting manual command triggers. |
-| **View Schedule JSON** | `/view_plan` | **Configuration Inspector:** Shows file path (`plan/week_1_plan.json`) and instructions for reconfiguring daily niches, locations, and batch sizes. |
-| **Locality Intelligence** | `/locality_report [niche] [city]` | **Market Coverage Map:** Analyzes completed vs pending micro-localities in `data/locality_coverage.json` and previews AI-discovered expansion areas. |
-| **12-Hour Autopilot** | `/autopilot_12h [query] [target] [city]` | **Autonomous Boundary Hopping:** Continuously scrapes, builds, and deploys leads across micro-localities, auto-discovering new pockets with AI when boundaries exhaust. |
+| Command & Aliases | Arguments & Syntax | Category | Detailed Operational Description |
+| :--- | :--- | :--- | :--- |
+| `/help`, `/commands`, `/cmd` | None | Help & Manual | Displays full interactive command manual with copy-paste examples and navigation buttons. |
+| `/status` | None | Monitoring | Displays live system health, RAM, active task state, current IST time, and today's cron timetable. |
+| `/today` | None | Strategy | Displays today's designated niche, target city, lead quota, and phone-closing scripts. |
+| `/run_full` (or `/trigger_full`) | `[query] [city] [count]` | Pipeline | Executes complete 360° pipeline: Scrape ➔ 14-Point AI Audit ➔ Tailwind Website ➔ Vercel Deploy ➔ WhatsApp Curiosity Pitch. *(Ex: `/run_full Gyms Patna 1`)* |
+| `/trigger_stream` (or `/stream_scrape`) | `[query] [city] [count]` | Pipeline | Concurrent real-time streaming pipeline: streams leads from Google Maps straight into the builder queue and auto-deploys to `arclanestudios.space`. *(Ex: `/trigger_stream "Gyms" "Patna" 10`)* |
+| `/stream_scrape_vision` (or `/vision`) | `[query] [locality] [city] [count]` | Vision Pipeline | Crawls authentic Google Maps photos, applies Gemini Vision classification, stages HD assets locally, and builds high-conversion prototype. |
+| `/auto_explore` | `[query] [city] [target]` | Exploration | Autonomous multi-locality hopping chain across commercial corridors until target volume is satisfied. *(Ex: `/auto_explore "Gyms" "Patna" 33`)* |
+| `/build_url` | `<maps_url>` (or paste link) | Instant Builder | Instantly scrapes, audits, and builds a website directly from any Google Maps URL without sheet pre-configuration. |
+| `/fix`, `/build`, `/rebuild` | `<id>` or `<start:end>` | Lead Repair | Re-synthesizes a specific lead or batch range (max 30) with updated assets, styling, and Google Sheet sync. *(Ex: `/fix 202` or `/fix 1:10`)* |
+| `/trigger_scrape` | `[query] [city] [count]` | Data Ingestion | Scrapes Google Maps leads and writes them into Sheet1 without triggering builds or outreach. *(Ex: `/trigger_scrape "Gyms" "Patna" 20`)* |
+| `/trigger_analyse` | `[maxLeads]` | Site Generation | Evaluates pending scraped leads in Sheet1, runs 14-point AI audit, and compiles mobile-first websites. *(Ex: `/trigger_analyse 5`)* |
+| `/trigger_send` | `[count]` | Outreach | Dispatches WhatsApp curiosity messages to leads with built sites via WhatsApp Web with 30-75s human delays. *(Ex: `/trigger_send 10`)* |
+| `/approve`, `/launch` | None | Green Gate | Approves and launches the queued WhatsApp outreach wave after operator inspection of `.vcf` contacts. |
+| `/coverage` | `[niche] [city]` | Intelligence | Queries `data/locality_coverage.json` to display micro-locality coverage rates, lead totals, and pending expansion zones. |
+| `/view_plan`, `/plan` | None | Strategy | Displays active 100-day schedule JSON configuration path and current cycle day. |
+| `/pause_auto` | None | Safeguards | Pauses the 24/7 background cron automation. Manual command execution remains enabled. |
+| `/start_auto` | None | Safeguards | Resumes the 24/7 background cron automation in `Asia/Kolkata` timezone. |
+| `/reset_plan` (or `/resume_plan`) | None | Safeguards | Aborts any active manual tasks, flushes queues, and restores autonomous 24/7 timetable. |
+| `/login` | None | Session | Launches headed Chromium browser session to authenticate WhatsApp Web QR code into `whatsapp_user_session/`. |
+| `/abort`, `/stop` | None | Kill Switch | Emergency Halt: Transmits `SIGTERM` to kill all active Playwright, Puppeteer, and builder child processes. |
 
 ---
 
-### 🔍 B. Google Maps Scraper Bot Commands (`scraper/telegram_bot.py`)
+### 🔍 D. Standalone Google Maps Scraper CLI & Bot Commands
 
+The scraper engine housed in `scraper/` can also operate independently:
+
+```bash
+# Fast scraper variant targeting businesses WITHOUT websites:
+python scraper/scraper_no_website.py --query "Gyms" --locality "in Patna" --city "Patna" --target 33
+
+# Deep scraper with dual-pass AI review analysis:
+python scraper/scraper.py --query "Gyms in Pune" --leads 35 --chunk_size 50
+
+# Memory-safe 24/7 continuous runner (auto-restarts Chromium between chunks):
+python scraper/run_forever.py
+```
+
+#### Scraper Telegram Bot (`scraper/telegram_bot.py`):
 | Command | Description | Example Usage |
 | :--- | :--- | :--- |
 | `/scrape [flags]` | Launches a new Google Maps scraping job | `/scrape --query "Gyms" --locality "in Pune" --city "Pune" --leads 35` |
@@ -288,6 +332,23 @@ The interactive dashboard (available both in Telegram and at `http://localhost:3
 * `--no_agent_smith`: Disables autonomous LLM query generation upon completion.
 * `--chunk_size N`: Flushes RAM cache every N leads.
 * `--end_date YYYY-MM-DD`: Schedules automatic scraper stop date.
+
+---
+
+### 🛠️ E. Maintenance, Diagnostics & Repair Scripts
+
+The `scripts/` directory provides essential operational tools:
+
+| Script Command | Purpose & Description |
+| :--- | :--- |
+| `node scripts/audit_live_501_sites.cjs` | Live HTTP probes across all 501 hosted sites on `arclanestudios.space/sites/*` verifying HTTP 200, tel/wa link validity, and placeholder token absence. |
+| `node scripts/auto_commit.js` | Automatically stages, commits, and pushes major codebase updates across the Arclane Engine and the nested `web-dev-agency` repository to GitHub `origin main`. |
+| `node scripts/deep_sheet_audit.js` | Comprehensive data hygiene audit of Google Sheet CRM detecting duplicate IDs, missing phone numbers, and invalid URLs. |
+| `node scripts/batch_fix_all_hooks.js` | Re-evaluates and standardizes all AI outreach hooks and telephone closing scripts in `reports/<id>/outreach.json` and Google Sheets. |
+| `node scripts/prune_vercel_deployments.js` | Cleans up legacy, stale Vercel deployments to maintain project performance and preserve hobby quotas. |
+| `node scripts/export_full_crm.js` | Exports current Google Sheet CRM leads into structured JSON/CSV snapshots inside `data_exports/`. |
+| `python scripts/sales_bot.py` | Standalone Telegram bot for reviewing prospects with pagination and sending rich HTML sales emails with attached SEO audits. |
+| `fix_clock.bat` | Resyncs Windows system time with NTP servers to resolve dual-boot clock skew that causes Google Auth JWT token rejections. |
 
 ---
 
@@ -343,36 +404,69 @@ cp .env.example .env
 
 ### Environment Configuration (`.env`):
 ```env
-# Master Pipeline Safety & Governance Controls
-DRY_RUN=false                     # Set to true for safe local simulation
-HUMAN_APPROVAL_REQUIRED=true     # Enforces human sign-off before outbound dispatch
-EMERGENCY_STOP=false             # Set to true to instantly halt all outbound sending
+# ==========================================
+# 1. Master Pipeline Safety & Governance Controls
+# ==========================================
+DRY_RUN=false                     # When true, simulates actions without modifying CRM or sending messages
+HUMAN_APPROVAL_REQUIRED=true     # When true, pauses outreach at 12:00 PM / 4:30 PM for operator approval
+EMERGENCY_STOP=false             # Master kill switch: immediately blocks all outbound WhatsApp and email dispatch
 
-# Telegram Bot Tokens
-TELEGRAM_BOT_TOKEN="your_nodejs_scraper_bot_token"
-CONTROLLER_BOT_TOKEN="your_controller_bot_token"
-TELEGRAM_SALES_BOT_TOKEN="your_python_sales_bot_token"
+# ==========================================
+# 2. Telegram Bot Configuration
+# ==========================================
+CONTROLLER_BOT_TOKEN="your_controller_bot_token"     # Main 24/7 Controller Bot (@ArclaneControllerBot)
+TELEGRAM_BOT_TOKEN="your_scraper_bot_token"          # Standalone Google Maps Scraper Command Bot
+TELEGRAM_SALES_BOT_TOKEN="your_sales_bot_token"      # Python Sales Email Dispatcher Bot
+ALLOWED_TELEGRAM_USER_IDS="12345678,87654321"        # Comma-separated Telegram User IDs permitted to control bots
 
-# AI Inference (Gemini & OpenRouter Fallback)
-API="your_gemini_api_key"
-OPENROUTER_API_KEY="your_openrouter_api_key"
+# ==========================================
+# 3. AI Inference (Vision & Code Synthesis)
+# ==========================================
+API="your_gemini_api_key"                            # Primary Google Gemini Flash Lite & Vision API Key
+OPENROUTER_API_KEY="your_openrouter_api_key"         # Secondary fallback LLM inference key
 
-# Google Sheets CRM
-SPREADSHEET_NAME="Google Maps Leads"
-WORKSHEET_NAME="Sheet1"
-SERVICE_ACCOUNT_FILE="config/service_account.json"
+# ==========================================
+# 4. Google Sheets CRM Configuration
+# ==========================================
+SPREADSHEET_NAME="Google Maps Leads"                 # Exact title of your Google Sheets CRM document
+WORKSHEET_NAME="Sheet1"                              # Primary worksheet tab name
+SERVICE_ACCOUNT_FILE="config/service_account.json"   # Path to Google Service Account JSON credentials
 
-# Email Configuration (Optional for scripts/sales_bot.py)
-GMAIL_ADDRESS="your_email@gmail.com"
-GMAIL_APP_PASSWORD="xxxx xxxx xxxx xxxx"
+# ==========================================
+# 5. Vercel Production Subdomain Deployment
+# ==========================================
+VERCEL_TOKEN="your_vercel_token"                     # Optional if logged in via `npx vercel login`
+VERCEL_PROJECT_ID="your_vercel_project_id"           # Optional explicit project ID
+VERCEL_ORG_ID="your_vercel_org_id"                   # Optional explicit organization/team ID
 
-# Vercel Token (Optional if logged into Vercel CLI)
-VERCEL_TOKEN="your_vercel_token"
+# ==========================================
+# 6. Email Dispatch (Optional for scripts/sales_bot.py)
+# ==========================================
+GMAIL_ADDRESS="your_email@gmail.com"                 # Gmail address used for outbound audit emails
+GMAIL_APP_PASSWORD="xxxx xxxx xxxx xxxx"             # 16-character Google App Password (not standard password)
 
-# Server & Timezone Settings
-PORT=3000
-TIMEZONE="Asia/Kolkata"
+# ==========================================
+# 7. Server & Timezone Settings
+# ==========================================
+PORT=3000                                            # Local Web UI port (http://localhost:3000)
+TIMEZONE="Asia/Kolkata"                              # Operational timezone for all scheduled cron routines
 ```
+
+### Complete Environment Settings Reference Table:
+
+| Variable Name | Required | Default Value | Description & Operational Impact |
+| :--- | :--- | :--- | :--- |
+| `DRY_RUN` | Optional | `false` | When set to `true`, scraping and audits run normally, but website deployments to Vercel and WhatsApp outbound dispatches are safely simulated. |
+| `HUMAN_APPROVAL_REQUIRED` | Recommended | `true` | Enforces the "Green Signal Gate". Generates `.vcf` contact books for operator review before allowing WhatsApp messages to be sent. |
+| `EMERGENCY_STOP` | Optional | `false` | Global fail-safe switch. When `true`, immediately aborts and prevents any network dispatch calls. |
+| `CONTROLLER_BOT_TOKEN` | **Required** | None | Bot token from `@BotFather` powering the master 24/7 pipeline coordinator and bidirectional Web UI sync. |
+| `ALLOWED_TELEGRAM_USER_IDS` | Recommended | None | Whitelist of numeric Telegram User IDs. Prevents unauthorized users from sending commands to your bot. |
+| `API` | **Required** | None | Google Gemini API key used for 14-point strategic audits, vision image classification, and Tailwind code synthesis. |
+| `OPENROUTER_API_KEY` | Optional | None | OpenRouter API key providing automatic failover if Gemini rate limits or quota ceilings are encountered. |
+| `SPREADSHEET_NAME` | **Required** | `Google Maps Leads` | Name of the Google Spreadsheet. Must be shared with the Service Account email as **Editor**. |
+| `SERVICE_ACCOUNT_FILE` | **Required** | `config/service_account.json` | Path to the Google Cloud Service Account credentials JSON file. |
+| `PORT` | Optional | `3000` | Port on which Express and Socket.io serve the local dashboard. |
+| `TIMEZONE` | Optional | `Asia/Kolkata` | Standard operational timezone governing the 06:00 AM, 12:00 PM, 04:30 PM, and 06:00 PM cron schedule. |
 
 ---
 
