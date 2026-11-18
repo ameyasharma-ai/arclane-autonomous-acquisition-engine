@@ -804,14 +804,15 @@ export class WebsiteBuilder {
             html = html.replace(/(<\/head>)/i, `${outfitFontTag}\n$1`);
         }
 
-        // 12. Ensure Body and HTML have zero horizontal overflow and ample bottom padding for mobile sticky action bar
+        // 12. Ensure Body and HTML have zero horizontal overflow and proper bottom clearance for mobile sticky action bar
         html = html.replace(/(<body\s+[^>]*class=["'])([^"']*)(["'])/gi, (m, p1, classes, p3) => {
             let c = classes;
-            // Strip conflicting duplicate paddings
-            if (c.includes('pb-28') && (c.includes('lg:pb-0') || c.includes('md:pb-0'))) {
-                c = c.replace(/\s*\bpb-24\b/g, '').replace(/\s*\bpb-20\b/g, '');
-            } else if (!c.includes('pb-28') && !c.includes('pb-24') && !c.includes('pb-20')) {
-                c = `pb-28 lg:pb-0 ${c}`;
+            // Normalize bottom padding to pb-20 md:pb-0 (tight clearance matching the 60px sticky action bar)
+            c = c.replace(/\s*\bpb-(?:32|28|24|16)\b/g, '');
+            if (!c.includes('pb-20') && !c.includes('pb-0')) {
+                c = `pb-20 md:pb-0 ${c}`;
+            } else if (c.includes('pb-20') && !c.includes('md:pb-0') && !c.includes('lg:pb-0')) {
+                c = `${c} md:pb-0`;
             }
             if (!c.includes('overflow-x-hidden')) c = `overflow-x-hidden ${c}`;
             return `${p1}${c.trim()}${p3}`;

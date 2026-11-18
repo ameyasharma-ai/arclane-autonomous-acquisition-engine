@@ -124,24 +124,26 @@ export function injectAgencyCredit(html, businessName = '') {
     cleaned = cleaned.replace(/<div class=["']arclane-agency-credit[\s\S]*?<\/div>/gi, '');
     cleaned = cleaned.replace(/<!-- Unified ArcLane Verified Footer Signature[\s\S]*?<!-- End ArcLane Signature -->/gi, '');
 
-    // 3. Strip conflicting duplicate body padding
+    // 3. Strip conflicting duplicate body padding and normalize to pb-20 md:pb-0
     cleaned = cleaned.replace(/(<body\b[^>]*class=["'])([^"']*)(["'])/gi, (m, p1, classes, p3) => {
-        let c = classes;
-        if (c.includes('pb-28') && (c.includes('md:pb-0') || c.includes('lg:pb-0'))) {
-            c = c.replace(/\s*\bpb-24\b/g, '').replace(/\s*\bpb-20\b/g, '');
+        let c = classes.replace(/\s*\bpb-(?:32|28|24|16)\b/g, '');
+        if (!c.includes('pb-20') && !c.includes('pb-0')) {
+            c = `pb-20 md:pb-0 ${c}`;
+        } else if (c.includes('pb-20') && !c.includes('md:pb-0') && !c.includes('lg:pb-0')) {
+            c = `${c} md:pb-0`;
         }
         return `${p1}${c.trim()}${p3}`;
     });
 
-    // 4. Adjust footer tag padding: pt-12 sm:pt-16 pb-28 md:pb-16 (clears sticky mobile action bar)
+    // 4. Adjust footer tag padding: pt-10 sm:pt-12 pb-6 md:pb-8 (clean bottom spacing, eliminates huge black void)
     cleaned = cleaned.replace(/(<footer\b[^>]*class=["'])([^"']*)(["'])/gi, (m, p1, classes, p3) => {
         let c = classes.replace(/\b(?:sm:|md:|lg:|xl:)?(?:py|pb|pt)-\d+\b/g, '').replace(/\s+/g, ' ').trim();
-        return `${p1}${c} pt-12 sm:pt-16 pb-28 md:pb-16${p3}`;
+        return `${p1}${c} pt-10 sm:pt-12 pb-6 md:pb-8${p3}`;
     });
 
     const signatureInner = `
             <!-- Unified ArcLane Verified Footer Signature -->
-            <div class="pt-8 mt-8 sm:mt-12 border-t border-zinc-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-zinc-500 gap-4">
+            <div class="pt-6 mt-6 sm:mt-8 border-t border-zinc-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-zinc-500 gap-3">
                 <p>&copy; <span id="current-year">2026</span> ${cleanName}. All rights reserved.</p>
                 <a href="https://www.arclanestudios.space" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 font-medium text-zinc-400 hover:text-white transition-colors group">
                     <span>Concept &amp; Digital Architecture by</span>
@@ -200,9 +202,9 @@ export function injectAgencyCredit(html, businessName = '') {
         const afterFooter = cleaned.slice(footerMatch.index + footerMatch[0].length);
         cleaned = beforeFooter + newFooter + afterFooter;
     } else if (cleaned.includes('</body>')) {
-        cleaned = cleaned.replace('</body>', `<div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-28 md:pb-16">${signatureInner}</div>\n</body>`);
+        cleaned = cleaned.replace('</body>', `<div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-6 md:pb-8">${signatureInner}</div>\n</body>`);
     } else {
-        cleaned = cleaned + `<div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-28 md:pb-16">${signatureInner}</div>`;
+        cleaned = cleaned + `<div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-6 md:pb-8">${signatureInner}</div>`;
     }
 
     return cleaned;
