@@ -261,7 +261,10 @@ export class VisualQualityGate {
                             photoWrapper.classList.add('relative');
                         }
 
-                        // Re-parent all badges strictly inside photoWrapper and strip negative margins
+                        // Re-parent all badges strictly inside photoWrapper and separate coordinates to prevent collision
+                        let hasTopLeft = false;
+                        let hasBottomRight = false;
+
                         badges.forEach(b => {
                             Array.from(b.classList).forEach(c => {
                                 if (/^-(?:mt|mb|top|bottom)/.test(c)) {
@@ -269,11 +272,27 @@ export class VisualQualityGate {
                                 }
                             });
                             if (b.parentElement !== photoWrapper) {
-                                b.classList.remove('top-6', 'bottom-6', 'left-6', 'right-6', 'top-8', 'bottom-8', 'bottom-0', '-bottom-4', '-bottom-6');
-                                if (b.className.includes('top-') || b.innerText.includes('Signature') || b.innerText.includes('Featured') || b.innerText.includes('Best')) {
+                                b.classList.remove('top-4', 'top-6', 'bottom-4', 'bottom-6', 'left-4', 'left-6', 'right-4', 'right-6', 'top-8', 'bottom-8', 'bottom-0', '-bottom-4', '-bottom-6');
+                                
+                                const textLower = (b.innerText || '').toLowerCase();
+                                const isStatusChip = textLower.includes('open') || textLower.includes('timing') || textLower.includes('closed') || b.querySelector('.animate-ping, .animate-pulse');
+                                const isPromoOrBadge = !isStatusChip || textLower.includes('special') || textLower.includes('premier') || textLower.includes('rated') || textLower.includes('award') || textLower.includes('signature') || textLower.includes('featured') || textLower.includes('best') || textLower.includes('anniversary') || textLower.includes('deal') || textLower.includes('offer');
+
+                                if (isPromoOrBadge && !hasTopLeft) {
                                     b.classList.add('top-4', 'left-4');
-                                } else {
+                                    hasTopLeft = true;
+                                } else if (isStatusChip && !hasBottomRight) {
                                     b.classList.add('bottom-4', 'right-4');
+                                    hasBottomRight = true;
+                                } else if (!hasTopLeft) {
+                                    b.classList.add('top-4', 'left-4');
+                                    hasTopLeft = true;
+                                } else if (!hasBottomRight) {
+                                    b.classList.add('bottom-4', 'right-4');
+                                    hasBottomRight = true;
+                                } else {
+                                    // If both corners occupied, place in bottom-left
+                                    b.classList.add('bottom-4', 'left-4');
                                 }
                                 photoWrapper.appendChild(b);
                                 logs.push('Moved floating badge inside photo container: ' + b.innerText.trim());
