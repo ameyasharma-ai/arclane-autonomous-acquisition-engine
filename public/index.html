@@ -592,7 +592,6 @@
 
         socket.on('message', (msg) => {
             appendMessage(msg.type, msg.text, msg.opts);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
         });
 
         function updateMetricsDisplay(m) {
@@ -1257,6 +1256,7 @@
             showToast(`⚡ Triggered: ${cmd}`);
             // Auto switch to terminal view so user sees live output
             switchView('terminal');
+            setTimeout(() => scrollToBottom(true), 50);
         }
 
         function clearChatHistory() {

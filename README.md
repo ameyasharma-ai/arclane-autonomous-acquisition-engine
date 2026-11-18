@@ -212,7 +212,6 @@ A stateless Python Telegram bot for email-based outreach:
 | `npm run whatsapp` | Node.js / Playwright | Launches the standalone WhatsApp Web automation and contact sync engine. |
 | `python scraper/telegram_bot.py` | Python 3.10+ | Starts the standalone Google Maps Scraper Command Center Telegram bot. |
 | `python scripts/sales_bot.py` | Python 3.10+ | Starts the rich HTML sales email dispatcher bot with inline Telegram lead inspection. |
-| `fix_clock.bat` | Windows CMD / PowerShell | Synchronizes local system clock against Google servers to prevent JWT expiration errors on Google Sheets API. |
 
 ---
 
@@ -348,7 +347,6 @@ The `scripts/` directory provides essential operational tools:
 | `node scripts/prune_vercel_deployments.js` | Cleans up legacy, stale Vercel deployments to maintain project performance and preserve hobby quotas. |
 | `node scripts/export_full_crm.js` | Exports current Google Sheet CRM leads into structured JSON/CSV snapshots inside `data_exports/`. |
 | `python scripts/sales_bot.py` | Standalone Telegram bot for reviewing prospects with pagination and sending rich HTML sales emails with attached SEO audits. |
-| `fix_clock.bat` | Resyncs Windows system time with NTP servers to resolve dual-boot clock skew that causes Google Auth JWT token rejections. |
 
 ---
 

@@ -19,6 +19,8 @@ export class AuditLogger {
     initMetrics() {
         this.lastSheetSync = 0;
         this.cachedAnalytics = null;
+        this.isSyncing = false;
+        this.onUpdate = null;
         if (!fs.existsSync(this.metricsPath)) {
             const initialMetrics = {
                 leads_discovered: 0,
@@ -39,6 +41,13 @@ export class AuditLogger {
                 updated_at: new Date().toISOString()
             };
             fs.writeFileSync(this.metricsPath, JSON.stringify(initialMetrics, null, 2), 'utf-8');
+            this.cachedAnalytics = initialMetrics;
+        } else {
+            try {
+                this.cachedAnalytics = JSON.parse(fs.readFileSync(this.metricsPath, 'utf-8'));
+            } catch (e) {
+                this.cachedAnalytics = null;
+            }
         }
     }
 
@@ -127,15 +136,38 @@ export class AuditLogger {
         }
     }
 
+    getCachedAnalytics() {
+        if (this.cachedAnalytics) return this.cachedAnalytics;
+        try {
+            if (fs.existsSync(this.metricsPath)) {
+                this.cachedAnalytics = JSON.parse(fs.readFileSync(this.metricsPath, 'utf-8'));
+                return this.cachedAnalytics;
+            }
+        } catch {}
+        return {};
+    }
+
     async getAnalytics(force = false) {
-        if (!force && this.cachedAnalytics && (Date.now() - this.lastSheetSync < 15000)) {
+        // Return immediately from memory or disk cache if available and not forced
+        if (!force && this.cachedAnalytics) {
+            // Trigger background sync if stale without blocking the caller
+            if (Date.now() - this.lastSheetSync >= 15000 && !this.isSyncing) {
+                this.syncGoogleSheetMetrics().catch(err => {
+                    console.warn('[AuditLog] Background Google Sheet sync note:', err.message);
+                });
+            }
             return this.cachedAnalytics;
         }
+
+        return await this.syncGoogleSheetMetrics();
+    }
+
+    async syncGoogleSheetMetrics() {
+        if (this.isSyncing) return this.getCachedAnalytics();
+        this.isSyncing = true;
         try {
             // Read base local metrics
-            let metrics = fs.existsSync(this.metricsPath) 
-                ? JSON.parse(fs.readFileSync(this.metricsPath, 'utf-8'))
-                : {};
+            let metrics = this.getCachedAnalytics();
 
             // Asynchronously sync with live Google Sheet CRM if credentials exist
             const { loadGoogleSheet } = await import('../sheets.js');
@@ -193,14 +225,18 @@ export class AuditLogger {
             fs.writeFileSync(this.metricsPath, JSON.stringify(metrics, null, 2), 'utf-8');
             this.cachedAnalytics = metrics;
             this.lastSheetSync = Date.now();
+
+            if (typeof this.onUpdate === 'function') {
+                try {
+                    this.onUpdate(metrics);
+                } catch {}
+            }
             return metrics;
         } catch (e) {
             // Fallback to local cache if Google Sheets query errors
-            try {
-                return JSON.parse(fs.readFileSync(this.metricsPath, 'utf-8'));
-            } catch {
-                return {};
-            }
+            return this.getCachedAnalytics();
+        } finally {
+            this.isSyncing = false;
         }
     }
 }

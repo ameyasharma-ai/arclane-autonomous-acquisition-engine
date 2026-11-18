@@ -31,6 +31,11 @@ class WebUIServer {
 
         // Analytics & State instances
         this.auditLogger = new AuditLogger();
+        this.auditLogger.onUpdate = (metrics) => {
+            try {
+                this.io.emit('metrics_update', metrics);
+            } catch (e) {}
+        };
         this.approvalQueue = new ApprovalQueue();
         this.dedup = new DeduplicationEngine();
         this.followUp = new FollowUpEngine();
@@ -62,11 +67,13 @@ class WebUIServer {
         this.io.on('connection', async (socket) => {
             console.log(`[WebUI] Client connected: ${socket.id}`);
             
-            // Send existing history & live metrics to the newly connected client
+            // Send existing history & live metrics to the newly connected client instantly (0ms)
             socket.emit('history', this.history);
             try {
-                const liveMetrics = await this.auditLogger.getAnalytics();
-                socket.emit('metrics_update', liveMetrics);
+                const initialMetrics = this.auditLogger.getCachedAnalytics();
+                socket.emit('metrics_update', initialMetrics);
+                // Trigger background refresh if stale
+                this.auditLogger.getAnalytics().catch(() => {});
             } catch (e) {}
 
             socket.emit('process_status', this.getBusyStatus());
