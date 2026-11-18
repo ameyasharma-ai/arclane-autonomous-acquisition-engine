@@ -596,11 +596,13 @@ export class WebsiteBuilder {
                 let c = cls;
                 // Strip colliding and obsolete classes
                 c = c.replace(/\bml-auto\b/g, '')
-                     .replace(/\b(?:lg:)?mr-[0-9]+\b/g, '')
+                     .replace(/\b(?:sm:|md:|lg:|xl:|2xl:)?mr-[0-9]+\b/g, '')
                      .replace(/\bshrink\b/g, '')
                      .replace(/\b(?:lg:|xl:|2xl:)?gap-[0-9]+\b/g, '')
                      .replace(/\bpx-[0-9]+\b/g, '')
-                     .replace(/\b(?:lg:)?px-[0-9]+\b/g, '');
+                     .replace(/\b(?:lg:)?px-[0-9]+\b/g, '')
+                     .replace(/\s+-0\b/g, '')
+                     .replace(/\b-0\b/g, '');
                 if (!c.includes('mx-auto')) c += ' mx-auto';
                 if (!c.includes('justify-center')) c += ' justify-center';
                 if (!c.includes('shrink-0')) c += ' shrink-0';
