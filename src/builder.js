@@ -232,8 +232,8 @@ export class WebsiteBuilder {
         let canonicalMonogram = wordsForMonogram.length >= 2 ? (wordsForMonogram[0][0] + wordsForMonogram[1][0]).toUpperCase() : cleanNameForMonogram.slice(0, 2).toUpperCase();
 
         const navbarPromptRules = `\n\n## 🧭 MANDATORY HEADER & NAVBAR DESIGN STANDARDS:
-- BRAND LOGO MONOGRAM: The logo badge square MUST display the 2-letter monogram '${canonicalMonogram}' (e.g. '<div class="w-10 h-10 rounded-xl ... font-syne font-black text-xl">${canonicalMonogram}</div>'). NEVER use an isolated single letter like 'P'!
-- BRAND CONTAINER: The brand logo wrapper MUST have 'flex items-center gap-3 shrink-0 mr-4 lg:mr-8' to prevent collision with navigation links!
+- BRAND LOGO MONOGRAM: The logo badge square MUST display the 2-letter monogram '${canonicalMonogram}' (e.g. '<div class="w-10 h-10 rounded-xl ... font-syne font-black text-lg">${canonicalMonogram}</div>'). NEVER use an isolated single letter like 'P'!
+- BRAND CONTAINER & FLUID RESPONSIVE TYPOGRAPHY: The brand logo wrapper MUST have 'flex items-center gap-2.5 sm:gap-3 shrink-0 min-w-0 mr-4 lg:mr-8 group'. The brand title text MUST have 'truncate max-w-[160px] xs:max-w-[200px] sm:max-w-none block font-extrabold leading-tight' and subtitle MUST have 'truncate max-w-[160px] xs:max-w-[200px] sm:max-w-none block' so the logo NEVER overflows or collides with mobile header buttons on 360px-440px viewports!
 - HIGH-INTENT NAVIGATION LINKS: The desktop navbar MUST include a link to '#pricing' (labeled 'Plans' or 'Pricing'). Keep nav links concise: at most 4-5 core links ('Programs' / 'Services', 'About', 'Plans' / 'Pricing', 'Gallery' / 'Facility', 'Contact'). Secondary links ('Why Us', 'Reviews', 'FAQ') must have 'hidden 2xl:inline-block'.
 - BALANCED CENTERED NAVBAR: The <nav> element MUST have 'hidden lg:flex items-center justify-center gap-3 lg:gap-4 xl:gap-6 2xl:gap-6 mx-auto px-2 lg:px-4 shrink-0'. NEVER stick <nav> directly against the brand logo or use 'mr-4/mr-6' with 'ml-auto'!
 - ACTION CTAS: The CTA buttons container MUST have 'hidden sm:flex items-center gap-2 sm:gap-3 shrink-0 flex-nowrap' (do NOT use 'ml-auto' which forces nav to stick to the brand logo). Always include Phone number CTA and WhatsApp Trial CTA with official WhatsApp green ('bg-emerald-600 hover:bg-emerald-500 text-white').
@@ -558,14 +558,15 @@ export class WebsiteBuilder {
         html = html.replace(/(<header[\s\S]*?<\/header>)/gi, (headerHtml) => {
             let h = headerHtml;
 
-            // Smart 2-Letter Monogram Guard (Prevents awkward single-letter "P" parking logos)
+            // Smart 2-Letter Monogram & Responsive Brand Logo Guard
             if (businessName) {
                 const cleanName = businessName.replace(/^(?:The|A|An)\s+/i, '').replace(/[^a-zA-Z0-9\s]/g, '').trim();
                 const words = cleanName.split(/\s+/).filter(w => w.length > 0);
                 const monogram = words.length >= 2 ? (words[0][0] + words[1][0]).toUpperCase() : cleanName.slice(0, 2).toUpperCase();
 
                 if (monogram && monogram.length >= 2) {
-                    h = h.replace(/(<a\b[^>]*>[\s\S]*?<div\b[^>]*class=["'][^"']*(?:rounded-xl|rounded-2xl|rounded-lg)[^"']*["'][^>]*>)\s*([A-Za-z])\s*(<\/div>)/i, (m, openDiv, singleLetter, closeDiv) => {
+                    // Replace isolated single letter in monogram box
+                    h = h.replace(/(<a\b[^>]*>[\s\S]*?<div\b[^>]*class=["'][^"']*(?:rounded-xl|rounded-2xl|rounded-lg|rounded-full|w-10|w-11|w-12)[^"']*["'][^>]*>)\s*([A-Za-z])\s*(<\/div>)/i, (m, openDiv, singleLetter, closeDiv) => {
                         return `${openDiv}${monogram}${closeDiv}`;
                     });
                 }
@@ -583,16 +584,29 @@ export class WebsiteBuilder {
                 return b;
             });
 
-            // Ensure brand logo wrapper has protective right margin and shrink-0
-            h = h.replace(/(<a\b[^>]*class=["'][^"']*(?:flex items-center|group)[^"']*["'][^>]*>[\s\S]*?(?:font-syne|font-bold|font-black)[\s\S]*?<\/a>)/gi, (brandHtml) => {
+            // Ensure brand logo wrapper has protective right margin, min-w-0, shrink-0 and non-overflowing typography
+            h = h.replace(/(<a\b[^>]*class=["'][^"']*(?:flex items-center|group)[^"']*["'][^>]*>[\s\S]*?<\/a>)/gi, (brandHtml) => {
                 let b = brandHtml;
                 b = b.replace(/(class=["'][^"']*)(["'])/i, (m, cls, q) => {
                     let c = cls;
                     if (!c.includes('shrink-0')) c += ' shrink-0';
-                    if (!c.includes('mr-')) c += ' mr-4 lg:mr-8';
+                    if (!c.includes('min-w-0')) c += ' min-w-0';
+                    if (!c.includes('mr-')) c += ' mr-3 lg:mr-8';
                     return `${c}${q}`;
                 });
+                // Ensure text container has min-w-0
+                b = b.replace(/(<div\b[^>]*class=["'][^"']*(?:flex flex-col|flex-col)[^"']*["'])/i, (divTag) => {
+                    if (!divTag.includes('min-w-0')) return divTag.replace(/class=["']/, 'class="min-w-0 ');
+                    return divTag;
+                });
+                // Add truncate and max-w to title and subtitle spans
+                b = b.replace(/(<span\b[^>]*class=["'][^"']*(?:font-syne|font-serif|font-bold|font-extrabold|tracking-tight|tracking-wider)[^"']*["'])/gi, (spanTag) => {
+                    let s = spanTag;
+                    if (!s.includes('truncate')) s = s.replace(/class=["']/, 'class="truncate max-w-[160px] xs:max-w-[200px] sm:max-w-none block ');
+                    return s;
+                });
                 return b;
+            });
             });
 
             // Ensure <nav> is centered with mx-auto, has responsive gap, and does NOT collide with brand or CTAs

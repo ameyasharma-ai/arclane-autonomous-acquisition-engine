@@ -150,10 +150,71 @@ export class VisualQualityGate {
                         }
                     });
 
-                    // B. Enforce Brand Logo protective margin and shrink-0
-                    const brandLogo = header.querySelector('a.flex, a.group');
+                    // B. Enforce Responsive Brand Logo, 2-Letter Monogram & Text Overflow Guard
+                    const brandLogo = header.querySelector('a.flex, a.group, a:has(> div)');
                     if (brandLogo) {
-                        brandLogo.classList.add('shrink-0', 'mr-4', 'lg:mr-8');
+                        brandLogo.classList.add('shrink-0', 'min-w-0', 'flex', 'items-center', 'gap-2.5', 'sm:gap-3', 'mr-3', 'lg:mr-8');
+                        
+                        // Compute clean canonical 2-letter monogram from businessName
+                        const cleanName = (bName || '').replace(/^(?:The|A|An)\s+/i, '').replace(/[^a-zA-Z0-9\s]/g, '').trim();
+                        const words = cleanName.split(/\s+/).filter(w => w.length > 0);
+                        const canonicalMono = words.length >= 2 ? (words[0][0] + words[1][0]).toUpperCase() : (cleanName.slice(0, 2).toUpperCase() || 'AL');
+
+                        // 1. Monogram Box
+                        const monogramBox = brandLogo.querySelector('div.w-10, div.w-11, div.w-12, div.w-9, div.rounded-xl, div.rounded-full, div:first-child');
+                        if (monogramBox) {
+                            monogramBox.classList.add('w-10', 'h-10', 'rounded-xl', 'shrink-0', 'flex', 'items-center', 'justify-center', 'font-syne', 'font-black', 'text-lg', 'shadow-md');
+                            monogramBox.classList.remove('w-11', 'w-12', 'text-xl');
+                            const monoText = monogramBox.innerText.trim();
+                            if (monoText.length <= 1) {
+                                monogramBox.innerText = canonicalMono;
+                                logs.push(`Upgraded brand logo monogram: "${monoText}" -> "${canonicalMono}"`);
+                            }
+                        }
+
+                        // 2. Responsive Text Wrapper & Overlow Guard
+                        const textWrapper = Array.from(brandLogo.children).find(el => el !== monogramBox && (el.tagName === 'DIV' || el.querySelector('span, h1')));
+                        if (textWrapper) {
+                            textWrapper.classList.add('min-w-0', 'flex', 'flex-col', 'justify-center');
+                            
+                            // Brand Title
+                            const titleSpan = textWrapper.querySelector('span.font-syne, span.font-serif, span.font-bold, span.text-lg, span.text-xl, h1, span:first-child');
+                            if (titleSpan) {
+                                titleSpan.classList.add('truncate', 'max-w-[160px]', 'xs:max-w-[200px]', 'sm:max-w-none', 'block', 'leading-tight');
+                            }
+
+                            // Brand Subtitle
+                            const subtitleSpan = textWrapper.querySelector('span.text-\\[10px\\], span.text-xs, span:last-child');
+                            if (subtitleSpan && subtitleSpan !== titleSpan) {
+                                subtitleSpan.classList.add('truncate', 'max-w-[160px]', 'xs:max-w-[200px]', 'sm:max-w-none', 'block');
+                            }
+                            logs.push('Enforced responsive mobile overflow guard on header brand logo text');
+                        }
+                    }
+
+                    // B2. Mobile Drawer Header Brand Logo Guard
+                    const drawer = document.querySelector('#mobile-menu, [id*="mobile-menu"]');
+                    if (drawer) {
+                        const drawerLogo = drawer.querySelector('a.flex, a.group, a:has(> div)');
+                        if (drawerLogo) {
+                            drawerLogo.classList.add('shrink-0', 'min-w-0', 'flex', 'items-center', 'gap-2.5', 'sm:gap-3');
+                            const drawerMono = drawerLogo.querySelector('div:first-child');
+                            if (drawerMono) {
+                                drawerMono.classList.add('w-10', 'h-10', 'rounded-xl', 'shrink-0', 'flex', 'items-center', 'justify-center', 'font-syne', 'font-black', 'text-lg');
+                                if (drawerMono.innerText.trim().length <= 1) {
+                                    const cleanName = (bName || '').replace(/^(?:The|A|An)\s+/i, '').replace(/[^a-zA-Z0-9\s]/g, '').trim();
+                                    const words = cleanName.split(/\s+/).filter(w => w.length > 0);
+                                    const canonicalMono = words.length >= 2 ? (words[0][0] + words[1][0]).toUpperCase() : (cleanName.slice(0, 2).toUpperCase() || 'AL');
+                                    drawerMono.innerText = canonicalMono;
+                                }
+                            }
+                            const drawerText = Array.from(drawerLogo.children).find(el => el !== drawerMono);
+                            if (drawerText) {
+                                drawerText.classList.add('min-w-0', 'flex', 'flex-col', 'justify-center');
+                                const dTitle = drawerText.querySelector('span, h1');
+                                if (dTitle) dTitle.classList.add('truncate', 'max-w-[180px]', 'block', 'leading-tight');
+                            }
+                        }
                     }
 
                     // C. Enforce whitespace-nowrap and shrink-0 on all CTA buttons & actions inside header
