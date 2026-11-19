@@ -199,6 +199,7 @@ GSPREAD_RETRIES = CONFIG["scraper"].get("gspread_max_retries", 5)
 FEED_SCROLL_LIMIT = CONFIG["scraper"].get("feed_scroll_limit", 300)
 
 LLM_CONFIG = CONFIG.get("llm", {})
+PROVIDER_MODE = LLM_CONFIG.get("provider_mode", "default")
 PRIMARY_PROVIDER = LLM_CONFIG.get("primary_provider", "gemini")
 PRIMARY_MODEL = LLM_CONFIG.get("primary_model", "gemini-flash-lite-latest")
 FALLBACK_MODELS = LLM_CONFIG.get("fallback_models", [
@@ -234,15 +235,44 @@ for env_var in OPENROUTER_KEYS_ENV:
 current_or_key_idx = 0
 
 def load_dynamic_settings():
-    global CONFIG, PRIMARY_PROVIDER, PRIMARY_MODEL, FALLBACK_MODELS, GEMINI_KEYS_ENV, OPENROUTER_KEYS_ENV, gemini_key_pool, openrouter_key_pool, LLM_TIMEOUT
+    global CONFIG, PROVIDER_MODE, PRIMARY_PROVIDER, PRIMARY_MODEL, FALLBACK_MODELS, GEMINI_KEYS_ENV, OPENROUTER_KEYS_ENV, gemini_key_pool, openrouter_key_pool, LLM_TIMEOUT
     try:
-        with open("config/settings.json", "r", encoding="utf-8") as f:
-            CONFIG = json.load(f)
+        settings_paths = [
+            "config/settings.json",
+            "scraper/config/settings.json",
+            os.path.join(os.path.dirname(__file__), "config", "settings.json")
+        ]
+        for sp in settings_paths:
+            if os.path.exists(sp):
+                with open(sp, "r", encoding="utf-8") as f:
+                    CONFIG = json.load(f)
+                break
         llm_config = CONFIG.get("llm", {})
-        PRIMARY_PROVIDER = llm_config.get("primary_provider", "gemini")
+        PROVIDER_MODE = llm_config.get("provider_mode", "default").lower()
+        PRIMARY_PROVIDER = llm_config.get("primary_provider", "gemini").lower()
         PRIMARY_MODEL = llm_config.get("primary_model", "gemini-flash-lite-latest")
         FALLBACK_MODELS = llm_config.get("fallback_models", FALLBACK_MODELS)
         GEMINI_KEYS_ENV = llm_config.get("gemini_keys_env", GEMINI_KEYS_ENV)
+        OPENROUTER_KEYS_ENV = llm_config.get("openrouter_keys_env", OPENROUTER_KEYS_ENV)
+        LLM_TIMEOUT = CONFIG["scraper"].get("llm_api_timeout_seconds", 180)
+        
+        # Reload key pool (preserve index safety)
+        new_pool = []
+        for env_var in GEMINI_KEYS_ENV:
+            val = os.getenv(env_var, "").strip()
+            if val:
+                new_pool.append((env_var, val))
+        gemini_key_pool = new_pool
+        
+        # Reload OR key pool
+        new_or_pool = []
+        for env_var in OPENROUTER_KEYS_ENV:
+            val = os.getenv(env_var, "").strip()
+            if val:
+                new_or_pool.append((env_var, val))
+        openrouter_key_pool = new_or_pool
+    except Exception:
+        pass
         OPENROUTER_KEYS_ENV = llm_config.get("openrouter_keys_env", OPENROUTER_KEYS_ENV)
         LLM_TIMEOUT = CONFIG["scraper"].get("llm_api_timeout_seconds", 180)
         
@@ -415,8 +445,7 @@ async def extract_city_state_llm(address):
     }
     
     async with aiohttp.ClientSession() as session:
-        # PRIMARY: Try Google Gemini API first
-        if PRIMARY_PROVIDER == "gemini":
+        async def _try_gemini():
             gemini_payload = {
                 "contents": [{"parts": [{"text": prompt}]}]
             }
@@ -472,51 +501,68 @@ async def extract_city_state_llm(address):
                 except Exception as e:
                     print(f"      [Gemini API] Exception: {e}")
                     await asyncio.sleep(2)
+            return "Failed to extract", "Failed to extract", "Failed to extract", "Failed to extract"
 
-        # FALLBACK: OpenRouter cascade
-        for model in models:
-            for attempt in range(2):
-                var_name, or_key = get_current_openrouter_key()
-                if not or_key:
-                    break
-                headers = {
-                    "Authorization": f"Bearer {or_key}",
-                    "Content-Type": "application/json"
-                }
-                payload = {
-                    "model": model,
-                    "messages": [{"role": "user", "content": prompt}]
-                }
-                try:
-                    async with session.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload, timeout=20) as response:
-                        if response.status == 200:
-                            data = await response.json()
-                            if "choices" in data and len(data["choices"]) > 0:
-                                content = data["choices"][0]["message"]["content"].strip()
-                                import re
-                                loc_match = re.search(r'LOCALITY:\s*(.*?)\s*\|', content, re.IGNORECASE)
-                                city_match = re.search(r'CITY:\s*(.*?)\s*\|', content, re.IGNORECASE)
-                                state_match = re.search(r'STATE:\s*(.*?)\s*\|', content, re.IGNORECASE)
-                                country_match = re.search(r'COUNTRY:\s*(.*?)$', content, re.IGNORECASE)
-                                if loc_match and city_match and state_match and country_match:
-                                    l = loc_match.group(1).strip()
-                                    c = city_match.group(1).strip()
-                                    s = state_match.group(1).strip()
-                                    co = country_match.group(1).strip()
-                                    print(f"      [LLM Fallback] Successfully parsed with {model}: Locality='{l}', City='{c}', State='{s}', Country='{co}'")
-                                    return l, c, s, co
-                        elif response.status == 429:
-                            print(f"      [LLM Fallback] Rate limited (429) for {model} using key {var_name}.")
-                            if rotate_openrouter_key():
-                                print("      [LLM Fallback] Rotated OpenRouter key. Retrying immediately...")
-                                continue
+        async def _try_openrouter():
+            for model in models:
+                for attempt in range(2):
+                    var_name, or_key = get_current_openrouter_key()
+                    if not or_key:
+                        break
+                    headers = {
+                        "Authorization": f"Bearer {or_key}",
+                        "Content-Type": "application/json"
+                    }
+                    payload = {
+                        "model": model,
+                        "messages": [{"role": "user", "content": prompt}]
+                    }
+                    try:
+                        async with session.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload, timeout=20) as response:
+                            if response.status == 200:
+                                data = await response.json()
+                                if "choices" in data and len(data["choices"]) > 0:
+                                    content = data["choices"][0]["message"]["content"].strip()
+                                    import re
+                                    loc_match = re.search(r'LOCALITY:\s*(.*?)\s*\|', content, re.IGNORECASE)
+                                    city_match = re.search(r'CITY:\s*(.*?)\s*\|', content, re.IGNORECASE)
+                                    state_match = re.search(r'STATE:\s*(.*?)\s*\|', content, re.IGNORECASE)
+                                    country_match = re.search(r'COUNTRY:\s*(.*?)$', content, re.IGNORECASE)
+                                    if loc_match and city_match and state_match and country_match:
+                                        l = loc_match.group(1).strip()
+                                        c = city_match.group(1).strip()
+                                        s = state_match.group(1).strip()
+                                        co = country_match.group(1).strip()
+                                        print(f"      [LLM Fallback] Successfully parsed with {model}: Locality='{l}', City='{c}', State='{s}', Country='{co}'")
+                                        return l, c, s, co
+                            elif response.status == 429:
+                                print(f"      [LLM Fallback] Rate limited (429) for {model} using key {var_name}.")
+                                if rotate_openrouter_key():
+                                    print("      [LLM Fallback] Rotated OpenRouter key. Retrying immediately...")
+                                    continue
+                                else:
+                                    print("      [LLM Fallback] No alternative OpenRouter keys. Trying next model...")
+                                    break
                             else:
-                                print("      [LLM Fallback] No alternative OpenRouter keys. Trying next model...")
                                 break
-                        else:
-                            break
-                except Exception:
-                    break
+                    except Exception:
+                        break
+            return "Failed to extract", "Failed to extract", "Failed to extract", "Failed to extract"
+
+        if PROVIDER_MODE == "openrouter":
+            res = await _try_openrouter()
+            if res[0] != "Failed to extract":
+                return res
+            print("      [LLM Mode: OpenRouter] Cascade failed. Attempting Gemini fallback...")
+            return await _try_gemini()
+        elif PROVIDER_MODE == "gemini":
+            return await _try_gemini()
+        else: # "default"
+            res = await _try_gemini()
+            if res[0] != "Failed to extract":
+                return res
+            print("      [LLM Mode: Default Schema] Gemini failed. Attempting OpenRouter cascade...")
+            return await _try_openrouter()
                 
     return "Failed to extract", "Failed to extract", "Failed to extract", "Failed to extract"
 
@@ -541,8 +587,7 @@ async def generate_review_overview(reviews_text):
     }
     
     async with aiohttp.ClientSession() as session:
-        # PRIMARY: Try Google Gemini API first
-        if PRIMARY_PROVIDER == "gemini":
+        async def _try_gemini():
             gemini_payload = {
                 "contents": [{"parts": [{"text": prompt}]}]
             }
@@ -589,55 +634,74 @@ async def generate_review_overview(reviews_text):
                 except Exception as e:
                     print(f"  [Gemini API] Exception: {e}")
                     await asyncio.sleep(2)
-                
-        # FALLBACK: Loop through OpenRouter models with 5 retries each if Gemini fails
-        print("  [OpenRouter API] Falling back to OpenRouter...")
-        for model in models:
-            for attempt in range(2):
-                var_name, or_key = get_current_openrouter_key()
-                if not or_key:
-                    break
-                headers = {
-                    "Authorization": f"Bearer {or_key}",
-                    "Content-Type": "application/json"
-                }
-                payload = {
-                    "model": model,
-                    "messages": [{"role": "user", "content": prompt}]
-                }
-                try:
-                    async with session.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload, timeout=20) as response:
-                        if response.status == 200:
-                            data = await response.json()
-                            if "choices" in data and len(data["choices"]) > 0:
-                                content = data["choices"][0]["message"]["content"].strip()
-                                content = content.replace('"', '').replace('\n', ' ')
-                                print(f"  [OpenRouter API] Successfully generated using {model}.")
-                                return content
-                        elif response.status == 401:
-                            print("  [OpenRouter API] Error: 401 Unauthorized. Key is invalid. Skipping all OpenRouter models.")
-                            return ""
-                        elif response.status == 429:
-                            print(f"  [OpenRouter API] Rate limited (429) for {model} using key {var_name}.")
-                            if rotate_openrouter_key():
-                                print("  [OpenRouter API] Rotated OpenRouter key. Retrying immediately...")
-                                continue
+            return ""
+
+        async def _try_openrouter():
+            print("  [OpenRouter API] Running OpenRouter cascade...")
+            for model in models:
+                for attempt in range(2):
+                    var_name, or_key = get_current_openrouter_key()
+                    if not or_key:
+                        break
+                    headers = {
+                        "Authorization": f"Bearer {or_key}",
+                        "Content-Type": "application/json"
+                    }
+                    payload = {
+                        "model": model,
+                        "messages": [{"role": "user", "content": prompt}]
+                    }
+                    try:
+                        async with session.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload, timeout=20) as response:
+                            if response.status == 200:
+                                data = await response.json()
+                                if "choices" in data and len(data["choices"]) > 0:
+                                    content = data["choices"][0]["message"]["content"].strip()
+                                    content = content.replace('"', '').replace('\n', ' ')
+                                    print(f"  [OpenRouter API] Successfully generated using {model}.")
+                                    return content
+                            elif response.status == 401:
+                                print("  [OpenRouter API] Error: 401 Unauthorized. Key is invalid. Skipping all OpenRouter models.")
+                                return ""
+                            elif response.status == 429:
+                                print(f"  [OpenRouter API] Rate limited (429) for {model} using key {var_name}.")
+                                if rotate_openrouter_key():
+                                    print("  [OpenRouter API] Rotated OpenRouter key. Retrying immediately...")
+                                    continue
+                                else:
+                                    print(f"  [OpenRouter API] No alternative OpenRouter keys available. Skipping model.")
+                                    break
+                            elif response.status in [408, 502, 503, 504]:
+                                print(f"  [OpenRouter API] {response.status} for {model}. Retrying in 10s...")
+                                if not await interruptible_sleep(10): return ""
                             else:
-                                print(f"  [OpenRouter API] No alternative OpenRouter keys available. Skipping model.")
+                                print(f"  [OpenRouter API] Error: {response.status}. Trying next model...")
                                 break
-                        elif response.status in [408, 502, 503, 504]:
-                            print(f"  [OpenRouter API] {response.status} for {model}. Retrying in 10s...")
-                            if not await interruptible_sleep(10): return ""
-                        else:
-                            print(f"  [OpenRouter API] Error: {response.status}. Trying next model...")
-                            break
-                except asyncio.TimeoutError:
-                    print(f"  [OpenRouter API] Timeout for {model}. Retrying in 10s...")
-                    if not await interruptible_sleep(10): return ""
-                except Exception as e:
-                    print(f"  [OpenRouter API] Exception for {model}: {e}. Trying next model...")
-                    break
-                break # Break the model loop if key is dead
+                    except asyncio.TimeoutError:
+                        print(f"  [OpenRouter API] Timeout for {model}. Retrying in 10s...")
+                        if not await interruptible_sleep(10): return ""
+                    except Exception as e:
+                        print(f"  [OpenRouter API] Exception for {model}: {e}. Trying next model...")
+                        break
+                else:
+                    continue
+                break
+            return ""
+
+        if PROVIDER_MODE == "openrouter":
+            res = await _try_openrouter()
+            if res:
+                return res
+            print("  [LLM Mode: OpenRouter] Cascade failed. Attempting Gemini fallback...")
+            return await _try_gemini()
+        elif PROVIDER_MODE == "gemini":
+            return await _try_gemini()
+        else: # "default"
+            res = await _try_gemini()
+            if res:
+                return res
+            print("  [LLM Mode: Default Schema] Gemini failed. Attempting OpenRouter cascade...")
+            return await _try_openrouter()
                 
     return ""
 
@@ -690,7 +754,7 @@ async def clean_lead_with_llm(lead_dict):
     try:
         import re, json
         async with aiohttp.ClientSession() as session:
-            if PRIMARY_PROVIDER == "gemini":
+            async def _try_gemini():
                 for attempt in range(2):
                     var_name, gemini_key = get_current_gemini_key()
                     if not gemini_key:
@@ -715,8 +779,7 @@ async def clean_lead_with_llm(lead_dict):
                                                         val = ""
                                                     cleaned_lead[key] = val
                                             print("  [LLM Cleaner] Successfully cleaned data!")
-                                            gemini_success = True
-                                            break
+                                            return cleaned_lead, True
                                         except json.JSONDecodeError:
                                             print("  [LLM Cleaner] Error: Failed to parse JSON response.")
                                             break
@@ -743,7 +806,7 @@ async def clean_lead_with_llm(lead_dict):
                                     continue
                                 else:
                                     print(f"  [LLM Cleaner] No alternative keys available. Waiting {sleep_time}s before retrying (Attempt {attempt+1}/2)...")
-                                    if not await interruptible_sleep(sleep_time): return cleaned_lead
+                                    if not await interruptible_sleep(sleep_time): return cleaned_lead, False
                                     continue
                             else:
                                 print(f"  [LLM Cleaner] API Error: {response.status} - Gemini failed.")
@@ -751,9 +814,10 @@ async def clean_lead_with_llm(lead_dict):
                     except Exception as e:
                         print(f"  [LLM Cleaner] Exception during cleaning call: {e}")
                         await asyncio.sleep(2)
+                return cleaned_lead, False
 
-            if not gemini_success:
-                print("  [LLM Cleaner] Falling back to OpenRouter cascade...")
+            async def _try_openrouter():
+                print("  [LLM Cleaner] Running OpenRouter cascade...")
                 for model in models:
                     for attempt in range(2):
                         var_name, or_key = get_current_openrouter_key()
@@ -784,13 +848,13 @@ async def clean_lead_with_llm(lead_dict):
                                                             val = ""
                                                         cleaned_lead[key] = val
                                                 print(f"  [LLM Cleaner] Successfully cleaned data using {model}!")
-                                                return cleaned_lead
+                                                return cleaned_lead, True
                                             except json.JSONDecodeError:
                                                 pass
                                         break # Stop retrying if 200 OK but bad JSON
                                 elif response.status == 401:
                                     print("  [LLM Cleaner] Error: 401 Unauthorized for OpenRouter. Skipping cascade.")
-                                    return cleaned_lead
+                                    return cleaned_lead, False
                                 elif response.status == 429:
                                     print(f"  [LLM Cleaner] Rate limited (429) for {model} using key {var_name}.")
                                     if rotate_openrouter_key():
@@ -801,16 +865,38 @@ async def clean_lead_with_llm(lead_dict):
                                         break
                                 elif response.status in [408, 502, 503, 504]:
                                     print(f"  [LLM Cleaner] {response.status} for {model}. Retrying in 10s...")
-                                    if not await interruptible_sleep(10): return cleaned_lead
+                                    if not await interruptible_sleep(10): return cleaned_lead, False
                                 else:
                                     print(f"  [LLM Cleaner] Error {response.status} for {model}. Trying next model...")
                                     break
                         except asyncio.TimeoutError:
                             print(f"  [LLM Cleaner] Timeout for {model}. Retrying in 10s...")
-                            if not await interruptible_sleep(10): return cleaned_lead
+                            if not await interruptible_sleep(10): return cleaned_lead, False
                         except Exception as e:
                             print(f"  [LLM Cleaner] Exception for {model}: {e}. Trying next model...")
                             break
+                    else:
+                        continue
+                    break
+                return cleaned_lead, False
+
+            if PROVIDER_MODE == "openrouter":
+                res, ok = await _try_openrouter()
+                if ok:
+                    return res
+                print("  [LLM Mode: OpenRouter] Cascade failed. Attempting Gemini fallback...")
+                res, _ = await _try_gemini()
+                return res
+            elif PROVIDER_MODE == "gemini":
+                res, _ = await _try_gemini()
+                return res
+            else: # "default"
+                res, ok = await _try_gemini()
+                if ok:
+                    return res
+                print("  [LLM Mode: Default Schema] Gemini failed. Attempting OpenRouter cascade...")
+                res, _ = await _try_openrouter()
+                return res
     except Exception as e:
         print(f"  [LLM Cleaner] Exception: {e}")
         

@@ -19,6 +19,7 @@
         "agent_smith_timeout_seconds": 180
     },
     "llm": {
+        "provider_mode": "default",
         "primary_provider": "gemini",
         "primary_model": "gemini-flash-lite-latest",
         "gemini_keys_env": [

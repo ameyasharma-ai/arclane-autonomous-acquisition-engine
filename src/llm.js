@@ -39,6 +39,50 @@ export class LLMClient {
             : (fs.existsSync(srcPromptPath) ? fs.readFileSync(srcPromptPath, 'utf-8') : '');
     }
 
+    getLlmConfig() {
+        try {
+            const settingsPath = path.join(process.cwd(), 'scraper', 'config', 'settings.json');
+            if (fs.existsSync(settingsPath)) {
+                const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf-8'));
+                if (settings?.llm) {
+                    if (Array.isArray(settings.llm.fallback_models) && settings.llm.fallback_models.length > 0) {
+                        this.fallbackModels = settings.llm.fallback_models;
+                        this.model = this.fallbackModels[0];
+                    }
+                    return {
+                        mode: (settings.llm.provider_mode || 'default').toLowerCase(),
+                        primaryProvider: (settings.llm.primary_provider || 'gemini').toLowerCase(),
+                        primaryModel: settings.llm.primary_model || 'gemini-flash-lite-latest'
+                    };
+                }
+            }
+        } catch (e) {
+            // fallback gracefully
+        }
+        return {
+            mode: 'default',
+            primaryProvider: 'gemini',
+            primaryModel: 'gemini-flash-lite-latest'
+        };
+    }
+
+    async callGemini(messages, modelName = "gemini-flash-lite-latest", timeoutMs = 120000) {
+        if (!process.env.API) {
+            throw new Error("Gemini API key not configured in .env");
+        }
+        const client = this.geminiClient || new OpenAI({
+            baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
+            apiKey: process.env.API,
+            timeout: timeoutMs,
+            maxRetries: 2,
+        });
+        const response = await client.chat.completions.create({
+            model: modelName,
+            messages
+        });
+        return response.choices[0].message.content.trim();
+    }
+
     async callOpenRouterWithFallback(messages) {
         let lastError = null;
         for (const model of this.fallbackModels) {
@@ -61,37 +105,32 @@ export class LLMClient {
     }
 
     async generateSummary(prompt) {
+        const config = this.getLlmConfig();
+        const messages = [
+            { role: "system", content: this.systemPrompt },
+            { role: "user", content: prompt }
+        ];
+
         return await pRetry(async () => {
-            try {
-                if (process.env.API) {
-                    console.log("Attempting to use Gemini API (gemini-flash-lite-latest)...");
-                    const client = this.geminiClient || new OpenAI({
-                        baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
-                        apiKey: process.env.API,
-                        timeout: 120000,
-                        maxRetries: 2,
-                    });
-                    const response = await client.chat.completions.create({
-                        model: "gemini-flash-lite-latest",
-                        messages: [
-                            { role: "system", content: this.systemPrompt },
-                            { role: "user", content: prompt }
-                        ]
-                    });
-                    return response.choices[0].message.content.trim();
-                } else {
-                    throw new Error("Gemini API key not configured in .env");
-                }
-            } catch (error) {
-                console.log(`Gemini API failed or not configured (${error.message}). Attempting OpenRouter fallback...`);
+            if (config.mode === 'openrouter') {
                 try {
-                    return await this.callOpenRouterWithFallback([
-                        { role: "system", content: this.systemPrompt },
-                        { role: "user", content: prompt }
-                    ]);
-                } catch (openRouterError) {
-                    console.warn(`[LLM] OpenRouter fallback unavailable (${openRouterError.message}). Retrying Gemini with backoff...`);
-                    throw error;
+                    console.log(`[LLM] Mode is OpenRouter: calling OpenRouter free cascade for summary...`);
+                    return await this.callOpenRouterWithFallback(messages);
+                } catch (orErr) {
+                    console.warn(`[LLM] OpenRouter cascade failed (${orErr.message}). Attempting Gemini fallback...`);
+                    return await this.callGemini(messages, config.primaryModel, 120000);
+                }
+            } else if (config.mode === 'gemini') {
+                console.log(`[LLM] Mode is Gemini: calling Gemini (${config.primaryModel})...`);
+                return await this.callGemini(messages, config.primaryModel, 120000);
+            } else {
+                // Default mode: Gemini primary with OpenRouter cascade fallback
+                try {
+                    console.log(`[LLM] Default Schema: calling Gemini (${config.primaryModel})...`);
+                    return await this.callGemini(messages, config.primaryModel, 120000);
+                } catch (geminiErr) {
+                    console.log(`Gemini API failed or not configured (${geminiErr.message}). Attempting OpenRouter fallback...`);
+                    return await this.callOpenRouterWithFallback(messages);
                 }
             }
         }, {
@@ -204,37 +243,32 @@ CRITICAL DESIGN & AESTHETIC PRINCIPLES (MUST FOLLOW STRICTLY):
    - Load Google Fonts & Lucide Icons (<script src="https://unpkg.com/lucide@latest"></script> + lucide.createIcons()).
    - Output ONLY the complete HTML code wrapped in \`\`\`html and \`\`\` without markdown commentary or truncated code.`;
 
+        const config = this.getLlmConfig();
+        const messages = [
+            { role: "system", content: coderSystemPrompt },
+            { role: "user", content: prompt }
+        ];
+
         return await pRetry(async () => {
-            try {
-                if (process.env.API) {
-                    console.log("[LLM] Generating website code using Gemini API (gemini-flash-lite-latest)...");
-                    const client = this.geminiClient || new OpenAI({
-                        baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
-                        apiKey: process.env.API,
-                        timeout: 150000,
-                        maxRetries: 2,
-                    });
-                    const response = await client.chat.completions.create({
-                        model: "gemini-flash-lite-latest",
-                        messages: [
-                            { role: "system", content: coderSystemPrompt },
-                            { role: "user", content: prompt }
-                        ]
-                    });
-                    return response.choices[0].message.content.trim();
-                } else {
-                    throw new Error("Gemini API key not configured in .env");
-                }
-            } catch (error) {
-                console.log(`[LLM] Gemini API code generation failed (${error.message}). Attempting OpenRouter fallback...`);
+            if (config.mode === 'openrouter') {
                 try {
-                    return await this.callOpenRouterWithFallback([
-                        { role: "system", content: coderSystemPrompt },
-                        { role: "user", content: prompt }
-                    ]);
-                } catch (openRouterError) {
-                    console.warn(`[LLM] OpenRouter fallback unavailable (${openRouterError.message}). Retrying Gemini with backoff...`);
-                    throw error;
+                    console.log(`[LLM] Mode is OpenRouter: generating website code using OpenRouter free cascade...`);
+                    return await this.callOpenRouterWithFallback(messages);
+                } catch (orErr) {
+                    console.warn(`[LLM] OpenRouter code generation failed (${orErr.message}). Attempting Gemini fallback...`);
+                    return await this.callGemini(messages, config.primaryModel, 150000);
+                }
+            } else if (config.mode === 'gemini') {
+                console.log(`[LLM] Mode is Gemini: generating website code using Gemini (${config.primaryModel})...`);
+                return await this.callGemini(messages, config.primaryModel, 150000);
+            } else {
+                // Default mode: Gemini primary with OpenRouter cascade fallback
+                try {
+                    console.log(`[LLM] Default Schema: generating website code using Gemini (${config.primaryModel})...`);
+                    return await this.callGemini(messages, config.primaryModel, 150000);
+                } catch (geminiErr) {
+                    console.log(`[LLM] Gemini API code generation failed (${geminiErr.message}). Attempting OpenRouter fallback...`);
+                    return await this.callOpenRouterWithFallback(messages);
                 }
             }
         }, {

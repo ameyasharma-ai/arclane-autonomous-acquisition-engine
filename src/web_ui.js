@@ -77,6 +77,16 @@ class WebUIServer {
             } catch (e) {}
 
             socket.emit('process_status', this.getBusyStatus());
+            try {
+                const settingsPath = path.join(__dirname, '../scraper/config/settings.json');
+                if (fs.existsSync(settingsPath)) {
+                    const s = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+                    socket.emit('llm_provider_update', {
+                        mode: s.llm?.provider_mode || 'default',
+                        primary_provider: s.llm?.primary_provider || 'gemini'
+                    });
+                }
+            } catch (e) {}
 
             socket.on('command', async (data) => {
                 const text = data.text;
@@ -372,6 +382,71 @@ class WebUIServer {
         // 6b. Process & Concurrency Lock Status API
         this.app.get('/api/process/status', (req, res) => {
             res.json({ success: true, ...this.getBusyStatus() });
+        });
+
+        // 6c. Persistent LLM Provider Strategy API (Default, OpenRouter, Gemini)
+        this.app.get('/api/llm-provider', (req, res) => {
+            try {
+                const settingsPath = path.join(__dirname, '../scraper/config/settings.json');
+                let settings = {};
+                if (fs.existsSync(settingsPath)) {
+                    settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+                }
+                const llm = settings.llm || {};
+                const mode = (llm.provider_mode || 'default').toLowerCase();
+                const primaryProvider = (llm.primary_provider || (mode === 'openrouter' ? 'openrouter' : 'gemini')).toLowerCase();
+                res.json({
+                    success: true,
+                    mode,
+                    primary_provider: primaryProvider,
+                    primary_model: llm.primary_model || 'gemini-flash-lite-latest',
+                    fallback_models: llm.fallback_models || []
+                });
+            } catch (e) {
+                res.status(500).json({ success: false, error: e.message });
+            }
+        });
+
+        this.app.post('/api/llm-provider/toggle', (req, res) => {
+            const rawMode = req.body.mode || req.body.provider || 'default';
+            const mode = String(rawMode).toLowerCase().trim();
+            if (!['default', 'openrouter', 'gemini'].includes(mode)) {
+                return res.status(400).json({ success: false, error: 'Invalid mode. Allowed: default, openrouter, gemini' });
+            }
+
+            try {
+                const settingsPath = path.join(__dirname, '../scraper/config/settings.json');
+                let settings = {};
+                if (fs.existsSync(settingsPath)) {
+                    settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+                }
+                if (!settings.llm) settings.llm = {};
+                settings.llm.provider_mode = mode;
+                settings.llm.primary_provider = (mode === 'openrouter' ? 'openrouter' : 'gemini');
+                fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 4), 'utf8');
+
+                let modeLabel = 'Default Schema (Gemini Primary + OpenRouter Fallback)';
+                if (mode === 'openrouter') {
+                    modeLabel = 'OpenRouter (Free Cascade Primary + Gemini Fallback)';
+                } else if (mode === 'gemini') {
+                    modeLabel = 'Gemini (Strict Gemini Only)';
+                }
+
+                this.io.emit('llm_provider_changed', {
+                    mode,
+                    primary_provider: settings.llm.primary_provider,
+                    label: modeLabel
+                });
+                this.broadcast(`🤖 *[LLM Provider]* Operations switched to: \`${modeLabel}\``);
+                res.json({
+                    success: true,
+                    mode,
+                    primary_provider: settings.llm.primary_provider,
+                    label: modeLabel
+                });
+            } catch (e) {
+                res.status(500).json({ success: false, error: e.message });
+            }
         });
 
         // 7. Execute Command API (e.g. from UI buttons or scripts)

@@ -1,4 +1,6 @@
 import { Telegraf, Markup } from 'telegraf';
+import fs from 'fs';
+import path from 'path';
 import { CONFIG } from './config.js';
 import { Scheduler } from './scheduler.js';
 
@@ -1128,6 +1130,69 @@ bot.command('build', handleFixLead);
 bot.command('fix_lead', handleFixLead);
 bot.command('build_lead', handleFixLead);
 bot.command('rebuild', handleFixLead);
+
+async function handleLlmCommand(ctx) {
+    const text = ctx.message?.text || '';
+    const parts = text.trim().split(/\s+/);
+    const arg = parts[1]?.toLowerCase();
+
+    const settingsPath = path.join(process.cwd(), 'scraper', 'config', 'settings.json');
+    let settings = {};
+    if (fs.existsSync(settingsPath)) {
+        try {
+            settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+        } catch (e) {}
+    }
+    if (!settings.llm) settings.llm = {};
+
+    if (!arg) {
+        const currentMode = settings.llm.provider_mode || 'default';
+        const primaryProvider = settings.llm.primary_provider || 'gemini';
+        return ctx.reply(
+            `🤖 *[LLM Provider Status]*\n\n` +
+            `• *Active Mode:* \`${currentMode}\`\n` +
+            `• *Primary Provider:* \`${primaryProvider}\`\n` +
+            `• *Gemini Model:* \`${settings.llm.primary_model || 'gemini-flash-lite-latest'}\`\n` +
+            `• *Top Fallback Model:* \`${settings.llm.fallback_models?.[0] || 'N/A'}\`\n\n` +
+            `_To switch modes, run:_\n` +
+            `• \`/llm default\` (Gemini Primary + OpenRouter Fallback)\n` +
+            `• \`/llm openrouter\` (OpenRouter Free Cascade + Gemini Fallback)\n` +
+            `• \`/llm gemini\` (Strict Gemini Only)`,
+            { parse_mode: 'Markdown' }
+        );
+    }
+
+    if (!['default', 'openrouter', 'gemini'].includes(arg)) {
+        return ctx.reply("❌ Invalid mode. Usage: `/llm [default|openrouter|gemini]`", { parse_mode: 'Markdown' });
+    }
+
+    settings.llm.provider_mode = arg;
+    settings.llm.primary_provider = (arg === 'openrouter' ? 'openrouter' : 'gemini');
+    try {
+        fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 4), 'utf8');
+    } catch (e) {
+        return ctx.reply(`❌ Failed to save settings: ${e.message}`);
+    }
+
+    let modeLabel = 'Default Schema (Gemini Primary + OpenRouter Fallback)';
+    if (arg === 'openrouter') {
+        modeLabel = 'OpenRouter (Free Cascade Primary + Gemini Fallback)';
+    } else if (arg === 'gemini') {
+        modeLabel = 'Gemini (Strict Gemini Only)';
+    }
+
+    webUI.io.emit('llm_provider_changed', {
+        mode: arg,
+        primary_provider: settings.llm.primary_provider,
+        label: modeLabel
+    });
+
+    return ctx.reply(`✅ *[LLM Provider Switched]*\n\nActive operations set to: \`${modeLabel}\``, { parse_mode: 'Markdown' });
+}
+
+bot.command('llm', handleLlmCommand);
+bot.command('model', handleLlmCommand);
+bot.command('provider', handleLlmCommand);
 
 // Direct text listener: Automatically detect when user pastes a Google Maps link into chat
 bot.on('text', async (ctx, next) => {

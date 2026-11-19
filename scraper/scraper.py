@@ -46,6 +46,9 @@ PAGE_TIMEOUT = CONFIG["scraper"].get("page_load_timeout_ms", 90000)
 ELEM_TIMEOUT = CONFIG["scraper"].get("element_wait_timeout_ms", 15000)
 GSPREAD_RETRIES = CONFIG["scraper"].get("gspread_max_retries", 5)
 FEED_SCROLL_LIMIT = CONFIG["scraper"].get("feed_scroll_limit", 300)
+PROVIDER_MODE = CONFIG.get("llm", {}).get("provider_mode", "default")
+PRIMARY_PROVIDER = CONFIG.get("llm", {}).get("primary_provider", "gemini")
+PRIMARY_MODEL = CONFIG.get("llm", {}).get("primary_model", "gemini-flash-lite-latest")
 FALLBACK_MODELS = CONFIG.get("llm", {}).get("fallback_models", [
     "nvidia/nemotron-3-ultra-550b-a55b:free",
     "particle-ai/particle-1:free",
@@ -57,6 +60,28 @@ FALLBACK_MODELS = CONFIG.get("llm", {}).get("fallback_models", [
     "google/gemma-4-31b-it:free",
     "openrouter/free"
 ])
+
+def load_dynamic_settings():
+    global CONFIG, PROVIDER_MODE, PRIMARY_PROVIDER, PRIMARY_MODEL, FALLBACK_MODELS, LLM_TIMEOUT
+    try:
+        settings_paths = [
+            "config/settings.json",
+            "scraper/config/settings.json",
+            os.path.join(os.path.dirname(__file__), "config", "settings.json")
+        ]
+        for sp in settings_paths:
+            if os.path.exists(sp):
+                with open(sp, "r", encoding="utf-8") as f:
+                    CONFIG = json.load(f)
+                break
+        llm_config = CONFIG.get("llm", {})
+        PROVIDER_MODE = llm_config.get("provider_mode", "default").lower()
+        PRIMARY_PROVIDER = llm_config.get("primary_provider", "gemini").lower()
+        PRIMARY_MODEL = llm_config.get("primary_model", "gemini-flash-lite-latest")
+        FALLBACK_MODELS = llm_config.get("fallback_models", FALLBACK_MODELS)
+        LLM_TIMEOUT = CONFIG["scraper"].get("llm_api_timeout_seconds", 180)
+    except Exception:
+        pass
 
 
 import json
@@ -198,6 +223,7 @@ async def generate_review_overview(reviews_text):
     return ""
 
 async def clean_lead_with_llm(lead_dict):
+    load_dynamic_settings()
     gemini_key = os.getenv("GEMINI_REVIEWS_CLEANER_KEY", "").strip()
     openrouter_key = os.getenv("OPENROUTER_API_KEY_CLEANER", "").strip()
     
@@ -245,38 +271,45 @@ async def clean_lead_with_llm(lead_dict):
     }
 
     cleaned_lead = lead_dict.copy()
-    gemini_success = False
 
     try:
         async with aiohttp.ClientSession() as session:
-            if gemini_key:
+            async def _clean_gemini():
+                if not gemini_key:
+                    return cleaned_lead, False
                 print("  [LLM Cleaner] Sending raw data to Gemini (gemini-2.5-flash) for deep cleaning...")
-                async with session.post(gemini_url, json=gemini_payload, timeout=LLM_TIMEOUT) as response:
-                    if response.status == 200:
-                        data = await response.json()
-                        if "candidates" in data and len(data["candidates"]) > 0:
-                            content = data["candidates"][0]["content"]["parts"][0]["text"].strip()
-                            json_match = re.search(r'\{.*\}', content, re.DOTALL)
-                            if json_match:
-                                try:
-                                    parsed = json.loads(json_match.group(0))
-                                    for key in ["Website URL", "Email", "Instagram", "Facebook", "X (Twitter)", "YouTube", "TikTok", "LinkedIn"]:
-                                        if key in parsed:
-                                            val = str(parsed[key]).strip()
-                                            if val.lower() in ["none", "null", "n/a", ""]:
-                                                val = ""
-                                            cleaned_lead[key] = val
-                                    print("  [LLM Cleaner] Successfully cleaned data!")
-                                    gemini_success = True
-                                except json.JSONDecodeError:
-                                    print("  [LLM Cleaner] Error: Failed to parse JSON response.")
-                            else:
-                                print("  [LLM Cleaner] Error: No JSON found in response.")
-                    else:
-                        print(f"  [LLM Cleaner] API Error: {response.status} - Gemini failed.")
+                try:
+                    async with session.post(gemini_url, json=gemini_payload, timeout=LLM_TIMEOUT) as response:
+                        if response.status == 200:
+                            data = await response.json()
+                            if "candidates" in data and len(data["candidates"]) > 0:
+                                content = data["candidates"][0]["content"]["parts"][0]["text"].strip()
+                                json_match = re.search(r'\{.*\}', content, re.DOTALL)
+                                if json_match:
+                                    try:
+                                        parsed = json.loads(json_match.group(0))
+                                        for key in ["Website URL", "Email", "Instagram", "Facebook", "X (Twitter)", "YouTube", "TikTok", "LinkedIn"]:
+                                            if key in parsed:
+                                                val = str(parsed[key]).strip()
+                                                if val.lower() in ["none", "null", "n/a", ""]:
+                                                    val = ""
+                                                cleaned_lead[key] = val
+                                        print("  [LLM Cleaner] Successfully cleaned data via Gemini!")
+                                        return cleaned_lead, True
+                                    except json.JSONDecodeError:
+                                        print("  [LLM Cleaner] Error: Failed to parse JSON response.")
+                                else:
+                                    print("  [LLM Cleaner] Error: No JSON found in response.")
+                        else:
+                            print(f"  [LLM Cleaner] API Error: {response.status} - Gemini failed.")
+                except Exception as e:
+                    print(f"  [LLM Cleaner] Gemini Exception: {e}")
+                return cleaned_lead, False
 
-            if not gemini_success and openrouter_key:
-                print("  [LLM Cleaner] Falling back to OpenRouter cascade...")
+            async def _clean_openrouter():
+                if not openrouter_key:
+                    return cleaned_lead, False
+                print("  [LLM Cleaner] Running OpenRouter cascade...")
                 for model in models:
                     payload = {
                         "model": model,
@@ -300,25 +333,44 @@ async def clean_lead_with_llm(lead_dict):
                                                             val = ""
                                                         cleaned_lead[key] = val
                                                 print(f"  [LLM Cleaner] Successfully cleaned data using {model}!")
-                                                return cleaned_lead
+                                                return cleaned_lead, True
                                             except json.JSONDecodeError:
                                                 pass
-                                        break # Stop retrying if 200 OK but bad JSON
+                                        break
                                 elif response.status == 401:
                                     print("  [LLM Cleaner] Error: 401 Unauthorized for OpenRouter. Skipping cascade.")
-                                    return cleaned_lead
+                                    return cleaned_lead, False
                                 elif response.status in [429, 408, 502, 503, 504]:
                                     print(f"  [LLM Cleaner] {response.status} for {model}. Retrying in 10s (Attempt {attempt+1}/5)...")
-                                    if not await interruptible_sleep(10): return cleaned_lead
+                                    if not await interruptible_sleep(10): return cleaned_lead, False
                                 else:
                                     print(f"  [LLM Cleaner] Error {response.status} for {model}. Trying next model...")
                                     break
                         except asyncio.TimeoutError:
                             print(f"  [LLM Cleaner] Timeout for {model}. Retrying in 10s (Attempt {attempt+1}/5)...")
-                            if not await interruptible_sleep(10): return cleaned_lead
+                            if not await interruptible_sleep(10): return cleaned_lead, False
                         except Exception as e:
                             print(f"  [LLM Cleaner] Exception for {model}: {e}. Trying next model...")
                             break
+                return cleaned_lead, False
+
+            if PROVIDER_MODE == "openrouter":
+                res, ok = await _clean_openrouter()
+                if ok:
+                    return res
+                print("  [LLM Cleaner: OpenRouter Mode] Cascade failed. Attempting Gemini fallback...")
+                res, _ = await _clean_gemini()
+                return res
+            elif PROVIDER_MODE == "gemini":
+                res, _ = await _clean_gemini()
+                return res
+            else: # "default"
+                res, ok = await _clean_gemini()
+                if ok:
+                    return res
+                print("  [LLM Cleaner: Default Schema] Gemini failed. Falling back to OpenRouter cascade...")
+                res, _ = await _clean_openrouter()
+                return res
     except Exception as e:
         print(f"  [LLM Cleaner] Exception: {e}")
         

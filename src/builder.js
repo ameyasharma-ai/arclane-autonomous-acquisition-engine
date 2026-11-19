@@ -607,7 +607,6 @@ export class WebsiteBuilder {
                 });
                 return b;
             });
-            });
 
             // Ensure <nav> is centered with mx-auto, has responsive gap, and does NOT collide with brand or CTAs
             h = h.replace(/(<nav\b[^>]*class=["'])([^"']*)(["'])/gi, (m, p1, cls, p3) => {

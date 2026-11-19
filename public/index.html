@@ -167,6 +167,16 @@
 
         <!-- Emergency Status & Actions -->
         <div class="flex items-center gap-2">
+            <!-- Persistent LLM Provider Switcher -->
+            <div class="flex items-center gap-1.5 bg-slate-900 border border-slate-700/80 rounded-lg px-2.5 py-1 text-xs shadow-sm" title="Switch LLM engine between Gemini, OpenRouter free models, and Default Schema across all scraping, cleaning, and website builder operations">
+                <span class="text-slate-400 font-medium">🤖 LLM:</span>
+                <select id="select-llm-provider" onchange="changeLlmProvider(this.value)" class="bg-transparent text-cyan-300 font-bold focus:outline-none cursor-pointer">
+                    <option value="default" class="bg-slate-900 text-slate-100">Default Schema (Gemini → OpenRouter)</option>
+                    <option value="openrouter" class="bg-slate-900 text-slate-100">OpenRouter (Free Cascade)</option>
+                    <option value="gemini" class="bg-slate-900 text-slate-100">Gemini (Strict Gemini Only)</option>
+                </select>
+            </div>
+
             <!-- Persistent Photo Sourcing Strategy -->
             <div class="flex items-center gap-1.5 bg-slate-900 border border-slate-700/80 rounded-lg px-2.5 py-1 text-xs shadow-sm" title="Persistent Photo Policy (Stored across restarts)">
                 <span class="text-slate-400 font-medium">📸 Photos:</span>
@@ -552,6 +562,23 @@
             }
         });
 
+        socket.on('llm_provider_changed', (data) => {
+            if (data && data.mode) {
+                const sel = document.getElementById('select-llm-provider');
+                if (sel) sel.value = data.mode;
+                if (typeof showToast === 'function') {
+                    showToast(`🤖 LLM Provider: ${data.label || data.mode}`);
+                }
+            }
+        });
+
+        socket.on('llm_provider_update', (data) => {
+            if (data && data.mode) {
+                const sel = document.getElementById('select-llm-provider');
+                if (sel) sel.value = data.mode;
+            }
+        });
+
         socket.on('lead_photo_toggled', () => {
             fetchApprovalQueue();
             fetchAnalytics();
@@ -707,6 +734,41 @@
                 .catch(()=>{});
         }
         fetchSchedulerStatus();
+
+        // Persistent LLM Provider Strategy Management
+        function fetchLlmProvider() {
+            fetch('/api/llm-provider')
+                .then(r => r.json())
+                .then(d => {
+                    if (d && d.success && d.mode) {
+                        const sel = document.getElementById('select-llm-provider');
+                        if (sel) sel.value = d.mode;
+                    }
+                })
+                .catch(() => {});
+        }
+        fetchLlmProvider();
+
+        function changeLlmProvider(newMode) {
+            showToast(`🤖 Switching LLM operations to: ${newMode}...`);
+            fetch('/api/llm-provider/toggle', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mode: newMode })
+            })
+            .then(r => r.json())
+            .then(d => {
+                if (d && d.success) {
+                    showToast(`✅ LLM operations set to: ${d.label || d.mode}`);
+                } else {
+                    showToast('❌ Failed to update LLM provider: ' + (d?.error || 'Unknown error'));
+                }
+            })
+            .catch(err => {
+                showToast(`❌ Failed to update LLM provider: ${err.message}`);
+            });
+        }
+
         // Persistent Photo Policy Management
         function fetchPhotoPolicy() {
             fetch('/api/photo-policy')
