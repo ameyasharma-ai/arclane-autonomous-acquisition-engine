@@ -586,8 +586,11 @@
 
         socket.on('history', (history) => {
             messagesDiv.innerHTML = '';
-            history.forEach(msg => appendMessage(msg.type, msg.text, msg.opts));
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            const wasScrolledUp = userScrolledUp;
+            userScrolledUp = true;
+            history.forEach(msg => (typeof originalAppend === 'function' ? originalAppend : appendMessage)(msg.type, msg.text, msg.opts));
+            userScrolledUp = wasScrolledUp;
+            scrollToBottom(false);
         });
 
         socket.on('message', (msg) => {
@@ -1282,9 +1285,12 @@
             }, 3000);
         }
 
-        // --- Floating Scroll-to-Bottom Button Handling ---
+        // --- Smart Scroll Management for Terminal Chat (Zero Dragging on Scroll Up) ---
         const scrollBtn = document.getElementById('btn-scroll-bottom');
+        let userScrolledUp = false;
+
         function scrollToBottom(smooth = false) {
+            userScrolledUp = false;
             if (messagesDiv) {
                 messagesDiv.scrollTo({
                     top: messagesDiv.scrollHeight,
@@ -1295,23 +1301,57 @@
         }
 
         if (messagesDiv) {
-            messagesDiv.addEventListener('scroll', () => {
+            const handleScroll = () => {
+                if (!messagesDiv || messagesDiv.clientHeight === 0) return;
                 const distanceToBottom = messagesDiv.scrollHeight - messagesDiv.scrollTop - messagesDiv.clientHeight;
                 if (distanceToBottom > 40) {
+                    userScrolledUp = true;
                     if (scrollBtn) scrollBtn.classList.remove('hidden');
                 } else {
+                    userScrolledUp = false;
                     if (scrollBtn) scrollBtn.classList.add('hidden');
                 }
-            });
+            };
+
+            messagesDiv.addEventListener('scroll', handleScroll, { passive: true });
+
+            // Upward mouse wheel motion immediately locks scroll to prevent dragging
+            messagesDiv.addEventListener('wheel', (e) => {
+                if (e.deltaY < 0) {
+                    userScrolledUp = true;
+                    if (scrollBtn) scrollBtn.classList.remove('hidden');
+                }
+            }, { passive: true });
+
+            // Touch gesture support for mobile/tablet
+            let touchStartY = 0;
+            messagesDiv.addEventListener('touchstart', (e) => {
+                if (e.touches.length > 0) touchStartY = e.touches[0].clientY;
+            }, { passive: true });
+
+            messagesDiv.addEventListener('touchmove', (e) => {
+                if (e.touches.length > 0) {
+                    const deltaY = e.touches[0].clientY - touchStartY;
+                    if (deltaY > 0) { // user swiping down to scroll up
+                        userScrolledUp = true;
+                        if (scrollBtn) scrollBtn.classList.remove('hidden');
+                    }
+                }
+            }, { passive: true });
         }
 
-        // Auto-scroll on new message if user is already near bottom
+        // Auto-scroll on new message ONLY if user has NOT scrolled up and is actively at the bottom
         const originalAppend = appendMessage;
         appendMessage = function(type, text, opts = {}) {
-            const isNearBottom = messagesDiv && (messagesDiv.scrollHeight - messagesDiv.scrollTop - messagesDiv.clientHeight < 150);
             originalAppend(type, text, opts);
-            if (isNearBottom) {
-                setTimeout(() => scrollToBottom(false), 50);
+            // If user scrolled up to read earlier logs, NEVER drag them down!
+            if (userScrolledUp) return;
+
+            if (messagesDiv && messagesDiv.clientHeight > 0) {
+                const distanceToBottom = messagesDiv.scrollHeight - messagesDiv.scrollTop - messagesDiv.clientHeight;
+                if (distanceToBottom < 60) {
+                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                }
             }
         };
 
