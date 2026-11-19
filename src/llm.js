@@ -10,6 +10,16 @@ export class LLMClient {
             apiKey: process.env.OPENROUTER_API_KEY,
         });
         this.model = 'openai/gpt-oss-120b';
+
+        if (process.env.API) {
+            this.geminiClient = new OpenAI({
+                baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
+                apiKey: process.env.API,
+                timeout: 120000,
+                maxRetries: 2,
+            });
+        }
+
         const docPromptPath = path.join(process.cwd(), 'docs', 'system_prompt.txt');
         const srcPromptPath = path.join(process.cwd(), 'src', 'system_prompt.txt');
         this.systemPrompt = fs.existsSync(docPromptPath)
@@ -21,12 +31,14 @@ export class LLMClient {
         return await pRetry(async () => {
             try {
                 if (process.env.API) {
-                    console.log("Attempting to use Gemini API...");
-                    const geminiClient = new OpenAI({
+                    console.log("Attempting to use Gemini API (gemini-flash-lite-latest)...");
+                    const client = this.geminiClient || new OpenAI({
                         baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
                         apiKey: process.env.API,
+                        timeout: 120000,
+                        maxRetries: 2,
                     });
-                    const response = await geminiClient.chat.completions.create({
+                    const response = await client.chat.completions.create({
                         model: "gemini-flash-lite-latest",
                         messages: [
                             { role: "system", content: this.systemPrompt },
@@ -38,26 +50,36 @@ export class LLMClient {
                     throw new Error("Gemini API key not configured in .env");
                 }
             } catch (error) {
-                console.log(`Gemini API failed or not configured (${error.message}). Falling back to OpenRouter...`);
-                const response = await this.openai.chat.completions.create({
-                    model: this.model,
-                    messages: [
-                        {
-                            role: "system",
-                            content: this.systemPrompt
-                        },
-                        {
-                            role: "user",
-                            content: prompt
-                        }
-                    ]
-                });
-                return response.choices[0].message.content.trim();
+                console.log(`Gemini API failed or not configured (${error.message}). Attempting OpenRouter fallback...`);
+                try {
+                    const response = await this.openai.chat.completions.create({
+                        model: this.model,
+                        messages: [
+                            {
+                                role: "system",
+                                content: this.systemPrompt
+                            },
+                            {
+                                role: "user",
+                                content: prompt
+                            }
+                        ]
+                    });
+                    return response.choices[0].message.content.trim();
+                } catch (openRouterError) {
+                    console.warn(`[LLM] OpenRouter fallback unavailable (${openRouterError.message}). Retrying Gemini with backoff...`);
+                    throw error;
+                }
             }
         }, {
-            retries: 3,
+            retries: 4,
+            factor: 2,
+            minTimeout: 3000,
+            maxTimeout: 15000,
+            randomize: true,
             onFailedAttempt: error => {
-                console.log(`LLM attempt ${error.attemptNumber} failed. There are ${error.retriesLeft} retries left.`);
+                const delaySec = Math.round(Math.min(15000, 3000 * Math.pow(2, error.attemptNumber - 1)) / 1000);
+                console.log(`LLM attempt ${error.attemptNumber} failed (${error.message}). Backing off ~${delaySec}s before retry (${error.retriesLeft} retries left)...`);
             }
         });
     }
@@ -100,7 +122,7 @@ CRITICAL DESIGN & AESTHETIC PRINCIPLES (MUST FOLLOW STRICTLY):
    - ZERO HERO COLLISION: The Announcement Bar and Header must sit naturally in normal document flow BEFORE the Hero section. Never use negative margins ('-mt-...'), 'top-[37px]', or absolute positioning that forces the Hero section underneath the navigation bar.
    - FLAWLESS MOBILE DRAWER & BACKDROP OVERLAY:
      * Mobile Backdrop: Always include '<div id="menu-backdrop" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[90] hidden transition-opacity duration-300"></div>'.
-     * Mobile Drawer: Structure with 'fixed top-11 sm:top-12 bottom-0 right-0 z-[100] w-full max-w-xs sm:max-w-sm bg-[#09090b] border-l border-zinc-800 rounded-tl-2xl p-6 pt-5 flex flex-col justify-between transform translate-x-full transition-transform duration-300 lg:hidden shadow-2xl overflow-y-auto' (leave clean breathing room below top announcement banner with 'top-11 sm:top-12' and 'rounded-tl-2xl' corner).
+     * Mobile Drawer: Structure with 'fixed inset-y-0 right-0 z-[100] w-full max-w-xs sm:max-w-sm bg-[#09090b] border-l border-zinc-800 p-6 pt-5 flex flex-col justify-between transform translate-x-full transition-transform duration-300 ease-in-out lg:hidden shadow-2xl overflow-y-auto' (full-height off-canvas drawer anchored cleanly to the right edge with smooth slide-in).
      * Z-INDEX HIERARCHY: Mobile Drawer (z-[100]) > Backdrop Overlay (z-[90]) > Sticky Header (z-40) > Sticky Mobile Bottom Bar (z-40). This guarantees that when the mobile menu is opened, the drawer sits cleanly on top of BOTH the announcement bar and the bottom action bar with ZERO overlapping or clipping!
      * Body Scroll Lock: When the drawer is opened, JS must add 'overflow-hidden' to body and reveal the backdrop; when closed, remove 'overflow-hidden' and hide backdrop.
 
@@ -162,12 +184,14 @@ CRITICAL DESIGN & AESTHETIC PRINCIPLES (MUST FOLLOW STRICTLY):
         return await pRetry(async () => {
             try {
                 if (process.env.API) {
-                    console.log("[LLM] Generating website code using Gemini API...");
-                    const geminiClient = new OpenAI({
+                    console.log("[LLM] Generating website code using Gemini API (gemini-flash-lite-latest)...");
+                    const client = this.geminiClient || new OpenAI({
                         baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
                         apiKey: process.env.API,
+                        timeout: 150000,
+                        maxRetries: 2,
                     });
-                    const response = await geminiClient.chat.completions.create({
+                    const response = await client.chat.completions.create({
                         model: "gemini-flash-lite-latest",
                         messages: [
                             { role: "system", content: coderSystemPrompt },
@@ -179,20 +203,30 @@ CRITICAL DESIGN & AESTHETIC PRINCIPLES (MUST FOLLOW STRICTLY):
                     throw new Error("Gemini API key not configured in .env");
                 }
             } catch (error) {
-                console.log(`[LLM] Gemini API code generation failed (${error.message}). Falling back to OpenRouter...`);
-                const response = await this.openai.chat.completions.create({
-                    model: this.model,
-                    messages: [
-                        { role: "system", content: coderSystemPrompt },
-                        { role: "user", content: prompt }
-                    ]
-                });
-                return response.choices[0].message.content.trim();
+                console.log(`[LLM] Gemini API code generation failed (${error.message}). Attempting OpenRouter fallback...`);
+                try {
+                    const response = await this.openai.chat.completions.create({
+                        model: this.model,
+                        messages: [
+                            { role: "system", content: coderSystemPrompt },
+                            { role: "user", content: prompt }
+                        ]
+                    });
+                    return response.choices[0].message.content.trim();
+                } catch (openRouterError) {
+                    console.warn(`[LLM] OpenRouter fallback unavailable (${openRouterError.message}). Retrying Gemini with backoff...`);
+                    throw error;
+                }
             }
         }, {
-            retries: 3,
+            retries: 4,
+            factor: 2,
+            minTimeout: 5000,
+            maxTimeout: 20000,
+            randomize: true,
             onFailedAttempt: error => {
-                console.log(`Code generation attempt ${error.attemptNumber} failed. There are ${error.retriesLeft} retries left.`);
+                const delaySec = Math.round(Math.min(20000, 5000 * Math.pow(2, error.attemptNumber - 1)) / 1000);
+                console.log(`[LLM] Code generation attempt ${error.attemptNumber} failed (${error.message}). Backing off ~${delaySec}s before retry (${error.retriesLeft} retries left)...`);
             }
         });
     }

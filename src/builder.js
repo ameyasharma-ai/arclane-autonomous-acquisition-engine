@@ -601,8 +601,7 @@ export class WebsiteBuilder {
                      .replace(/\b(?:lg:|xl:|2xl:)?gap-[0-9]+\b/g, '')
                      .replace(/\bpx-[0-9]+\b/g, '')
                      .replace(/\b(?:lg:)?px-[0-9]+\b/g, '')
-                     .replace(/\s+-0\b/g, '')
-                     .replace(/\b-0\b/g, '');
+                     ;
                 if (!c.includes('mx-auto')) c += ' mx-auto';
                 if (!c.includes('justify-center')) c += ' justify-center';
                 if (!c.includes('shrink-0')) c += ' shrink-0';
@@ -694,20 +693,60 @@ export class WebsiteBuilder {
             return `${updatedOpenTag}${cleanContent}${closeTag}`;
         });
 
-        // 3. Enforce mobile menu drawer styling: top-11 sm:top-12, z-[100], rounded-tl-2xl, p-6 pt-5
+        // 3. Enforce mobile menu drawer styling: full-height off-canvas drawer (inset-y-0 right-0, z-[100])
         html = html.replace(
-            /<div\s+[^>]*id=["']mobile-menu["'][^>]*class=["']([^"']*)["'][^>]*>/gi,
-            (match, classes) => {
+            /<div\s+[^>]*id=["'](mobile-(?:menu|drawer))["'][^>]*class=["']([^"']*)["'][^>]*>/gi,
+            (match, idName, classes) => {
                 const isLight = html.includes('bg-[#FAF9F6]') || html.includes('bg-[#FFFDF9]');
-                const drawerClasses = `fixed top-11 sm:top-12 bottom-0 right-0 z-[100] w-full max-w-xs sm:max-w-sm ${isLight ? 'bg-[#FAF9F6] border-l border-t border-[#D4AF37]/30 text-[#1A1A1A]' : 'bg-[#09090b] border-l border-t border-zinc-800 text-white'} p-6 pt-5 flex flex-col justify-between transform translate-x-full transition-transform duration-300 lg:hidden shadow-2xl overflow-y-auto rounded-tl-2xl`;
-                return `<div id="mobile-menu" class="${drawerClasses}">`;
+                let c = classes;
+                c = c.replace(/\b(?:top-11|top-12|top-14|top-16)\b/g, '');
+                c = c.replace(/\bsm:(?:top-11|top-12|top-14|top-16)\b/g, '');
+                c = c.replace(/\b(?:bottom|right)\b(?!\S|-)/g, '');
+                c = c.replace(/\b(?:bottom-0|right-0|inset-y-0|fixed)\b/g, '');
+                c = c.replace(/\brounded-(?:tl|l|tr|r)-[a-z0-9]+\b/g, '');
+                c = c.replace(/\bz-\[[^\]]*\]/g, '');
+                c = c.replace(/\bz-[0-9]+\b/g, '');
+                c = c.replace(/\btranslate-x-full\b/g, '');
+                c = c.replace(/\btransform\b/g, '');
+                c = c.replace(/\btransition(?:-[a-z0-9-]+)?\b/g, '');
+                c = c.replace(/\bduration-[0-9]+\b/g, '');
+                c = c.replace(/\bease-[a-z-]+\b/g, '');
+                c = c.replace(/\blg:hidden\b/g, '');
+                c = c.replace(/\s+/g, ' ').trim();
+
+                const drawerTheme = isLight 
+                    ? 'bg-[#FAF9F6] border-l border-[#D4AF37]/30 text-[#1A1A1A]' 
+                    : 'bg-[#09090b] border-l border-zinc-800 text-white';
+
+                const drawerClasses = `fixed inset-y-0 right-0 z-[100] w-full max-w-xs sm:max-w-sm ${drawerTheme} ${c} p-6 pt-5 flex flex-col justify-between shadow-2xl overflow-y-auto transform translate-x-full transition-transform duration-300 ease-in-out lg:hidden`;
+
+                const seen = new Set();
+                const deduplicated = drawerClasses.split(/\s+/).filter(token => {
+                    if (!token || token === '-' || seen.has(token)) return false;
+                    seen.add(token);
+                    return true;
+                }).join(' ');
+
+                return `<div id="${idName}" class="${deduplicated}">`;
             }
         );
 
-        // 4. Ensure backdrop overlay exists
-        if ((html.includes('id="mobile-menu"') || html.includes('id="mobile-drawer"')) && !html.includes('id="menu-backdrop"')) {
-            const backdropHtml = `\n    <!-- Mobile Menu Backdrop Overlay -->\n    <div id="menu-backdrop" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[90] hidden transition-opacity duration-300"></div>\n`;
-            html = html.replace(/(<div\s+[^>]*id=["']mobile-(?:menu|drawer)["'])/i, `${backdropHtml}$1`);
+        // 4. Ensure backdrop overlay exists and has fixed inset-0
+        if (html.includes('id="mobile-menu"') || html.includes('id="mobile-drawer"')) {
+            if (!html.includes('id="menu-backdrop"')) {
+                const backdropHtml = `\n    <!-- Mobile Menu Backdrop Overlay -->\n    <div id="menu-backdrop" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[90] hidden transition-opacity duration-300"></div>\n`;
+                html = html.replace(/(<div\s+[^>]*id=["']mobile-(?:menu|drawer)["'])/i, `${backdropHtml}$1`);
+            } else {
+                html = html.replace(
+                    /(<div\s+[^>]*id=["']menu-backdrop["'][^>]*class=["'])([^"']*)(["'][^>]*>)/gi,
+                    (m, p1, cls, p3) => {
+                        let c = cls.replace(/\bfixed\s+inset\b(?!\S|-)/g, 'fixed inset-0');
+                        if (!c.includes('inset-0')) c = `fixed inset-0 ${c}`;
+                        if (!c.includes('z-[90]')) c = `${c} z-[90]`;
+                        return `${p1}${c.replace(/\s+/g, ' ').trim()}${p3}`;
+                    }
+                );
+            }
         }
 
         // 5. Card & Section Padding Normalization for Mobile Viewports

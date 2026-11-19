@@ -18,7 +18,7 @@ export class PipelineRunner {
         this.isProcessing = false;
         this.isAborted = false;
         // Concurrent background workers (2 parallel builds while scraper streams ahead)
-        this.leadQueue = new PQueue({ concurrency: 2 });
+        this.leadQueue = new PQueue({ concurrency: 1 });
         this.activeSender = null;
     }
 
