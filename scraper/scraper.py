@@ -46,6 +46,17 @@ PAGE_TIMEOUT = CONFIG["scraper"].get("page_load_timeout_ms", 90000)
 ELEM_TIMEOUT = CONFIG["scraper"].get("element_wait_timeout_ms", 15000)
 GSPREAD_RETRIES = CONFIG["scraper"].get("gspread_max_retries", 5)
 FEED_SCROLL_LIMIT = CONFIG["scraper"].get("feed_scroll_limit", 300)
+FALLBACK_MODELS = CONFIG.get("llm", {}).get("fallback_models", [
+    "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "particle-ai/particle-1:free",
+    "baidu/ernie-5.5-flash-preview:free",
+    "cohere/north-mini-code:free",
+    "inclusionai/ling-3.2-flash:free",
+    "nvidia/nemotron-3.5-super-vl:free",
+    "liquid/lfm-3-1.7b:free",
+    "google/gemma-4-31b-it:free",
+    "openrouter/free"
+])
 
 
 import json
@@ -61,15 +72,7 @@ async def interruptible_sleep(seconds):
     return True
 
 async def extract_city_state_llm(address):
-    models = [
-        "openai/gpt-oss-120b:free",
-        "tencent/hy3-preview:free",
-        "cognitivecomputations/dolphin-mistral-24b-venice-edition:free",
-        "nousresearch/hermes-3-llama-3.1-405b:free",
-        "liquid/lfm-2.5-1.2b-instruct:free",
-        "qwen/qwen3-coder:free",
-        "nvidia/nemotron-nano-9b-v2:free"
-    ]
+    models = FALLBACK_MODELS
     
     try:
         with open("prompts/city_state_extractor.txt", "r", encoding="utf-8") as f:
@@ -119,15 +122,7 @@ async def generate_review_overview(reviews_text):
     if not reviews_text or len(reviews_text) < 10:
         return ""
         
-    models = [
-        "openai/gpt-oss-120b:free",
-        "cognitivecomputations/dolphin-mistral-24b-venice-edition:free",
-        "nousresearch/hermes-3-llama-3.1-405b:free",
-        "qwen/qwen3-coder:free",
-        "nvidia/nemotron-nano-9b-v2:free",
-        "liquid/lfm-2.5-1.2b-instruct:free",
-        "tencent/hy3-preview:free"
-    ]
+    models = FALLBACK_MODELS
 
     try:
         with open("prompts/review_analysis.txt", "r", encoding="utf-8") as f:
@@ -242,15 +237,7 @@ async def clean_lead_with_llm(lead_dict):
         "contents": [{"parts": [{"text": prompt}]}]
     }
 
-    models = [
-        "openai/gpt-oss-120b:free",
-        "cognitivecomputations/dolphin-mistral-24b-venice-edition:free",
-        "nousresearch/hermes-3-llama-3.1-405b:free",
-        "qwen/qwen3-coder:free",
-        "nvidia/nemotron-nano-9b-v2:free",
-        "liquid/lfm-2.5-1.2b-instruct:free",
-        "tencent/hy3-preview:free"
-    ]
+    models = FALLBACK_MODELS
 
     headers = {
         "Authorization": f"Bearer {openrouter_key}",

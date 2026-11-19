@@ -44,7 +44,7 @@ The Arclane Autonomous Acquisition Engine is an end-to-end sales prospecting, bu
    ```
 
 3. **Existing Integrations & Dependencies:**
-   - **AI/LLM:** Google Gemini (`gemini-flash-lite-latest` via Google generative language OpenAI-compatible API) with fallback to OpenRouter (`openai/gpt-oss-120b`).
+   - **AI/LLM:** Google Gemini (`gemini-flash-lite-latest` via Google generative language OpenAI-compatible API) with resilient fallback to top verified OpenRouter `:free` models (`nvidia/nemotron-3-ultra-550b-a55b:free`, `particle-ai/particle-1:free`, `baidu/ernie-5.5-flash-preview:free`, `cohere/north-mini-code:free`, etc.).
    - **CRM:** Google Sheets API (`googleapis`, `google-spreadsheet`, `gspread`) with service account credentials (`config/service_account.json`).
    - **Browser Automation:** Playwright Chromium (used for Google Maps scraping, web scraping, and WhatsApp Web automation).
    - **Deployment:** Vercel CLI (`npx -y vercel --prod --yes`).

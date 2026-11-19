@@ -202,14 +202,15 @@ LLM_CONFIG = CONFIG.get("llm", {})
 PRIMARY_PROVIDER = LLM_CONFIG.get("primary_provider", "gemini")
 PRIMARY_MODEL = LLM_CONFIG.get("primary_model", "gemini-flash-lite-latest")
 FALLBACK_MODELS = LLM_CONFIG.get("fallback_models", [
-    "nvidia/nemotron-nano-9b-v2:free",
-    "openai/gpt-oss-120b:free",
-    "openrouter/free",
-    "tencent/hy3-preview:free",
-    "cognitivecomputations/dolphin-mistral-24b-venice-edition:free",
-    "nousresearch/hermes-3-llama-3.1-405b:free",
-    "liquid/lfm-2.5-1.2b-instruct:free",
-    "qwen/qwen3-coder:free"
+    "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "particle-ai/particle-1:free",
+    "baidu/ernie-5.5-flash-preview:free",
+    "cohere/north-mini-code:free",
+    "inclusionai/ling-3.2-flash:free",
+    "nvidia/nemotron-3.5-super-vl:free",
+    "liquid/lfm-3-1.7b:free",
+    "google/gemma-4-31b-it:free",
+    "openrouter/free"
 ])
 GEMINI_KEYS_ENV = LLM_CONFIG.get("gemini_keys_env", ["GEMINI_REVIEWS_API_KEY", "GEMINI_REVIEWS_CLEANER_KEY", "API"])
 OPENROUTER_KEYS_ENV = LLM_CONFIG.get("openrouter_keys_env", ["OPENROUTER_API_KEY", "OPENROUTER_API_KEY_AGENT_SMITH", "OPENROUTER_API_KEY_CLEANER"])

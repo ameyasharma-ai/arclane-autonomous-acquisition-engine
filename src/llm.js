@@ -9,7 +9,19 @@ export class LLMClient {
             baseURL: "https://openrouter.ai/api/v1",
             apiKey: process.env.OPENROUTER_API_KEY,
         });
-        this.model = 'openai/gpt-oss-120b';
+        // Top-ranked active free OpenRouter models (Verified live via OpenRouter API)
+        this.fallbackModels = [
+            'nvidia/nemotron-3-ultra-550b-a55b:free',
+            'particle-ai/particle-1:free',
+            'baidu/ernie-5.5-flash-preview:free',
+            'cohere/north-mini-code:free',
+            'inclusionai/ling-3.2-flash:free',
+            'nvidia/nemotron-3.5-super-vl:free',
+            'liquid/lfm-3-1.7b:free',
+            'google/gemma-4-31b-it:free',
+            'openrouter/free'
+        ];
+        this.model = this.fallbackModels[0];
 
         if (process.env.API) {
             this.geminiClient = new OpenAI({
@@ -25,6 +37,27 @@ export class LLMClient {
         this.systemPrompt = fs.existsSync(docPromptPath)
             ? fs.readFileSync(docPromptPath, 'utf-8')
             : (fs.existsSync(srcPromptPath) ? fs.readFileSync(srcPromptPath, 'utf-8') : '');
+    }
+
+    async callOpenRouterWithFallback(messages) {
+        let lastError = null;
+        for (const model of this.fallbackModels) {
+            try {
+                console.log(`[LLM] Trying OpenRouter fallback model: ${model}...`);
+                const response = await this.openai.chat.completions.create({
+                    model,
+                    messages
+                });
+                if (response?.choices?.[0]?.message?.content) {
+                    console.log(`[LLM] OpenRouter fallback succeeded with model: ${model}`);
+                    return response.choices[0].message.content.trim();
+                }
+            } catch (err) {
+                lastError = err;
+                console.warn(`[LLM] OpenRouter model ${model} failed (${err.message}). Trying next fallback model...`);
+            }
+        }
+        throw lastError || new Error("All OpenRouter fallback models failed");
     }
 
     async generateSummary(prompt) {
@@ -52,20 +85,10 @@ export class LLMClient {
             } catch (error) {
                 console.log(`Gemini API failed or not configured (${error.message}). Attempting OpenRouter fallback...`);
                 try {
-                    const response = await this.openai.chat.completions.create({
-                        model: this.model,
-                        messages: [
-                            {
-                                role: "system",
-                                content: this.systemPrompt
-                            },
-                            {
-                                role: "user",
-                                content: prompt
-                            }
-                        ]
-                    });
-                    return response.choices[0].message.content.trim();
+                    return await this.callOpenRouterWithFallback([
+                        { role: "system", content: this.systemPrompt },
+                        { role: "user", content: prompt }
+                    ]);
                 } catch (openRouterError) {
                     console.warn(`[LLM] OpenRouter fallback unavailable (${openRouterError.message}). Retrying Gemini with backoff...`);
                     throw error;
@@ -205,14 +228,10 @@ CRITICAL DESIGN & AESTHETIC PRINCIPLES (MUST FOLLOW STRICTLY):
             } catch (error) {
                 console.log(`[LLM] Gemini API code generation failed (${error.message}). Attempting OpenRouter fallback...`);
                 try {
-                    const response = await this.openai.chat.completions.create({
-                        model: this.model,
-                        messages: [
-                            { role: "system", content: coderSystemPrompt },
-                            { role: "user", content: prompt }
-                        ]
-                    });
-                    return response.choices[0].message.content.trim();
+                    return await this.callOpenRouterWithFallback([
+                        { role: "system", content: coderSystemPrompt },
+                        { role: "user", content: prompt }
+                    ]);
                 } catch (openRouterError) {
                     console.warn(`[LLM] OpenRouter fallback unavailable (${openRouterError.message}). Retrying Gemini with backoff...`);
                     throw error;

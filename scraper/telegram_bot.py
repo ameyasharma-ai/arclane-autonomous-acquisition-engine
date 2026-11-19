@@ -30,6 +30,17 @@ except Exception as e:
 
 AGENT_HISTORY_LIMIT = CONFIG["telegram_bot"].get("agent_smith_history_limit", 5)
 AGENT_TIMEOUT = CONFIG["telegram_bot"].get("agent_smith_timeout_seconds", 180)
+FALLBACK_MODELS = CONFIG.get("llm", {}).get("fallback_models", [
+    "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "particle-ai/particle-1:free",
+    "baidu/ernie-5.5-flash-preview:free",
+    "cohere/north-mini-code:free",
+    "inclusionai/ling-3.2-flash:free",
+    "nvidia/nemotron-3.5-super-vl:free",
+    "liquid/lfm-3-1.7b:free",
+    "google/gemma-4-31b-it:free",
+    "openrouter/free"
+])
 
 import re
 import datetime
@@ -61,25 +72,30 @@ async def ask_agent_smith(previous_command, extracted_count):
         "Content-Type": "application/json"
     }
     
-    payload = {
-        "model": "openai/gpt-oss-120b:free",
-        "messages": [{"role": "user", "content": prompt}]
-    }
-    
     try:
         async with aiohttp.ClientSession() as session:
-            async with session.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload, timeout=40) as response:
-                if response.status == 200:
-                    data = await response.json()
-                    if "choices" in data and len(data["choices"]) > 0:
-                        content = data["choices"][0]["message"]["content"]
-                        match = re.search(r'(/scrape\s+--query\s+.*)', content)
-                        if match:
-                            next_cmd = match.group(1).strip()
-                            # Enforce preservation of the --no_website flag
-                            if "--no_website" in previous_command and "--no_website" not in next_cmd:
-                                next_cmd += " --no_website"
-                            return next_cmd
+            for model in FALLBACK_MODELS:
+                payload = {
+                    "model": model,
+                    "messages": [{"role": "user", "content": prompt}]
+                }
+                try:
+                    async with session.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload, timeout=40) as response:
+                        if response.status == 200:
+                            data = await response.json()
+                            if "choices" in data and len(data["choices"]) > 0:
+                                content = data["choices"][0]["message"]["content"]
+                                match = re.search(r'(/scrape\s+--query\s+.*)', content)
+                                if match:
+                                    next_cmd = match.group(1).strip()
+                                    # Enforce preservation of the --no_website flag
+                                    if "--no_website" in previous_command and "--no_website" not in next_cmd:
+                                        next_cmd += " --no_website"
+                                    return next_cmd
+                        elif response.status == 429:
+                            await asyncio.sleep(2)
+                except Exception as model_err:
+                    print(f"Agent Smith ({model}) Error: {model_err}")
     except Exception as e:
         print("Agent Smith Error:", e)
         
