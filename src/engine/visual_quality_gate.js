@@ -230,12 +230,91 @@ export class VisualQualityGate {
                 // ========================================================
                 // 3. Floating Badge & Absolute Positioning Collision Guard
                 // ========================================================
-                const cards = Array.from(document.querySelectorAll('.rounded-3xl, .rounded-2xl, .rounded-xl, .group, section'));
-                cards.forEach(card => {
-                    const img = card.querySelector('img');
-                    if (!img) return;
+                // Scope strictly to individual leaf cards (NEVER sections, main, forms, or parent grids)
+                const allCardElements = Array.from(document.querySelectorAll('.rounded-3xl, .rounded-2xl, .rounded-xl, .group'));
+                const leafCards = allCardElements.filter(c => {
+                    if (['SECTION', 'MAIN', 'BODY', 'FORM', 'HEADER', 'FOOTER', 'NAV'].includes(c.tagName)) return false;
+                    // Discard containers that hold other cards (e.g. grid wrappers)
+                    const innerCards = c.querySelectorAll('.rounded-3xl, .rounded-2xl, .rounded-xl, .group');
+                    if (innerCards.length > 0) return false;
+                    // Must have an image and card content
+                    return c.querySelector('img') && c.querySelector('h3, h4, p, a, button');
+                });
 
-                    // Locate any absolute badge or promo overlay inside this card, excluding svg and background pattern divs
+                // First pass: Detect and redistribute jammed/hijacked badges across sibling cards
+                // e.g. If one leaf card's photo container has > 1 badges while sibling cards in the same parent grid have 0 badges
+                const cardParents = new Set(leafCards.map(c => c.parentElement).filter(Boolean));
+                cardParents.forEach(parent => {
+                    const siblingCards = leafCards.filter(c => c.parentElement === parent && c.querySelectorAll('img').length === 1);
+                    if (siblingCards.length > 1) {
+                        const jammedCard = siblingCards.find(c => {
+                            const img = c.querySelector('img');
+                            const pw = img ? img.parentElement : null;
+                            if (!pw) return false;
+                            const badges = Array.from(pw.querySelectorAll('.absolute')).filter(b => b.tagName === 'SPAN' || Array.from(b.classList).some(cl => cl.startsWith('rounded-')));
+                            return badges.length > 1;
+                        });
+                        const emptyCards = siblingCards.filter(c => {
+                            const img = c.querySelector('img');
+                            const pw = img ? img.parentElement : null;
+                            if (!pw) return false;
+                            const badges = Array.from(pw.querySelectorAll('.absolute')).filter(b => b.tagName === 'SPAN' || Array.from(b.classList).some(cl => cl.startsWith('rounded-')));
+                            return badges.length === 0;
+                        });
+
+                        if (jammedCard && emptyCards.length > 0) {
+                            const jammedImg = jammedCard.querySelector('img');
+                            const jammedPw = jammedImg.parentElement;
+                            const jammedBadges = Array.from(jammedPw.querySelectorAll('.absolute')).filter(b => b.tagName === 'SPAN' || Array.from(b.classList).some(cl => cl.startsWith('rounded-')));
+                            
+                            // Leave badge 0 on jammedCard, redistribute subsequent badges to emptyCards
+                            let badgeIdx = 1;
+                            emptyCards.forEach(targetCard => {
+                                if (badgeIdx < jammedBadges.length) {
+                                    const b = jammedBadges[badgeIdx];
+                                    const targetImg = targetCard.querySelector('img');
+                                    let targetPw = targetImg.parentElement;
+                                    if (targetPw === targetCard) {
+                                        targetPw = document.createElement('div');
+                                        targetPw.className = 'relative w-full rounded-2xl overflow-hidden';
+                                        targetImg.parentNode.insertBefore(targetPw, targetImg);
+                                        targetPw.appendChild(targetImg);
+                                    } else {
+                                        targetPw.classList.add('relative');
+                                    }
+                                    // Strip conflicting coordinate classes
+                                    Array.from(b.classList).forEach(cl => {
+                                        if (/^-?(?:top|bottom|left|right)-[0-9.]+/.test(cl) || /^-(?:mt|mb|ml|mr)-/.test(cl)) {
+                                            b.classList.remove(cl);
+                                        }
+                                    });
+                                    b.classList.add('top-3', 'right-3');
+                                    targetPw.appendChild(b);
+                                    logs.push(`Redistributed hijacked badge "${b.innerText.trim()}" to sibling card`);
+                                    badgeIdx++;
+                                }
+                            });
+                        }
+                    }
+                });
+
+                // Second pass: Clean coordinate classes and collision-free placement for each leaf card
+                leafCards.forEach(card => {
+                    const imgs = card.querySelectorAll('img');
+                    if (imgs.length !== 1) return;
+                    const img = imgs[0];
+
+                    let photoWrapper = img.parentElement;
+                    if (photoWrapper === card) {
+                        photoWrapper = document.createElement('div');
+                        photoWrapper.className = 'relative w-full rounded-2xl overflow-hidden';
+                        img.parentNode.insertBefore(photoWrapper, img);
+                        photoWrapper.appendChild(img);
+                    } else {
+                        photoWrapper.classList.add('relative');
+                    }
+
+                    // Locate badges belonging strictly to this card
                     const badges = Array.from(card.querySelectorAll('.absolute')).filter(b => {
                         if (b.closest('svg')) return false;
                         if (b.classList.contains('pointer-events-none')) return false;
@@ -247,58 +326,105 @@ export class VisualQualityGate {
                         const isBadge = b.tagName === 'SPAN' || isPromo || Array.from(b.classList).some(c => c.startsWith('rounded-'));
                         return isBadge;
                     });
-                    const hasTextContent = card.querySelector('h3, h4, p, a, button');
 
-                    if (badges.length > 0 && hasTextContent) {
-                        // Scope badges to photoWrapper so they never touch card text / footers
-                        let photoWrapper = img.parentElement;
-                        if (photoWrapper === card) {
-                            photoWrapper = document.createElement('div');
-                            photoWrapper.className = 'relative w-full rounded-2xl overflow-hidden';
-                            img.parentNode.insertBefore(photoWrapper, img);
-                            photoWrapper.appendChild(img);
-                        } else {
-                            photoWrapper.classList.add('relative');
-                        }
+                    if (badges.length > 0) {
+                        // Purge any conflicting coordinate classes on all badges
+                        badges.forEach(b => {
+                            const classes = Array.from(b.classList);
+                            const topClasses = classes.filter(c => /^top-[0-9.]+$/.test(c));
+                            const bottomClasses = classes.filter(c => /^bottom-[0-9.]+$/.test(c));
+                            const leftClasses = classes.filter(c => /^left-[0-9.]+$/.test(c));
+                            const rightClasses = classes.filter(c => /^right-[0-9.]+$/.test(c));
 
-                        // Re-parent all badges strictly inside photoWrapper and separate coordinates to prevent collision
-                        let hasTopLeft = false;
-                        let hasBottomRight = false;
+                            // If multiple top/bottom or left/right classes exist, strip all coordinates and re-apply cleanly
+                            if (topClasses.length + bottomClasses.length > 1 || leftClasses.length + rightClasses.length > 1) {
+                                classes.forEach(c => {
+                                    if (/^-?(?:top|bottom|left|right)-[0-9.]+/.test(c) || /^-(?:mt|mb|ml|mr)-/.test(c)) {
+                                        b.classList.remove(c);
+                                    }
+                                });
+                                b.classList.add('top-3', 'right-3');
+                                logs.push('Resolved conflicting coordinate classes on badge: ' + b.innerText.trim());
+                            }
+                        });
+
+                        // Ensure badges are inside photoWrapper without collision
+                        let occupied = { 'top-right': false, 'top-left': false, 'bottom-right': false, 'bottom-left': false };
+                        badges.forEach(b => {
+                            if (b.parentElement === photoWrapper) {
+                                const cls = Array.from(b.classList);
+                                if (cls.some(c => c.includes('top-') && c.includes('right-'))) occupied['top-right'] = true;
+                                else if (cls.some(c => c.includes('top-') && c.includes('left-'))) occupied['top-left'] = true;
+                                else if (cls.some(c => c.includes('bottom-') && c.includes('right-'))) occupied['bottom-right'] = true;
+                                else if (cls.some(c => c.includes('bottom-') && c.includes('left-'))) occupied['bottom-left'] = true;
+                            }
+                        });
 
                         badges.forEach(b => {
-                            Array.from(b.classList).forEach(c => {
-                                if (/^-(?:mt|mb|top|bottom)/.test(c)) {
-                                    b.classList.remove(c);
-                                }
-                            });
                             if (b.parentElement !== photoWrapper) {
-                                b.classList.remove('top-4', 'top-6', 'bottom-4', 'bottom-6', 'left-4', 'left-6', 'right-4', 'right-6', 'top-8', 'bottom-8', 'bottom-0', '-bottom-4', '-bottom-6');
-                                
-                                const textLower = (b.innerText || '').toLowerCase();
-                                const isStatusChip = textLower.includes('open') || textLower.includes('timing') || textLower.includes('closed') || b.querySelector('.animate-ping, .animate-pulse');
-                                const isPromoOrBadge = !isStatusChip || textLower.includes('special') || textLower.includes('premier') || textLower.includes('rated') || textLower.includes('award') || textLower.includes('signature') || textLower.includes('featured') || textLower.includes('best') || textLower.includes('anniversary') || textLower.includes('deal') || textLower.includes('offer');
+                                Array.from(b.classList).forEach(c => {
+                                    if (/^-?(?:top|bottom|left|right)-[0-9.]+/.test(c) || /^-(?:mt|mb|ml|mr)-/.test(c)) {
+                                        b.classList.remove(c);
+                                    }
+                                });
 
-                                if (isPromoOrBadge && !hasTopLeft) {
-                                    b.classList.add('top-4', 'left-4');
-                                    hasTopLeft = true;
-                                } else if (isStatusChip && !hasBottomRight) {
-                                    b.classList.add('bottom-4', 'right-4');
-                                    hasBottomRight = true;
-                                } else if (!hasTopLeft) {
-                                    b.classList.add('top-4', 'left-4');
-                                    hasTopLeft = true;
-                                } else if (!hasBottomRight) {
-                                    b.classList.add('bottom-4', 'right-4');
-                                    hasBottomRight = true;
+                                if (!occupied['top-right']) {
+                                    b.classList.add('top-3', 'right-3');
+                                    occupied['top-right'] = true;
+                                } else if (!occupied['top-left']) {
+                                    b.classList.add('top-3', 'left-3');
+                                    occupied['top-left'] = true;
+                                } else if (!occupied['bottom-right']) {
+                                    b.classList.add('bottom-3', 'right-3');
+                                    occupied['bottom-right'] = true;
                                 } else {
-                                    // If both corners occupied, place in bottom-left
-                                    b.classList.add('bottom-4', 'left-4');
+                                    b.classList.add('bottom-3', 'left-3');
+                                    occupied['bottom-left'] = true;
                                 }
                                 photoWrapper.appendChild(b);
-                                logs.push('Moved floating badge inside photo container: ' + b.innerText.trim());
+                                logs.push('Moved floating badge inside leaf card photo container: ' + b.innerText.trim());
                             }
                         });
                     }
+                });
+
+                // ========================================================
+                // 3.5 Form Select & Dropdown Fluid Mobile Guard
+                // ========================================================
+                const formSelects = Array.from(document.querySelectorAll('select'));
+                formSelects.forEach(select => {
+                    select.classList.add('w-full', 'max-w-full', 'truncate');
+                    if (!select.classList.contains('appearance-none')) {
+                        select.classList.add('appearance-none');
+                    }
+                    
+                    if (!select.style.backgroundImage) {
+                        select.style.backgroundImage = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`;
+                        select.style.backgroundRepeat = 'no-repeat';
+                        select.style.backgroundPosition = 'right 1rem center';
+                        select.style.backgroundSize = '1.25rem';
+                        select.classList.add('pr-10');
+                    }
+
+                    const parent = select.parentElement;
+                    if (parent) {
+                        parent.classList.add('min-w-0', 'max-w-full');
+                    }
+
+                    Array.from(select.options).forEach(opt => {
+                        let text = opt.textContent.trim();
+                        if (text.length > 25) {
+                            const shortened = text
+                                .replace(/\s+(?:Session|Booking|Consultation|Package)\b/gi, '')
+                                .replace(/\s*\([^)]*\)/g, '')
+                                .trim();
+                            if (shortened.length >= 5 && shortened.length < text.length) {
+                                opt.textContent = shortened;
+                                logs.push(`Shortened verbose select option: "${text}" -> "${shortened}"`);
+                            }
+                        }
+                    });
+                    logs.push('Normalized form select for fluid mobile containment without horizontal overflow');
                 });
 
                 // ========================================================

@@ -237,6 +237,10 @@ export class WebsiteBuilder {
 - HIGH-INTENT NAVIGATION LINKS: The desktop navbar MUST include a link to '#pricing' (labeled 'Plans' or 'Pricing'). Keep nav links concise: at most 4-5 core links ('Programs' / 'Services', 'About', 'Plans' / 'Pricing', 'Gallery' / 'Facility', 'Contact'). Secondary links ('Why Us', 'Reviews', 'FAQ') must have 'hidden 2xl:inline-block'.
 - BALANCED CENTERED NAVBAR: The <nav> element MUST have 'hidden lg:flex items-center justify-center gap-3 lg:gap-4 xl:gap-6 2xl:gap-6 mx-auto px-2 lg:px-4 shrink-0'. NEVER stick <nav> directly against the brand logo or use 'mr-4/mr-6' with 'ml-auto'!
 - ACTION CTAS: The CTA buttons container MUST have 'hidden sm:flex items-center gap-2 sm:gap-3 shrink-0 flex-nowrap' (do NOT use 'ml-auto' which forces nav to stick to the brand logo). Always include Phone number CTA and WhatsApp Trial CTA with official WhatsApp green ('bg-emerald-600 hover:bg-emerald-500 text-white').
+
+## 🏷️ CARD BADGES & FORM SELECT DESIGN STANDARDS:
+- CARD BADGES: When displaying badges on cards (e.g. 'RTX 40-Series', 'PS5 4K HDR'), each card gets at most ONE badge inside its own photo container ('<div class="relative ..."><img ...><span class="absolute top-3 right-3 ...">Badge</span></div>'). NEVER stack multiple badges into one card or leave sibling cards empty!
+- FORM SELECT DROPDOWNS: All <select> elements MUST have 'w-full max-w-full appearance-none bg-no-repeat bg-[right_1rem_center] pr-10 rounded-xl truncate text-ellipsis'. Keep <option> text concise (under 24 characters, e.g. 'Pro PC Gaming', 'PS5 4K Console', 'VR Simulator', 'Party Booking') so options never overflow narrow mobile viewports.
 `;
         antigravityPrompt += navbarPromptRules;
 
@@ -870,6 +874,43 @@ export class WebsiteBuilder {
         // with gaps (e.g. 11 * 32px = 352px), overflowing narrow screens (360px-393px).
         // On mobile, items in 1-column grids must span 1 column.
         html = html.replace(/(?<![:\w-])col-span-(?:12|6|4|3|2)(?!\w)/g, 'col-span-1');
+
+        // 13B. Deterministic Form Select & Dropdown Fluid Mobile Styling
+        // Replaces native OS popups with appearance-none, inline SVG chevron, and strict parent container containment
+        html = html.replace(/(<select\b[^>]*)(>)/gi, (fullSelect, openTag, closeTag) => {
+            let s = openTag;
+            if (!s.includes('appearance-none')) {
+                s = s.replace(/(class=["'])/i, '$1appearance-none ');
+            }
+            if (!s.includes('max-w-full')) {
+                s = s.replace(/(class=["'])/i, '$1max-w-full truncate ');
+            }
+            if (!s.includes('pr-10')) {
+                s = s.replace(/(class=["'])/i, '$1pr-10 ');
+            }
+            if (!s.includes('background-image') && !s.includes('style=')) {
+                s += ` style="background-image: url('data:image/svg+xml,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'16\\' height=\\'16\\' viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'%239ca3af\\' stroke-width=\\'2\\' stroke-linecap=\\'round\\' stroke-linejoin=\\'round\\'%3E%3Cpath d=\\'m6 9 6 6 6-6\\'/%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1.25rem;"`;
+            }
+            return `${s}${closeTag}`;
+        });
+
+        // 13C. Purge Conflicting Coordinate Classes on Badges (e.g. top-3 right-3 top-4 left-4)
+        html = html.replace(/(<span\b[^>]*class=["'][^"']*\babsolute\b[^"']*["'][^>]*>)/gi, (badgeTag) => {
+            return badgeTag.replace(/(class=["'])([^"']*)(["'])/i, (m, p1, cls, p3) => {
+                const tokens = cls.split(/\s+/);
+                const tops = tokens.filter(t => /^top-\d+$/.test(t));
+                const bottoms = tokens.filter(t => /^bottom-\d+$/.test(t));
+                const lefts = tokens.filter(t => /^left-\d+$/.test(t));
+                const rights = tokens.filter(t => /^right-\d+$/.test(t));
+
+                if (tops.length + bottoms.length > 1 || lefts.length + rights.length > 1) {
+                    const filtered = tokens.filter(t => !/^-?(?:top|bottom|left|right)-\d+$/.test(t));
+                    filtered.push('top-3', 'right-3');
+                    return `${p1}${filtered.join(' ')}${p3}`;
+                }
+                return m;
+            });
+        });
 
         // 14. Deterministic Security Post-Processing (Zero-Vulnerability Guarantee)
         // A. Inject Strict Content-Security-Policy and Referrer-Policy into <head>
