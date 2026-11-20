@@ -862,19 +862,29 @@ export class WebsiteBuilder {
             html = html.replace(/(<\/head>)/i, `${outfitFontTag}\n$1`);
         }
 
-        // 12. Ensure Body and HTML have zero horizontal overflow and proper bottom clearance for mobile sticky action bar
+        // 12. Ensure Body and HTML have zero horizontal overflow; eliminate body pb-* to prevent white gap voids below dark footers
         html = html.replace(/(<body\s+[^>]*class=["'])([^"']*)(["'])/gi, (m, p1, classes, p3) => {
             let c = classes;
-            // Normalize bottom padding to pb-20 md:pb-0 (tight clearance matching the 60px sticky action bar)
-            c = c.replace(/\s*\bpb-(?:32|28|24|16)\b/g, '');
-            if (!c.includes('pb-20') && !c.includes('pb-0')) {
-                c = `pb-20 md:pb-0 ${c}`;
-            } else if (c.includes('pb-20') && !c.includes('md:pb-0') && !c.includes('lg:pb-0')) {
-                c = `${c} md:pb-0`;
-            }
+            // Strip bottom padding from <body> - bottom clearance must ALWAYS be inside <footer> so footer background extends seamlessly
+            c = c.replace(/\s*\b(?:lg:pb|pb-(?:32|28|24|20|16|12|10|8|6|4|0)|md:pb-0)\b/g, '');
             if (!c.includes('overflow-x-hidden')) c = `overflow-x-hidden ${c}`;
-            return `${p1}${c.trim()}${p3}`;
+            return `${p1}${c.replace(/\s+/g, ' ').trim()}${p3}`;
         });
+
+        // Ensure Footer has proper bottom clearance (pb-24 md:pb-12) for mobile sticky action bar
+        // This guarantees the footer's dark background extends seamlessly to the bottom edge, preventing white gap voids
+        html = html.replace(/(<footer\b[^>]*class=["'])([^"']*)(["'])/gi, (m, p1, cls, p3) => {
+            let c = cls.replace(/\s*\bpb-(?:32|28|24|20|16|12|10|8|6|4)\b/g, '');
+            if (!c.includes('pb-24')) {
+                c = `${c} pb-24 md:pb-12`;
+            }
+            return `${p1}${c.replace(/\s+/g, ' ').trim()}${p3}`;
+        });
+
+        // Fix missing coordinate suffixes (e.g. bottom left right -> inset-x-0 bottom-0, sticky top -> sticky top-0)
+        html = html.replace(/(<div\b[^>]*class=["'][^"']*fixed[^"']*)\b(?:bottom\s+left\s+right|bottom-0\s+left-0\s+right-0)\b/gi, '$1inset-x-0 bottom-0');
+        html = html.replace(/(<header\b[^>]*class=["'][^"']*sticky\s+)top\b(?!\S|-)/gi, '$1top-0');
+        html = html.replace(/(<div\b[^>]*id=["'](?:menu-backdrop|success-modal)["'][^>]*class=["'][^"']*fixed\s+)inset\b(?!\S|-)/gi, '$1inset-0');
 
         html = html.replace(/(<html\s+[^>]*class=["'])([^"']*)(["'])/gi, (m, p1, classes, p3) => {
             let c = classes;

@@ -164,7 +164,7 @@ CRITICAL DESIGN & AESTHETIC PRINCIPLES (MUST FOLLOW STRICTLY):
        2. 'WhatsApp' (wa.me) -> 'flex-1 py-3 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 whitespace-nowrap bg-emerald-600 hover:bg-emerald-500 text-white'
      * STRICTLY FORBID: Never cram a 3rd button or Cart button into the mobile sticky bottom bar! 3 buttons on 360-393px screens wrap text and look broken.
      * ZERO TEXT WRAP: Apply 'whitespace-nowrap' on both buttons.
-     * Add 'pb-24 md:pb-0' to body so page content and footer are never covered by the sticky bar.
+     * Add 'pb-24 md:pb-12' to <footer> (NEVER to <body>) so the footer's background extends cleanly to the bottom edge with ZERO white gap.
    - MOBILE CART ARCHITECTURE:
      * The Cart button MUST either live in the sticky header (with a clean shopping bag icon and notification count badge), OR appear as a floating pill ABOVE the bottom bar: 'fixed bottom-20 right-4 z-50 bg-amber-500 hover:bg-amber-400 text-black px-4 py-2.5 rounded-full shadow-2xl font-bold flex items-center gap-2 whitespace-nowrap transition-all' that updates dynamically when items are added.
 
