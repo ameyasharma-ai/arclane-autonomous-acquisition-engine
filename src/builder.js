@@ -232,7 +232,7 @@ export class WebsiteBuilder {
         let canonicalMonogram = wordsForMonogram.length >= 2 ? (wordsForMonogram[0][0] + wordsForMonogram[1][0]).toUpperCase() : cleanNameForMonogram.slice(0, 2).toUpperCase();
 
         const navbarPromptRules = `\n\n## 🧭 MANDATORY HEADER & NAVBAR DESIGN STANDARDS:
-- BRAND LOGO MONOGRAM: The logo badge square MUST display the 2-letter monogram '${canonicalMonogram}' (e.g. '<div class="w-10 h-10 rounded-xl ... font-syne font-black text-lg">${canonicalMonogram}</div>'). NEVER use an isolated single letter like 'P'!
+- BRAND LOGO MONOGRAM: The logo badge square MUST display the 2-letter monogram '${canonicalMonogram}' (e.g. '<div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-primary text-black font-outfit font-black text-base sm:text-lg tracking-tight shrink-0 flex items-center justify-center shadow-md">${canonicalMonogram}</div>'). NEVER use an isolated single letter like 'P'! NEVER use wide fonts like 'font-syne' with 'text-lg' inside a 40px box as it causes letters to bleed over the edge!
 - BRAND CONTAINER & FLUID RESPONSIVE TYPOGRAPHY: The brand logo wrapper MUST have 'flex items-center gap-2.5 sm:gap-3 group min-w-0 mr-3 lg:mr-8 flex-1 sm:flex-initial'. The brand title text MUST have 'truncate block font-extrabold text-base sm:text-lg lg:text-xl leading-tight' and subtitle MUST have 'truncate block text-[10px] sm:text-xs' so the logo naturally utilizes the available navbar space on mobile without premature truncation, while safely truncating only if excessively long!
 - HIGH-INTENT NAVIGATION LINKS: The desktop navbar MUST include a link to '#pricing' (labeled 'Plans' or 'Pricing'). Keep nav links concise: at most 4-5 core links ('Programs' / 'Services', 'About', 'Plans' / 'Pricing', 'Gallery' / 'Facility', 'Contact'). Secondary links ('Why Us', 'Reviews', 'FAQ') must have 'hidden 2xl:inline-block'.
 - BALANCED CENTERED NAVBAR: The <nav> element MUST have 'hidden lg:flex items-center justify-center gap-3 lg:gap-4 xl:gap-6 2xl:gap-6 mx-auto px-2 lg:px-4 shrink-0'. NEVER stick <nav> directly against the brand logo or use 'mr-4/mr-6' with 'ml-auto'!
@@ -594,6 +594,14 @@ export class WebsiteBuilder {
                     if (!c.includes('flex-1')) c += ' flex-1 sm:flex-initial';
                     if (!c.includes('mr-')) c += ' mr-3 lg:mr-8';
                     return `${c.replace(/\s+/g, ' ').trim()}${q}`;
+                });
+                // Ensure monogram box has proper dimensions and non-bleeding font (Outfit text-base tracking-tight)
+                b = b.replace(/(<div\b[^>]*class=["'][^"']*(?:rounded-xl|rounded-2xl|rounded-lg|rounded-full)[^"']*["'][^>]*>[A-Z0-9]{1,3}<\/div>)/gi, (monoTag) => {
+                    let m = monoTag;
+                    m = m.replace(/\bfont-syne\b/g, 'font-outfit')
+                         .replace(/\b(?:sm:)?text-(?:2xl|xl|lg)\b/g, '')
+                         .replace(/\b(?:font-black|font-extrabold)\b/g, 'font-black text-base sm:text-lg tracking-tight');
+                    return m;
                 });
                 // Ensure text container has min-w-0
                 b = b.replace(/(<div\b[^>]*class=["'][^"']*(?:flex flex-col|flex-col)[^"']*["'])/i, (divTag) => {
