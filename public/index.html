@@ -90,6 +90,19 @@
         .tab-btn-m.active span {
             color: #ffffff !important;
         }
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: translateY(6px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        .anim-pop {
+            animation: fadeInScale 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
         .no-scrollbar::-webkit-scrollbar {
             display: none;
         }
@@ -621,27 +634,14 @@
                 </div>
 
                 <!-- Floating Scroll to Bottom Arrow -->
-                <button id="btn-scroll-bottom" onclick="scrollToBottom(true)" class="absolute bottom-16 right-4 sm:right-6 p-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-full shadow-xl shadow-cyan-500/30 transition-all transform duration-200 hidden hover:scale-110 z-20 flex items-center justify-center" title="Scroll to latest messages">
+                <button id="btn-scroll-bottom" onclick="scrollToBottom(true)" class="absolute bottom-24 sm:bottom-28 right-4 sm:right-6 p-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-full shadow-xl shadow-cyan-500/30 transition-all transform duration-200 hidden hover:scale-110 z-20 flex items-center justify-center" title="Scroll to latest messages">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
                 </button>
 
-                <!-- Terminal Input Bar with Concurrency Guard & Lock -->
-                <!-- Quick Command Bar -->
-                <div class="px-3 py-2 bg-slate-950/95 border-t border-slate-800 flex items-center gap-1.5 overflow-x-auto text-[11px] no-scrollbar z-10">
-                    <span class="text-[10px] uppercase font-bold text-slate-500 mr-1 flex items-center gap-1 whitespace-nowrap">⚡ Quick:</span>
-                    <button onclick="sendCommand('/status')" class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-700/60 hover:border-cyan-500/50 text-cyan-300 rounded-lg whitespace-nowrap transition font-mono" title="Check live system status">📊 /status</button>
-                    <button onclick="sendCommand('/today')" class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-700/60 hover:border-emerald-500/50 text-emerald-300 rounded-lg whitespace-nowrap transition font-mono" title="View today's strategy">📅 /today</button>
-                    <button onclick="openHelpModal()" class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-700/60 hover:border-amber-500/50 text-amber-300 rounded-lg whitespace-nowrap transition font-mono" title="Open complete command manual">❓ /help</button>
-                    <button onclick="fillCmdInput('/run_full \'Gyms\' \'Patna\' 1')" class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-700/60 hover:border-purple-500/50 text-purple-300 rounded-lg whitespace-nowrap transition font-mono" title="360° pipeline for 1 lead">🚀 /run_full</button>
-                    <button onclick="fillCmdInput('/trigger_stream \'Gyms\' \'Patna\' 10')" class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-700/60 hover:border-sky-500/50 text-sky-300 rounded-lg whitespace-nowrap transition font-mono" title="Stream scrape & build 10 leads">⚡ /trigger_stream</button>
-                    <button onclick="fillCmdInput('/auto_explore \'Gyms\' \'Patna\' 33')" class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-700/60 hover:border-indigo-500/50 text-indigo-300 rounded-lg whitespace-nowrap transition font-mono" title="Auto explore micro-localities">🗺️ /auto_explore</button>
-                    <button onclick="fillCmdInput('/fix 1')" class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-700/60 hover:border-pink-500/50 text-pink-300 rounded-lg whitespace-nowrap transition font-mono" title="Fix lead by ID">🔧 /fix &lt;id&gt;</button>
-                    <button onclick="sendCommand('/coverage Gyms Patna')" class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-700/60 hover:border-teal-500/50 text-teal-300 rounded-lg whitespace-nowrap transition font-mono" title="View locality coverage">📈 /coverage</button>
-                    <button onclick="sendCommand('/reset_plan')" class="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-700/60 hover:border-orange-500/50 text-orange-300 rounded-lg whitespace-nowrap transition font-mono" title="Reset to automated 24/7 plan">🔄 /reset_plan</button>
-                    <button onclick="abortRunningProcess()" class="px-2.5 py-1 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-600/50 text-rose-300 rounded-lg whitespace-nowrap transition font-mono" title="Emergency halt active tasks">🛑 /abort</button>
-                </div>
-                <div class="p-2.5 sm:p-3 bg-slate-950 border-t border-slate-800 flex items-center gap-2 relative">
-                    <div id="process-lock-banner" class="hidden absolute -top-8 left-0 right-0 bg-amber-500/15 border-t border-b border-amber-500/30 px-3 py-1 flex items-center justify-between text-[11px] text-amber-300 backdrop-blur-md">
+                <!-- Unified Chat Action Bar & Command Dock -->
+                <div class="bg-slate-950/95 border-t border-slate-800/90 backdrop-blur-md p-2 sm:p-3 relative z-10 flex flex-col gap-2">
+                    <!-- Concurrency Guard & Lock Banner -->
+                    <div id="process-lock-banner" class="hidden bg-amber-500/15 border border-amber-500/30 rounded-xl px-3 py-1.5 flex items-center justify-between text-[11px] text-amber-300 backdrop-blur-md">
                         <span class="flex items-center gap-1.5 font-medium">
                             <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
                             <span id="process-lock-text">Process actively running... Input locked.</span>
@@ -650,9 +650,101 @@
                             🛑 Abort Process
                         </button>
                     </div>
-                    <input type="text" id="cmdInput" class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed transition" placeholder="Type command (e.g. /status, /run_full, or Maps URL)..." onkeypress="if(event.key === 'Enter') sendInput()">
-                    <button id="cmdSendBtn" onclick="sendInput()" class="px-3.5 sm:px-5 py-2 sm:py-2.5 bg-cyan-500 hover:bg-cyan-400 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed text-slate-950 font-bold text-xs sm:text-sm rounded-xl transition shrink-0">Send</button>
-                    <button id="cmdAbortBtn" onclick="abortRunningProcess()" class="hidden px-3 sm:px-4 py-2 sm:py-2.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 font-bold text-xs sm:text-sm rounded-xl transition shrink-0" title="Abort current execution">Abort</button>
+
+                    <!-- Expandable Quick Command Drawer -->
+                    <div id="cmd-drawer" class="hidden bg-slate-900/95 border border-slate-800 rounded-xl p-2.5 space-y-2 shadow-2xl backdrop-blur-lg anim-pop">
+                        <div class="flex items-center justify-between text-xs text-slate-400 pb-1.5 border-b border-slate-800">
+                            <span class="font-bold flex items-center gap-1.5 text-cyan-400 text-[11px]">⚡ Fast Execution Commands</span>
+                            <div class="flex items-center gap-2">
+                                <button onclick="openHelpModal()" class="text-[11px] text-cyan-400 hover:text-cyan-300 underline font-semibold">Manual ↗</button>
+                                <button onclick="toggleCmdDrawer(false)" class="text-slate-400 hover:text-white p-0.5 text-base leading-none">&times;</button>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-1.5 text-[11px] font-mono">
+                            <button onclick="sendCommand('/status'); toggleCmdDrawer(false);" class="p-1.5 bg-slate-950/80 hover:bg-cyan-950/50 hover:border-cyan-500/50 border border-slate-800 rounded-lg text-left text-cyan-300 flex items-center gap-1.5 transition">
+                                <span>📊</span> <span class="truncate">/status</span>
+                            </button>
+                            <button onclick="sendCommand('/today'); toggleCmdDrawer(false);" class="p-1.5 bg-slate-950/80 hover:bg-emerald-950/50 hover:border-emerald-500/50 border border-slate-800 rounded-lg text-left text-emerald-300 flex items-center gap-1.5 transition">
+                                <span>📅</span> <span class="truncate">/today</span>
+                            </button>
+                            <button onclick="fillCmdInput('/run_full \'Gyms\' \'Patna\' 1'); toggleCmdDrawer(false);" class="p-1.5 bg-slate-950/80 hover:bg-purple-950/50 hover:border-purple-500/50 border border-slate-800 rounded-lg text-left text-purple-300 flex items-center gap-1.5 transition">
+                                <span>🚀</span> <span class="truncate">/run_full 1</span>
+                            </button>
+                            <button onclick="fillCmdInput('/trigger_stream \'Gyms\' \'Patna\' 10'); toggleCmdDrawer(false);" class="p-1.5 bg-slate-950/80 hover:bg-sky-950/50 hover:border-sky-500/50 border border-slate-800 rounded-lg text-left text-sky-300 flex items-center gap-1.5 transition">
+                                <span>⚡</span> <span class="truncate">/trigger_stream</span>
+                            </button>
+                            <button onclick="fillCmdInput('/auto_explore \'Gyms\' \'Patna\' 33'); toggleCmdDrawer(false);" class="p-1.5 bg-slate-950/80 hover:bg-indigo-950/50 hover:border-indigo-500/50 border border-slate-800 rounded-lg text-left text-indigo-300 flex items-center gap-1.5 transition">
+                                <span>🗺️</span> <span class="truncate">/auto_explore</span>
+                            </button>
+                            <button onclick="fillCmdInput('/fix 1'); toggleCmdDrawer(false);" class="p-1.5 bg-slate-950/80 hover:bg-pink-950/50 hover:border-pink-500/50 border border-slate-800 rounded-lg text-left text-pink-300 flex items-center gap-1.5 transition">
+                                <span>🔧</span> <span class="truncate">/fix &lt;id&gt;</span>
+                            </button>
+                            <button onclick="sendCommand('/coverage Gyms Patna'); toggleCmdDrawer(false);" class="p-1.5 bg-slate-950/80 hover:bg-teal-950/50 hover:border-teal-500/50 border border-slate-800 rounded-lg text-left text-teal-300 flex items-center gap-1.5 transition">
+                                <span>📈</span> <span class="truncate">/coverage</span>
+                            </button>
+                            <button onclick="sendCommand('/reset_plan'); toggleCmdDrawer(false);" class="p-1.5 bg-slate-950/80 hover:bg-orange-950/50 hover:border-orange-500/50 border border-slate-800 rounded-lg text-left text-orange-300 flex items-center gap-1.5 transition">
+                                <span>🔄</span> <span class="truncate">/reset_plan</span>
+                            </button>
+                            <button onclick="abortRunningProcess(); toggleCmdDrawer(false);" class="p-1.5 bg-rose-950/30 hover:bg-rose-900/50 hover:border-rose-500/50 border border-rose-800/60 rounded-lg text-left text-rose-300 flex items-center gap-1.5 transition">
+                                <span>🛑</span> <span class="truncate">/abort</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Quick Action Chips Bar (Zero-cutoff 4-column micro-dock on mobile, full strip on desktop) -->
+                    <div class="grid grid-cols-4 sm:flex sm:items-center sm:overflow-x-auto gap-1 sm:gap-1.5 no-scrollbar text-[10.5px] sm:text-xs">
+                        <button onclick="sendCommand('/status')" class="py-1 px-1 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-cyan-500/50 text-cyan-300 rounded-lg text-center transition font-mono flex items-center justify-center gap-1 shadow-sm" title="Check live system status">
+                            <span class="text-xs">📊</span> <span class="whitespace-nowrap">/status</span>
+                        </button>
+                        <button onclick="sendCommand('/today')" class="py-1 px-1 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-emerald-500/50 text-emerald-300 rounded-lg text-center transition font-mono flex items-center justify-center gap-1 shadow-sm" title="View today's strategy">
+                            <span class="text-xs">📅</span> <span class="whitespace-nowrap">/today</span>
+                        </button>
+                        <button onclick="fillCmdInput('/run_full \'Gyms\' \'Patna\' 1')" class="py-1 px-1 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-purple-500/50 text-purple-300 rounded-lg text-center transition font-mono flex items-center justify-center gap-1 shadow-sm" title="360° pipeline for 1 lead">
+                            <span class="text-xs">🚀</span> <span class="whitespace-nowrap">/run 1</span>
+                        </button>
+                        <button onclick="abortRunningProcess()" class="py-1 px-1 bg-rose-950/30 hover:bg-rose-900/50 border border-rose-800/60 hover:border-rose-500/60 text-rose-300 rounded-lg text-center transition font-mono flex items-center justify-center gap-1 shadow-sm" title="Emergency halt active tasks">
+                            <span class="text-xs">🛑</span> <span class="whitespace-nowrap">/abort</span>
+                        </button>
+                        <!-- Desktop-only additional quick pills -->
+                        <button onclick="fillCmdInput('/trigger_stream \'Gyms\' \'Patna\' 10')" class="hidden sm:inline-flex px-2.5 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-700/60 hover:border-sky-500/50 text-sky-300 rounded-lg whitespace-nowrap transition font-mono items-center gap-1" title="Stream scrape & build 10 leads">
+                            <span>⚡</span> /trigger_stream
+                        </button>
+                        <button onclick="fillCmdInput('/auto_explore \'Gyms\' \'Patna\' 33')" class="hidden sm:inline-flex px-2.5 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-700/60 hover:border-indigo-500/50 text-indigo-300 rounded-lg whitespace-nowrap transition font-mono items-center gap-1" title="Auto explore micro-localities">
+                            <span>🗺️</span> /auto_explore
+                        </button>
+                        <button onclick="fillCmdInput('/fix 1')" class="hidden sm:inline-flex px-2.5 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-700/60 hover:border-pink-500/50 text-pink-300 rounded-lg whitespace-nowrap transition font-mono items-center gap-1" title="Fix lead by ID">
+                            <span>🔧</span> /fix
+                        </button>
+                        <button onclick="sendCommand('/coverage Gyms Patna')" class="hidden sm:inline-flex px-2.5 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-700/60 hover:border-teal-500/50 text-teal-300 rounded-lg whitespace-nowrap transition font-mono items-center gap-1" title="View locality coverage">
+                            <span>📈</span> /coverage
+                        </button>
+                        <button onclick="sendCommand('/reset_plan')" class="hidden sm:inline-flex px-2.5 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-700/60 hover:border-orange-500/50 text-orange-300 rounded-lg whitespace-nowrap transition font-mono items-center gap-1" title="Reset to automated 24/7 plan">
+                            <span>🔄</span> /reset_plan
+                        </button>
+                    </div>
+
+                    <!-- Input Bar with Command Drawer Toggle, Sleek Prefix & Actions -->
+                    <div class="flex items-center gap-1.5 sm:gap-2 relative">
+                        <!-- Toggle Drawer Button -->
+                        <button id="btn-cmd-drawer" onclick="toggleCmdDrawer()" class="px-2.5 py-2 sm:py-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-700/70 hover:border-cyan-500 text-cyan-400 rounded-xl transition font-bold text-xs flex items-center justify-center gap-1 shrink-0 shadow-sm active:scale-95" title="All Commands (10)">
+                            <span>⚡</span> <span class="hidden sm:inline font-mono text-[11px]">Commands</span> <span id="drawer-arrow" class="text-[9px] text-slate-500 transition-transform">▾</span>
+                        </button>
+                        <div class="relative flex-1 min-w-0">
+                            <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-500 font-mono text-xs select-none">>_</span>
+                            <input type="text" id="cmdInput" class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-7 pr-3 py-2 sm:py-2.5 text-xs sm:text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition shadow-inner" placeholder="Type command or Maps URL..." onkeypress="if(event.key === 'Enter') sendInput()" oninput="handleCmdAutocomplete(this.value)" autocomplete="off">
+                            <!-- Slash Autocomplete Popup -->
+                            <div id="cmd-autocomplete" class="hidden absolute bottom-full left-0 right-0 mb-2 bg-slate-900/95 border border-slate-800 rounded-xl shadow-2xl backdrop-blur-md p-1.5 max-h-48 overflow-y-auto custom-scroll z-30 anim-pop">
+                                <!-- Dynamic suggestions -->
+                            </div>
+                        </div>
+                        <button id="cmdSendBtn" onclick="sendInput()" class="px-3.5 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-cyan-500 to-sky-500 hover:from-cyan-400 hover:to-sky-400 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed text-slate-950 font-bold text-xs sm:text-sm rounded-xl transition flex items-center gap-1.5 shadow-md shadow-cyan-500/20 active:scale-95 shrink-0">
+                            <svg class="w-3.5 h-3.5 transform rotate-90" fill="currentColor" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path></svg>
+                            <span>Send</span>
+                        </button>
+                        <button id="cmdAbortBtn" onclick="abortRunningProcess()" class="hidden px-3 sm:px-4 py-2 sm:py-2.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 font-bold text-xs sm:text-sm rounded-xl transition flex items-center gap-1.5 shrink-0" title="Abort current execution">
+                            <span>🛑</span> <span>Abort</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </section>
@@ -1547,7 +1639,7 @@
             } else {
                 if (input) {
                     input.disabled = false;
-                    input.placeholder = "Type command (e.g. /status, /auto_explore, or paste a Google Maps URL)...";
+                    input.placeholder = "Type command or Maps URL...";
                 }
                 if (sendBtn) sendBtn.disabled = false;
                 if (abortBtn) abortBtn.classList.add('hidden');
@@ -1815,6 +1907,69 @@
                 showToast('Pasted: ' + cmdText);
             }
         }
+
+        function toggleCmdDrawer(forceState) {
+            const drawer = document.getElementById('cmd-drawer');
+            const arrow = document.getElementById('drawer-arrow');
+            if (!drawer) return;
+            const willOpen = typeof forceState === 'boolean' ? forceState : drawer.classList.contains('hidden');
+            if (willOpen) {
+                drawer.classList.remove('hidden');
+                if (arrow) arrow.style.transform = 'rotate(180deg)';
+            } else {
+                drawer.classList.add('hidden');
+                if (arrow) arrow.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        const AVAILABLE_COMMANDS = [
+            { cmd: '/status', desc: 'Live system status & funnel health', icon: '📊' },
+            { cmd: '/today', desc: "Today's acquisition strategy", icon: '📅' },
+            { cmd: "/run_full 'Gyms' 'Patna' 1", desc: '360° pipeline for 1 lead', icon: '🚀' },
+            { cmd: "/trigger_stream 'Gyms' 'Patna' 10", desc: 'Stream scrape & build 10 leads', icon: '⚡' },
+            { cmd: "/auto_explore 'Gyms' 'Patna' 33", desc: 'Auto explore micro-localities', icon: '🗺️' },
+            { cmd: '/fix 1', desc: 'Fix lead audit by ID', icon: '🔧' },
+            { cmd: '/coverage Gyms Patna', desc: 'Locality coverage report', icon: '📈' },
+            { cmd: '/reset_plan', desc: 'Reset to automated 24/7 plan', icon: '🔄' },
+            { cmd: '/abort', desc: 'Emergency halt active execution', icon: '🛑' },
+            { cmd: '/help', desc: 'Open complete command manual', icon: '❓' }
+        ];
+
+        function handleCmdAutocomplete(val) {
+            const autoBox = document.getElementById('cmd-autocomplete');
+            if (!autoBox) return;
+            const trimmed = (val || '').trim();
+            if (!trimmed.startsWith('/') || trimmed.length > 25) {
+                autoBox.classList.add('hidden');
+                autoBox.innerHTML = '';
+                return;
+            }
+            const query = trimmed.toLowerCase();
+            const matches = AVAILABLE_COMMANDS.filter(c => c.cmd.toLowerCase().includes(query) || c.desc.toLowerCase().includes(query));
+            if (matches.length === 0) {
+                autoBox.classList.add('hidden');
+                autoBox.innerHTML = '';
+                return;
+            }
+            autoBox.innerHTML = matches.map(m => `
+                <div onclick="fillCmdInput('${m.cmd.replace(/'/g, "\\'")}'); document.getElementById('cmd-autocomplete').classList.add('hidden');" class="p-2 hover:bg-slate-800 rounded-lg cursor-pointer flex items-center justify-between transition group">
+                    <div class="flex items-center gap-2">
+                        <span>${m.icon}</span>
+                        <span class="font-mono text-cyan-300 text-xs font-bold group-hover:text-cyan-200">${m.cmd}</span>
+                    </div>
+                    <span class="text-[10px] text-slate-400 truncate max-w-[150px] sm:max-w-xs">${m.desc}</span>
+                </div>
+            `).join('');
+            autoBox.classList.remove('hidden');
+        }
+
+        document.addEventListener('click', function(e) {
+            const autoBox = document.getElementById('cmd-autocomplete');
+            const cmdInput = document.getElementById('cmdInput');
+            if (autoBox && !autoBox.contains(e.target) && e.target !== cmdInput) {
+                autoBox.classList.add('hidden');
+            }
+        });
 
         function openVisionModal() {
             const modal = document.getElementById('modal-vision-pipeline');
