@@ -194,6 +194,33 @@
 </head>
 <body class="min-h-screen flex flex-col">
 
+    <!-- Admin Authentication Overlay -->
+    <div id="auth-overlay" class="fixed inset-0 bg-slate-950/95 backdrop-blur-xl z-[100] flex items-center justify-center p-4">
+        <div class="max-w-sm w-full bg-slate-900/95 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl relative text-center space-y-5 anim-pop">
+            <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center mx-auto text-2xl shadow-lg shadow-cyan-500/25">
+                ⚡
+            </div>
+            <div>
+                <h2 class="text-lg sm:text-xl font-extrabold text-white tracking-tight">ArcLane Sales OS</h2>
+                <p class="text-xs text-slate-400 mt-1">Restricted Admin Access & Telemetry</p>
+            </div>
+            <div class="space-y-3">
+                <div class="relative">
+                    <input type="password" id="authPasswordInput" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/30 transition text-center tracking-wider" placeholder="Enter Admin Password..." onkeypress="if(event.key === 'Enter') submitLogin()">
+                </div>
+                <div id="authErrorMsg" class="hidden text-xs text-rose-400 font-semibold bg-rose-500/10 border border-rose-500/20 rounded-lg py-1.5 px-3">
+                    Invalid password. Please try again.
+                </div>
+                <button id="authLoginBtn" onclick="submitLogin()" class="w-full py-3 bg-gradient-to-r from-cyan-500 to-sky-500 hover:from-cyan-400 hover:to-sky-400 text-slate-950 font-bold text-sm rounded-xl transition flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/25 active:scale-98">
+                    <span>Unlock Console</span> <span>→</span>
+                </button>
+            </div>
+            <div class="text-[11px] text-slate-500 font-mono">
+                Encrypted Session • Node Telemetry
+            </div>
+        </div>
+    </div>
+
     <!-- Top Executive Bar -->
     <header class="glass-header sticky top-0 z-50">
         <!-- Tier 1: Main Header Bar -->
@@ -228,6 +255,9 @@
                 </button>
                 <button onclick="sendCommand('/abort')" class="p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 text-xs font-bold transition flex items-center gap-1" title="Emergency halt active tasks">
                     <span>🛑</span> <span class="hidden md:inline">Abort</span>
+                </button>
+                <button onclick="logoutAdmin()" class="p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/60 text-xs font-bold transition flex items-center gap-1" title="Lock console & logout">
+                    <span>🔒</span> <span class="hidden sm:inline">Lock</span>
                 </button>
                 <!-- Mobile Drawer Trigger (< lg) -->
                 <button onclick="toggleMobileToolsDrawer()" class="lg:hidden px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold transition flex items-center gap-1.5 shadow-sm" title="Open AI Engine, Photos, and Automation Controls">
@@ -786,6 +816,83 @@
         const cmdInput = document.getElementById('cmdInput');
         var isProcessRunning = false;
 
+        // Authentication State & Handlers
+        async function checkAuthStatus() {
+            try {
+                const res = await fetch('/api/auth/status');
+                const data = await res.json();
+                if (data.authenticated) {
+                    hideAuthOverlay();
+                } else {
+                    showAuthOverlay();
+                }
+            } catch (e) {
+                showAuthOverlay();
+            }
+        }
+
+        function showAuthOverlay() {
+            const overlay = document.getElementById('auth-overlay');
+            if (overlay) overlay.classList.remove('hidden');
+            const input = document.getElementById('authPasswordInput');
+            if (input) setTimeout(() => input.focus(), 150);
+        }
+
+        function hideAuthOverlay() {
+            const overlay = document.getElementById('auth-overlay');
+            if (overlay) overlay.classList.add('hidden');
+        }
+
+        async function submitLogin() {
+            const input = document.getElementById('authPasswordInput');
+            const errorMsg = document.getElementById('authErrorMsg');
+            const btn = document.getElementById('authLoginBtn');
+            const password = input.value.trim();
+            if (!password) return;
+
+            btn.disabled = true;
+            btn.innerHTML = '<span>Verifying...</span>';
+            if (errorMsg) errorMsg.classList.add('hidden');
+
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    hideAuthOverlay();
+                    input.value = '';
+                    showToast('🔓 Admin access granted!');
+                    fetchAnalytics();
+                    fetchApprovalQueue();
+                } else {
+                    if (errorMsg) {
+                        errorMsg.innerText = data.error || 'Invalid credentials';
+                        errorMsg.classList.remove('hidden');
+                    }
+                }
+            } catch (e) {
+                if (errorMsg) {
+                    errorMsg.innerText = 'Connection error. Please try again.';
+                    errorMsg.classList.remove('hidden');
+                }
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>Unlock Console</span> <span>→</span>';
+            }
+        }
+
+        async function logoutAdmin() {
+            try {
+                await fetch('/api/auth/logout', { method: 'POST' });
+            } catch (e) {}
+            window.location.reload();
+        }
+
+        checkAuthStatus();
+
 
         // View Switching
         function switchView(viewName) {
@@ -890,7 +997,8 @@
             messagesDiv.innerHTML = '';
             const wasScrolledUp = userScrolledUp;
             userScrolledUp = true;
-            history.forEach(msg => (typeof originalAppend === 'function' ? originalAppend : appendMessage)(msg.type, msg.text, msg.opts));
+            const safeHistory = (history || []).slice(-50);
+            safeHistory.forEach(msg => (typeof originalAppend === 'function' ? originalAppend : appendMessage)(msg.type, msg.text, msg.opts));
             userScrolledUp = wasScrolledUp;
             scrollToBottom(false);
         });
@@ -1575,6 +1683,9 @@
         }
 
         function appendMessage(type, text, opts = {}) {
+            if (messagesDiv && messagesDiv.children.length > 80) {
+                messagesDiv.removeChild(messagesDiv.firstChild);
+            }
             const div = document.createElement('div');
             div.className = `p-3.5 rounded-2xl text-sm leading-relaxed terminal-msg shadow-lg transition-all ${
                 type === 'user' 

@@ -4,6 +4,7 @@ import { Server } from 'socket.io';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
+import crypto from 'crypto';
 import { AuditLogger } from './engine/audit_logger.js';
 import { ApprovalQueue } from './engine/approval_queue.js';
 import { DeduplicationEngine } from './engine/deduplication.js';
@@ -16,6 +17,34 @@ import { WebsiteBuilder } from './builder.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const HISTORY_FILE = path.join(__dirname, '../data/web_ui_history.json');
+
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'arclane2026!';
+const AUTH_SECRET = process.env.ADMIN_SESSION_SECRET || 'arclane-sales-os-auth-secret-key-2026';
+const EXPECTED_AUTH_TOKEN = crypto.createHmac('sha256', AUTH_SECRET).update('arclane-authenticated').digest('hex');
+
+function parseCookieString(rc) {
+    const list = {};
+    if (rc) {
+        rc.split(';').forEach(cookie => {
+            const parts = cookie.split('=');
+            if (parts.length >= 2) {
+                list[parts[0].trim()] = decodeURI(parts.slice(1).join('='));
+            }
+        });
+    }
+    return list;
+}
+
+function checkAuth(req) {
+    const cookies = parseCookieString(req.headers.cookie);
+    if (cookies['arclane_session'] === EXPECTED_AUTH_TOKEN) return true;
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.substring(7);
+        if (token === EXPECTED_AUTH_TOKEN) return true;
+    }
+    return false;
+}
 
 class WebUIServer {
     constructor() {
@@ -67,8 +96,8 @@ class WebUIServer {
         this.io.on('connection', async (socket) => {
             console.log(`[WebUI] Client connected: ${socket.id}`);
             
-            // Send existing history & live metrics to the newly connected client instantly (0ms)
-            socket.emit('history', this.history);
+            // Send existing history & live metrics (capped to last 50 to prevent iOS Safari memory exhaustion)
+            socket.emit('history', this.history.slice(-50));
             try {
                 const initialMetrics = this.auditLogger.getCachedAnalytics();
                 socket.emit('metrics_update', initialMetrics);
@@ -213,6 +242,36 @@ class WebUIServer {
     }
 
     setupApiRoutes() {
+        // 0. Authentication Endpoints
+        this.app.post('/api/auth/login', (req, res) => {
+            const { password } = req.body || {};
+            const expected = process.env.ADMIN_PASSWORD || 'arclane2026!';
+            if (password && password === expected) {
+                res.setHeader('Set-Cookie', `arclane_session=${EXPECTED_AUTH_TOKEN}; Path=/; HttpOnly; SameSite=Lax; Max-Age=2592000`);
+                return res.json({ success: true, token: EXPECTED_AUTH_TOKEN });
+            }
+            return res.status(401).json({ success: false, error: 'Invalid admin password' });
+        });
+
+        this.app.get('/api/auth/status', (req, res) => {
+            const isAuthed = checkAuth(req);
+            res.json({ success: true, authenticated: isAuthed });
+        });
+
+        this.app.post('/api/auth/logout', (req, res) => {
+            res.setHeader('Set-Cookie', 'arclane_session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0');
+            res.json({ success: true });
+        });
+
+        // Protected API Guard Middleware
+        this.app.use('/api', (req, res, next) => {
+            if (req.path.startsWith('/auth/')) return next();
+            if (!checkAuth(req)) {
+                return res.status(401).json({ success: false, error: 'Unauthorized: Admin authentication required.' });
+            }
+            next();
+        });
+
         // 1. Live Funnel & Sales Metrics API
         this.app.get('/api/analytics', async (req, res) => {
             const metrics = await this.auditLogger.getAnalytics();
@@ -659,6 +718,9 @@ class WebUIServer {
 
     async emitAndSave(msgObj) {
         this.history.push(msgObj);
+        if (this.history.length > 200) {
+            this.history = this.history.slice(-200);
+        }
         this.saveHistory();
         this.io.emit('message', msgObj);
         try {
