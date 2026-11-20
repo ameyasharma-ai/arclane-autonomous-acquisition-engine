@@ -233,7 +233,7 @@ export class WebsiteBuilder {
 
         const navbarPromptRules = `\n\n## 🧭 MANDATORY HEADER & NAVBAR DESIGN STANDARDS:
 - BRAND LOGO MONOGRAM: The logo badge square MUST display the 2-letter monogram '${canonicalMonogram}' (e.g. '<div class="w-10 h-10 rounded-xl ... font-syne font-black text-lg">${canonicalMonogram}</div>'). NEVER use an isolated single letter like 'P'!
-- BRAND CONTAINER & FLUID RESPONSIVE TYPOGRAPHY: The brand logo wrapper MUST have 'flex items-center gap-2.5 sm:gap-3 shrink-0 min-w-0 mr-4 lg:mr-8 group'. The brand title text MUST have 'truncate max-w-[160px] xs:max-w-[200px] sm:max-w-none block font-extrabold leading-tight' and subtitle MUST have 'truncate max-w-[160px] xs:max-w-[200px] sm:max-w-none block' so the logo NEVER overflows or collides with mobile header buttons on 360px-440px viewports!
+- BRAND CONTAINER & FLUID RESPONSIVE TYPOGRAPHY: The brand logo wrapper MUST have 'flex items-center gap-2.5 sm:gap-3 group min-w-0 mr-3 lg:mr-8 flex-1 sm:flex-initial'. The brand title text MUST have 'truncate block font-extrabold text-base sm:text-lg lg:text-xl leading-tight' and subtitle MUST have 'truncate block text-[10px] sm:text-xs' so the logo naturally utilizes the available navbar space on mobile without premature truncation, while safely truncating only if excessively long!
 - HIGH-INTENT NAVIGATION LINKS: The desktop navbar MUST include a link to '#pricing' (labeled 'Plans' or 'Pricing'). Keep nav links concise: at most 4-5 core links ('Programs' / 'Services', 'About', 'Plans' / 'Pricing', 'Gallery' / 'Facility', 'Contact'). Secondary links ('Why Us', 'Reviews', 'FAQ') must have 'hidden 2xl:inline-block'.
 - BALANCED CENTERED NAVBAR: The <nav> element MUST have 'hidden lg:flex items-center justify-center gap-3 lg:gap-4 xl:gap-6 2xl:gap-6 mx-auto px-2 lg:px-4 shrink-0'. NEVER stick <nav> directly against the brand logo or use 'mr-4/mr-6' with 'ml-auto'!
 - ACTION CTAS: The CTA buttons container MUST have 'hidden sm:flex items-center gap-2 sm:gap-3 shrink-0 flex-nowrap' (do NOT use 'ml-auto' which forces nav to stick to the brand logo). Always include Phone number CTA and WhatsApp Trial CTA with official WhatsApp green ('bg-emerald-600 hover:bg-emerald-500 text-white').
@@ -589,20 +589,22 @@ export class WebsiteBuilder {
                 let b = brandHtml;
                 b = b.replace(/(class=["'][^"']*)(["'])/i, (m, cls, q) => {
                     let c = cls;
-                    if (!c.includes('shrink-0')) c += ' shrink-0';
+                    c = c.replace(/\bshrink-0\b/g, '');
                     if (!c.includes('min-w-0')) c += ' min-w-0';
+                    if (!c.includes('flex-1')) c += ' flex-1 sm:flex-initial';
                     if (!c.includes('mr-')) c += ' mr-3 lg:mr-8';
-                    return `${c}${q}`;
+                    return `${c.replace(/\s+/g, ' ').trim()}${q}`;
                 });
                 // Ensure text container has min-w-0
                 b = b.replace(/(<div\b[^>]*class=["'][^"']*(?:flex flex-col|flex-col)[^"']*["'])/i, (divTag) => {
                     if (!divTag.includes('min-w-0')) return divTag.replace(/class=["']/, 'class="min-w-0 ');
                     return divTag;
                 });
-                // Add truncate and max-w to title and subtitle spans
+                // Add truncate and block to title and subtitle spans, removing artificial fixed max-w clamps
                 b = b.replace(/(<span\b[^>]*class=["'][^"']*(?:font-syne|font-serif|font-bold|font-extrabold|tracking-tight|tracking-wider)[^"']*["'])/gi, (spanTag) => {
                     let s = spanTag;
-                    if (!s.includes('truncate')) s = s.replace(/class=["']/, 'class="truncate max-w-[160px] xs:max-w-[200px] sm:max-w-none block ');
+                    s = s.replace(/\s*(?:xs:|sm:|md:|lg:|xl:)?max-w-\[[^\]]+\]/g, '').replace(/\s*\bsm:max-w-none\b/g, '');
+                    if (!s.includes('truncate')) s = s.replace(/class=["']/, 'class="truncate block ');
                     return s;
                 });
                 return b;
@@ -865,9 +867,18 @@ export class WebsiteBuilder {
         // 12. Ensure Body and HTML have zero horizontal overflow; eliminate body pb-* to prevent white gap voids below dark footers
         html = html.replace(/(<body\s+[^>]*class=["'])([^"']*)(["'])/gi, (m, p1, classes, p3) => {
             let c = classes;
+            // Clean up any mangled overflow-x-hidden-0
+            c = c.replace(/\boverflow-x-hidden-0\b/g, 'overflow-x-hidden');
             // Strip bottom padding from <body> - bottom clearance must ALWAYS be inside <footer> so footer background extends seamlessly
-            c = c.replace(/\s*\b(?:lg:pb|pb-(?:32|28|24|20|16|12|10|8|6|4|0)|md:pb-0)\b/g, '');
+            c = c.replace(/\s*\b(?:lg:|md:|sm:)?pb-(?:32|28|24|20|16|12|10|8|6|4|0)\b/g, '').replace(/\s*\blg:pb\b/g, '');
             if (!c.includes('overflow-x-hidden')) c = `overflow-x-hidden ${c}`;
+            return `${p1}${c.replace(/\s+/g, ' ').trim()}${p3}`;
+        });
+
+        // Ensure hamburger menu button always has shrink-0 so it is never compressed
+        html = html.replace(/(<button\b[^>]*id=["'](?:menu-btn|menu-toggle|close-drawer)["'][^>]*class=["'])([^"']*)(["'])/gi, (m, p1, cls, p3) => {
+            let c = cls;
+            if (!c.includes('shrink-0')) c += ' shrink-0';
             return `${p1}${c.replace(/\s+/g, ' ').trim()}${p3}`;
         });
 
