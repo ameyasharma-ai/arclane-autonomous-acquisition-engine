@@ -20,6 +20,43 @@ export class PipelineRunner {
         // Concurrent background workers (2 parallel builds while scraper streams ahead)
         this.leadQueue = new PQueue({ concurrency: 1 });
         this.activeSender = null;
+        this.currentTargetTotal = 0;
+        this.currentLeadsAccumulated = 0;
+        this.currentTargetLeads = 0;
+        this.currentStreamedCount = 0;
+        this.scraperRunnerRef = null;
+        this.isLocalityChainRunning = false;
+    }
+
+    setTarget(newTarget) {
+        const parsed = parseInt(newTarget, 10);
+        if (isNaN(parsed) || parsed <= 0) {
+            return { success: false, error: 'Target must be a positive integer.' };
+        }
+
+        const isChain = this.isLocalityChainRunning;
+        const oldTarget = isChain ? this.currentTargetTotal : this.currentTargetLeads;
+        const currentCount = isChain ? (this.currentLeadsAccumulated + this.currentStreamedCount) : this.currentStreamedCount;
+
+        this.currentTargetTotal = parsed;
+        this.currentTargetLeads = parsed;
+
+        if (this.scraperRunnerRef && currentCount >= parsed) {
+            console.log(`[PipelineRunner] 🎯 Dynamic target reached (${currentCount}/${parsed}). Halting scraper runner gracefully.`);
+            try {
+                this.scraperRunnerRef.stop();
+            } catch (e) {
+                console.warn("[PipelineRunner] Scraper stop notice:", e.message);
+            }
+        }
+
+        return {
+            success: true,
+            oldTarget: oldTarget || 'N/A',
+            newTarget: parsed,
+            currentAccumulated: currentCount,
+            isLocalityChain: isChain
+        };
     }
 
     async sendTelegram(msg) {
@@ -43,7 +80,11 @@ export class PipelineRunner {
     abort() {
         this.isAborted = true;
         this.isProcessing = false;
+        this.isLocalityChainRunning = false;
         this.leadQueue.clear();
+        if (this.scraperRunnerRef) {
+            try { this.scraperRunnerRef.stop(); } catch (e) {}
+        }
         if (this.activeSender) {
             try {
                 this.activeSender.close();
@@ -198,6 +239,9 @@ export class PipelineRunner {
 
         this.isProcessing = true;
         this.isAborted = false;
+        this.currentTargetLeads = targetLeads;
+        this.currentStreamedCount = 0;
+        this.scraperRunnerRef = scraperRunner;
         const startTime = new Date();
 
         await this.sendTelegram(
@@ -230,7 +274,17 @@ export class PipelineRunner {
                 onLeadScraped: (leadObj) => {
                     if (this.isAborted) return;
                     streamedCount++;
+                    this.currentStreamedCount = streamedCount;
                     console.log(`[PipelineRunner] 📥 Received streamed lead #${streamedCount}: ${leadObj.businessName} (ID: ${leadObj.clientId})`);
+                    
+                    const activeCeiling = this.isLocalityChainRunning ? this.currentTargetTotal : this.currentTargetLeads;
+                    const activeCurrent = this.isLocalityChainRunning ? (this.currentLeadsAccumulated + streamedCount) : streamedCount;
+                    if (activeCeiling > 0 && activeCurrent >= activeCeiling) {
+                        console.log(`[PipelineRunner] 🎯 Dynamic target limit hit (${activeCurrent}/${activeCeiling}). Halting scraper.`);
+                        if (scraperRunner) {
+                            try { scraperRunner.stop(); } catch (e) {}
+                        }
+                    }
                     
                     this.leadQueue.add(async () => {
                         if (this.isAborted) return;
@@ -249,9 +303,12 @@ export class PipelineRunner {
             let hopCount = 0;
             const maxEscapeHops = 5;
 
-            while (streamedCount < targetLeads && hopCount < maxEscapeHops && !this.isAborted) {
+            while (streamedCount < this.currentTargetLeads && hopCount < maxEscapeHops && !this.isAborted) {
+                if (this.isLocalityChainRunning && (this.currentLeadsAccumulated + streamedCount) >= this.currentTargetTotal) {
+                    break;
+                }
                 hopCount++;
-                const remaining = targetLeads - streamedCount;
+                const remaining = this.currentTargetLeads - streamedCount;
                 console.log(`[PipelineRunner] 🔄 Boundary exhausted in "${currentLocality}" (Target unfulfilled: ${streamedCount}/${targetLeads}). Asking AI for next micro-locality to complete remaining ${remaining} leads...`);
 
                 const cleanCity = city.includes(',') ? city.split(',')[0].trim() : city;
@@ -277,7 +334,17 @@ export class PipelineRunner {
                     onLeadScraped: (leadObj) => {
                         if (this.isAborted) return;
                         streamedCount++;
+                        this.currentStreamedCount = streamedCount;
                         console.log(`[PipelineRunner] 📥 Received streamed lead #${streamedCount}: ${leadObj.businessName} (ID: ${leadObj.clientId})`);
+
+                        const activeCeiling = this.isLocalityChainRunning ? this.currentTargetTotal : this.currentTargetLeads;
+                        const activeCurrent = this.isLocalityChainRunning ? (this.currentLeadsAccumulated + streamedCount) : streamedCount;
+                        if (activeCeiling > 0 && activeCurrent >= activeCeiling) {
+                            console.log(`[PipelineRunner] 🎯 Dynamic target limit hit (${activeCurrent}/${activeCeiling}). Halting scraper.`);
+                            if (scraperRunner) {
+                                try { scraperRunner.stop(); } catch (e) {}
+                            }
+                        }
 
                         this.leadQueue.add(async () => {
                             if (this.isAborted) return;
@@ -709,8 +776,12 @@ export class PipelineRunner {
             throw new Error("A pipeline job is already in progress!");
         }
 
+        this.isLocalityChainRunning = true;
+        this.currentTargetTotal = targetTotal;
+        this.currentLeadsAccumulated = 0;
+        this.scraperRunnerRef = scraperRunner;
+
         const overallStartTime = new Date();
-        let totalLeadsAccumulated = 0;
         let iteration = 0;
         const maxHops = 10;
 
@@ -722,54 +793,61 @@ export class PipelineRunner {
             `⚡ *Self-Healing:* Auto-hops boundaries when Google Maps exhausts listings!`
         );
 
-        while (totalLeadsAccumulated < targetTotal && iteration < maxHops && !this.isAborted) {
-            iteration++;
-            const nextLocality = await localityEngine.getNextLocality(query, state, city);
-            const remainingNeeded = targetTotal - totalLeadsAccumulated;
-            const batchTarget = Math.min(remainingNeeded, 35);
-
-            await this.sendTelegram(
-                `📍 *[Locality Hop #${iteration}] Target Area: \`${nextLocality}, ${city}\`*\n` +
-                `🎯 Fetching up to ${batchTarget} leads (Need ${remainingNeeded} more to reach ${targetTotal})...`
-            );
-
-            try {
-                const res = await this.runStreamingScrapeAndBuild({
-                    query,
-                    locality: `in ${nextLocality}`,
-                    city: `${city}, ${state}`,
-                    targetLeads: batchTarget,
-                    scraperRunner
-                });
-
-                const scrapedInHop = res.streamedCount || 0;
-                totalLeadsAccumulated += scrapedInHop;
-                localityEngine.recordYield(query, nextLocality, city, state, scrapedInHop);
+        try {
+            while (this.currentLeadsAccumulated < this.currentTargetTotal && iteration < maxHops && !this.isAborted) {
+                iteration++;
+                const nextLocality = await localityEngine.getNextLocality(query, state, city);
+                const remainingNeeded = this.currentTargetTotal - this.currentLeadsAccumulated;
+                if (remainingNeeded <= 0) break;
+                const batchTarget = Math.min(remainingNeeded, 35);
 
                 await this.sendTelegram(
-                    `📊 *Locality Yield for ${nextLocality}:* ${scrapedInHop} leads.\n` +
-                    `📈 Total Progress: ${totalLeadsAccumulated}/${targetTotal} leads.`
+                    `📍 *[Locality Hop #${iteration}] Target Area: \`${nextLocality}, ${city}\`*\n` +
+                    `🎯 Fetching up to ${batchTarget} leads (Need ${remainingNeeded} more to reach ${this.currentTargetTotal})...`
                 );
 
-                if (scrapedInHop === 0) {
-                    console.log(`[PipelineRunner] Zero leads in ${nextLocality}. Hopping to next locality...`);
+                try {
+                    const res = await this.runStreamingScrapeAndBuild({
+                        query,
+                        locality: `in ${nextLocality}`,
+                        city: `${city}, ${state}`,
+                        targetLeads: batchTarget,
+                        scraperRunner
+                    });
+
+                    const scrapedInHop = res.streamedCount || 0;
+                    this.currentLeadsAccumulated += scrapedInHop;
+                    localityEngine.recordYield(query, nextLocality, city, state, scrapedInHop);
+
+                    await this.sendTelegram(
+                        `📊 *Locality Yield for ${nextLocality}:* ${scrapedInHop} leads.\n` +
+                        `📈 Total Progress: ${this.currentLeadsAccumulated}/${this.currentTargetTotal} leads.`
+                    );
+
+                    if (scrapedInHop === 0) {
+                        console.log(`[PipelineRunner] Zero leads in ${nextLocality}. Hopping to next locality...`);
+                    }
+                } catch (hopErr) {
+                    console.error(`[PipelineRunner] Hop error on ${nextLocality}:`, hopErr.message);
+                    if (this.isAborted) break;
                 }
-            } catch (hopErr) {
-                console.error(`[PipelineRunner] Hop error on ${nextLocality}:`, hopErr.message);
-                if (this.isAborted) break;
             }
+
+            const totalMins = ((new Date() - overallStartTime) / 60000).toFixed(1);
+            await this.sendTelegram(
+                `🏁 *[Autonomous Locality Explorer Finished]*\n\n` +
+                `🎯 Final Target: ${this.currentTargetTotal}\n` +
+                `✅ Total Leads Secured: ${this.currentLeadsAccumulated}\n` +
+                `⏱️ Total Exploration Duration: ${totalMins} min\n` +
+                `🌐 All sites staged & active under \`arclanestudios.space/sites/*\``
+            );
+
+            this.isLocalityChainRunning = false;
+            return { totalLeadsAccumulated: this.currentLeadsAccumulated, totalMins };
+        } catch (chainErr) {
+            this.isLocalityChainRunning = false;
+            throw chainErr;
         }
-
-        const totalMins = ((new Date() - overallStartTime) / 60000).toFixed(1);
-        await this.sendTelegram(
-            `🏁 *[Autonomous Locality Explorer Finished]*\n\n` +
-            `🎯 Total Target: ${targetTotal}\n` +
-            `✅ Total Leads Secured: ${totalLeadsAccumulated}\n` +
-            `⏱️ Total Exploration Duration: ${totalMins} min\n` +
-            `🌐 All sites staged & active under \`arclanestudios.space/sites/*\``
-        );
-
-        return { totalLeadsAccumulated, totalMins };
     }
 }
 

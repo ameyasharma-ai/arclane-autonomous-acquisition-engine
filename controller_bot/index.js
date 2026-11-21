@@ -251,6 +251,7 @@ async function handleHelp(ctx) {
         `• \`/coverage [query] [city]\` — View micro-locality exploration saturation and lead distribution.\n` +
         `• \`/view_plan\` — View active 100-day schedule configuration JSON.\n\n` +
         `*🛑 Safeguards & Session Controls:*\n` +
+        `• \`/target <number>\` or \`/set_target <number>\` — Dynamically sets/lowers lead target while running.\n` +
         `• \`/abort\` or \`/stop\` — Emergency Kill Switch: immediately halts all active scraping and building child processes.\n` +
         `• \`/pause_auto\` — Pauses 24/7 background cron automation.\n` +
         `• \`/start_auto\` — Resumes 24/7 background cron automation.\n` +
@@ -416,6 +417,60 @@ async function handleAbort(ctx) {
 
 bot.command('abort', handleAbort);
 bot.command('stop', handleAbort);
+
+// Command: /set_target [newTarget] or /target [newTarget]
+async function handleSetTarget(ctx) {
+    if (!scheduler) scheduler = new Scheduler(bot, ctx.chat.id);
+    scheduler.setChatId(ctx.chat.id);
+
+    const args = parseArgs(ctx.message.text);
+    const newTarget = parseInt(args[0], 10);
+
+    if (isNaN(newTarget) || newTarget <= 0) {
+        return ctx.reply(
+            `⚠️ *Invalid Target!*\n\n` +
+            `Usage: \`/set_target <number>\` or \`/target <number>\`\n` +
+            `Example: \`/target 20\` or \`/target 35\`\n\n` +
+            `This command dynamically adjusts the lead ceiling for an active scraping or auto-exploration session on the fly.`,
+            { parse_mode: 'Markdown' }
+        );
+    }
+
+    const isRunning = scheduler.pipelineRunner.isProcessing || scheduler.scraperRunner.isRunning;
+    const res = scheduler.pipelineRunner.setTarget(newTarget);
+
+    if (!isRunning) {
+        return ctx.reply(
+            `🎯 *Target Set to ${newTarget} Leads.*\n\n` +
+            `ℹ️ No pipeline is actively running right now. Next time you trigger \`/auto_explore\` or \`/stream_scrape\`, you can specify this target or let the system use default.`,
+            { parse_mode: 'Markdown' }
+        );
+    }
+
+    const currentCount = res.currentAccumulated;
+    if (currentCount >= newTarget) {
+        await ctx.reply(
+            `🎯 *Dynamic Target Lowered to ${newTarget}!* 🛑\n\n` +
+            `• Current Progress: \`${currentCount} / ${newTarget}\` leads.\n` +
+            `• Action: Target already met! Stopping scraper gracefully.\n` +
+            `• 📦 Any remaining queued websites will finish synthesis and deploy to production automatically without data loss.`,
+            { parse_mode: 'Markdown' }
+        );
+    } else {
+        await ctx.reply(
+            `🎯 *Dynamic Target Updated to ${newTarget}!* ⚡\n\n` +
+            `• Previous Ceiling: \`${res.oldTarget}\`\n` +
+            `• New Ceiling: \`${newTarget}\`\n` +
+            `• Current Progress: \`${currentCount} / ${newTarget}\` leads.\n` +
+            `• Remaining Needed: \`${newTarget - currentCount}\` leads.\n\n` +
+            `The engine will seamlessly conclude as soon as lead #${newTarget} is reached!`,
+            { parse_mode: 'Markdown' }
+        );
+    }
+}
+
+bot.command('set_target', handleSetTarget);
+bot.command('target', handleSetTarget);
 
 // Command: /trigger_stream & /stream_scrape [query] [locality/city] [city] [count]
 async function handleTriggerStream(ctx) {

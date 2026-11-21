@@ -124,7 +124,7 @@ class WebUIServer {
                 console.log(`[WebUI] Command received: ${text}`);
 
                 const rawCmd = text.split(' ')[0].replace('/', '').trim().toLowerCase();
-                const isControlOrStatus = ['status', 'today', 'help', 'commands', 'cmd', 'start', 'abort', 'stop', 'reset_plan', 'resume_plan', 'coverage', 'view_plan', 'metrics', 'fix', 'build', 'fix_lead', 'build_lead', 'rebuild', 'build_url'].includes(rawCmd);
+                const isControlOrStatus = ['status', 'today', 'help', 'commands', 'cmd', 'start', 'abort', 'stop', 'reset_plan', 'resume_plan', 'coverage', 'view_plan', 'metrics', 'fix', 'build', 'fix_lead', 'build_lead', 'rebuild', 'build_url', 'set_target', 'target'].includes(rawCmd);
                 const isHeavyTask = !text.startsWith('action:') && !isControlOrStatus && text.startsWith('/');
 
                 const busyInfo = this.getBusyStatus();
@@ -160,7 +160,7 @@ class WebUIServer {
                     answerCbQuery: async () => {}
                 };
 
-                const isQuickQuery = ['status', 'help', 'commands', 'cmd', 'metrics', 'today', 'coverage', 'view_plan'].includes(rawCmd);
+                const isQuickQuery = ['status', 'help', 'commands', 'cmd', 'metrics', 'today', 'coverage', 'view_plan', 'set_target', 'target'].includes(rawCmd);
                 if (!isQuickQuery && !text.startsWith('action:')) {
                     this.currentRunningTask = text;
                     this.io.emit('process_status', this.getBusyStatus());
@@ -516,7 +516,7 @@ class WebUIServer {
             console.log(`[WebUI API] Command received: ${text}`);
 
             const rawCmd = text.split(' ')[0].replace('/', '').trim().toLowerCase();
-            const isControlOrStatus = ['status', 'today', 'help', 'start', 'abort', 'stop', 'reset_plan', 'resume_plan', 'coverage', 'view_plan', 'metrics'].includes(rawCmd);
+            const isControlOrStatus = ['status', 'today', 'help', 'start', 'abort', 'stop', 'reset_plan', 'resume_plan', 'coverage', 'view_plan', 'metrics', 'set_target', 'target'].includes(rawCmd);
             const isHeavyTask = !text.startsWith('action:') && !isControlOrStatus && text.startsWith('/');
 
             const busyInfo = this.getBusyStatus();

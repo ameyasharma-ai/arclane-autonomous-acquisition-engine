@@ -80,3 +80,6 @@ tmbill.com,website_of_interest
 emergentagent.com,website_of_interest
 meeradentalclinic.online,website_of_interest
 website3.me,website_of_interest
+totalcomputersolutionpatna.com,website_of_interest
+shopacer.co.in,website_of_interest
+lenovo.com,website_of_interest
