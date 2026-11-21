@@ -60,10 +60,17 @@ async function fixLead() {
     const builder = new WebsiteBuilder();
 
     let htmlCode = '';
+    let finalSlug = slug;
     if (rebuild || !fs.existsSync(agencyHtmlPath)) {
         console.log(`\n[Phase 1] Full rebuild triggered via WebsiteBuilder...`);
-        await builder.buildClientWebsite(clientId, true);
-        htmlCode = fs.readFileSync(agencyHtmlPath, 'utf8');
+        const buildResult = await builder.buildClientWebsite(clientId, true);
+        finalSlug = buildResult?.slug || slug;
+        const actualAgencyPath = path.join(__dirname, '..', 'web-dev-agency', 'public', 'sites', finalSlug, 'index.html');
+        if (fs.existsSync(actualAgencyPath)) {
+            htmlCode = fs.readFileSync(actualAgencyPath, 'utf8');
+        } else if (fs.existsSync(clientHtmlPath)) {
+            htmlCode = fs.readFileSync(clientHtmlPath, 'utf8');
+        }
     } else {
         console.log(`\n[Phase 1] Reading existing staged HTML from ${agencyHtmlPath}...`);
         htmlCode = fs.readFileSync(agencyHtmlPath, 'utf8');
@@ -84,15 +91,15 @@ async function fixLead() {
 
         // Stage into agency publisher batch
         await agencyPublisher.stageSite(clientId, businessName, htmlCode);
-    }
 
-    // Deploy to Vercel and GitHub
-    console.log(`\n[Phase 4] Deploying fixed site to Vercel & GitHub...`);
-    await agencyPublisher.deployBatch((msg) => console.log(msg));
+        // Deploy to Vercel and GitHub
+        console.log(`\n[Phase 4] Deploying fixed site to Vercel & GitHub...`);
+        await agencyPublisher.deployBatch((msg) => console.log(msg));
+    }
 
     console.log('\n===========================================================');
     console.log(`🎉 COMPLETED! Lead #${clientId} (${businessName}) fixed & deployed!`);
-    console.log(`🔗 Live Agency URL: https://www.arclanestudios.space/sites/${slug}`);
+    console.log(`🔗 Live Agency URL: https://www.arclanestudios.space/sites/${finalSlug}`);
     console.log('===========================================================');
 
     await visualQualityGate.close();
