@@ -712,6 +712,15 @@
                             <button onclick="sendCommand('/coverage Gyms Patna'); toggleCmdDrawer(false);" class="p-1.5 bg-slate-950/80 hover:bg-teal-950/50 hover:border-teal-500/50 border border-slate-800 rounded-lg text-left text-teal-300 flex items-center gap-1.5 transition">
                                 <span>📈</span> <span class="truncate">/coverage</span>
                             </button>
+                            <button onclick="fillCmdInput('/target 25'); toggleCmdDrawer(false);" class="p-1.5 bg-slate-950/80 hover:bg-amber-950/50 hover:border-amber-500/50 border border-slate-800 rounded-lg text-left text-amber-300 flex items-center gap-1.5 transition" title="Adjust live target without aborting">
+                                <span>🎯</span> <span class="truncate">/target 25</span>
+                            </button>
+                            <button onclick="fillCmdInput('/trigger_analyse 5'); toggleCmdDrawer(false);" class="p-1.5 bg-slate-950/80 hover:bg-yellow-950/50 hover:border-yellow-500/50 border border-slate-800 rounded-lg text-left text-yellow-300 flex items-center gap-1.5 transition" title="Audit & build unbuilt sheet leads">
+                                <span>📋</span> <span class="truncate">/trigger_analyse</span>
+                            </button>
+                            <button onclick="fillCmdInput('/build_url '); toggleCmdDrawer(false);" class="p-1.5 bg-slate-950/80 hover:bg-pink-950/50 hover:border-pink-500/50 border border-slate-800 rounded-lg text-left text-pink-300 flex items-center gap-1.5 transition" title="Build bespoke site from Maps URL">
+                                <span>🔗</span> <span class="truncate">/build_url</span>
+                            </button>
                             <button onclick="sendCommand('/reset_plan'); toggleCmdDrawer(false);" class="p-1.5 bg-slate-950/80 hover:bg-orange-950/50 hover:border-orange-500/50 border border-slate-800 rounded-lg text-left text-orange-300 flex items-center gap-1.5 transition">
                                 <span>🔄</span> <span class="truncate">/reset_plan</span>
                             </button>
@@ -756,7 +765,7 @@
                     <!-- Input Bar with Command Drawer Toggle, Sleek Prefix & Actions -->
                     <div class="flex items-center gap-1.5 sm:gap-2 relative">
                         <!-- Toggle Drawer Button -->
-                        <button id="btn-cmd-drawer" onclick="toggleCmdDrawer()" class="px-2.5 py-2 sm:py-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-700/70 hover:border-cyan-500 text-cyan-400 rounded-xl transition font-bold text-xs flex items-center justify-center gap-1 shrink-0 shadow-sm active:scale-95" title="All Commands (10)">
+                        <button id="btn-cmd-drawer" onclick="toggleCmdDrawer()" class="px-2.5 py-2 sm:py-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-700/70 hover:border-cyan-500 text-cyan-400 rounded-xl transition font-bold text-xs flex items-center justify-center gap-1 shrink-0 shadow-sm active:scale-95" title="All Commands (12)">
                             <span>⚡</span> <span class="hidden sm:inline font-mono text-[11px]">Commands</span> <span id="drawer-arrow" class="text-[9px] text-slate-500 transition-transform">▾</span>
                         </button>
                         <div class="relative flex-1 min-w-0">
@@ -2251,6 +2260,13 @@
                                 <p class="text-[11px] text-slate-400">Aborts manual task, flushes queue, and restores autonomous 24/7 calendar.</p>
                             </div>
                             <button onclick="sendCommand('/reset_plan'); closeHelpModal();" class="px-2.5 py-1 bg-orange-600/30 hover:bg-orange-600/50 text-orange-200 border border-orange-500/40 rounded text-[10px] font-bold">Run</button>
+                        </div>
+                        <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900 border border-slate-800 hover:border-slate-700">
+                            <div>
+                                <code class="text-amber-300 font-mono font-bold">/target &lt;number&gt;</code> or <code class="text-amber-300 font-mono font-bold">/set_target &lt;number&gt;</code>
+                                <p class="text-[11px] text-slate-400">Dynamically lowers lead target live while running; halts scraper gracefully without losing queue.</p>
+                            </div>
+                            <button onclick="fillCmdInput('/target 25'); closeHelpModal();" class="px-2.5 py-1 bg-amber-600/30 hover:bg-amber-600/50 text-amber-200 border border-amber-500/40 rounded text-[10px] font-bold">Use</button>
                         </div>
                         <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900 border border-slate-800 hover:border-slate-700">
                             <div>

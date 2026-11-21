@@ -1354,19 +1354,28 @@ async def main(search_query, locality, city, num_of_leads, end_date="", end_time
         target_row = client_id_start + 1
         # Global deduplication setup
         seen_leads = set()
+        seen_names = set()
+        seen_phones = set()
         print("[INFO] Fetching historical data for deduplication...")
         if len(all_records) > 1:
             headers = all_records[0]
             try:
                 name_idx = headers.index("Business Name")
                 url_idx = headers.index("Maps URL")
+                phone_idx = headers.index("Phone/WhatsApp") if "Phone/WhatsApp" in headers else -1
                 for row in all_records[1:]:
                     if len(row) > max(name_idx, url_idx):
                         name_clean = clean_business_name(row[name_idx])
                         url_canon = get_canonical_maps_key(row[url_idx])
+                        if name_clean:
+                            seen_names.add(name_clean)
                         if name_clean or url_canon:
                             seen_leads.add((name_clean, url_canon))
-                print(f"[INFO] Deduplication active: Loaded {len(seen_leads)} unique historical leads.")
+                    if phone_idx != -1 and len(row) > phone_idx:
+                        raw_p = re.sub(r'\D', '', str(row[phone_idx]))
+                        if len(raw_p) >= 10:
+                            seen_phones.add(raw_p[-10:])
+                print(f"[INFO] Deduplication active: Loaded {len(seen_leads)} unique historical leads ({len(seen_names)} names, {len(seen_phones)} phones).")
                 
                 # --- SELF-HEALING CRM SYNC ---
                 try:
@@ -1650,13 +1659,17 @@ async def main(search_query, locality, city, num_of_leads, end_date="", end_time
                     scraped_urls.add(url)
                     
                     safe_name_attr = name_attr.encode('ascii', 'replace').decode('ascii')
-                    # Fast Deduplication Check (Name + Maps URL)
-                    new_key = (clean_business_name(name_attr), get_canonical_maps_key(url))
-                    if new_key in seen_leads:
+                    # Fast Deduplication Check (Name + Maps URL + Business Name)
+                    new_name_clean = clean_business_name(name_attr)
+                    new_url_canon = get_canonical_maps_key(url)
+                    new_key = (new_name_clean, new_url_canon)
+                    if new_key in seen_leads or (new_name_clean and new_name_clean in seen_names):
                         print(f"[SKIP] Duplicate detected: '{safe_name_attr}'. Already in database. Skipping...")
                         continue
                         
                     seen_leads.add(new_key)
+                    if new_name_clean:
+                        seen_names.add(new_name_clean)
                     
                     # Write live status to file for Telegram Bot
                     try:
