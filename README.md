@@ -140,11 +140,55 @@ The ecosystem provides **redundant, zero-downtime management** through two synch
    * Full remote control from any smartphone.
    * Inline buttons for one-tap execution (`/start`, `/status`, `/run_full`, `/abort`, etc.).
    * TLS fallback: If Telegram's polling socket disconnects, the system logs a warning without crashing.
-2. **Local Web UI (`http://localhost:3000`):**
-   * Built-in Express.js + Socket.IO offline interface.
-   * **Full Feature Parity:** Supports all slash commands and interactive quick-action buttons.
+2. **Local Web UI (`http://localhost:3001`):**
+   * Built-in Express.js + Socket.IO responsive interface.
+   * **Full Feature Parity:** Supports all slash commands, live terminal streaming, and interactive micro-dock actions.
    * **Bidirectional Chat Sync:** Messages, system notifications, and commands sent on Telegram reflect on the Web UI, and vice versa.
-   * **Local History Persistence:** Preserves chat sessions across restarts in `web_ui_history.json`.
+   * **Local History Persistence & Mobile Optimization:** Preserves chat sessions in `data/web_ui_history.json` with strict DOM pruning to protect iOS Safari / Android memory.
+
+---
+
+### 🌐 Exposing the Frontend Remotely (Mobile & Tunnel Access)
+
+You can access and operate the full ArcLane Sales OS dashboard from any smartphone (iOS/Android) or external device using either of the two methods below:
+
+#### Method 1: Instant Public HTTPS Tunnel (Zero Config & Works Anywhere)
+To securely tunnel `localhost:3001` over a public HTTPS link without altering firewall rules or routers:
+
+```bash
+npm run tunnel
+# or
+node scripts/start_tunnel.js
+```
+
+* **How it works:** Spawns an encrypted SSH TLS port forward (`nokey@localhost.run`) bound to `127.0.0.1:3001`.
+* **Output:** Prints a live, valid HTTPS URL (e.g. `https://xxxx.app.lhr.life`) and saves it to `data/tunnel_url.txt`.
+* **Auto-Reconnection:** Automatically detects network drops and re-establishes the tunnel.
+* **Compatibility:** Works on cellular data, mobile hotspot, and all Wi-Fi networks with zero client software required on your phone.
+
+#### Method 2: Direct Local Wi-Fi / Hotspot Access
+If your phone and computer share the same Wi-Fi or mobile hotspot:
+
+1. **Find your machine's local IPv4 address:**
+   ```powershell
+   Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias "Wi-Fi*" | Select-Object -Property IPAddress
+   ```
+2. **Allow inbound traffic on port 3001 in Windows Firewall:**
+   ```powershell
+   New-NetFirewallRule -DisplayName "ArcLane Dashboard 3001" -Direction Inbound -LocalPort 3001 -Protocol TCP -Action Allow
+   ```
+   *(Or set your network profile to Private: `Set-NetConnectionProfile -Name "<Your_Hotspot_Name>" -NetworkCategory Private`)*
+3. **Open on your phone's browser:**
+   ```text
+   http://<YOUR_LOCAL_IP>:3001
+   ```
+
+#### 🔒 Security & Admin Authentication Gate
+When exposing the dashboard to external networks, the application is protected by an integrated authentication gate:
+* **Admin Login Screen:** Unauthenticated users see a sleek glassmorphic login screen that locks all controls.
+* **Backend Guard:** All `/api/*` routes and Socket.io WebSocket connections reject unauthorized requests with `401 Unauthorized`.
+* **Default Admin Password:** `arclane2026!` (configured via `ADMIN_PASSWORD` in `.env`).
+* **Session Persistence:** Sessions are maintained via secure, encrypted HTTP-Only cookies. A **🔒 Lock** button in the header bar allows logging out at any time.
 
 ---
 
@@ -206,7 +250,8 @@ A stateless Python Telegram bot for email-based outreach:
 
 | Command / Script | Environment / Runtime | Operational Action |
 | :--- | :--- | :--- |
-| `npm start` or `npm run controller` | Node.js / Express / Socket.io | Launches the Master Controller Bot and boots the Local Web UI on `http://localhost:3000`. |
+| `npm start` or `npm run controller` | Node.js / Express / Socket.io | Launches the Master Controller Bot and boots the Local Web UI on `http://localhost:3001`. |
+| `npm run tunnel` | Node.js / OpenSSH | Starts the instant, auto-reconnecting public HTTPS tunnel exposing port 3001 to mobile devices. |
 | `npm run fix -- <id>` | Node.js | Re-audits, regenerates assets, and rebuilds a specific client website by Client ID (e.g. `npm run fix -- 202`). |
 | `npm run prune` | Node.js / Vercel API | Prunes stale or redundant preview deployments on Vercel to preserve deployment slots. |
 | `npm run whatsapp` | Node.js / Playwright | Launches the standalone WhatsApp Web automation and contact sync engine. |

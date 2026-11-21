@@ -10,7 +10,8 @@
     "bot": "node controller_bot/index.js",
     "fix": "node scripts/fix_lead.js",
     "prune": "node scripts/prune_vercel_deployments.js",
-    "whatsapp": "node scripts/whatsapp_bot.js"
+    "whatsapp": "node scripts/whatsapp_bot.js",
+    "tunnel": "node scripts/start_tunnel.js"
   },
   "keywords": [],
   "author": "",
