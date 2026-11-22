@@ -91,7 +91,7 @@ export class LLMClient {
                 const response = await this.openai.chat.completions.create({
                     model,
                     messages
-                });
+                }, { timeout: 60000 });
                 if (response?.choices?.[0]?.message?.content) {
                     console.log(`[LLM] OpenRouter fallback succeeded with model: ${model}`);
                     return response.choices[0].message.content.trim();

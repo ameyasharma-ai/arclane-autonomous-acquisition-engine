@@ -140,6 +140,10 @@ export async function loadGoogleSheet() {
 }
 
 export async function getLeads(sheet, startId, endId, excludedIds) {
+    if (!sheet) {
+        const loaded = await loadGoogleSheet();
+        sheet = loaded.sheet;
+    }
     const rows = await sheet.getRows();
     const filteredLeads = [];
     let alreadyProcessedCount = 0;
