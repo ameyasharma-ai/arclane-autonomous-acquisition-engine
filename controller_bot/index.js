@@ -1249,6 +1249,69 @@ bot.command('llm', handleLlmCommand);
 bot.command('model', handleLlmCommand);
 bot.command('provider', handleLlmCommand);
 
+// QA Site Auditor: /audit_sites [start] [end] [fix]
+async function handleAuditSites(ctx) {
+    const text = ctx.message?.text || '';
+    const autoFix = /fix|--fix|-f/i.test(text);
+
+    // Matches /audit_sites 500 600 or /audit_sites 500:600 or /audit_sites 500-600 or /audit_sites [500:600]
+    const rangeMatch = text.match(/(?:\/audit_sites|\/check_sites|\/qa_sites|\/qa)\s+[\{\[]?\s*(\d+)\s*(?:[:\-]|\s+to\s+|\s+)\s*(\d+)\s*[\}\]]?/i);
+    const singleMatch = text.match(/(?:\/audit_sites|\/check_sites|\/qa_sites|\/qa)\s+(\d+)/i);
+
+    let start = 1;
+    let end = 600;
+    if (rangeMatch) {
+        start = parseInt(rangeMatch[1], 10);
+        end = parseInt(rangeMatch[2], 10);
+    } else if (singleMatch) {
+        start = parseInt(singleMatch[1], 10);
+        end = start;
+    }
+
+    if (start > end) {
+        const tmp = start;
+        start = end;
+        end = tmp;
+    }
+
+    await ctx.reply(
+        `🔍 *[Site QA Auditor]* Initializing deep visual, asset, and code integrity audit...\n` +
+        `• *Target Range:* Leads \`#${start}\` to \`#${end}\` (${end - start + 1} sites)\n` +
+        `• *Auto-Fix Mode:* \`${autoFix ? 'ENABLED 🛠️' : 'READ-ONLY 👁️'}\`\n\n` +
+        `_Testing image reachability, closing tags, template leaks, and mobile viewport clearance..._`,
+        { parse_mode: 'Markdown' }
+    );
+
+    const { SiteQAAuditor } = await import('../src/qa_auditor.js');
+    const auditor = new SiteQAAuditor();
+    let lastProgressTime = Date.now();
+
+    const summary = await auditor.auditRange(start, end, {
+        autoFix,
+        onProgress: async (p) => {
+            if (p.completed % 10 === 0 || p.completed === p.total) {
+                if (Date.now() - lastProgressTime > 2500 || p.completed === p.total) {
+                    lastProgressTime = Date.now();
+                    const statusIcon = p.latestResult.status === 'PASS' ? '🟢' : (p.latestResult.status === 'WARN' ? '⚠️' : '🔴');
+                    await ctx.reply(
+                        `⏳ *[QA Audit Progress: ${p.percent}%]* (${p.completed}/${p.total})\n` +
+                        `• *Latest Lead (#${p.currentId}):* ${statusIcon} \`${p.latestResult.businessName}\` [${p.latestResult.status}]`,
+                        { parse_mode: 'Markdown' }
+                    );
+                }
+            }
+        }
+    });
+
+    const reportMd = auditor.formatSummaryMarkdown(summary);
+    await ctx.reply(reportMd, { parse_mode: 'Markdown' });
+}
+
+bot.command('audit_sites', handleAuditSites);
+bot.command('check_sites', handleAuditSites);
+bot.command('qa_sites', handleAuditSites);
+bot.command('qa', handleAuditSites);
+
 // Direct text listener: Automatically detect when user pastes a Google Maps link into chat
 bot.on('text', async (ctx, next) => {
     const text = ctx.message?.text || '';

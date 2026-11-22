@@ -250,6 +250,9 @@
 
             <!-- Quick Action Controls (Right) -->
             <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                <button onclick="openQaModal()" class="px-2.5 sm:px-3 py-1.5 rounded-lg bg-indigo-600/30 text-indigo-300 border border-indigo-500/40 hover:bg-indigo-600/50 hover:text-white text-xs font-bold transition flex items-center gap-1 sm:gap-1.5 shadow-sm" title="Audit websites for broken assets, syntax, and mobile responsiveness">
+                    <span>🔍</span> <span class="hidden sm:inline">Audit Sites (QA)</span><span class="sm:hidden">QA</span>
+                </button>
                 <button onclick="sendCommand('/run_full')" class="px-2.5 sm:px-3.5 py-1.5 rounded-lg bg-cyan-500 text-slate-950 text-xs font-bold hover:bg-cyan-400 shadow-md shadow-cyan-500/20 transition flex items-center gap-1 sm:gap-1.5" title="Run 360° pipeline for 1 lead">
                     <span>🚀</span> <span class="hidden sm:inline">1-Lead Test</span><span class="sm:hidden">Test</span>
                 </button>
@@ -724,6 +727,9 @@
                             <button onclick="sendCommand('/reset_plan'); toggleCmdDrawer(false);" class="p-1.5 bg-slate-950/80 hover:bg-orange-950/50 hover:border-orange-500/50 border border-slate-800 rounded-lg text-left text-orange-300 flex items-center gap-1.5 transition">
                                 <span>🔄</span> <span class="truncate">/reset_plan</span>
                             </button>
+                            <button onclick="openQaModal(); toggleCmdDrawer(false);" class="p-1.5 bg-indigo-950/40 hover:bg-indigo-900/60 hover:border-indigo-500/50 border border-indigo-800/60 rounded-lg text-left text-indigo-300 flex items-center gap-1.5 transition" title="Audit websites for broken assets, syntax, and mobile responsiveness">
+                                <span>🔍</span> <span class="truncate">/audit_sites</span>
+                            </button>
                             <button onclick="abortRunningProcess(); toggleCmdDrawer(false);" class="p-1.5 bg-rose-950/30 hover:bg-rose-900/50 hover:border-rose-500/50 border border-rose-800/60 rounded-lg text-left text-rose-300 flex items-center gap-1.5 transition">
                                 <span>🛑</span> <span class="truncate">/abort</span>
                             </button>
@@ -750,6 +756,9 @@
                         </button>
                         <button onclick="fillCmdInput('/auto_explore \'Gyms\' \'Patna\' 33')" class="hidden sm:inline-flex px-2.5 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-700/60 hover:border-indigo-500/50 text-indigo-300 rounded-lg whitespace-nowrap transition font-mono items-center gap-1" title="Auto explore micro-localities">
                             <span>🗺️</span> /auto_explore
+                        </button>
+                        <button onclick="openQaModal()" class="hidden sm:inline-flex px-2.5 py-1 bg-indigo-950/40 hover:bg-indigo-900/60 border border-indigo-800/60 hover:border-indigo-500/50 text-indigo-300 rounded-lg whitespace-nowrap transition font-mono items-center gap-1" title="Audit websites QA on demand">
+                            <span>🔍</span> /audit_sites
                         </button>
                         <button onclick="fillCmdInput('/fix 1')" class="hidden sm:inline-flex px-2.5 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-700/60 hover:border-pink-500/50 text-pink-300 rounded-lg whitespace-nowrap transition font-mono items-center gap-1" title="Fix lead by ID">
                             <span>🔧</span> /fix
@@ -2113,7 +2122,98 @@
             sendCommand(commandText);
             showToast(`📸 Launching Vision Pipeline: ${query} in ${locality} (${count} lead${count > 1 ? 's' : ''})`);
         }
+
+        function openQaModal() {
+            const modal = document.getElementById('modal-qa-audit');
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function closeQaModal() {
+            const modal = document.getElementById('modal-qa-audit');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function setQaRange(start, end) {
+            const sInput = document.getElementById('qa-range-start');
+            const eInput = document.getElementById('qa-range-end');
+            if (sInput) sInput.value = start;
+            if (eInput) eInput.value = end;
+        }
+
+        function runQaFromModal() {
+            const sInput = document.getElementById('qa-range-start');
+            const eInput = document.getElementById('qa-range-end');
+            const fixCheck = document.getElementById('qa-autofix-check');
+
+            const start = parseInt(sInput?.value?.trim(), 10) || 500;
+            const end = parseInt(eInput?.value?.trim(), 10) || 600;
+            const autoFix = fixCheck?.checked || false;
+
+            closeQaModal();
+            switchView('terminal');
+            const cmd = `/audit_sites ${start} ${end}${autoFix ? ' fix' : ''}`;
+            sendCommand(cmd);
+            showToast(`🔍 Launching Site QA Audit for Leads #${start} to #${end}${autoFix ? ' (Auto-Fix Active)' : ''}`);
+        }
     </script>
+
+    <!-- MODAL: Website QA & Visual Auditor -->
+    <div id="modal-qa-audit" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-4 sm:p-6 shadow-2xl relative max-h-[90vh] flex flex-col anim-pop">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+                <div class="flex items-center gap-2">
+                    <span class="text-xl">🔍</span>
+                    <div>
+                        <h3 class="text-base font-bold text-white">Client Website QA & Visual Auditor</h3>
+                        <p class="text-[11px] text-indigo-400">Deep check: 404 images, closing tags, template leaks & mobile viewport</p>
+                    </div>
+                </div>
+                <button onclick="closeQaModal()" class="text-slate-400 hover:text-white text-xl p-1 leading-none">&times;</button>
+            </div>
+
+            <div class="space-y-4">
+                <!-- Preset Range Shortcuts -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1.5">Preset Ranges:</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-xs font-mono">
+                        <button type="button" onclick="setQaRange(547, 600)" class="px-2 py-1.5 bg-slate-800 hover:bg-indigo-900/40 border border-slate-700 hover:border-indigo-500 rounded-lg text-indigo-300 text-center transition">547–600</button>
+                        <button type="button" onclick="setQaRange(547, 573)" class="px-2 py-1.5 bg-slate-800 hover:bg-indigo-900/40 border border-slate-700 hover:border-indigo-500 rounded-lg text-indigo-300 text-center transition">Salons (547–573)</button>
+                        <button type="button" onclick="setQaRange(574, 600)" class="px-2 py-1.5 bg-slate-800 hover:bg-indigo-900/40 border border-slate-700 hover:border-indigo-500 rounded-lg text-indigo-300 text-center transition">Dentists (574–600)</button>
+                        <button type="button" onclick="setQaRange(1, 600)" class="px-2 py-1.5 bg-slate-800 hover:bg-indigo-900/40 border border-slate-700 hover:border-indigo-500 rounded-lg text-indigo-300 text-center transition">All (1–600)</button>
+                    </div>
+                </div>
+
+                <!-- Custom Range Inputs -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Start Lead ID:</label>
+                        <input id="qa-range-start" type="number" min="1" max="1000" value="500" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500 font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">End Lead ID:</label>
+                        <input id="qa-range-end" type="number" min="1" max="1000" value="600" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500 font-mono">
+                    </div>
+                </div>
+
+                <!-- Auto-Fix Toggle -->
+                <div class="p-3 bg-slate-950/70 border border-slate-800 rounded-xl flex items-start gap-3">
+                    <input id="qa-autofix-check" type="checkbox" checked class="mt-1 h-4 w-4 rounded border-slate-700 text-indigo-600 focus:ring-indigo-500 bg-slate-900 cursor-pointer">
+                    <label for="qa-autofix-check" class="text-xs text-slate-300 cursor-pointer">
+                        <span class="font-bold text-white block">Auto-Fix Anomalies 🛠️</span>
+                        Automatically patches broken 404 images with verified category fallbacks, sanitizes 'undefined' template leaks, and enforces mobile footer clearances.
+                    </label>
+                </div>
+
+                <!-- Modal Actions -->
+                <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+                    <button type="button" onclick="closeQaModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold transition">Cancel</button>
+                    <button type="button" onclick="runQaFromModal()" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-indigo-600/30 flex items-center gap-1.5">
+                        <span>🔍</span> Run QA Audit
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- MODAL: Controller Bot Help & Command Reference -->
     <div id="modal-help-commands" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">

@@ -124,7 +124,7 @@ class WebUIServer {
                 console.log(`[WebUI] Command received: ${text}`);
 
                 const rawCmd = text.split(' ')[0].replace('/', '').trim().toLowerCase();
-                const isControlOrStatus = ['status', 'today', 'help', 'commands', 'cmd', 'start', 'abort', 'stop', 'reset_plan', 'resume_plan', 'coverage', 'view_plan', 'metrics', 'fix', 'build', 'fix_lead', 'build_lead', 'rebuild', 'build_url', 'set_target', 'target'].includes(rawCmd);
+                const isControlOrStatus = ['status', 'today', 'help', 'commands', 'cmd', 'start', 'abort', 'stop', 'reset_plan', 'resume_plan', 'coverage', 'view_plan', 'metrics', 'fix', 'build', 'fix_lead', 'build_lead', 'rebuild', 'build_url', 'set_target', 'target', 'audit_sites', 'check_sites', 'qa_sites', 'qa'].includes(rawCmd);
                 const isHeavyTask = !text.startsWith('action:') && !isControlOrStatus && text.startsWith('/');
 
                 const busyInfo = this.getBusyStatus();

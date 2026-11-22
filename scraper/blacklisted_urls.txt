@@ -84,3 +84,6 @@ website3.me,website_of_interest
 totalcomputersolutionpatna.com,website_of_interest
 shopacer.co.in,website_of_interest
 lenovo.com,website_of_interest
+nextapsolutions.com,website_of_interest
+practo.com,website_of_interest
+dikshacinematics.com,website_of_interest
