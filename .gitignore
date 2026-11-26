@@ -61,3 +61,10 @@ public/qr.png
 
 # Nested submodules / separate repos
 web-dev-agency/
+
+# Security Safeguards
+.env.*
+*.key
+*.pem
+*service_account*.json
+*credentials*.json
